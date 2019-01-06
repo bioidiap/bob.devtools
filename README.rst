@@ -5,18 +5,24 @@
 ===============================================
 
 This package is part of the signal-processing and machine learning toolbox
-Bob_. It provides some tools to help maintain Bob_.
+Bob_. It provides tools to help maintain Bob_.
+
 
 Installation
 ------------
 
-This package needs to be installed in your base conda environment. To install
+This package needs to be installed in a conda environment. To install
 this package, run::
 
-  $ conda activate base
-  # the dependency list below matches the ones in setup.py
-  $ conda install pip click click-plugins conda-build
-  $ pip install -e .
+  $ conda env create -f env.yml
+  $ conda activate bdt
+  (bdt) $ buildout
+  (bdt) $ ./bin/bdt --help
+  ...
+
+To build the documentation, just do::
+
+  (bdt) $ ./bin/sphinx-build doc sphinx
 
 
 Contact

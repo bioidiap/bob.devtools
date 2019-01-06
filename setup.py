@@ -1,17 +1,24 @@
 #!/usr/bin/env python
-"""A package that contains tools to maintain Bob
-"""
 
 from setuptools import setup, find_packages
 
 # Define package version
 version = open("version.txt").read().rstrip()
 
+requires = [
+    'setuptools',
+    'click',
+    'click-plugins',
+    'conda-build',
+    'python-gitlab',
+    'requests',
+    ]
+
 setup(
-    name="bob_tools",
+    name="bob.devtools",
     version=version,
-    description="Tools to maintain Bob packages",
-    url='http://gitlab.idiap.ch/bob/bob_tools',
+    description="Tools for development and CI integration of Bob packages",
+    url='http://gitlab.idiap.ch/bob/bob.devtools',
     license="BSD",
     author='Bob Developers',
     author_email='bob-devel@googlegroups.com',
@@ -22,14 +29,17 @@ setup(
     zip_safe=False,
 
     # when updating these dependencies, update the README too
-    install_requires=['setuptools', 'click', 'click-plugins', 'conda_build'],
+    install_requires=requires,
 
     entry_points={
         'console_scripts': [
-            'bob-tools = bob_tools.scripts.main:main',
+            'bdt = bob.devtools.scripts.bdt:main',
         ],
-        'bob_tools.cli': [
-            'cb-output = bob_tools.scripts.cb_output:cb_output',
+        'bdt.cli': [
+            'cb-output = bob.devtools.scripts.cb_output:cb_output',
+            'release = bob.devtools.scripts.release:release',
+            'changelog = bob.devtools.scripts.changelog:changelog',
+            'lasttag = bob.devtools.scripts.lasttag:lasttag',
         ],
     },
     classifiers=[
