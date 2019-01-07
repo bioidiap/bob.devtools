@@ -24,9 +24,9 @@ Examples:
      $ bdt -vvv changelog group/package.xyz changelog.md
 
 
-  2. The same as above, but dumps the changelog to stdout instead of a file
+  2. The same as above, but dumps the changelog to stdout instead of a file:
 
-     $ bdt -vvv changelog group/package.xyz -
+     $ bdt -vvv changelog group/package.xyz
 
 
   3. Generates the changelog for a single package looking at commits
@@ -51,7 +51,7 @@ Examples:
 ''')
 @click.argument('target')
 @click.argument('changelog', type=click.Path(exists=False, dir_okay=False,
-  file_okay=True, writable=True))
+  file_okay=True, writable=True), required=False)
 @click.option('-g', '--group', default='bob', show_default=True,
     help='Gitlab default group name where packages are located (if not ' \
         'specified using a "/" on the package name - e.g. ' \
@@ -137,7 +137,7 @@ def changelog(target, changelog, group, mode, since):
                 '|'.join(visibility))
             continue
 
-        if changelog == '-':
+        if (not changelog) or (changelog == '-'):
           changelog_file = sys.stdout
         else:
           changelog_file = open(changelog, 'at')
