@@ -91,8 +91,8 @@ def changelog(target, changelog, group, mode, since):
     # reads package list or considers name to be a package name
     if os.path.exists(target) and os.path.isfile(target):
         bdt.logger.info('Reading package names from file %s...', target)
-        with open(target, 'rb') as f:
-            packages = [k.strip() for k in f.readlines() if k and not \
+        with open(target, 'rt') as f:
+            packages = [k.strip() for k in f.readlines() if k.strip() and not \
                 k.strip().startswith('#')]
     else:
         bdt.logger.info('Assuming %s is a package name (file does not ' \
@@ -106,7 +106,7 @@ def changelog(target, changelog, group, mode, since):
     for package in packages:
 
         if '/' not in package:
-            package = '/'.join(group, package)
+            package = '/'.join((group, package))
 
         # retrieves the gitlab package object
         use_package = gl.projects.get(package)
