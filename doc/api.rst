@@ -6,6 +6,7 @@
 ============
 
 .. autosummary::
+   bob.devtools.log
    bob.devtools.conda
    bob.devtools.release
    bob.devtools.changelog
@@ -13,6 +14,8 @@
 
 Detailed Information
 --------------------
+
+.. automodule:: bob.devtools.log
 
 .. automodule:: bob.devtools.conda
 

@@ -4,9 +4,13 @@ import os
 import sys
 import datetime
 
+import logging
+logger = logging.getLogger(__name__)
+
 import click
 
 from . import bdt
+from ..log import verbosity_option
 from ..changelog import get_last_tag_date, write_tags_with_commits
 from ..changelog import parse_date
 from ..release import get_gitlab_instance
@@ -21,24 +25,24 @@ Examples:
 
   1. Generates the changelog for a single package using merge requests:
 
-     $ bdt -vvv changelog group/package.xyz changelog.md
+     $ bdt changelog group/package.xyz changelog.md
 
 
   2. The same as above, but dumps the changelog to stdout instead of a file:
 
-     $ bdt -vvv changelog group/package.xyz
+     $ bdt changelog group/package.xyz
 
 
   3. Generates the changelog for a single package looking at commits
      (not merge requests):
 
-     $ bdt -vvv changelog --mode=commits group/package.xyz changelog.md
+     $ bdt changelog --mode=commits group/package.xyz changelog.md
 
 
   4. Generates the changelog for a single package looking at merge requests starting from a given date of January 1, 2016:
 
 \b
-     $ bdt -vvv changelog --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
+     $ bdt changelog --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
 
 
   5. Generates a complete list of changelogs for a list of packages (one per line:
@@ -47,7 +51,7 @@ Examples:
      $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
      $ bdt lasttag bob/bob
      # copy and paste date to next command
-     $ bdt -vvv changelog --since="2018-07-17 10:23:40" order.txt changelog.md
+     $ bdt changelog --since="2018-07-17 10:23:40" order.txt changelog.md
 ''')
 @click.argument('target')
 @click.argument('changelog', type=click.Path(exists=False, dir_okay=False,
@@ -67,6 +71,7 @@ Examples:
     '(see https://dateutil.readthedocs.io/en/stable/parser.html) from ' \
     'which you want to generate the changelog.  If not set, the package\'s' \
     'last release date will be used')
+@verbosity_option()
 @bdt.raise_on_error
 def changelog(target, changelog, group, mode, since):
     """Generates changelog file for package(s) from the Gitlab server.
@@ -90,13 +95,13 @@ def changelog(target, changelog, group, mode, since):
 
     # reads package list or considers name to be a package name
     if os.path.exists(target) and os.path.isfile(target):
-        bdt.logger.info('Reading package names from file %s...', target)
+        logger.info('Reading package names from file %s...', target)
         with open(target, 'rt') as f:
             packages = [k.strip() for k in f.readlines() if k.strip() and not \
                 k.strip().startswith('#')]
     else:
-        bdt.logger.info('Assuming %s is a package name (file does not ' \
-            'exist)...', target)
+        logger.info('Assuming %s is a package name (file does not exist)...',
+            target)
         packages = [target]
 
     # if the user passed a date, convert it
@@ -110,11 +115,11 @@ def changelog(target, changelog, group, mode, since):
 
         # retrieves the gitlab package object
         use_package = gl.projects.get(package)
-        bdt.logger.info('Found gitlab project %s (id=%d)',
+        logger.info('Found gitlab project %s (id=%d)',
             use_package.attributes['path_with_namespace'], use_package.id)
 
         last_release_date = since or get_last_tag_date(use_package)
-        bdt.logger.info('Retrieving data (mode=%s) since %s', mode,
+        logger.info('Retrieving data (mode=%s) since %s', mode,
             last_release_date.strftime('%b %d, %Y %H:%M'))
 
         # add 1s to avoid us retrieving previous release data
@@ -127,13 +132,13 @@ def changelog(target, changelog, group, mode, since):
 
         if use_package.attributes['namespace'] == use_package.name:
             # skip system meta-package
-            bdt.logger.warn('Skipping meta package %s...',
+            logger.warn('Skipping meta package %s...',
                 use_package.attributes['path_with_namespace'])
             continue
 
         if use_package.attributes['visibility'] not in visibility:
-            bdt.logger.warn('Skipping package %s (visibility not in ' \
-                '"%s")...', use_package.attributes['path_with_namespace'],
+            logger.warn('Skipping package %s (visibility not in "%s")...',
+                use_package.attributes['path_with_namespace'],
                 '|'.join(visibility))
             continue
 

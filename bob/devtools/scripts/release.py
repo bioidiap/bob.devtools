@@ -3,10 +3,13 @@
 
 
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 import click
 
 from . import bdt
+from ..log import verbosity_option
 from ..release import release_bob, parse_and_process_package_changelog
 from ..release import release_package, wait_for_pipeline_to_finish
 from ..release import get_gitlab_instance
@@ -20,28 +23,28 @@ Examples:
 
   1. Releases a single package:
 
-     $ bdt -vvv release --package=bob.package.xyz changelog.md
+     $ bdt release --package=bob.package.xyz changelog.md
 
 
   2. If there is a single package in the ``changelog.md`` file, the flag
      ``--package`` is not required:
 
-     $ bdt -vvv release changelog.md
+     $ bdt release changelog.md
 
 
   2. Releases the whole of bob using `changelog_since_last_release.md`:
 
-     $ bdt -vvv release bob/devtools/data/changelog_since_last_release.md
+     $ bdt release bob/devtools/data/changelog_since_last_release.md
 
 
   3. In case of errors, resume the release of the whole of Bob:
 
-     $ bdt -vvv release --resume bob/devtools/data/changelog_since_last_release.md
+     $ bdt release --resume bob/devtools/data/changelog_since_last_release.md
 
 
   4. The option `-dry-run` can be used to let the script print what it would do instead of actually doing it:
 
-     $ bdt -vvv release --dry-run changelog_since_last_release.md
+     $ bdt release --dry-run changelog_since_last_release.md
 '''
 )
 @click.argument('changelog', type=click.File('rb', lazy=False))
@@ -59,6 +62,7 @@ Examples:
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
+@verbosity_option()
 @bdt.raise_on_error
 def release(changelog, group, package, resume, dry_run):
     """\b
@@ -149,7 +153,7 @@ def release(changelog, group, package, resume, dry_run):
             if line[1:].strip() == package]
 
         if not start_idx:
-            bdt.logger.error('Package %s was not found in the changelog',
+            logger.error('Package %s was not found in the changelog',
                 package)
             return
 
@@ -157,14 +161,14 @@ def release(changelog, group, package, resume, dry_run):
 
     # if we are in a dry-run mode, let's let it be known
     if dry_run:
-        bdt.logger.warn('!!!! DRY RUN MODE !!!!')
-        bdt.logger.warn('Nothing is being committed to Gitlab')
+        logger.warn('!!!! DRY RUN MODE !!!!')
+        logger.warn('Nothing is being committed to Gitlab')
 
     # go through the list of packages and release them starting from the
     # start_idx
     for i in range(start_idx, len(pkgs) - 1):
         cur_package_name = changelogs[pkgs[i]][1:].strip()
-        bdt.logger.info('Processing package %s', changelogs[pkgs[i]])
+        logger.info('Processing package %s', changelogs[pkgs[i]])
         gitpkg, tag, tag_comments = parse_and_process_package_changelog(gl,
             use_group, cur_package_name,
             changelogs[pkgs[i] + 1: pkgs[i + 1]], dry_run)
@@ -181,4 +185,4 @@ def release(changelog, group, package, resume, dry_run):
         if package == cur_package_name and not resume:
             break
 
-    bdt.logger.info('Finished processing %s', changelog)
+    logger.info('Finished processing %s', changelog)

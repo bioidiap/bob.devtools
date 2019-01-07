@@ -6,7 +6,11 @@ import sys
 import click
 import gitlab
 
+import logging
+logger = logging.getLogger(__name__)
+
 from . import bdt
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
 
 
@@ -19,20 +23,21 @@ Examples:
 
   1. Check the visibility of a package you can access
 
-     $ bdt -vvv visibility bob/bob.extension
+     $ bdt visibility bob/bob.extension
 
 
   2. Checks the visibility of all packages in a file list:
 
 \b
      $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
-     $ bdt -vvv visibility order.txt
+     $ bdt visibility order.txt
 ''')
 @click.argument('target')
 @click.option('-g', '--group', default='bob', show_default=True,
     help='Gitlab default group name where packages are located (if not ' \
         'specified using a "/" on the package name - e.g. ' \
         '"bob/bob.extension")')
+@verbosity_option()
 @bdt.raise_on_error
 def visibility(target, group):
     """Checks if the gitlab repository is visible to the current user
@@ -47,12 +52,12 @@ def visibility(target, group):
 
     # reads package list or considers name to be a package name
     if os.path.exists(target) and os.path.isfile(target):
-        bdt.logger.info('Reading package names from file %s...', target)
+        logger.info('Reading package names from file %s...', target)
         with open(target, 'rt') as f:
             packages = [k.strip() for k in f.readlines() if k.strip() and not \
                 k.strip().startswith('#')]
     else:
-        bdt.logger.info('Assuming %s is a package name (file does not ' \
+        logger.info('Assuming %s is a package name (file does not ' \
             'exist)...', target)
         packages = [target]
 
@@ -65,11 +70,11 @@ def visibility(target, group):
         # retrieves the gitlab package object
         try:
           use_package = gl.projects.get(package)
-          bdt.logger.info('Found gitlab project %s (id=%d)',
+          logger.info('Found gitlab project %s (id=%d)',
               use_package.attributes['path_with_namespace'], use_package.id)
           click.echo('%s: %s' % (package,
             use_package.attributes['visibility'].lower()))
         except gitlab.GitlabGetError as e:
-          bdt.logger.warn('Gitlab access error - package %s does not exist?',
+          logger.warn('Gitlab access error - package %s does not exist?',
               package)
           click.echo('%s: unknown' % (package,))

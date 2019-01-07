@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 import click
 
 from . import bdt
+from ..log import verbosity_option
 from ..changelog import get_last_tag, parse_date
 from ..release import get_gitlab_instance
 
@@ -27,6 +30,7 @@ Examples:
 
 ''')
 @click.argument('package')
+@verbosity_option()
 @bdt.raise_on_error
 def lasttag(package):
     """Returns the last tag information on a given PACKAGE
@@ -39,7 +43,7 @@ def lasttag(package):
 
     # we lookup the gitlab group once
     use_package = gl.projects.get(package)
-    bdt.logger.info('Found gitlab project %s (id=%d)',
+    logger.info('Found gitlab project %s (id=%d)',
         use_package.attributes['path_with_namespace'], use_package.id)
 
     tag = get_last_tag(use_package)
