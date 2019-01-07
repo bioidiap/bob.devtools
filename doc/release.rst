@@ -83,15 +83,19 @@ Releasing the Bob meta package
 
 Here are the instructions to release Bob meta package:
 
-* Run ./check_private.sh bob.buildout bob.extension ...
-  with the list of packages from `bob/bob.nightlies' "order.txt"
-  <https://gitlab.idiap.ch/bob/bob.nightlies/blob/master/order.txt>`_
+* Run:
+
+  .. code-block:: sh
+
+     $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
+     $ bdt -vvv visibility order.txt
+
 * Put the list of public packages in ../../bob/requirements.txt
 * Run ``bdt changelog`` first:
 
   .. code-block:: sh
 
-     $ bdt changelog -l ../../bob/requirements.txt -R -- TOKEN | tee bob_changelog.md
+     $ bdt changelog ../../bob/requirements.txt bob_changelog.md
 
 * Put the beta of version of the intended release version in
   ``../../bob/version.txt``

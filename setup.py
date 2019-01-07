@@ -41,11 +41,12 @@ setup(
             'release = bob.devtools.scripts.release:release',
             'changelog = bob.devtools.scripts.changelog:changelog',
             'lasttag = bob.devtools.scripts.lasttag:lasttag',
+            'visibility = bob.devtools.scripts.visibility:visibility',
         ],
     },
     classifiers=[
         'Framework :: Bob',
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
