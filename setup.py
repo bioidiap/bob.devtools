@@ -10,8 +10,9 @@ requires = [
     'click',
     'click-plugins',
     'conda-build',
-    'python-gitlab',
     'requests',
+    'gitpython',
+    'python-gitlab',
     ]
 
 setup(

@@ -1,0 +1,60 @@
+{% set name = 'bob.devtools' %}
+
+package:
+  name: {{ name }}
+  version: {{ environ.get('BOB_PACKAGE_VERSION', '0.0.1') }}
+
+build:
+  entry_points:
+    - bdt = bob.devtools.scripts.bdt:main
+  number: {{ environ.get('BOB_BUILD_NUMBER', 0) }}
+  run_exports:
+    - {{ pin_subpackage(name) }}
+  script:
+    - cd {{ environ.get('RECIPE_DIR') + '/..' }}
+    {% if environ.get('BUILD_EGG') %}
+    - python setup.py sdist --formats=zip
+    {% endif %}
+    - python setup.py install --single-version-externally-managed --record record.txt
+    # installs the documentation source, readme and license to share/doc
+    - install -d ${PREFIX}/share/doc/{{ name }}
+    - install -m 644 -D README.rst ${PREFIX}/share/doc/{{ name }}
+    - install -m 644 -D LICENSE ${PREFIX}/share/doc/{{ name }}
+    - find doc -type f -exec install -Dm 644 "{}" "${PREFIX}/share/doc/{{ name }}/{}" \;
+
+requirements:
+  host:
+    - python {{ python }}
+    - setuptools {{ setuptools }}
+  run:
+    - python
+    - setuptools
+    - click
+    - click-plugins
+    - conda-build
+    - pytz
+    - python-dateutil
+    - gitpython
+    - python-gitlab
+    - requests
+
+test:
+  requires:
+    - sphinx
+    - sphinx_rtd_theme
+  imports:
+    - {{ name }}
+  commands:
+    - bdt -h
+    - bdt -?
+    - bdt --help
+    - bdt lasttag --help
+    - bdt changelog --help
+    - bdt release --help
+    - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ environ.get('RECIPE_DIR') + '/../sphinx' }}
+
+about:
+  home: https://www.idiap.ch/software/bob/
+  license: BSD 3-Clause
+  summary: Tools for development and CI integration of Bob packages
+  license_family: BSD
