@@ -30,7 +30,7 @@ _logger.addHandler(_debug_info)
 
 # helper functions to instantiate and set-up logging
 def setup(logger_name,
-          format="%(name)s@%(asctime)s -- %(levelname)s: %(message)s"):
+    format="%(levelname)s:%(name)s@%(asctime)s: %(message)s"):
   """This function returns a logger object that is set up to perform logging
   using Bob loggers.
 
