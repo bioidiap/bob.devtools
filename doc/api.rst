@@ -10,6 +10,7 @@
    bob.devtools.conda
    bob.devtools.release
    bob.devtools.changelog
+   bob.devtools.bootstrap
 
 
 Detailed Information
@@ -22,3 +23,5 @@ Detailed Information
 .. automodule:: bob.devtools.release
 
 .. automodule:: bob.devtools.changelog
+
+.. automodule:: bob.devtools.bootstrap
