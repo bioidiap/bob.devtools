@@ -10,25 +10,45 @@ import logging
 logger = logging.getLogger(__name__)
 
 import yaml
-from conda_build.api import get_or_merge_config, render, output_yaml
 
 
-def get_rendered_recipe(conda, recipe_dir, python, config):
+def make_conda_config(config, python, append_file, condarc):
+
+  from conda_build.api import get_or_merge_config
+  from conda_build.conda_interface import url_path
+
+  with open(condarc, 'rb') as f:
+    condarc_options = yaml.load(f)
+
+  retval = get_or_merge_config(None, variant_config_files=config,
+      python=python, append_sections_file=append_file, **condarc_options)
+
+  retval.channel_urls = []
+
+  for url in condarc_options['channels']:
+    # allow people to specify relative or absolute paths to local channels
+    #    These channels still must follow conda rules - they must have the
+    #    appropriate platform-specific subdir (e.g. win-64)
+    if os.path.isdir(url):
+      if not os.path.isabs(url):
+        url = os.path.normpath(os.path.abspath(os.path.join(os.getcwd(), url)))
+      url = url_path(url)
+    retval.channel_urls.append(url)
+
+  return retval
+
+
+def get_rendered_metadata(recipe_dir, config):
   '''Renders the recipe and returns the interpreted YAML file'''
 
-  # equivalent command execute - in here we use the conda API
-  cmd = [
-      conda, 'render',
-      '--variant-config-files', config,
-      '--python', python,
-      recipe_dir,
-      ]
-  logger.debug('$ ' + ' '.join(cmd))
+  from conda_build.api import render
+  return render(recipe_dir, config=config)
 
-  # do the real job
-  config = get_or_merge_config(None, variant_config_files=config,
-                               python=python)
-  metadata = render(recipe_dir, config=config)
+
+def get_parsed_recipe(metadata):
+  '''Renders the recipe and returns the interpreted YAML file'''
+
+  from conda_build.api import output_yaml
   output = output_yaml(metadata[0][0])
   return yaml.load(output)
 
@@ -37,9 +57,10 @@ def remove_pins(deps):
   return [l.split()[0] for l in deps]
 
 
-def parse_dependencies(conda, recipe_dir, python, config):
+def parse_dependencies(recipe_dir, config):
 
-  recipe = get_rendered_recipe(conda, recipe_dir, python, config)
+  metadata = get_rendered_metadata(recipe_dir, config)
+  recipe = get_parsed_recipe(metadata)
   return remove_pins(recipe['requirements'].get('build', [])) + \
       remove_pins(recipe['requirements'].get('host', [])) + \
       recipe['requirements'].get('run', []) + \

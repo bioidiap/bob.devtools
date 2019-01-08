@@ -8,16 +8,20 @@ logger = logging.getLogger(__name__)
 
 import pkg_resources
 import click
+import yaml
 
 from . import bdt
 from ..log import verbosity_option
-from ..bootstrap import parse_dependencies, conda_create
+from ..bootstrap import parse_dependencies, conda_create, make_conda_config
 
 
 DEFAULT_CONDARC = pkg_resources.resource_filename(__name__,
     os.path.join('..', 'data', 'build-condarc'))
 DEFAULT_VARIANT = pkg_resources.resource_filename(__name__,
     os.path.join('..', 'data', 'conda_build_config.yaml'))
+DEFAULT_APPEND = pkg_resources.resource_filename(__name__,
+    os.path.join('..', 'data', 'recipe_append.yaml'))
+DEFAULT_DOCSERVER = 'http://www.idiap.ch'
 
 
 @click.command(epilog='''
@@ -69,14 +73,21 @@ Examples:
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
       default=DEFAULT_VARIANT, help='overwrites the path leading to ' \
           'variant configuration file to use')
+@click.option('-a', '--append-file', show_default=True,
+      default=DEFAULT_APPEND, help='overwrites the path leading to ' \
+          'appended configuration file to use')
+@click.option('-D', '--docserver', show_default=True,
+      default=DEFAULT_DOCSERVER, help='Server used for uploading artifacts ' \
+          'and other goodies')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def bootstrap(name, recipe_dir, python, overwrite, condarc, config, dry_run):
-  """This program uses conda to build a development environment for a recipe
+def bootstrap(name, recipe_dir, python, overwrite, condarc, config,
+    append_file, docserver, dry_run):
+  """Creates a development environment for a recipe
 
   It uses the conda render API to render a recipe and install an environment
   containing all build/host, run and test dependencies of a package. It does
@@ -106,9 +117,13 @@ def bootstrap(name, recipe_dir, python, overwrite, condarc, config, dry_run):
         "properly?")
 
   # set condarc before continuing
-  logger.debug('$ export CONDARC=%s', condarc)
+  logger.debug("[var] CONDARC=%s", condarc)
   os.environ['CONDARC'] = condarc
 
-  deps = parse_dependencies(conda, recipe_dir, python, config)
+  logger.debug("[var] DOCSERVER=%s", docserver)
+  os.environ['DOCSERVER'] = docserver
+
+  conda_config = make_conda_config(config, python, append_file, condarc)
+  deps = parse_dependencies(recipe_dir, conda_config)
   status = conda_create(conda, name, overwrite, condarc, deps, dry_run)
   click.echo('Execute on your shell: "conda activate %s"' % name)

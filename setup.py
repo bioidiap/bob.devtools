@@ -39,13 +39,13 @@ setup(
             'bdt = bob.devtools.scripts.bdt:main',
         ],
         'bdt.cli': [
-            'cb-output = bob.devtools.scripts.cb_output:cb_output',
             'release = bob.devtools.scripts.release:release',
             'changelog = bob.devtools.scripts.changelog:changelog',
             'lasttag = bob.devtools.scripts.lasttag:lasttag',
             'visibility = bob.devtools.scripts.visibility:visibility',
             'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
             'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
+            'build = bob.devtools.scripts.build:build',
         ],
     },
     classifiers=[

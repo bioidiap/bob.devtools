@@ -57,6 +57,7 @@ test:
     - bdt visibility --help
     - bdt dumpsphinx --help
     - bdt bootstrap --help
+    - bdt build --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ project_dir }}/sphinx
 
 about:
