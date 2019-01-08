@@ -3,6 +3,7 @@
 
 
 import os
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ Examples:
      $ bdt release --dry-run changelog_since_last_release.md
 '''
 )
-@click.argument('changelog', type=click.File('rb', lazy=False))
+@click.argument('changelog', type=click.File('rt', lazy=False))
 @click.option('-g', '--group', default='bob', show_default=True,
     help='Group name where all packages are located')
 @click.option('-p', '--package',
@@ -125,8 +126,6 @@ def release(changelog, group, package, resume, dry_run):
 
     gl = get_gitlab_instance()
 
-    use_group = gl.groups.list(search='"%s"' % group)[0]
-
     # if we are releasing 'bob' metapackage, it's a simple thing, no GitLab
     # API
     if package == 'bob':
@@ -139,7 +138,7 @@ def release(changelog, group, package, resume, dry_run):
     changelogs = changelog.readlines()
 
     # find the starts of each package's description in the changelog
-    pkgs = [i for i, line in enumerate(changelogs) if line[0] == '*']
+    pkgs = [i for i, line in enumerate(changelogs) if line.startswith('*')]
     pkgs.append(len(changelogs)) #the end
     start_idx = 0
 
@@ -163,22 +162,31 @@ def release(changelog, group, package, resume, dry_run):
     # go through the list of packages and release them starting from the
     # start_idx
     for i in range(start_idx, len(pkgs) - 1):
+
         cur_package_name = changelogs[pkgs[i]][1:].strip()
-        logger.info('Processing package %s', changelogs[pkgs[i]])
-        gitpkg, tag, tag_comments = parse_and_process_package_changelog(gl,
-            use_group, cur_package_name,
-            changelogs[pkgs[i] + 1: pkgs[i + 1]], dry_run)
+
+        if '/' not in cur_package_name:
+            cur_package_name = '/'.join((group, cur_package_name))
+
+        # retrieves the gitlab package object
+        use_package = gl.projects.get(cur_package_name)
+        logger.info('Processing %s (gitlab id=%d)',
+            use_package.attributes['path_with_namespace'], use_package.id)
+
+        tag, tag_comments = parse_and_process_package_changelog(gl,
+            use_package, changelogs[pkgs[i] + 1: pkgs[i + 1]], dry_run)
 
         # release the package with the found tag and its comments
-        if gitpkg:
-            pipeline_id = release_package(gitpkg, tag, tag_comments, dry_run)
+        if use_package:
+            pipeline_id = release_package(use_package, tag, tag_comments,
+                dry_run)
             # now, wait for the pipeline to finish, before we can release the
             # next package
-            wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run)
+            wait_for_pipeline_to_finish(use_package, pipeline_id, dry_run)
 
         # if package name is provided and resume is not set, process only
         # this package
         if package == cur_package_name and not resume:
             break
 
-    logger.info('Finished processing %s', changelog)
+    logger.info('Finished processing %s', changelog.name)

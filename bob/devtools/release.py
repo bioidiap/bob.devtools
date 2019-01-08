@@ -28,16 +28,6 @@ def get_gitlab_instance():
     return gl
 
 
-def ensure_correct_package(candidates, group_name, pkg_name):
-
-  for pkg in candidates:
-    # make sure the name and the group name match exactly
-    if pkg.name == pkg_name and pkg.namespace['name'] == group_name:
-      return pkg
-
-  raise ValueError('Package "{0}" was not found inside group "{1}"'.format(pkg_name, group_name))
-
-
 def _update_readme(readme, version):
     """
     Inside text of the readme, replaces parts of the links to the provided
@@ -130,7 +120,8 @@ def get_parsed_tag(gitpkg, tag):
         m = re.match(r"(\d.\d.\d)", latest_tag_name)
         if not m:
             raise ValueError('The latest tag name {0} in package {1} has ' \
-                'unknown format'.format('v' + latest_tag_name, gitpkg.name))
+                'unknown format'.format('v' + latest_tag_name,
+                  gitpkg.attributes['path_with_namespace']))
 
         # increase the version accordingly
         major, minor, patch = latest_tag_name.split('.')
@@ -153,7 +144,7 @@ def get_parsed_tag(gitpkg, tag):
         return tag
 
     raise ValueError('Cannot parse changelog tag {0} of the ' \
-        'package {1}'.format(tag, gitpkg.name))
+        'package {1}'.format(tag, gitpkg.attributes['path_with_namespace']))
 
 
 def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
@@ -203,7 +194,7 @@ def commit_files(gitpkg, files_dict, message='Updated files', dry_run=False):
         update_action['content'] = files_dict[filename]
         data['actions'].append(update_action)
 
-    logger.info("Committing changes in files: %s", str(files_dict.keys()))
+    logger.debug("Committing changes in files: %s", ', '.join(files_dict.keys()))
     if not dry_run:
         gitpkg.commits.create(data)
 
@@ -270,8 +261,9 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
     max_sleep = 120 * 60  # two hours
     # pipeline = get_last_pipeline(gitpkg, before_last=before_last)
 
-    logger.info('Waiting for the pipeline %s of package %s to finish. ' \
-        'Do not interrupt.', pipeline_id, gitpkg.name)
+    logger.warn('Waiting for the pipeline %s of "%s" to finish',
+        pipeline_id, gitpkg.attributes['path_with_namespace'])
+    logger.warn('Do **NOT** interrupt!')
 
     if dry_run: return
 
@@ -295,10 +287,11 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
     if pipeline.status != 'success':
         raise ValueError('Pipeline {0} of project {1} exited with ' \
             'undesired status "{2}". Release is not possible.' \
-            .format(pipeline_id, gitpkg.name, pipeline.status))
+            .format(pipeline_id, gitpkg.attributes['path_with_namespace'],
+              pipeline.status))
 
     logger.info('Pipeline %s of package %s SUCCEEDED. Continue processing.',
-        pipeline_id, gitpkg.name)
+        pipeline_id, gitpkg.attributes['path_with_namespace'])
 
 
 def cancel_last_pipeline(gitpkg):
@@ -312,7 +305,7 @@ def cancel_last_pipeline(gitpkg):
 
     pipeline = get_last_pipeline(gitpkg)
     logger.info('Cancelling the last pipeline %s of project %s', pipeline.id,
-      gitpkg.name)
+      gitpkg.attributes['path_with_namespace'])
     pipeline.cancel()
 
 
@@ -359,9 +352,9 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
         cancel_last_pipeline(gitpkg)
 
     # 2. Tag package with new tag and push
-    logger.info("Creating tag %s", tag_name)
+    logger.info('Tagging "%s"', tag_name)
     tag_comments = '\n'.join(tag_comments_list)
-    logger.info("Updating tag comments with:\n%s", tag_comments)
+    logger.debug("Updating tag comments with:\n%s", tag_comments)
     if not dry_run:
         tag = gitpkg.tags.create({'tag_name': tag_name, 'ref': 'master'})
         # update tag with comments
@@ -385,7 +378,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     return running_pipeline.id
 
 
-def parse_and_process_package_changelog(gl, bob_group, pkg_name,
+def parse_and_process_package_changelog(gl, gitpkg,
     package_changelog, dry_run):
     """Process the changelog of a single package
 
@@ -396,24 +389,17 @@ def parse_and_process_package_changelog(gl, bob_group, pkg_name,
     Args:
 
         gl: Gitlab API object
-        bob_group: gitlab object for the group
-        pkg_name: name of the package
+        gitpkg: gitlab package object
         package_changelog: the changelog corresponding to the provided package
         dry_run: If True, nothing will be committed or pushed to GitLab
 
-    Returns: gitlab handle for the package, name of the latest tag, and tag's
+    Returns: the name of the latest tag, and tag's
     comments
 
     """
 
     cur_tag = None
     cur_tag_comments = []
-
-    grpkg = ensure_correct_package(bob_group.projects.list(search=pkg_name),
-        bob_group.name, pkg_name)
-
-    # so, we need to retrieve the full info from GitLab using correct project id
-    gitpkg = gl.projects.get(id=grpkg.id)
 
     # we assume that changelog is formatted as structured text
     # first line is the name of the package
@@ -431,7 +417,7 @@ def parse_and_process_package_changelog(gl, bob_group, pkg_name,
             cur_tag_comments.append(line.strip())
 
     # return the last tag and comments for release
-    return gitpkg, cur_tag, cur_tag_comments
+    return cur_tag, cur_tag_comments
 
 
 def release_bob(changelog_file):
