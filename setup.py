@@ -13,6 +13,7 @@ requires = [
     'requests',
     'gitpython',
     'python-gitlab',
+    'sphinx',
     ]
 
 setup(
@@ -42,6 +43,7 @@ setup(
             'changelog = bob.devtools.scripts.changelog:changelog',
             'lasttag = bob.devtools.scripts.lasttag:lasttag',
             'visibility = bob.devtools.scripts.visibility:visibility',
+            'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
         ],
     },
     classifiers=[

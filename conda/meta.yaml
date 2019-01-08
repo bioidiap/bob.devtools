@@ -39,10 +39,10 @@ requirements:
     - gitpython
     - python-gitlab
     - requests
+    - sphinx
 
 test:
   requires:
-    - sphinx
     - sphinx_rtd_theme
   imports:
     - {{ name }}
@@ -54,6 +54,7 @@ test:
     - bdt changelog --help
     - bdt release --help
     - bdt visibility --help
+    - bdt dumpsphinx --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ project_dir }}/sphinx
 
 about:
