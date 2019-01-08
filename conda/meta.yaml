@@ -22,7 +22,7 @@ build:
     - install -d ${PREFIX}/share/doc/{{ name }}
     - install -m 644 -D README.rst ${PREFIX}/share/doc/{{ name }}
     - install -m 644 -D LICENSE ${PREFIX}/share/doc/{{ name }}
-    - find doc -type f -exec install -D -m 644 "{}" "${PREFIX}/share/doc/{{ name }}/{}" \;
+    - find doc -type f -exec install -m 644 -D "{}" "${PREFIX}/share/doc/{{ name }}/{}" \;
 
 requirements:
   host:
