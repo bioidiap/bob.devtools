@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 import pytz
 import dateutil.parser
 
-from .release import ensure_correct_package
-
 
 def parse_date(d):
     '''Parses any date supported by :py:func:`dateutil.parser.parse`'''
@@ -228,7 +226,7 @@ def write_tags_with_commits(f, gitpkg, since, mode):
 
     # get merge requests since the release data
     mrs = list(reversed(gitpkg.mergerequests.list(state='merged', updated_after=since, order_by='updated_at', all=True)))
-    f.write('* %s\n' % (gitpkg.name,))
+    f.write('* %s\n' % (gitpkg.attributes['path_with_namespace'],))
 
     # go through tags and writes each with its message and corresponding
     # commits
@@ -236,14 +234,15 @@ def write_tags_with_commits(f, gitpkg, since, mode):
     for tag in tags:
 
         # write tag name and its text
-        _write_one_tag(f, gitpkg.name, tag)
+        _write_one_tag(f, gitpkg.attributes['path_with_namespace'], tag)
         end_date = parse_date(tag.commit['committed_date'])
 
         if mode == 'commits':
             # write commits from the previous tag up to this one
             commits4tag = [k for k in commits \
                 if (start_date < parse_date(k.committed_date) <= end_date)]
-            _write_commits_range(f, gitpkg.name, commits4tag)
+            _write_commits_range(f, gitpkg.attributes['path_with_namespace'],
+                commits4tag)
 
         elif mode == 'mrs':
             # write merge requests from the previous tag up to this one
@@ -251,7 +250,8 @@ def write_tags_with_commits(f, gitpkg, since, mode):
             # June 2018
             mrs4tag = [k for k in mrs \
                 if (start_date < parse_date(k.updated_at) <= end_date)]
-            _write_mergerequests_range(f, gitpkg.name, mrs4tag)
+            _write_mergerequests_range(f,
+                gitpkg.attributes['path_with_namespace'], mrs4tag)
 
         start_date = end_date
 
@@ -266,13 +266,15 @@ def write_tags_with_commits(f, gitpkg, since, mode):
             # June 2018
             leftover_mrs = [k for k in mrs \
                 if parse_date(k.updated_at) > start_date]
-            _write_mergerequests_range(f, gitpkg.name, leftover_mrs)
+            _write_mergerequests_range(f,
+                gitpkg.attributes['path_with_namespace'], leftover_mrs)
 
         else:
             # write leftover commits that were not tagged yet
             leftover_commits = [k for k in commits \
                 if parse_date(k.committed_date) > start_date]
-            _write_commits_range(f, gitpkg.name, leftover_commits)
+            _write_commits_range(f, gitpkg.attributes['path_with_namespace'],
+                leftover_commits)
 
 
 def write_tags(f, gitpkg, since):
@@ -293,4 +295,4 @@ def write_tags(f, gitpkg, since):
     f.write('* %s\n')
 
     for tag in tags:
-        _write_one_tag(gitpkg.name, tag)
+        _write_one_tag(gitpkg.attributes['path_with_namespace'], tag)
