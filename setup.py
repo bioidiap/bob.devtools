@@ -14,6 +14,7 @@ requires = [
     'gitpython',
     'python-gitlab',
     'sphinx',
+    'pyyaml',
     ]
 
 setup(
@@ -44,6 +45,7 @@ setup(
             'lasttag = bob.devtools.scripts.lasttag:lasttag',
             'visibility = bob.devtools.scripts.visibility:visibility',
             'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
+            'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
         ],
     },
     classifiers=[
