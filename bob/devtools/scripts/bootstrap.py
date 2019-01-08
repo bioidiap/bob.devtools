@@ -98,6 +98,7 @@ def bootstrap(name, recipe_dir, python, overwrite, condarc, config, dry_run):
   if not os.path.exists(recipe_dir):
     raise RuntimeError("The directory %s does not exist" % recipe_dir)
 
+  # this is not used to conda-build, just to create the final environment
   conda = os.environ.get('CONDA_EXE')
   if conda is None:
     raise RuntimeError("Cannot find `conda' executable (${CONDA_EXEC}) - " \
