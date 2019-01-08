@@ -41,6 +41,7 @@ requirements:
     - requests
     - sphinx
     - pyyaml
+    - twine
 
 test:
   requires:

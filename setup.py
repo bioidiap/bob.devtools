@@ -15,6 +15,7 @@ requires = [
     'python-gitlab',
     'sphinx',
     'pyyaml',
+    'twine',
     ]
 
 setup(
