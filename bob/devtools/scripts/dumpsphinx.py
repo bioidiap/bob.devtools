@@ -13,11 +13,7 @@ from . import bdt
 from ..log import verbosity_option
 
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-    ),
-    epilog='''
+@click.command(epilog='''
 Examples:
 
   1. Dumps objects documented in python 3.x:

@@ -12,11 +12,7 @@ from ..changelog import get_last_tag, parse_date
 from ..release import get_gitlab_instance
 
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-    ),
-    epilog='''
+@click.command(epilog='''
 Examples:
 
   1. Get the last tag information of the bob/bob package

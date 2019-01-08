@@ -14,11 +14,7 @@ from ..log import verbosity_option
 from ..release import get_gitlab_instance
 
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-    ),
-    epilog='''
+@click.command(epilog='''
 Examples:
 
   1. Check the visibility of a package you can access

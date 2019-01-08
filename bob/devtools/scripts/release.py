@@ -14,11 +14,7 @@ from ..release import release_bob, parse_and_process_package_changelog
 from ..release import release_package, wait_for_pipeline_to_finish
 from ..release import get_gitlab_instance
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-    ),
-    epilog='''
+@click.command(epilog='''
 Examples:
 
   1. Releases a single package:

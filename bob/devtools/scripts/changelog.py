@@ -16,11 +16,7 @@ from ..changelog import parse_date
 from ..release import get_gitlab_instance
 
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-    ),
-    epilog='''
+@click.command(epilog='''
 Examples:
 
   1. Generates the changelog for a single package using merge requests:
