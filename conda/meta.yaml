@@ -33,7 +33,8 @@ requirements:
     - setuptools
     - click
     - click-plugins
-    - conda-build
+    - conda=4
+    - conda-build=3
     - pytz
     - python-dateutil
     - gitpython
