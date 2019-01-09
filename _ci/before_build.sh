@@ -25,7 +25,7 @@ echo "Contents of \`${CONDARC}':"
 cat ${CONDARC}
 
 # updates conda installation
-run_cmd ${CONDA_ROOT}/bin/conda install python conda=4 curl conda-build=3
+run_cmd ${CONDA_ROOT}/bin/conda install python conda=4 conda-build=3
 
 # cleans up
 run_cmd ${CONDA_ROOT}/bin/conda clean --lock
