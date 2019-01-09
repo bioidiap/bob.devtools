@@ -4,6 +4,7 @@
 """Main entry point for bdt
 """
 
+import os
 import pkg_resources
 
 import click
@@ -52,3 +53,8 @@ def raise_on_error(view_func):
              context_settings=dict(help_option_names=['-?', '-h', '--help']))
 def main():
     """Bob Development Tools - see available commands below"""
+
+    #sets up basic environment variables required everywhere
+    from ..constants import CACERT, set_environment
+
+    set_environment('SSL_CERT_FILE', CACERT, os.environ)

@@ -13,10 +13,8 @@ from . import bdt
 from ..log import verbosity_option
 from ..conda import next_build_number, osname
 from ..bootstrap import get_rendered_metadata, get_parsed_recipe
-
-
-from .bootstrap import DEFAULT_CONDARC, DEFAULT_VARIANT, DEFAULT_APPEND, \
-    DEFAULT_DOCSERVER
+from ..constants import CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
+    SERVER, MATPLOTLIB_RCDIR, set_environment
 
 
 @click.command(epilog='''
@@ -43,10 +41,10 @@ Examples:
 @click.option('-p', '--python', default=('%d.%d' % sys.version_info[:2]),
     show_default=True, help='Version of python to build the ' \
         'environment for [default: %(default)s]')
-@click.option('-r', '--condarc', default=DEFAULT_CONDARC, show_default=True,
+@click.option('-r', '--condarc', default=CONDARC, show_default=True,
     help='overwrites the path leading to the condarc file to use',)
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
-      default=DEFAULT_VARIANT, help='overwrites the path leading to ' \
+      default=CONDA_BUILD_CONFIG, help='overwrites the path leading to ' \
           'variant configuration file to use')
 @click.option('-c', '--channel', show_default=True,
     default='https://www.idiap.ch/software/bob/conda/label/beta',
@@ -55,10 +53,10 @@ Examples:
 @click.option('-n', '--no-test', is_flag=True,
     help='Do not test the package, only builds it')
 @click.option('-a', '--append-file', show_default=True,
-      default=DEFAULT_APPEND, help='overwrites the path leading to ' \
+      default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
           'appended configuration file to use')
 @click.option('-D', '--docserver', show_default=True,
-      default=DEFAULT_DOCSERVER, help='Server used for uploading artifacts ' \
+      default=SERVER, help='Server used for uploading artifacts ' \
           'and other goodies')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
@@ -85,13 +83,15 @@ def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
 
   recipe_dir = recipe_dir or [os.path.join(os.path.realpath('.'), 'conda')]
 
-  logger.debug("[var] CONDARC=%s", condarc)
+  logger.debug("CONDARC=%s", condarc)
 
   from ..bootstrap import make_conda_config
   conda_config = make_conda_config(config, python, append_file, condarc)
 
-  logger.debug("[var] DOCSERVER=%s", docserver)
-  os.environ['DOCSERVER'] = docserver
+  set_environment('LANG', 'en_US.UTF-8', os.environ)
+  set_environment('LC_ALL', os.environ['LANG'], os.environ)
+  set_environment('DOCSERVER', docserver, os.environ)
+  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, os.environ)
 
   for d in recipe_dir:
 
@@ -101,8 +101,7 @@ def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
     version_candidate = os.path.join(d, '..', 'version.txt')
     if os.path.exists(version_candidate):
       version = open(version_candidate).read().rstrip()
-      logger.debug("[var] BOB_PACKAGE_VERSION=%s", version)
-      os.environ['BOB_PACKAGE_VERSION'] = version
+      set_environment('BOB_PACKAGE_VERSION', version, os.environ)
 
     # pre-renders the recipe - figures out package name and version
     metadata = get_rendered_metadata(d, conda_config)
@@ -125,8 +124,7 @@ def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
     else:
       build_number = 0
 
-    logger.debug("[var] BOB_BUILD_NUMBER=%s", build_number)
-    os.environ['BOB_BUILD_NUMBER'] = str(build_number)
+    set_environment('BOB_BUILD_NUMBER', build_number, os.environ)
 
     # we don't execute the following command, it is just here for logging
     # purposes. we directly use the conda_build API.

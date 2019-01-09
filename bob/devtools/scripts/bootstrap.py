@@ -13,15 +13,8 @@ import yaml
 from . import bdt
 from ..log import verbosity_option
 from ..bootstrap import parse_dependencies, conda_create, make_conda_config
-
-
-DEFAULT_CONDARC = pkg_resources.resource_filename(__name__,
-    os.path.join('..', 'data', 'build-condarc'))
-DEFAULT_VARIANT = pkg_resources.resource_filename(__name__,
-    os.path.join('..', 'data', 'conda_build_config.yaml'))
-DEFAULT_APPEND = pkg_resources.resource_filename(__name__,
-    os.path.join('..', 'data', 'recipe_append.yaml'))
-DEFAULT_DOCSERVER = 'http://www.idiap.ch'
+from ..constants import CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
+    SERVER
 
 
 @click.command(epilog='''
@@ -68,16 +61,16 @@ Examples:
       help='If set and an environment with the same name exists, ' \
           'deletes it first before creating the new environment',
           show_default=True)
-@click.option('-r', '--condarc', default=DEFAULT_CONDARC, show_default=True,
+@click.option('-r', '--condarc', default=CONDARC, show_default=True,
     help='overwrites the path leading to the condarc file to use',)
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
-      default=DEFAULT_VARIANT, help='overwrites the path leading to ' \
+      default=CONDA_BUILD_CONFIG, help='overwrites the path leading to ' \
           'variant configuration file to use')
 @click.option('-a', '--append-file', show_default=True,
-      default=DEFAULT_APPEND, help='overwrites the path leading to ' \
+      default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
           'appended configuration file to use')
 @click.option('-D', '--docserver', show_default=True,
-      default=DEFAULT_DOCSERVER, help='Server used for uploading artifacts ' \
+      default=SERVER, help='Server used for uploading artifacts ' \
           'and other goodies')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
@@ -116,12 +109,11 @@ def bootstrap(name, recipe_dir, python, overwrite, condarc, config,
         "have you activated the build environment containing bob.devtools " \
         "properly?")
 
-  # set condarc before continuing
-  logger.debug("[var] CONDARC=%s", condarc)
-  os.environ['CONDARC'] = condarc
-
-  logger.debug("[var] DOCSERVER=%s", docserver)
-  os.environ['DOCSERVER'] = docserver
+  # set some environment variables before continuing
+  set_environment('CONDARC', condarc, os.environ)
+  set_environment('SERVER', docserver, os.environ)
+  set_environment('LANG', 'en_US.UTF-8', os.environ)
+  set_environment('LC_ALL', os.environ['LANG'], os.environ)
 
   conda_config = make_conda_config(config, python, append_file, condarc)
   deps = parse_dependencies(recipe_dir, conda_config)
