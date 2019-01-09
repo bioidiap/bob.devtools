@@ -87,8 +87,8 @@ Here are the instructions to release Bob meta package:
 
   .. code-block:: sh
 
-     $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
-     $ bdt -vvv visibility order.txt
+     $ bdt getpath bob/bob.nightlies order.txt
+     $ bdt visibility order.txt
 
 * Put the list of public packages in ../../bob/requirements.txt
 * Run ``bdt changelog`` first:

@@ -4,12 +4,53 @@
 import os
 import re
 import time
+import shutil
 import gitlab
 
 import logging
 logger = logging.getLogger(__name__)
 
 from distutils.version import StrictVersion
+
+
+def download_path(package, path, output=None, ref='master'):
+    '''Downloads paths from gitlab, with an optional recurse
+
+    This method will download an archive of the repository from chosen
+    reference, and then it will search insize the zip blob for the path to be
+    copied into output.  It uses :py:class:`zipfile.ZipFile` to do this search.
+    This method will not be very efficient for larger repository references,
+    but works recursively by default.
+
+    Args:
+
+      package: the gitlab package object to use (should be pre-fetched)
+      path: the path on the project to download
+      output: where to place the path to be downloaded - if not provided, use
+        the basename of ``path`` as storage point with respect to the current
+        directory
+      ref: the name of the git reference (branch, tag or commit hash) to use
+
+    '''
+    from io import BytesIO
+    import tarfile
+    import tempfile
+
+    output = output or os.path.realpath(os.curdir)
+
+    logger.debug('Downloading archive of "%s" from "%s"...', ref,
+        package.attributes['path_with_namespace'])
+    archive = package.repository_archive(ref=ref)
+    logger.debug('Archive has %d bytes', len(archive))
+    logger.debug('Searching for "%s" within archive...', path)
+
+    with tempfile.TemporaryDirectory() as d:
+      with tarfile.open(fileobj=BytesIO(archive), mode='r:gz') as f:
+        f.extractall(path=d)
+
+      # move stuff to "output"
+      basedir = os.listdir(d)[0]
+      shutil.move(os.path.join(d, basedir, path), output)
 
 
 def get_gitlab_instance():

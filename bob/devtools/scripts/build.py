@@ -68,7 +68,7 @@ Examples:
 @bdt.raise_on_error
 def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
     docserver, dry_run):
-  """Runs conda-build with a standard configuration and environment
+  """Builds package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
   ``condarc`` and ``conda_build_config.yaml`` file we use for our CI.  It

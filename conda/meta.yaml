@@ -59,6 +59,7 @@ test:
     - bdt dumpsphinx --help
     - bdt bootstrap --help
     - bdt build --help
+    - bdt getpath --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ project_dir }}/sphinx
 
 about:

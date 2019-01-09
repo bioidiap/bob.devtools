@@ -37,7 +37,7 @@ def lasttag(package):
 
     gl = get_gitlab_instance()
 
-    # we lookup the gitlab group once
+    # we lookup the gitlab package once
     use_package = gl.projects.get(package)
     logger.info('Found gitlab project %s (id=%d)',
         use_package.attributes['path_with_namespace'], use_package.id)

@@ -46,7 +46,7 @@ Examples:
 )
 @click.argument('changelog', type=click.File('rt', lazy=False))
 @click.option('-g', '--group', default='bob', show_default=True,
-    help='Group name where all packages are located')
+    help='Group name where all packages are located (if not provided with the package)')
 @click.option('-p', '--package',
     help='If the name of a package is provided, then this package will be ' \
         'found in the changelog file and the release will resume from it ' \

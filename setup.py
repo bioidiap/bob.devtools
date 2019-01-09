@@ -47,6 +47,7 @@ setup(
             'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
             'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
             'build = bob.devtools.scripts.build:build',
+            'getpath = bob.devtools.scripts.getpath:getpath',
         ],
     },
     classifiers=[

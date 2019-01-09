@@ -25,7 +25,7 @@ Examples:
   2. Checks the visibility of all packages in a file list:
 
 \b
-     $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
+     $ bdt getpath bob/bob.nightlies order.txt
      $ bdt visibility order.txt
 ''')
 @click.argument('target')
@@ -36,13 +36,13 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def visibility(target, group):
-    """Checks if the gitlab repository is visible to the current user
+    '''Reports visibility of gitlab repository
 
     This command checks if the named package is visible to the currently logged
     in user, and reports its visibility level ('public', 'internal',
     'private').  If the package does not exist or it is private to the current
     user, it says 'unknown' instead.
-    """
+    '''
 
     gl = get_gitlab_instance()
 

@@ -44,7 +44,7 @@ Examples:
   5. Generates a complete list of changelogs for a list of packages (one per line:
 
 \b
-     $ curl -o order.txt https://gitlab.idiap.ch/bob/bob.nightlies/raw/master/order.txt
+     $ bdt getpath bob/bob.nightlies order.txt
      $ bdt lasttag bob/bob
      # copy and paste date to next command
      $ bdt changelog --since="2018-07-17 10:23:40" order.txt changelog.md
