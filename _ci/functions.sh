@@ -4,6 +4,11 @@
 # Build utilities
 SCRIPTS_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
+# Determines the operating system we're using
+osname() {
+  [[ "$(uname -s)" == "Darwin" ]] && echo "osx" || echo "linux"
+}
+
 # datetime prefix for logging
 log_datetime() {
 	echo "($(date +%T.%3N))"
