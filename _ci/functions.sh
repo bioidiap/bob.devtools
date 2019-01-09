@@ -187,11 +187,6 @@ set_conda_channels() {
 }
 
 
-if [ -z "${OS_SLUG}" ]; then
-  OS_SLUG="${OSNAME}-64"
-fi
-
-export_env OS_SLUG
 log_env PYTHON_VERSION
 check_env CI_PROJECT_DIR
 check_env CI_PROJECT_NAME
@@ -201,6 +196,11 @@ export_env BOB_PACKAGE_VERSION
 # Sets up variables
 OSNAME=`osname`
 check_env OSNAME
+
+if [ -z "${OS_SLUG}" ]; then
+  OS_SLUG="${OSNAME}-64"
+fi
+export_env OS_SLUG
 
 DOCSERVER=http://www.idiap.ch
 
