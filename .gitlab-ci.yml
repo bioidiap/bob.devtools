@@ -1,6 +1,3 @@
-# This build file uses template features from YAML so it is generic enough for
-# any Bob project. Don't modify it unless you know what you're doing.
-
 # Definition of global variables (all stages)
 variables:
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
@@ -9,18 +6,12 @@ variables:
 # Definition of our build pipeline order
 stages:
   - build
-  - deploy
-  - pypi
 
 
 # Build targets
 .build_template: &build_job
   stage: build
   before_script:
-    - mkdir _ci
-    - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/master/gitlab/install.sh" > _ci/install.sh
-    - chmod 755 _ci/install.sh
-    - ./_ci/install.sh _ci master #installs ci support scripts
     - ./_ci/before_build.sh
   script:
     - ./_ci/build.sh
@@ -41,7 +32,6 @@ stages:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
     <<: *build_caches
@@ -55,7 +45,6 @@ stages:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
   cache:
     <<: *build_caches
@@ -70,7 +59,6 @@ build_linux_36:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - dist/*.zip
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
@@ -80,50 +68,3 @@ build_macosx_36:
   <<: *macosx_build_job
   variables:
     PYTHON_VERSION: "3.6"
-
-
-# Deploy targets
-.deploy_template: &deploy_job
-  stage: deploy
-  before_script:
-    - ./_ci/install.sh _ci master #updates ci support scripts
-  script:
-    - ./_ci/deploy.sh
-  dependencies:
-    - build_linux_36
-    - build_macosx_36
-  tags:
-    - deployer
-
-
-deploy_beta:
-  <<: *deploy_job
-  environment: beta
-  only:
-    - master
-
-
-deploy_stable:
-  <<: *deploy_job
-  environment: stable
-  only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
-  except:
-    - branches
-
-
-pypi:
-  stage: pypi
-  environment: pypi
-  only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
-  except:
-    - branches
-  before_script:
-    - ./_ci/install.sh _ci master #updates ci support scripts
-  script:
-    - ./_ci/pypi.sh
-  dependencies:
-    - build_linux_36
-  tags:
-    - deployer
