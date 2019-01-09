@@ -187,6 +187,11 @@ set_conda_channels() {
 }
 
 
+if [ -z "${OS_SLUG}" ]; then
+  OS_SLUG="${OSNAME}-64"
+fi
+
+export_env OS_SLUG
 log_env PYTHON_VERSION
 check_env CI_PROJECT_DIR
 check_env CI_PROJECT_NAME
@@ -202,11 +207,6 @@ DOCSERVER=http://www.idiap.ch
 # Sets up the location of our rc file for conda
 CONDARC=${CONDA_ROOT}/condarc
 
-if [ -z "${OS_SLUG}" ]; then
-  OS_SLUG="${OSNAME}-64"
-fi
-
-export_env OS_SLUG
 export_env DOCSERVER
 check_env CONDA_ROOT
 export_env CONDARC

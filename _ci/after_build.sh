@@ -15,8 +15,7 @@ run_cmd git clean -ffdx \
     --exclude="miniconda.sh" \
     --exclude="miniconda/pkgs/*.tar.bz2" \
     --exclude="miniconda/pkgs/urls.txt" \
-    --exclude="miniconda/conda-bld/linux-64/*.tar.bz2" \
-    --exclude="miniconda/conda-bld/osx-64/*.tar.bz2" \
+    --exclude="miniconda/conda-bld/${OS_SLUG}/*.tar.bz2" \
     --exclude="_ci" \
     --exclude="dist/*.zip" \
     --exclude="sphinx"
