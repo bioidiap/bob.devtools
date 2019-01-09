@@ -8,8 +8,8 @@ run_cmd conda activate base
 export_env PATH
 
 set_conda_channels ${CI_COMMIT_TAG}
-log_info "$ ${CONDA_ROOT}/bin/python ${SCRIPTS_DIR}/nextbuild.py ${DOCSERVER}/${1} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
-BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${SCRIPTS_DIR}/nextbuild.py ${DOCSERVER}/${1} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
+log_info "$ ${CONDA_ROOT}/bin/python ${SCRIPTS_DIR}/nextbuild.py ${DOCSERVER}/${CONDA_CHANNELS[0]} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
+BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${SCRIPTS_DIR}/nextbuild.py ${DOCSERVER}/${CONDA_CHANNELS[0]} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
 export_env BOB_BUILD_NUMBER
 
 # copy the recipe_append.yaml over before build
