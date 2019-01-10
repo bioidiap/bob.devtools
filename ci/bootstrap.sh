@@ -14,7 +14,6 @@ log_info() {
   echo -e "$(log_datetime) \033[1;34m${@}\033[0m"
 }
 
-
 log_error() {
   echo -e "$(log_datetime) \033[1;31mError: ${@}\033[0m" >&2
 }
@@ -29,7 +28,6 @@ run_cmd() {
     exit ${status}
   fi
 }
-
 
 # merges conda cache folders
 # $1: Path to the main cache to keep. The directory must exist.
@@ -46,7 +44,6 @@ merge_conda_cache() {
   fi
 }
 
-
 # Checks just if the variable is defined and has non-zero length
 check_defined() {
   if [ -z "${!1+abc}" ]; then
@@ -58,7 +55,6 @@ check_defined() {
   fi
   log_info "${1}=${!1}"
 }
-
 
 # installs a miniconda installation.
 # $1: Path to where to install miniconda.

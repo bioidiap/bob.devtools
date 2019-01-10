@@ -15,6 +15,16 @@ log_error() {
   echo -e "$(log_datetime) \033[1;31mError: ${@}\033[0m" >&2
 }
 
+# Function for running command and echoing results
+run_cmd() {
+  log_info "$ ${@}"
+  ${@}
+  local status=$?
+  if [ ${status} != 0 ]; then
+    log_error "Command Failed \"${@}\""
+    exit ${status}
+  fi
+}
 
 # Checks just if the variable is defined and has non-zero length
 check_defined() {
@@ -52,8 +62,8 @@ else
   channel="http://www.idiap.ch/public/conda"
 fi
 
-log_info "$ ${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/_ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
-BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/_ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
+log_info "$ ${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
+BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
 export_env BOB_BUILD_NUMBER
 
 # copy the recipe_append.yaml over before build
@@ -70,6 +80,5 @@ run_cmd git clean -ffdx \
     --exclude="miniconda/pkgs/*.tar.bz2" \
     --exclude="miniconda/pkgs/urls.txt" \
     --exclude="miniconda/conda-bld/${_os}-64/*.tar.bz2" \
-    --exclude="_ci" \
     --exclude="dist/*.zip" \
     --exclude="sphinx"
