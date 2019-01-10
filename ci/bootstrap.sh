@@ -53,8 +53,8 @@ check_defined() {
 # $2: Path to the extra cache to be merged into main cache
 merge_conda_cache() {
   if [ -e ${1} ]; then
-    _cached_urlstxt="${2}/urls.txt"
-    _urlstxt="${1}/urls.txt"
+    _cached_urlstxt="${2}/pkgs/urls.txt"
+    _urlstxt="${1}/pkgs/urls.txt"
     if [ -e ${2}/pkgs ]; then
       log_info "Merging urls.txt and packages with cached files..."
       mv ${2}/pkgs/*.tar.bz2 ${1}/pkgs
