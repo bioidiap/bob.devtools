@@ -55,15 +55,15 @@ merge_conda_cache() {
   if [ -e ${1} ]; then
     _cached_urlstxt="${2}/urls.txt"
     _urlstxt="${1}/urls.txt"
-    if [ -e ${2} ]; then
+    if [ -e ${2}/pkgs ]; then
       log_info "Merging urls.txt and packages with cached files..."
       mv ${2}/pkgs/*.tar.bz2 ${1}/pkgs
       cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
-      if [ -d ${2}/conda-bld ]; then
-        log_info "Moving conda-bld packages (artifacts)..."
-        run_cmd mv ${2}/conda-bld ${1}
-        run_cmd conda index ${1}/conda-bld
-      fi
+    fi
+    if [ -d ${2}/conda-bld ]; then
+      log_info "Moving conda-bld packages (artifacts)..."
+      run_cmd mv ${2}/conda-bld ${1}
+      run_cmd conda index ${1}/conda-bld
     fi
   fi
 }
