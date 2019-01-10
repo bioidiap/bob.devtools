@@ -147,7 +147,6 @@ else
   log_error "The value '${1}' is not currently supported"
   exit 1
 fi
-run_cmd
 
 # cleans up
 run_cmd ${CONDA_ROOT}/bin/conda clean --lock
