@@ -10,6 +10,7 @@ requires = [
     'click',
     'click-plugins',
     'conda-build',
+    'certifi',
     'requests',
     'gitpython',
     'python-gitlab',

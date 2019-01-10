@@ -58,3 +58,4 @@ def main():
     from ..constants import CACERT, set_environment
 
     set_environment('SSL_CERT_FILE', CACERT, os.environ)
+    set_environment('REQUESTS_CA_BUNDLE', CACERT, os.environ)

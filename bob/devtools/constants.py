@@ -25,8 +25,7 @@ CONDA_RECIPE_APPEND = pkg_resources.resource_filename(__name__,
 SERVER = 'http://www.idiap.ch'
 '''This is the default server use use to store data and build artifacts'''
 
-CACERT = pkg_resources.resource_filename(__name__,
-    os.path.join('data', 'cacert.pem'))
+CACERT = __import__('certifi').where()
 '''We keep a copy of the CA certificates we trust here
 
    To update this file use: ``curl --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem``
