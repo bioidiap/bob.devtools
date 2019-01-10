@@ -76,10 +76,12 @@ Examples:
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
+@click.option('--use-local', default=False,
+    help='Allow the use of local channels for package retrieval')
 @verbosity_option()
 @bdt.raise_on_error
 def bootstrap(name, recipe_dir, python, overwrite, condarc, config,
-    append_file, docserver, dry_run):
+    append_file, docserver, dry_run, use_local):
   """Creates a development environment for a recipe
 
   It uses the conda render API to render a recipe and install an environment
@@ -117,5 +119,5 @@ def bootstrap(name, recipe_dir, python, overwrite, condarc, config,
 
   conda_config = make_conda_config(config, python, append_file, condarc)
   deps = parse_dependencies(recipe_dir, conda_config)
-  status = conda_create(conda, name, overwrite, condarc, deps, dry_run)
+  status = conda_create(conda, name, overwrite, condarc, deps, dry_run, use_local)
   click.echo('Execute on your shell: "conda activate %s"' % name)

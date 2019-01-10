@@ -80,7 +80,7 @@ def get_env_directory(conda, name):
   return None
 
 
-def conda_create(conda, name, overwrite, condarc, packages, dry_run):
+def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
 
   specs = []
   for k in packages:
@@ -104,9 +104,12 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run):
       raise RuntimeError('environment `%s\' exists in `%s\' - use '
                          '--overwrite to overwrite' % (name, envdir))
 
-  cmd = [conda, 'create', '--yes', '--name', name] + sorted(specs)
+  cmd = [conda, 'create', '--yes', '--name', name]
   if dry_run:
-    cmd.insert(2, '--dry-run')
+    cmd.append('--dry-run')
+  if use_local:
+     cmd.append('--use-local')
+  cmd.extend(sorted(specs))
   logger.debug('$ ' + ' '.join(cmd))
   status = subprocess.call(cmd)
   if status != 0:
