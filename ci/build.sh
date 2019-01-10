@@ -63,8 +63,8 @@ else
 fi
 
 log_info "$ ${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
-BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
-export_env BOB_BUILD_NUMBER
+export BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
+check_defined BOB_BUILD_NUMBER
 
 # copy the recipe_append.yaml over before build
 run_cmd cp ${CI_PROJECT_DIR}/bob/devtools/data/recipe_append.yaml conda/
