@@ -139,7 +139,12 @@ cat ${CONDARC}
 if [ "${1}" == "build" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
 elif [ "${1}" == "local" ]; then
-  run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" ${CONDA_ROOT}/conda-bld/${OS_SLUG}/bob.devtools-*.tar.bz2
+  if [ "$(uname -s)" == "Linux" ]; then
+    _os="linux-64"
+  else
+    _os="osx-64"
+  fi
+  run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" ${CONDA_ROOT}/conda-bld/${_os}/bob.devtools-*.tar.bz2
 elif [ "${1}" == "beta" ] || [ "${1}" == "stable" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" bob.devtools
 else
