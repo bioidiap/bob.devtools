@@ -13,7 +13,7 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
-    - ./ci/bootstrap.sh
+    - ./ci/bootstrap.sh build
   script:
     - ./ci/build.sh
   cache: &build_caches
@@ -73,9 +73,12 @@ build_macosx_36:
 .deploy_template: &deploy_job
   stage: deploy
   before_script:
-    - ./ci/bootstrap.sh self
+    - ./ci/bootstrap.sh local myenv
   script:
-    - ./ci/deploy.sh
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate myenv
+    - bdt --help
+    - bdt ci deploy
   dependencies:
     - build_linux_36
     - build_macosx_36

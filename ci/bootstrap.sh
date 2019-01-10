@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
 # Bootstraps a new conda installation and prepares base environment
-# if "self" is passed as parameter, then self installs an already built
-# version of bob.devtools available on your conda-bld directory.
+# if "local" is passed as parameter, then self installs an already built
+# version of bob.devtools available on your conda-bld directory. If you pass
+# "beta", then it bootstraps from the package installed on our conda beta
+# channel.  If you pass "stable", then it bootstraps installing the package
+# available on the stable channel.
+#
+# If bootstrapping anything else than "build", then provide a second argument
+# with the name of the environment that one wants to create with an
+# installation of bob.devtools.
 
 # datetime prefix for logging
 log_datetime() {
@@ -113,21 +120,34 @@ run_cmd mkdir -p ${CONDA_ROOT}/pkgs
 run_cmd touch ${CONDA_ROOT}/pkgs/urls
 run_cmd touch ${CONDA_ROOT}/pkgs/urls.txt
 
+CONDA_CHANNEL_ROOT=http://www.idiap.ch/public/conda
+check_defined CONDA_CHANNEL_ROOT
+
 run_cmd cp -fv ${CI_PROJECT_DIR}/bob/devtools/data/base-condarc ${CONDARC}
 echo "channels:" >> ${CONDARC}
-echo "  - http://www.idiap.ch/public/conda" >> ${CONDARC}
+if [ "${1}" == "beta" ]; then
+  echo "  - ${CONDA_CHANNEL_ROOT}/label/beta" >> ${CONDARC}
+fi
+echo "  - ${CONDA_CHANNEL_ROOT}" >> ${CONDARC}
 echo "  - defaults" >> ${CONDARC}
 
 # displays contents of our configuration
 echo "Contents of \`${CONDARC}':"
 cat ${CONDARC}
 
-# updates conda installation, installs just built bob.devtools
-if [ "${1}" == "self" ]; then
-  run_cmd ${CONDA_ROOT}/bin/conda create -n bdt ${CONDA_ROOT}/conda-bld/${OS_SLUG}/bob.devtools-*.tar.bz2
-else
+# creates a base installation depending on the purpose
+if [ "${1}" == "build" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
+elif [ "${1}" == "local" ]; then
+  run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" ${CONDA_ROOT}/conda-bld/${OS_SLUG}/bob.devtools-*.tar.bz2
+elif [ "${1}" == "beta" ] || [ "${1}" == "stable" ]; then
+  run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" bob.devtools
+else
+  log_error "Bootstrap with 'build', or 'local|beta|stable <name>'"
+  log_error "The value '${1}' is not currently supported"
+  exit 1
 fi
+run_cmd
 
 # cleans up
 run_cmd ${CONDA_ROOT}/bin/conda clean --lock
