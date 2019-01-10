@@ -74,7 +74,11 @@ run_cmd ${CONDA_ROOT}/bin/conda build "--python=${PYTHON_VERSION} --no-anaconda-
 
 # run git clean to clean everything that is not needed. This helps to keep the
 # disk usage on CI machines to minimum.
-if [ "$(uname -s)" == "Linux" ]; then _os="linux" else _os="osx"; fi
+if [ "$(uname -s)" == "Linux" ]; then
+  _os="linux"
+else
+  _os="osx"
+fi
 run_cmd git clean -ffdx \
     --exclude="miniconda.sh" \
     --exclude="miniconda/pkgs/*.tar.bz2" \
