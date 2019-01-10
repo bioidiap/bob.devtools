@@ -78,7 +78,6 @@ build_macosx_36:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv
     - bdt --help
-    - bdt ci deploy
   dependencies:
     - build_linux_36
     - build_macosx_36

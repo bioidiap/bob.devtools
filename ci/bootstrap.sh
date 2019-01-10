@@ -135,6 +135,7 @@ if [ "${1}" == "build" ]; then
 elif [ "${1}" == "local" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda index ${CONDA_ROOT}/conda-bld
   CONDA_CLI_CHANNELS="-c ${CONDA_ROOT}/conda-bld ${CONDA_CLI_CHANNELS}"
+  run_cmd ls -l ${CONDA_ROOT}/conda-bld/
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
 elif [ "${1}" == "beta" ] || [ "${1}" == "stable" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
