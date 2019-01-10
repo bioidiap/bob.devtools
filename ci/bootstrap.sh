@@ -1,4 +1,4 @@
-#!/urs/bin/env bash
+#!/usr/bin/env bash
 
 # Bootstraps a new conda installation and prepares base environment
 # if "self" is passed as parameter, then self installs an already built

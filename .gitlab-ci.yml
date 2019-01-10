@@ -13,9 +13,9 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
-    - ./_ci/bootstrap.sh
+    - ./ci/bootstrap.sh
   script:
-    - ./_ci/build.sh
+    - ./ci/build.sh
   cache: &build_caches
     paths:
       - miniconda.sh
@@ -73,9 +73,9 @@ build_macosx_36:
 .deploy_template: &deploy_job
   stage: deploy
   before_script:
-    - ./_ci/bootstrap.sh self
+    - ./ci/bootstrap.sh self
   script:
-    - ./_ci/deploy.sh
+    - ./ci/deploy.sh
   dependencies:
     - build_linux_36
     - build_macosx_36
