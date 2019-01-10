@@ -67,7 +67,7 @@ merge_conda_cache() {
     if [ -d ${2}/conda-bld ]; then
       log_info "Moving conda-bld packages (artifacts)..."
       run_cmd mv ${2}/conda-bld ${1}
-      run_cmd conda index ${1}/conda-bld
+      run_cmd ${CONDA_ROOT}/bin/conda index --verbose ${1}/conda-bld
       run_cmd ls -l ${1}/conda-bld
       run_cmd ls -l ${1}/conda-bld/noarch/
     fi
