@@ -47,7 +47,7 @@ check_defined PYTHON_VERSION
 export DOCSERVER=http://www.idiap.ch
 check_defined DOCSERVER
 
-export CONDARC=${CONDA_ROOT}/condarc
+export CONDARC="${CONDA_ROOT}/condarc"
 check_defined CONDARC
 
 export BOB_PACKAGE_VERSION=`cat version.txt | tr -d '\n'`;
@@ -59,21 +59,25 @@ run_cmd conda activate base
 export PATH
 check_defined PATH
 
+CONDA_CHANNEL_ROOT="${DOCSERVER}/public/conda"
+check_defined CONDA_CHANNEL_ROOT
 if [ -z "${CI_COMMIT_TAG}" ]; then #building beta
-  channel="http://www.idiap.ch/public/conda/label/beta"
+  UPLOAD_CHANNEL="${CONDA_CHANNEL_ROOT}/label/beta"
 else
-  channel="http://www.idiap.ch/public/conda"
+  UPLOAD_CHANNEL="${CONDA_CHANNEL_ROOT}"
 fi
+check_defined UPLOAD_CHANNEL
 
-log_info "$ ${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
-export BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${channel} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
+log_info "$ ${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${UPLOAD_CHANNEL} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION}"
+export BOB_BUILD_NUMBER=$(${CONDA_ROOT}/bin/python ${CI_PROJECT_DIR}/ci/nextbuild.py ${UPLOAD_CHANNEL} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION})
 check_defined BOB_BUILD_NUMBER
 
 # copy the recipe_append.yaml over before build
 run_cmd cp ${CI_PROJECT_DIR}/bob/devtools/data/recipe_append.yaml conda/
 run_cmd cp ${CI_PROJECT_DIR}/bob/devtools/data/conda_build_config.yaml conda/
 
-run_cmd ${CONDA_ROOT}/bin/conda build "--python=${PYTHON_VERSION} --no-anaconda-upload" conda
+# to build, we only rely on the stable channel and defaults
+run_cmd ${CONDA_ROOT}/bin/conda build --override-channels -c "${CONDA_CHANNEL_ROOT} -c defaults --python=${PYTHON_VERSION} --no-anaconda-upload" conda
 
 # run git clean to clean everything that is not needed. This helps to keep the
 # disk usage on CI machines to minimum.

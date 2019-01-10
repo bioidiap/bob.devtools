@@ -10,3 +10,5 @@ quiet: true #!final
 show_channel_urls: true #!final
 anaconda_upload: false #!final
 ssl_verify: false #!final
+channels:
+  - defaults
