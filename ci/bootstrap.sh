@@ -67,9 +67,6 @@ merge_conda_cache() {
     if [ -d ${2}/conda-bld ]; then
       log_info "Moving conda-bld packages (artifacts)..."
       run_cmd mv ${2}/conda-bld ${1}
-      run_cmd ${CONDA_ROOT}/bin/conda index --verbose ${1}/conda-bld
-      run_cmd ls -l ${1}/conda-bld
-      run_cmd ls -l ${1}/conda-bld/noarch/
     fi
   fi
 }
@@ -140,6 +137,9 @@ CONDA_CLI_CHANNELS="-c ${CONDA_CHANNEL_ROOT} -c defaults"
 if [ "${1}" == "build" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
 elif [ "${1}" == "local" ]; then
+  # updates the base installation, installs conda-build
+  run_cmd ls -l ${CONDA_ROOT}/conda-bld
+  run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
   CONDA_CLI_CHANNELS="-c ${CONDA_ROOT}/conda-bld ${CONDA_CLI_CHANNELS}"
   run_cmd ls -l ${CONDA_ROOT}/conda-bld
   run_cmd ls -l ${CONDA_ROOT}/conda-bld/noarch/
