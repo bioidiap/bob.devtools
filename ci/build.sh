@@ -44,6 +44,9 @@ check_defined CI_PROJECT_DIR
 check_defined CI_PROJECT_NAME
 check_defined PYTHON_VERSION
 
+export DOCSERVER=http://www.idiap.ch
+check_defined DOCSERVER
+
 export CONDARC=${CONDA_ROOT}/condarc
 check_defined CONDARC
 
