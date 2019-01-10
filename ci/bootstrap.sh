@@ -38,7 +38,7 @@ merge_conda_cache() {
     _urlstxt="${1}/urls.txt"
     if [ -e ${2} ]; then
       log_info "Merging urls.txt and packages with cached files..."
-      log_info mv ${2}/*.tar.bz2 ${1}/
+      mv ${2}/*.tar.bz2 ${1}/
       cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
     fi
   fi
