@@ -41,8 +41,11 @@ check_defined CI_PROJECT_NAME
 check_defined CI_COMMIT_TAG
 check_defined PYTHON_VERSION
 
+CONDARC=${CONDA_ROOT}/condarc
+export_env CONDARC
+
 BOB_PACKAGE_VERSION=`cat version.txt | tr -d '\n'`;
-check_defined BOB_PACKAGE_VERSION
+export_env BOB_PACKAGE_VERSION
 
 # Makes sure we activate the base environment if available
 run_cmd source ${CONDA_ROOT}/etc/profile.d/conda.sh

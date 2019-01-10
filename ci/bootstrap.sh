@@ -96,8 +96,19 @@ install_miniconda() {
   hash -r
 }
 
+
+# Exports a given environment variable, verbosely
+export_env() {
+  check_defined "${1}"
+  export ${1}
+  log_info "export ${1}=${!1}"
+}
+
 check_defined CONDA_ROOT
 check_defined CI_PROJECT_DIR
+
+CONDARC=${CONDA_ROOT}/condarc
+export_env CONDARC
 
 # checks if a conda installation exists. Otherwise, installs one
 if [ ! -e ${CONDA_ROOT}/bin/conda ]; then
