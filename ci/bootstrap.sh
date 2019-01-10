@@ -65,7 +65,11 @@ install_miniconda() {
   if [ ! -e miniconda.sh ]; then
     log_info "Downloading latest miniconda3 installer..."
     # downloads the latest conda installation script
-    if [ "$(uname -s)" == "Linux" ]; then _os="Linux" else _os="MacOSX"; fi
+    if [ "$(uname -s)" == "Linux" ]; then
+      _os="Linux"
+    else
+      _os="MacOSX"
+    fi
     obj=https://repo.continuum.io/miniconda/Miniconda3-latest-${_os}-x86_64.sh
     run_cmd curl --silent --output miniconda.sh ${obj}
   else
