@@ -59,11 +59,17 @@ merge_conda_cache() {
       log_info "Merging urls.txt and packages with cached files..."
       mv ${2}/pkgs/*.tar.bz2 ${1}/pkgs
       cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
+    else
+      run_cmd mkdir -p ${1}/pkgs
+      run_cmd touch ${1}/pkgs/urls.txt
     fi
+    run_cmd touch ${1}/pkgs/urls
     if [ -d ${2}/conda-bld ]; then
       log_info "Moving conda-bld packages (artifacts)..."
       run_cmd mv ${2}/conda-bld ${1}
       run_cmd conda index ${1}/conda-bld
+      run_cmd ls -l ${1}/conda-bld
+      run_cmd ls -l ${1}/conda-bld/noarch/
     fi
   fi
 }
@@ -121,10 +127,6 @@ if [ ! -e ${CONDA_ROOT}/bin/conda ]; then
   install_miniconda ${CONDA_ROOT}
 fi
 
-run_cmd mkdir -p ${CONDA_ROOT}/pkgs
-run_cmd touch ${CONDA_ROOT}/pkgs/urls
-run_cmd touch ${CONDA_ROOT}/pkgs/urls.txt
-
 run_cmd cp -fv ${CI_PROJECT_DIR}/bob/devtools/data/base-condarc ${CONDARC}
 echo "Contents of \`${CONDARC}':"
 cat ${CONDARC}
@@ -139,6 +141,8 @@ if [ "${1}" == "build" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
 elif [ "${1}" == "local" ]; then
   CONDA_CLI_CHANNELS="-c ${CONDA_ROOT}/conda-bld ${CONDA_CLI_CHANNELS}"
+  run_cmd ls -l ${CONDA_ROOT}/conda-bld
+  run_cmd ls -l ${CONDA_ROOT}/conda-bld/noarch/
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
 elif [ "${1}" == "beta" ] || [ "${1}" == "stable" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
