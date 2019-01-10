@@ -36,21 +36,6 @@ run_cmd() {
   fi
 }
 
-# merges conda cache folders
-# $1: Path to the main cache to keep. The directory must exist.
-# $2: Path to the extra cache to be merged into main cache
-merge_conda_cache() {
-  if [ -e ${1} ]; then
-    _cached_urlstxt="${2}/urls.txt"
-    _urlstxt="${1}/urls.txt"
-    if [ -e ${2} ]; then
-      log_info "Merging urls.txt and packages with cached files..."
-      mv ${2}/*.tar.bz2 ${1}/
-      cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
-    fi
-  fi
-}
-
 # Checks just if the variable is defined and has non-zero length
 check_defined() {
   if [ -z "${!1+abc}" ]; then
@@ -61,6 +46,24 @@ check_defined() {
     exit 1
   fi
   log_info "${1}=${!1}"
+}
+
+# merges conda cache folders
+# $1: Path to the main cache to keep. The directory must exist.
+# $2: Path to the extra cache to be merged into main cache
+merge_conda_cache() {
+  if [ -e ${1} ]; then
+    _cached_urlstxt="${2}/urls.txt"
+    _urlstxt="${1}/urls.txt"
+    if [ -e ${2} ]; then
+      log_info "Merging urls.txt and packages with cached files..."
+      run_cmd mv ${2}/pkgs/*.tar.bz2 ${1}/pkgs
+      cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
+      log_info "Moving conda-bld packages (artifacts)..."
+      run_cmd mv ${2}/conda-bld ${1}
+      run_cmd conda index ${1}/conda-bld
+    fi
+  fi
 }
 
 # installs a miniconda installation.
@@ -93,7 +96,7 @@ install_miniconda() {
   run_cmd bash miniconda.sh -b -p ${1}
 
   # Put back cache and merge urls.txt
-  merge_conda_cache ${1}/pkgs ${1}.cached/pkgs
+  merge_conda_cache ${1} ${1}.cached
   # remove the backup cache folder
   rm -rf ${1}.cached
 
@@ -133,9 +136,7 @@ CONDA_CLI_CHANNELS="-c ${CONDA_CHANNEL_ROOT} -c defaults"
 if [ "${1}" == "build" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda install -n base python conda=4 conda-build=3
 elif [ "${1}" == "local" ]; then
-  run_cmd ${CONDA_ROOT}/bin/conda index ${CONDA_ROOT}/conda-bld
   CONDA_CLI_CHANNELS="-c ${CONDA_ROOT}/conda-bld ${CONDA_CLI_CHANNELS}"
-  run_cmd ls -l ${CONDA_ROOT}/conda-bld/
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
 elif [ "${1}" == "beta" ] || [ "${1}" == "stable" ]; then
   run_cmd ${CONDA_ROOT}/bin/conda create -n "${2}" --override-channels ${CONDA_CLI_CHANNELS} bob.devtools
