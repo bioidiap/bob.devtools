@@ -124,7 +124,7 @@ def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
     else:
       build_number = 0
 
-    set_environment('BOB_BUILD_NUMBER', build_number, os.environ)
+    set_environment('BOB_BUILD_NUMBER', str(build_number), os.environ)
 
     # we don't execute the following command, it is just here for logging
     # purposes. we directly use the conda_build API.
