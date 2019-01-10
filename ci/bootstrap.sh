@@ -56,6 +56,7 @@ check_defined() {
     log_error "Variable ${1} is zero-length - aborting...";
     exit 1
   fi
+  log_info "${1}=${!1}"
 }
 
 
@@ -97,18 +98,11 @@ install_miniconda() {
 }
 
 
-# Exports a given environment variable, verbosely
-export_env() {
-  check_defined "${1}"
-  export ${1}
-  log_info "export ${1}=${!1}"
-}
-
 check_defined CONDA_ROOT
 check_defined CI_PROJECT_DIR
 
-CONDARC=${CONDA_ROOT}/condarc
-export_env CONDARC
+export CONDARC=${CONDA_ROOT}/condarc
+check_defined CONDARC
 
 # checks if a conda installation exists. Otherwise, installs one
 if [ ! -e ${CONDA_ROOT}/bin/conda ]; then
@@ -119,7 +113,7 @@ run_cmd mkdir -p ${CONDA_ROOT}/pkgs
 run_cmd touch ${CONDA_ROOT}/pkgs/urls
 run_cmd touch ${CONDA_ROOT}/pkgs/urls.txt
 
-cp -fv ${CI_PROJECT_DIR}/bob/devtools/data/base-condarc ${CONDARC}
+run_cmd cp -fv ${CI_PROJECT_DIR}/bob/devtools/data/base-condarc ${CONDARC}
 echo "channels:" >> ${CONDARC}
 echo "  - http://www.idiap.ch/public/conda" >> ${CONDARC}
 echo "  - defaults" >> ${CONDARC}

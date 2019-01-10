@@ -25,32 +25,26 @@ check_defined() {
     log_error "Variable ${1} is zero-length - aborting...";
     exit 1
   fi
+  log_info "${1}=${!1}"
 }
 
-
-# Exports a given environment variable, verbosely
-export_env() {
-  check_defined "${1}"
-  export ${1}
-  log_info "export ${1}=${!1}"
-}
 
 check_defined CONDA_ROOT
 check_defined CI_PROJECT_DIR
 check_defined CI_PROJECT_NAME
-check_defined CI_COMMIT_TAG
 check_defined PYTHON_VERSION
 
-CONDARC=${CONDA_ROOT}/condarc
-export_env CONDARC
+export CONDARC=${CONDA_ROOT}/condarc
+check_defined CONDARC
 
-BOB_PACKAGE_VERSION=`cat version.txt | tr -d '\n'`;
-export_env BOB_PACKAGE_VERSION
+export BOB_PACKAGE_VERSION=`cat version.txt | tr -d '\n'`;
+check_defined BOB_PACKAGE_VERSION
 
 # Makes sure we activate the base environment if available
 run_cmd source ${CONDA_ROOT}/etc/profile.d/conda.sh
 run_cmd conda activate base
-export_env PATH
+export PATH
+check_defined PATH
 
 if [ -z "${CI_COMMIT_TAG}" ]; then #building beta
   channel="http://www.idiap.ch/public/conda/label/beta"
