@@ -17,6 +17,7 @@ Documentation
 
    release
    api
+   ci
 
 
 Indices and tables
