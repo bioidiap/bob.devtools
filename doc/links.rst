@@ -2,6 +2,7 @@
 
 .. Place here references to all citations in lower case
 
+.. _conda: https://conda.io
 .. _bob: https://www.idiap.ch/software/bob
 .. _shell executor: https://docs.gitlab.com/runner/executors/shell.html
 .. _gitlab runner: https://docs.gitlab.com/runner/install/osx.html

@@ -26,18 +26,8 @@ BEAT_ packages through Gitlab and conda_.
 Installation
 ------------
 
-You can install this package via conda_, simply pointing to our stable or beta
-channels::
-
-  $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda bob.devtools
-  # or, for beta releases:
-  $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda/label/beta bob.devtools
-
-We provide packages for both 64-bit Linux and MacOS. Once installed, you can
-use these tools within the created environment like this::
-
-  $ conda activate bdt
-  (bdt) $ bdt --help
+For most up-to-date installation and usage instructions, consult the
+installation section at the `user guide`_.
 
 
 Contact
@@ -52,3 +42,4 @@ development `mailing list`_.
 .. _bob: https://www.idiap.ch/software/bob
 .. _beat: https://www.idiap.ch/software/beat
 .. _mailing list: https://www.idiap.ch/software/bob/discuss
+.. _user guide: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/master/install.html

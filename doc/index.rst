@@ -15,6 +15,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
+   install
    release
    api
    ci
