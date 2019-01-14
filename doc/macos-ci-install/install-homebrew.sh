@@ -14,6 +14,6 @@ fi
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" </dev/null
 brew=/usr/local/bin/brew
 
-${brew} install curl git coreutils bash-completion highlight neovim tmux htop python3
+${brew} install curl git coreutils bash-completion highlight neovim tmux htop python@3
 ${brew} link --force curl #keg-only recipe
 ${brew} cask install mactex
