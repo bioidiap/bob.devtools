@@ -49,6 +49,7 @@ setup(
             'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
             'build = bob.devtools.scripts.build:build',
             'getpath = bob.devtools.scripts.getpath:getpath',
+            'caupdate = bob.devtools.scripts.caupdate:caupdate',
         ],
     },
     classifiers=[
