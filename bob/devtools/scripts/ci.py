@@ -81,7 +81,7 @@ def deploy(dry_run):
         'webdav_login': os.environ['DOCUSER'],
         'webdav_password': os.environ['DOCPASS'],
         }
-    davclient = webdav.Client(options)
+    davclient = webdav.Client(webdav_options)
     assert davclient.valid()
 
     group, name = package.split('/')
