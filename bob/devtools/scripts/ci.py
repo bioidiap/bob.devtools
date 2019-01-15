@@ -93,14 +93,15 @@ def deploy(dry_run):
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
       for k in deploy_packages:
-        remote_path = '%s%s/%s/%s' % (server_info['root'],
-            server_info['conda'], arch, os.path.basename(k))
+        remote_path = '%s/%s/%s' % (server_info['conda'], arch,
+            os.path.basename(k))
         if davclient.check(remote_path):
           raise RuntimeError('The file %s/%s already exists on the server ' \
               '- this can be due to more than one build with deployment ' \
               'running at the same time.  Re-running the broken builds ' \
               'normally fixes it' % (SERVER, remote_path))
-        logger.info('[dav] %s -> %s%s', k, SERVER, remote_path)
+        logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
+            remote_path)
         if not dry_run:
           davclient.upload(local_path=k, remote_path=remote_path)
 
@@ -111,8 +112,7 @@ def deploy(dry_run):
           'ensure documentation is being produced for your project!' % \
           local_docs)
 
-    remote_path_prefix = '%s%s/%s' % (server_info['root'], server_info['docs'],
-        package)
+    remote_path_prefix = '%s/%s' % (server_info['docs'], package)
 
     # finds out the correct mixture of sub-directories we should deploy to.
     # 1. if ref-name is a tag, don't forget to publish to 'master' as well -
@@ -129,6 +129,7 @@ def deploy(dry_run):
 
     for k in deploy_docs_to:
       remote_path = '%s/%s' % (remote_path_prefix, k)
-      logger.info('[dav] %s -> %s%s', local_docs, SERVER, remote_path)
+      logger.info('[dav] %s -> %s%s%s', local_docs, SERVER,
+          server_info['root'], remote_path)
       if not dry_run:
         client.upload_directory(local_path=local_docs, remote_path=remote_path)
