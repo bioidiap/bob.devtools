@@ -92,9 +92,6 @@ def deploy(dry_run):
       package_path = os.path.join(os.environ['CONDA_ROOT'], 'conda-bld', arch,
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
-      if len(deploy_packages):
-        logger.info('Deploying %d conda package(s) for %s',
-            len(deploy_packages), arch)
       for k in deploy_packages:
         remote_path = '%s%s/%s' % (server_info['root'], server_info['conda'],
             os.path.basename(k))
@@ -103,6 +100,7 @@ def deploy(dry_run):
               '- this can be due to more than one build with deployment ' \
               'running at the same time.  Re-running the broken builds ' \
               'normally fixes it' % (SERVER, remote_path))
+        logger.info('[dav] %s -> %s%s', k, SERVER, remote_path)
         if not dry_run:
           davclient.upload(local_path=k, remote_path=remote_path)
 
@@ -131,7 +129,6 @@ def deploy(dry_run):
 
     for k in deploy_docs_to:
       remote_path = '%s/%s' % (remote_path_prefix, k)
-      logger.info('Deploying package documentation to %s/%s...', SERVER,
-          remote_path)
+      logger.info('[dav] %s -> %s%s', local_docs, SERVER, remote_path)
       if not dry_run:
         client.upload_directory(local_path=local_docs, remote_path=remote_path)
