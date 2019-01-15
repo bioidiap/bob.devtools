@@ -132,4 +132,5 @@ def deploy(dry_run):
       logger.info('[dav] %s -> %s%s%s', local_docs, SERVER,
           server_info['root'], remote_path)
       if not dry_run:
-        client.upload_directory(local_path=local_docs, remote_path=remote_path)
+        davclient.upload_directory(local_path=local_docs,
+            remote_path=remote_path)
