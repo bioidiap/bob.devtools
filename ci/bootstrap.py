@@ -17,6 +17,7 @@ installation of bob.devtools.
 import os
 import sys
 import glob
+import time
 import shutil
 import platform
 import subprocess
