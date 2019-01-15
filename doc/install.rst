@@ -44,9 +44,9 @@ repeatitive.  Your ``~/.python-gitlab.cfg`` should roughly look like this
    private_token = <obtain token at your settings page in gitlab>
    api_version = 4
 
-We recommend you set ``chmod 600`` to this file to avoid prying us to read out
-your personal token. Once you have your token set up, communication should work
-transparently between these gitlab clients and the server.
+We recommend you set ``chmod 600`` to this file to avoid prying eyes to read
+out your personal token. Once you have your token set up, communication should
+work transparently between the built-in gitlab client and the server.
 
 
 .. include:: links.rst
