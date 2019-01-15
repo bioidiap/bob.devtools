@@ -58,6 +58,7 @@ merge_conda_cache() {
     if [ -e ${2}/pkgs ]; then
       log_info "Merging urls.txt and packages with cached files..."
       mv ${2}/pkgs/*.tar.bz2 ${1}/pkgs
+      run_cmd rm -f ${1}/pkgs/${CI_PROJECT_NAME}-*-*_*.tar.bz2
       cat ${_urlstxt} ${_cached_urlstxt} | sort | uniq > ${_urlstxt}
     else
       run_cmd mkdir -p ${1}/pkgs
