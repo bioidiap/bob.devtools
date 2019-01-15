@@ -93,8 +93,8 @@ def deploy(dry_run):
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
       for k in deploy_packages:
-        remote_path = '%s%s/%s' % (server_info['root'], server_info['conda'],
-            os.path.basename(k))
+        remote_path = '%s%s/%s/%s' % (server_info['root'],
+            server_info['conda'], arch, os.path.basename(k))
         if davclient.check(remote_path):
           raise RuntimeError('The file %s/%s already exists on the server ' \
               '- this can be due to more than one build with deployment ' \
