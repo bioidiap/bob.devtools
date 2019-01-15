@@ -71,7 +71,7 @@ def deploy(dry_run):
 
     server_info = WEBDAV_PATHS[stable][visible]
 
-    logger.info('Deploying conda packages to %s/%s%s...', SERVER,
+    logger.info('Deploying conda packages to %s%s%s...', SERVER,
         server_info['root'], server_info['conda'])
 
     # setup webdav connection
@@ -81,7 +81,7 @@ def deploy(dry_run):
         'webdav_login': os.environ['DOCUSER'],
         'webdav_password': os.environ['DOCPASS'],
         }
-    davclient = Client(options)
+    davclient = webdav3.Client(options)
     assert davclient.valid()
 
     group, name = package.split('/')
