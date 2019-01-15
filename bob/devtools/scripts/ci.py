@@ -13,7 +13,7 @@ from click_plugins import with_plugins
 from . import bdt
 from ..log import verbosity_option
 from ..ci import is_stable, is_visible_outside
-from ..constants import SERVER, WEBDAV_PATHS
+from ..constants import SERVER, WEBDAV_PATHS, CACERT
 from ..webdav3 import client as webdav
 
 
@@ -134,3 +134,70 @@ def deploy(dry_run):
       if not dry_run:
         davclient.upload_directory(local_path=local_docs,
             remote_path=remote_path)
+
+
+@ci.command(epilog='''
+Examples:
+
+  1. Deploys current build artifacts to the Python Package Index (PyPI):
+
+     $ bdt ci pypi -vv
+
+''')
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+def pypi(dry_run):
+    """Deploys build artifacts (python packages to PyPI)
+
+    Deployment is only allowed for packages in which the visibility is
+    "public".  This check prevents publishing of private resources to the
+    (public) PyPI webserver.
+    """
+
+    if dry_run:
+        logger.warn('!!!! DRY RUN MODE !!!!')
+        logger.warn('Nothing is being deployed to server')
+
+    package = os.environ['CI_PROJECT_PATH']
+
+    # determine project visibility
+    visible = is_visible_outside(package, os.environ['CI_PROJECT_VISIBILITY'])
+
+    if not visible:
+      raise RuntimeError('The repository %s is not public - a package ' \
+          'deriving from it therefore, CANNOT be published to PyPI. ' \
+          'You must follow the relevant software disclosure procedures ' \
+          'and set this repository to "public" before trying again.' % package)
+
+    # finds the package that should be published
+    zip_glob = os.path.join(os.environ['CI_PROJECT_DIR'], 'dist', '*-*.zip')
+    zip_files = glob.glob(zip_glob)
+
+    if len(zip_files) == 0:
+      raise RuntimeError('Cannot find .zip files on the "dist" directory')
+
+    if len(zip_files) > 1:
+      raise RuntimeError('There are %d .zip files on the "dist" directory: ' \
+          '%s - I\'m confused on what to publish to PyPI...' % \
+          (len(zip_files), ', '.join(zip_files)))
+
+    logger.info('Deploying python package %s to PyPI', zip_files[0])
+    #twine upload --skip-existing --username ${PYPIUSER} --password ${PYPIPASS}
+    #dist/*.zip
+    from twine.settings import Settings
+
+    settings = Settings(
+        username=os.environ['PYPIUSER'],
+        password=os.environ['PYPIPASS'],
+        skip_existing=True,
+        cacert=CACERT,
+        )
+
+    if not dry_run:
+      from twine.commands.upload import upload
+      upload(settings, zip_files)
+      logger.info('Deployment to PyPI successful')

@@ -57,6 +57,7 @@ setup(
 
         'bdt.ci.cli': [
           'deploy = bob.devtools.scripts.ci:deploy',
+          'pypi = bob.devtools.scripts.ci:pypi',
           ],
     },
     classifiers=[

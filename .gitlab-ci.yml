@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - deploy
+  - pypi
 
 
 # Build targets
@@ -82,7 +83,7 @@ build_macosx_36:
     - build_linux_36
     - build_macosx_36
   tags:
-    - deployer
+    - docker
   cache: &build_caches
     paths:
       - miniconda.sh
@@ -104,3 +105,23 @@ deploy_stable:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
+
+
+pypi:
+  stage: pypi
+  environment: pypi
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+  except:
+    - branches
+  before_script:
+    - ./ci/bootstrap.sh local myenv
+  script:
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate myenv
+    - bdt ci pypi -vv
+  dependencies:
+    - build_linux_36
+    - build_macosx_36
+  tags:
+    - docker
