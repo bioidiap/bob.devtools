@@ -65,6 +65,8 @@ test:
     - bdt build --help
     - bdt getpath --help
     - bdt caupdate --help
+    - bdt ci --help
+    - bdt ci deploy --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ project_dir }}/sphinx
 
 about:
