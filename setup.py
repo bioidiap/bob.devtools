@@ -17,6 +17,8 @@ requires = [
     'sphinx',
     'pyyaml',
     'twine',
+    'packaging',
+    'lxml',
     ]
 
 setup(
@@ -41,16 +43,21 @@ setup(
             'bdt = bob.devtools.scripts.bdt:main',
         ],
         'bdt.cli': [
-            'release = bob.devtools.scripts.release:release',
-            'changelog = bob.devtools.scripts.changelog:changelog',
-            'lasttag = bob.devtools.scripts.lasttag:lasttag',
-            'visibility = bob.devtools.scripts.visibility:visibility',
-            'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
-            'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
-            'build = bob.devtools.scripts.build:build',
-            'getpath = bob.devtools.scripts.getpath:getpath',
-            'caupdate = bob.devtools.scripts.caupdate:caupdate',
-        ],
+          'release = bob.devtools.scripts.release:release',
+          'changelog = bob.devtools.scripts.changelog:changelog',
+          'lasttag = bob.devtools.scripts.lasttag:lasttag',
+          'visibility = bob.devtools.scripts.visibility:visibility',
+          'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
+          'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
+          'build = bob.devtools.scripts.build:build',
+          'getpath = bob.devtools.scripts.getpath:getpath',
+          'caupdate = bob.devtools.scripts.caupdate:caupdate',
+          'ci = bob.devtools.scripts.ci:ci',
+          ],
+
+        'bdt.ci.cli': [
+          'deploy = bob.devtools.scripts.ci:deploy',
+          ],
     },
     classifiers=[
         'Framework :: Bob',

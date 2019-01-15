@@ -61,9 +61,13 @@ def get_gitlab_instance():
     cfgs = [os.path.expanduser(k) for k in cfgs]
     if any([os.path.exists(k) for k in cfgs]):
         gl = gitlab.Gitlab.from_config('idiap', cfgs)
-    else: #ask the user for a token
+    else: #ask the user for a token or use one from the current runner
         server = "https://gitlab.idiap.ch"
-        token = input("%s token: " % server)
+        token = os.environ.get('CI_JOB_TOKEN')
+        if token is None:
+          logger.debug('Did not find any of %s nor CI_JOB_TOKEN is defined. ' \
+              'Asking for user token on the command line...', '|'.join(cfgs))
+          token = input("Your %s (private) token: " % server)
         gl = gitlab.Gitlab(server, private_token=token, api_version=4)
 
     return gl

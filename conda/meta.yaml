@@ -44,6 +44,8 @@ requirements:
     - sphinx
     - pyyaml
     - twine
+    - packaging
+    - lxml
 
 test:
   requires:

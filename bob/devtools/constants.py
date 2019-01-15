@@ -29,6 +29,48 @@ SERVER = 'http://www.idiap.ch'
 '''This is the default server use use to store data and build artifacts'''
 
 
+CONDA_CHANNELS = {
+    True: {  #stable?
+      False: '/private/conda',  #visible outside?
+      True: '/public/conda',
+      },
+    False: {
+      False: '/private/conda/label/beta',  #visible outside?
+      True: '/public/conda/label/beta',
+      },
+    }
+'''Default locations of our stable, beta, public and private conda channels'''
+
+
+WEBDAV_PATHS = {
+    True: {  #stable?
+      False: {  #visible?
+        'root': '/private-upload',
+        'conda': '/conda',
+        'docs': '/docs',
+        },
+      True: {  #visible?
+        'root': '/public-upload',
+        'conda': '/conda',
+        'docs': '/docs',
+        },
+      },
+    False: {  #stable?
+      False: {  #visible?
+        'root': '/private-upload',
+        'conda': '/conda/label/beta',
+        'docs': '/docs',
+        },
+      True: {  #visible?
+        'root': '/public-upload',
+        'conda': '/conda/label/beta',
+        'docs': '/docs',
+        },
+      },
+    }
+'''Default locations of our webdav upload paths'''
+
+
 IDIAP_ROOT_CA = b'''
 Idiap Root CA 2016 - for internal use
 =====================================
