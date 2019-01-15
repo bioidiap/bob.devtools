@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''Utilities for retrieving, parsing and auto-generating changelogs'''
 
 import io
 import datetime

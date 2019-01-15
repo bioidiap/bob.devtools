@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Sets-up logging, centrally for Bob.
+"""Logging utilities
 """
 
 import sys

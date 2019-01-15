@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 
+'''Methods to bootstrap working environments based on conda-packages'''
+
 import os
 import json
 import shutil

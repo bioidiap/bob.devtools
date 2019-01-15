@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''Utilities to needed to release packages'''
+
 import os
 import re
 import time
