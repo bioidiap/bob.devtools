@@ -14,7 +14,7 @@ from . import bdt
 from ..log import verbosity_option
 from ..ci import is_stable, is_visible_outside
 from ..constants import SERVER, WEBDAV_PATHS
-from .. import webdav3
+from ..webdav3 import client as webdav
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -81,7 +81,7 @@ def deploy(dry_run):
         'webdav_login': os.environ['DOCUSER'],
         'webdav_password': os.environ['DOCPASS'],
         }
-    davclient = webdav3.Client(options)
+    davclient = webdav.Client(options)
     assert davclient.valid()
 
     group, name = package.split('/')
