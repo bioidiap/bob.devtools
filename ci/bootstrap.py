@@ -228,12 +228,32 @@ def install_miniconda(prefix):
     shutil.rmtree(cached)
 
 
-def get_local_channels():
-  '''Returns the relevant conda channels to consider if building project'''
+def get_channels(public, stable):
+  '''Returns the relevant conda channels to consider if building project
 
-  # add channels
-  public = os.environ['CI_PROJECT_VISIBILITY'] == 'public'
-  stable = os.environ.get('CI_COMMIT_TAG') is not None
+  The subset of channels to be returned depends on the visibility and stability
+  of the package being built.  Here are the rules:
+
+  * public and stable: only returns the public stable channel(s)
+  * public and not stable: returns both public stable and beta channels
+  * not public and stable: returns both public and private stable channels
+  * not public and not stable: returns all channels
+
+  Beta channels have priority over stable channels, if returned.  Private
+  channels have priority over public channles, if turned.
+
+
+  Args:
+
+    public: Boolean indicating if we're supposed to include only public
+      channels
+    stable: Boolean indicating if we're supposed to include only stable
+      channels
+
+
+  Returns: a list of channels that need to be considered.
+
+  '''
 
   server = "http://www.idiap.ch"
   channels = []
@@ -343,13 +363,16 @@ if __name__ == '__main__':
     conda_bld_path = os.path.join(prefix, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])
     # add the locally build directory before defaults, boot from there
-    add_channels_condarc([conda_bld_path, 'defaults'], condarc)
+    channels = get_channels(public=True, stable=True)
+    add_channels_condarc(channels + [conda_bld_path, 'defaults'], condarc)
     run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
 
   elif sys.argv[1] in ('beta', 'stable'):
 
     # installs from channel
-    channels = get_local_channels()
+    channels = get_channels(
+        public=os.environ['CI_PROJECT_VISIBILITY'] == 'public',
+        stable=os.environ.get('CI_COMMIT_TAG') is not None)
     add_channels_condarc(channels + ['defaults'], condarc)
     run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
 
