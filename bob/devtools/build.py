@@ -305,12 +305,9 @@ if __name__ == '__main__':
       verbose=True)
 
   # runs the build using the conda-build API
-  arch = osname()
   logger.info('Building %s-%s-py%s (build: %d) for %s',
-      rendered_recipe['package']['name'],
-      rendered_recipe['package']['version'], pyver.replace('.',''),
-      build_number, arch)
-  conda_build.api.build(d, config=conda_config)
+      name, version, pyver.replace('.',''), build_number, osname())
+  conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
 
   # runs git clean to clean everything that is not needed. This helps to keep
   # the disk usage on CI machines to a minimum.
