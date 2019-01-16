@@ -162,7 +162,7 @@ def merge_conda_cache(cache, prefix):
 
   # move packages on cache/pkgs to pkgs_dir
   cached_pkgs_dir = os.path.join(cache, 'pkgs')
-  cached_packages = glob.glob(os.path.join(cache_pkgs_dir, '*.tar.bz2'))
+  cached_packages = glob.glob(os.path.join(cached_pkgs_dir, '*.tar.bz2'))
   cached_packages = [k for k in cached_packages if not \
       k.startswith(os.environ['CI_PROJECT_NAME'] + '-')]
   logger.info('Merging %d cached conda packages', len(cached_packages))
