@@ -299,8 +299,7 @@ if __name__ == '__main__':
   channels = bootstrap.get_channels(
       public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
       stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
-  build_number = next_build_number(condarc_options['channels'][0], name,
-      version, pyver)
+  build_number, _ = next_build_number(channels[0], name, version, pyver)
   bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
       verbose=True)
 
