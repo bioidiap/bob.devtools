@@ -100,16 +100,11 @@ def run_cmdline(cmd, env=None):
     env (dict, Optional): Environment to use for running the program on. If not
       set, use :py:obj:`os.environ`.
 
-
-  Returns:
-
-    str: The standard output and error of the command being executed
-
   '''
 
   if env is None: env = os.environ
 
-  logger.info('$ %s' % ' '.join(cmd))
+  logger.info('(system) %s' % ' '.join(cmd))
 
   start = time.time()
   out = b''
@@ -117,46 +112,35 @@ def run_cmdline(cmd, env=None):
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
       env=env)
 
-  chunk_size = 1 << 13
-  lineno = 1
-  for chunk in iter(lambda: p.stdout.read(chunk_size), b''):
-    decoded = chunk.decode()
-    while '\n' in decoded:
-      pos = decoded.index('\n')
-      print('%03d: %s' % (lineno, decoded[:pos]))
-      decoded = decoded[pos+1:]
-      lineno += 1
-    out += chunk
+  for line in iter(p.stdout.readline, b''):
+    sys.stdout.write(line.decode(sys.stdout.encoding))
+    sys.stdout.flush()
 
   if p.wait() != 0:
-    logger.error('Command output is:\n%s', out.decode())
     raise RuntimeError("command `%s' exited with error state (%d)" % \
-        (' '.join(cmd_log), p.returncode))
+        (' '.join(cmd), p.returncode))
 
   total = time.time() - start
 
   logger.info('command took %s' % human_time(total))
 
-  out = out.decode()
-
-  return out
 
 
 def touch(path):
   '''Python-implementation of the "touch" command-line application'''
 
   with open(path, 'a'):
-    os.utime(path, times)
+    os.utime(path, None)
 
 
 def merge_conda_cache(cache, prefix):
   '''Merges conda pkg caches and conda-bld folders'''
 
   pkgs_dir = os.path.join(prefix, 'pkgs')
+  pkgs_urls_txt = os.path.join(pkgs_dir, 'urls.txt')
   if not os.path.exists(pkgs_dir):
     logger.info('mkdir -p %s', pkgs_dir)
     os.makedirs(pkgs_dir)
-    pkgs_urls_txt = os.path.join(pkgs_dir, 'urls.txt')
     logger.info('touch %s', pkgs_urls_txt)
     touch(pkgs_urls_txt)
 
@@ -205,7 +189,7 @@ def get_miniconda_sh():
   else:
     path = path % 'Linux'
 
-  logger.info('Requesting for https://%s%s...', server, path)
+  logger.info('Connecting to https://%s...', server)
   conn = http.client.HTTPSConnection(server)
   conn.request("GET", path)
   r1 = conn.getresponse()
@@ -229,14 +213,19 @@ def install_miniconda(prefix):
   else:
     logger.info("Re-using cached miniconda3 installer")
 
+  cached = None
   if os.path.exists(prefix):  #this is the previous cache, move it
     cached = prefix + '.cached'
+    if os.path.exists(cached):
+      logger.info('(rmtree) %s', cached)
+      shutil.rmtree(cached)
     logger.info('(move) %s -> %s', prefix, cached)
     os.rename(prefix, cached)
 
   run_cmdline(['bash', 'miniconda.sh', '-b', '-p', prefix])
-  merge_conda_cache(cached, prefix)
-  shutil.rmtree(cached)
+  if cached is not None:
+    merge_conda_cache(cached, prefix)
+    shutil.rmtree(cached)
 
 
 def get_local_channels():
@@ -309,6 +298,7 @@ if __name__ == '__main__':
   if sys.argv[1] == 'test':
     # sets up local variables for testing
     os.environ['CI_PROJECT_DIR'] = os.path.realpath(os.curdir)
+    os.environ['CI_PROJECT_NAME'] = 'bob.devtools'
     os.environ['CONDA_ROOT'] = os.path.join(os.environ['CI_PROJECT_DIR'],
         'miniconda')
 
@@ -318,25 +308,21 @@ if __name__ == '__main__':
   workdir = os.environ['CI_PROJECT_DIR']
   logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
 
-  condarc = os.path.join(prefix, 'condarc')
-  os.environ['CONDARC'] = condarc
-  logger.info('os.environ["%s"] = %s', 'CONDARC', condarc)
-
+  install_miniconda(prefix)
   conda_bin = os.path.join(prefix, 'bin', 'conda')
-  if not os.path.exists(conda_bin):
-    install_miniconda(prefix)
 
   # creates the condarc file
-  logger.info('(copy) %s -> %s', baserc, condarc)
+  condarc = os.path.join(prefix, 'condarc')
+  logger.info('(create) %s', condarc)
   with open(condarc, 'wt') as f:
-    write(BASE_CONDARC)
-
-  shutil.copy2(baserc, condarc)
+    f.write(BASE_CONDARC)
+  os.environ['CONDARC'] = condarc
+  logger.info('os.environ["%s"] = %s', 'CONDARC', condarc)
 
   conda_version = '4'
   conda_build_version = '3'
 
-  if sys.argv[1] == 'build':
+  if sys.argv[1] in ('build', 'test'):
 
     # simple - just use the defaults channels when self building
     add_channels_condarc(['defaults'], condarc)
