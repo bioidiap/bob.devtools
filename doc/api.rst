@@ -8,7 +8,6 @@
 .. autosummary::
    bob.devtools.log
    bob.devtools.ci
-   bob.devtools.conda
    bob.devtools.constants
    bob.devtools.release
    bob.devtools.changelog
@@ -23,8 +22,6 @@ Detailed Information
 .. automodule:: bob.devtools.log
 
 .. automodule:: bob.devtools.ci
-
-.. automodule:: bob.devtools.conda
 
 .. automodule:: bob.devtools.constants
 
