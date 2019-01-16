@@ -17,7 +17,6 @@ requires = [
     'sphinx',
     'pyyaml',
     'twine',
-    'packaging',
     'lxml',
     ]
 

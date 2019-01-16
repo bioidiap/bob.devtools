@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import git
-import packaging.version
+import distutils.version
 
 
 def is_master(refname, tag):
@@ -71,9 +71,10 @@ def is_stable(package, refname, tag):
 
   if tag is not None:
     logger.info('Project %s tag is "%s"', package, tag)
-    parsed_tag = packaging.version.Version(tag)
+    parsed_tag = distutils.version.LooseVersion(tag[1:]).version  #remove 'v'
+    is_prerelease = any([isinstance(k, str) for k in parsed_tag])
 
-    if parsed_tag.is_prerelease:
+    if is_prerelease:
       logger.warn('Pre-release detected - not publishing to stable channels')
       return False
 
