@@ -16,7 +16,9 @@ stages:
   before_script:
     - python3 ./bob/devtools/bootstrap.py build
   script:
-    - ./ci/build.sh
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - python3 ./bob/devtools/build.py
   cache: &build_caches
     paths:
       - miniconda.sh

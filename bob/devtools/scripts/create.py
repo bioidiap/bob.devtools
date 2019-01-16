@@ -12,9 +12,10 @@ import yaml
 
 from . import bdt
 from ..log import verbosity_option
-from ..create import parse_dependencies, conda_create, make_conda_config
-from ..constants import CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
-    SERVER
+from ..build import parse_dependencies, conda_create, make_conda_config
+from ..constants import BASE_CONDARC, CONDA_BUILD_CONFIG, \
+    CONDA_RECIPE_APPEND, SERVER
+from ..bootstrap import set_environment, get_channels
 
 
 @click.command(epilog='''
@@ -61,27 +62,35 @@ Examples:
       help='If set and an environment with the same name exists, ' \
           'deletes it first before creating the new environment',
           show_default=True)
-@click.option('-r', '--condarc', default=CONDARC, show_default=True,
-    help='overwrites the path leading to the condarc file to use',)
+@click.option('-r', '--condarc',
+    help='Use custom conda configuration file instead of our own',)
+@click.option('-l', '--use-local', default=False,
+    help='Allow the use of local channels for package retrieval')
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
       default=CONDA_BUILD_CONFIG, help='overwrites the path leading to ' \
           'variant configuration file to use')
 @click.option('-a', '--append-file', show_default=True,
       default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
           'appended configuration file to use')
-@click.option('-D', '--docserver', show_default=True,
-      default=SERVER, help='Server used for uploading artifacts ' \
-          'and other goodies')
+@click.option('-S', '--server', show_default=True,
+    default='https://www.idiap.ch/software/bob', help='Server used for ' \
+    'downloading conda packages and documentation indexes of required packages')
+@click.option('-P', '--private/--no-private', default=False,
+    help='Set this to **include** private channels on your build - ' \
+        'you **must** be at Idiap to execute this build in this case - ' \
+        'you **must** also use the correct server name through --server - ' \
+        'notice this option has no effect if you also pass --condarc')
+@click.option('-X', '--stable/--no-stable', default=False,
+    help='Set this to **exclude** beta channels from your build - ' \
+        'notice this option has no effect if you also pass --condarc')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
-@click.option('--use-local', default=False,
-    help='Allow the use of local channels for package retrieval')
 @verbosity_option()
 @bdt.raise_on_error
-def create(name, recipe_dir, python, overwrite, condarc, config,
-    append_file, docserver, dry_run, use_local):
+def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
+    append_file, server, private, stable, dry_run):
   """Creates a development environment for a recipe
 
   It uses the conda render API to render a recipe and install an environment
@@ -112,12 +121,23 @@ def create(name, recipe_dir, python, overwrite, condarc, config,
         "properly?")
 
   # set some environment variables before continuing
-  set_environment('CONDARC', condarc, os.environ)
-  set_environment('SERVER', docserver, os.environ)
+  set_environment('DOCSERVER', server, os.environ)
   set_environment('LANG', 'en_US.UTF-8', os.environ)
   set_environment('LC_ALL', os.environ['LANG'], os.environ)
 
-  conda_config = make_conda_config(config, python, append_file, condarc)
+  if condarc is not None:
+    logger.info('Loading CONDARC file from %s...', condarc)
+    with open(condarc, 'rb') as f:
+      condarc_options = yaml.load(f)
+  else:
+    # use default and add channels
+    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    channels = get_channels(public=(not private), stable=stable, server=server,
+        intranet=private)
+    condarc_options['channels'] = channels + ['defaults']
+
+  conda_config = make_conda_config(config, python, append_file, condarc_options)
   deps = parse_dependencies(recipe_dir, conda_config)
-  status = conda_create(conda, name, overwrite, condarc, deps, dry_run, use_local)
+  status = conda_create(conda, name, overwrite, condarc_options, deps,
+      dry_run, use_local)
   click.echo('Execute on your shell: "conda activate %s"' % name)

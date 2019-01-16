@@ -9,10 +9,11 @@ import pkg_resources
 import logging
 logger = logging.getLogger(__name__)
 
+from . import bootstrap
 
-CONDARC = pkg_resources.resource_filename(__name__,
-    os.path.join('data', 'build-condarc'))
-'''The .condarc to use for building and creating new environments'''
+
+BASE_CONDARC = bootstrap._BASE_CONDARC
+'''Default setup for conda builds'''
 
 
 CONDA_BUILD_CONFIG = pkg_resources.resource_filename(__name__,
@@ -25,21 +26,8 @@ CONDA_RECIPE_APPEND = pkg_resources.resource_filename(__name__,
 '''Extra information to be appended to every recipe upon building'''
 
 
-SERVER = 'http://www.idiap.ch'
+SERVER = bootstrap._SERVER
 '''This is the default server use use to store data and build artifacts'''
-
-
-CONDA_CHANNELS = {
-    True: {  #stable?
-      False: '/private/conda',  #visible outside?
-      True: '/public/conda',
-      },
-    False: {
-      False: '/private/conda/label/beta',  #visible outside?
-      True: '/public/conda/label/beta',
-      },
-    }
-'''Default locations of our stable, beta, public and private conda channels'''
 
 
 WEBDAV_PATHS = {
@@ -136,20 +124,3 @@ MATPLOTLIB_RCDIR = pkg_resources.resource_filename(__name__, 'data')
 
 It is required for certain builds that use matplotlib functionality.
 '''
-
-
-def set_environment(name, value, env=os.environ):
-    '''Function to setup the environment variable and print debug message
-
-    Args:
-
-      name: The name of the environment variable to set
-      value: The value to set the environment variable to
-      env: Optional environment (dictionary) where to set the variable at
-    '''
-
-    if name in env:
-      logger.warn('Overriding existing environment variable ${%s} (was: "%s")',
-          name, env[name])
-    env[name] = value
-    logger.debug('$ export %s="%s"', name, value)

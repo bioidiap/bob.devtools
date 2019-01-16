@@ -55,7 +55,8 @@ def main():
     """Bob Development Tools - see available commands below"""
 
     #sets up basic environment variables required everywhere
-    from ..constants import CACERT, set_environment
+    from ..constants import CACERT
+    from ..bootstrap import set_environment
 
     set_environment('SSL_CERT_FILE', CACERT, os.environ)
     set_environment('REQUESTS_CA_BUNDLE', CACERT, os.environ)

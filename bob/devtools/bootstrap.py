@@ -24,7 +24,7 @@ Arguments:
 '''
 
 
-BASE_CONDARC = '''\
+_BASE_CONDARC = '''\
 default_channels:
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/free
@@ -39,6 +39,17 @@ anaconda_upload: false #!final
 ssl_verify: false #!final
 '''
 
+_SERVER = 'http://www.idiap.ch'
+
+_INTERVALS = (
+    ('weeks', 604800),  # 60 * 60 * 24 * 7
+    ('days', 86400),    # 60 * 60 * 24
+    ('hours', 3600),    # 60 * 60
+    ('minutes', 60),
+    ('seconds', 1),
+    )
+'''Time intervals that make up human readable time slots'''
+
 
 import os
 import sys
@@ -49,16 +60,25 @@ import platform
 import subprocess
 
 import logging
-logger = logging.getLogger('bootstrap')
+logger = logging.getLogger(__name__)
 
 
-_INTERVALS = (
-    ('weeks', 604800),  # 60 * 60 * 24 * 7
-    ('days', 86400),    # 60 * 60 * 24
-    ('hours', 3600),    # 60 * 60
-    ('minutes', 60),
-    ('seconds', 1),
-    )
+def set_environment(name, value, env=os.environ):
+    '''Function to setup the environment variable and print debug message
+
+    Args:
+
+      name: The name of the environment variable to set
+      value: The value to set the environment variable to
+      env: Optional environment (dictionary) where to set the variable at
+    '''
+
+    if name in env:
+      logger.warn('Overriding existing environment variable ${%s} (was: "%s")',
+          name, env[name])
+    env[name] = value
+    logger.debug('$ export %s="%s"', name, value)
+
 
 def human_time(seconds, granularity=2):
   '''Returns a human readable time string like "1 day, 2 hours"'''
@@ -228,7 +248,7 @@ def install_miniconda(prefix):
     shutil.rmtree(cached)
 
 
-def get_channels(public, stable):
+def get_channels(public, stable, server, intranet):
   '''Returns the relevant conda channels to consider if building project
 
   The subset of channels to be returned depends on the visibility and stability
@@ -249,22 +269,31 @@ def get_channels(public, stable):
       channels
     stable: Boolean indicating if we're supposed to include only stable
       channels
+    server: The base address of the server containing our conda channels
+    intranet: Boolean indicating if we should add "private"/"public" prefixes
+      on the conda paths
 
 
   Returns: a list of channels that need to be considered.
 
   '''
 
-  server = "http://www.idiap.ch"
   channels = []
 
+  if (not public) and (not intranet):
+    raise RuntimeError('You cannot request for private channels and set' \
+        ' intranet=False (server=%s) - these are conflicting options' % server)
+
   if not public:
+    prefix = '/private' if intranet else ''
     if not stable:  #allowed private channels
-      channels += [server + '/private/conda/label/beta']  #allowed betas
-    channels += [server + '/private/conda']
+      channels += [server + prefix + '/conda/label/beta']  #allowed betas
+    channels += [server + prefix + '/conda']
+
+  prefix = '/public' if intranet else ''
   if not stable:
-    channels += [server + '/public/conda/label/beta']  #allowed betas
-  channels += [server + '/public/conda']
+    channels += [server + prefix + '/conda/label/beta']  #allowed betas
+  channels += [server + prefix + '/conda']
 
   return channels
 
@@ -278,10 +307,10 @@ def add_channels_condarc(channels, condarc):
       f.write('  - %s\n' % k)
 
   with open(condarc, 'rt') as f:
-    logger.info('Contents of $CONDARC:\n%s', f.read())
+    logger.info('Contents of installed CONDARC:\n%s', f.read())
 
 
-def setup_logger():
+def setup_logger(logger):
   '''Sets-up the logging for this command at level ``INFO``'''
 
   warn_err = logging.StreamHandler(sys.stderr)
@@ -313,14 +342,14 @@ if __name__ == '__main__':
     print(__doc__ % sys.argv[0])
     sys.exit(1)
 
-  setup_logger()
+  setup_logger(logger)
 
   if sys.argv[1] == 'test':
     # sets up local variables for testing
-    os.environ['CI_PROJECT_DIR'] = os.path.realpath(os.curdir)
-    os.environ['CI_PROJECT_NAME'] = 'bob.devtools'
-    os.environ['CONDA_ROOT'] = os.path.join(os.environ['CI_PROJECT_DIR'],
-        'miniconda')
+    set_environment('CI_PROJECT_DIR', os.path.realpath(os.curdir))
+    set_environment('CI_PROJECT_NAME', 'bob.devtools')
+    set_environment('CONDA_ROOT', os.path.join(os.environ['CI_PROJECT_DIR'],
+        'miniconda'))
 
   prefix = os.environ['CONDA_ROOT']
   logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
@@ -335,9 +364,7 @@ if __name__ == '__main__':
   condarc = os.path.join(prefix, 'condarc')
   logger.info('(create) %s', condarc)
   with open(condarc, 'wt') as f:
-    f.write(BASE_CONDARC)
-  os.environ['CONDARC'] = condarc
-  logger.info('os.environ["%s"] = %s', 'CONDARC', condarc)
+    f.write(_BASE_CONDARC)
 
   conda_version = '4'
   conda_build_version = '3'
@@ -363,7 +390,8 @@ if __name__ == '__main__':
     conda_bld_path = os.path.join(prefix, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])
     # add the locally build directory before defaults, boot from there
-    channels = get_channels(public=True, stable=True)
+    channels = get_channels(public=True, stable=True, server=_SERVER,
+        intranet=True)
     add_channels_condarc(channels + [conda_bld_path, 'defaults'], condarc)
     run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
 
@@ -372,7 +400,8 @@ if __name__ == '__main__':
     # installs from channel
     channels = get_channels(
         public=os.environ['CI_PROJECT_VISIBILITY'] == 'public',
-        stable=os.environ.get('CI_COMMIT_TAG') is not None)
+        stable=os.environ.get('CI_COMMIT_TAG') is not None,
+        server=_SERVER, intranet=True)
     add_channels_condarc(channels + ['defaults'], condarc)
     run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
 
