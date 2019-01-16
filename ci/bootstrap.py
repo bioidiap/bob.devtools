@@ -52,6 +52,14 @@ import logging
 logger = logging.getLogger('bootstrap')
 
 
+_INTERVALS = (
+    ('weeks', 604800),  # 60 * 60 * 24 * 7
+    ('days', 86400),    # 60 * 60 * 24
+    ('hours', 3600),    # 60 * 60
+    ('minutes', 60),
+    ('seconds', 1),
+    )
+
 def human_time(seconds, granularity=2):
   '''Returns a human readable time string like "1 day, 2 hours"'''
 
@@ -110,7 +118,7 @@ def run_cmdline(cmd, env=None):
       env=env)
 
   chunk_size = 1 << 13
-  lineno = 0
+  lineno = 1
   for chunk in iter(lambda: p.stdout.read(chunk_size), b''):
     decoded = chunk.decode()
     while '\n' in decoded:
