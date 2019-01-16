@@ -277,9 +277,7 @@ if __name__ == '__main__':
 
   # if we're build a stable release, ensure a tag is set
   parsed_version = distutils.version.LooseVersion(version).version
-  is_prerelease = 'a' in parsed_version or \
-      'b' in parsed_version or \
-      'c' in parsed_version
+  is_prerelease = any([isinstance(k, str) for k in parsed_version])
   if is_prerelease:
     if os.environ.get('CI_COMMIT_TAG') is not None:
       raise EnvironmentError('"version.txt" indicates version is a ' \
@@ -295,8 +293,11 @@ if __name__ == '__main__':
           'a tagged build. Use ``bdt release`` to create stable releases',
           version)
 
+  channels = bootstrap.get_channels(
+      public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
+      stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
   build_number = next_build_number(condarc_options['channels'][0], name,
-      version, python)
+      version, pyver)
   os.environ['BOB_BUILD_NUMBER'] = build_number
   logger.info('os.environ["%s"] = %s', 'BOB_BUILD_NUMBER', build_number)
 
