@@ -16,3 +16,5 @@ dist
 build
 .coverage
 record.txt
+miniconda.sh
+miniconda/
