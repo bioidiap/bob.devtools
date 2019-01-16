@@ -295,7 +295,8 @@ if __name__ == '__main__':
           'a tagged build. Use ``bdt release`` to create stable releases',
           version)
 
-  build_number = next_build_number(channels[0], name, version, python)
+  build_number = next_build_number(condarc_options['channels'][0], name,
+      version, python)
   os.environ['BOB_BUILD_NUMBER'] = build_number
   logger.info('os.environ["%s"] = %s', 'BOB_BUILD_NUMBER', build_number)
 
