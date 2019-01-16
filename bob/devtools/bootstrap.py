@@ -63,7 +63,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def set_environment(name, value, env=os.environ):
+def set_environment(name, value, env=os.environ, verbose=False):
     '''Function to setup the environment variable and print debug message
 
     Args:
@@ -71,13 +71,17 @@ def set_environment(name, value, env=os.environ):
       name: The name of the environment variable to set
       value: The value to set the environment variable to
       env: Optional environment (dictionary) where to set the variable at
+      verbose: Increases the verbosity of variable reporting
     '''
 
     if name in env:
       logger.warn('Overriding existing environment variable ${%s} (was: "%s")',
           name, env[name])
     env[name] = value
-    logger.debug('$ export %s="%s"', name, value)
+    logat = logger.debug
+    if verbose:
+      logat = logger.info
+    logat('environ["%s"] = %s', name, value)
 
 
 def human_time(seconds, granularity=2):
@@ -346,10 +350,10 @@ if __name__ == '__main__':
 
   if sys.argv[1] == 'test':
     # sets up local variables for testing
-    set_environment('CI_PROJECT_DIR', os.path.realpath(os.curdir))
-    set_environment('CI_PROJECT_NAME', 'bob.devtools')
+    set_environment('CI_PROJECT_DIR', os.path.realpath(os.curdir), verbose=True)
+    set_environment('CI_PROJECT_NAME', 'bob.devtools', verbose=True)
     set_environment('CONDA_ROOT', os.path.join(os.environ['CI_PROJECT_DIR'],
-        'miniconda'))
+        'miniconda'), verbose=True)
 
   prefix = os.environ['CONDA_ROOT']
   logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
