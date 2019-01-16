@@ -12,7 +12,9 @@
    bob.devtools.constants
    bob.devtools.release
    bob.devtools.changelog
+   bob.devtools.create
    bob.devtools.bootstrap
+   bob.devtools.build
    bob.devtools.webdav3.client
 
 
@@ -31,7 +33,11 @@ Detailed Information
 
 .. automodule:: bob.devtools.changelog
 
+.. automodule:: bob.devtools.create
+
 .. automodule:: bob.devtools.bootstrap
+
+.. automodule:: bob.devtools.build
 
 
 WebDAV Python Client

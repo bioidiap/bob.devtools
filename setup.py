@@ -48,7 +48,7 @@ setup(
           'lasttag = bob.devtools.scripts.lasttag:lasttag',
           'visibility = bob.devtools.scripts.visibility:visibility',
           'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
-          'bootstrap = bob.devtools.scripts.bootstrap:bootstrap',
+          'create = bob.devtools.scripts.create:create',
           'build = bob.devtools.scripts.build:build',
           'getpath = bob.devtools.scripts.getpath:getpath',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',

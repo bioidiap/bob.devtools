@@ -12,7 +12,7 @@ import yaml
 
 from . import bdt
 from ..log import verbosity_option
-from ..bootstrap import parse_dependencies, conda_create, make_conda_config
+from ..create import parse_dependencies, conda_create, make_conda_config
 from ..constants import CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER
 
@@ -24,7 +24,7 @@ Examples:
 
 \b
      $ cd bob.package.foo
-     $ bdt bootstrap -vv myenv
+     $ bdt create -vv myenv
 
      The above command assumes the directory `conda' exists on the current directory and that it contains a file called `meta.yaml' containing the recipe for the package you want to create a development environment for.
 
@@ -33,12 +33,12 @@ Examples:
 
   2. By default, we use the native python version of your conda installation as the default python version to use for the newly created environment. You may select a different one with `--python=X.Y':
 
-     $ bdt bootstrap -vv --python=3.6 myenv
+     $ bdt create -vv --python=3.6 myenv
 
 
   3. By default, we use our own condarc and `conda_build_config.yaml` files that are used in creating packages for our CI/CD system. If you wish to use your own, specify them on the command line:
 
-     $ bdt bootstrap -vv --python=3.6 --config=config.yaml --condarc=~/.condarc myenv
+     $ bdt create -vv --python=3.6 --config=config.yaml --condarc=~/.condarc myenv
 
      Notice the condarc file **must** end in `condarc', or conda will complain.
 
@@ -49,7 +49,7 @@ Examples:
   shell will be printed:
 
 
-     $ bdt bootstrap -vvv --dry-run myenv
+     $ bdt create -vvv --dry-run myenv
 ''')
 @click.argument('name')
 @click.argument('recipe-dir', required=False, type=click.Path(file_okay=False,
@@ -80,7 +80,7 @@ Examples:
     help='Allow the use of local channels for package retrieval')
 @verbosity_option()
 @bdt.raise_on_error
-def bootstrap(name, recipe_dir, python, overwrite, condarc, config,
+def create(name, recipe_dir, python, overwrite, condarc, config,
     append_file, docserver, dry_run, use_local):
   """Creates a development environment for a recipe
 

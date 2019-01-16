@@ -12,7 +12,8 @@ import click
 from . import bdt
 from ..log import verbosity_option
 from ..conda import next_build_number, osname
-from ..bootstrap import get_rendered_metadata, get_parsed_recipe
+from ..create import get_rendered_metadata, get_parsed_recipe, \
+    make_conda_config
 from ..constants import CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, set_environment
 
@@ -85,7 +86,6 @@ def build(recipe_dir, python, condarc, config, channel, no_test, append_file,
 
   logger.debug("CONDARC=%s", condarc)
 
-  from ..bootstrap import make_conda_config
   conda_config = make_conda_config(config, python, append_file, condarc)
 
   set_environment('LANG', 'en_US.UTF-8', os.environ)

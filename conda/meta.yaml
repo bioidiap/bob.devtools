@@ -61,7 +61,7 @@ test:
     - bdt release --help
     - bdt visibility --help
     - bdt dumpsphinx --help
-    - bdt bootstrap --help
+    - bdt create --help
     - bdt build --help
     - bdt getpath --help
     - bdt caupdate --help
