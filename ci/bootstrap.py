@@ -1,18 +1,44 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''Bootstraps a new conda installation and prepares base environment
+'''Bootstraps a new miniconda installation and prepares it for development
 
-If "local" is passed as parameter, then self installs an already built version
-of bob.devtools available on your conda-bld directory. If you pass "beta", then
-it bootstraps from the package installed on our conda beta channel.  If you
-pass "stable", then it bootstraps installing the package available on the
-stable channel.
+This command uses a bare-minimum python3 installation (with SSL support) to
+bootstrap a new miniconda installation preset for the defined activity.  It is
+primarily intended for CI operation and prefixes build and deployment steps.
 
-If bootstrapping anything else than "build", then provide a second argument
-with the name of the environment that one wants to create with an
-installation of bob.devtools.
+Usage: python3 %s <cmd> build|local|beta|stable [<name>]
+
+Arguments:
+
+  <cmd>  How to prepare the current environment. Use:
+
+         build   to build bob.devtools
+         local   to bootstrap deploy|pypi stages for bob.devtools builds
+         beta    to bootstrap CI environment for beta builds
+         stable  to bootstrap CI environment for stable builds
+         test    to locally test this bootstrap script
+
+  <name>  (optional) if command is one of ``local|beta|stable`` provide the
+          name of env for bob.devtools installation')
 '''
+
+
+BASE_CONDARC = '''\
+default_channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/free
+  - https://repo.anaconda.com/pkgs/r
+  - https://repo.anaconda.com/pkgs/pro
+add_pip_as_python_dependency: false #!final
+changeps1: false #!final
+always_yes: true #!final
+quiet: true #!final
+show_channel_urls: true #!final
+anaconda_upload: false #!final
+ssl_verify: false #!final
+'''
+
 
 import os
 import sys
@@ -24,6 +50,35 @@ import subprocess
 
 import logging
 logger = logging.getLogger('bootstrap')
+
+
+def human_time(seconds, granularity=2):
+  '''Returns a human readable time string like "1 day, 2 hours"'''
+
+  result = []
+
+  for name, count in _INTERVALS:
+    value = seconds // count
+    if value:
+      seconds -= value * count
+      if value == 1:
+        name = name.rstrip('s')
+      result.append("{} {}".format(int(value), name))
+    else:
+      # Add a blank if we're in the middle of other values
+      if len(result) > 0:
+        result.append(None)
+
+  if not result:
+    if seconds < 1.0:
+      return '%.2f seconds' % seconds
+    else:
+      if seconds == 1:
+        return '1 second'
+      else:
+        return '%d seconds' % seconds
+
+  return ', '.join([x for x in result[:granularity] if x is not None])
 
 
 def run_cmdline(cmd, env=None):
@@ -135,23 +190,23 @@ def get_miniconda_sh():
 
   import http.client
 
-  server = 'https://repo.continuum.io'
+  server = 'repo.continuum.io'  #https
   path = '/miniconda/Miniconda3-latest-%s-x86_64.sh'
   if platform.system() == 'Darwin':
     path = path % 'MacOSX'
   else:
     path = path % 'Linux'
 
-  logger.info('Requesting for %s%s...', server, path)
+  logger.info('Requesting for https://%s%s...', server, path)
   conn = http.client.HTTPSConnection(server)
   conn.request("GET", path)
   r1 = conn.getresponse()
 
-  assert r1.status == 200, 'Request for %s%s - returned status %d (%s)' % \
-      (server, path, r1.status, r1.reason)
+  assert r1.status == 200, 'Request for https://%s%s - returned status %d ' \
+      '(%s)' % (server, path, r1.status, r1.reason)
 
   dst = 'miniconda.sh'
-  logger.info('(download) %s%s -> %s...', server, path, dst)
+  logger.info('(download) https://%s%s -> %s...', server, path, dst)
   with open(dst, 'wb') as f:
     f.write(r1.read())
 
@@ -209,17 +264,45 @@ def add_channels_condarc(channels, condarc):
     logger.info('Contents of $CONDARC:\n%s', f.read())
 
 
+def setup_logger():
+  '''Sets-up the logging for this command at level ``INFO``'''
+
+  warn_err = logging.StreamHandler(sys.stderr)
+  warn_err.setLevel(logging.WARNING)
+  logger.addHandler(warn_err)
+
+  # debug and info messages are written to sys.stdout
+
+  class _InfoFilter:
+    def filter(self, record):
+      return record.levelno <= logging.INFO
+
+  debug_info = logging.StreamHandler(sys.stdout)
+  debug_info.setLevel(logging.DEBUG)
+  debug_info.addFilter(_InfoFilter())
+  logger.addHandler(debug_info)
+
+  formatter = logging.Formatter('%(levelname)s@%(asctime)s: %(message)s')
+
+  for handler in logger.handlers:
+    handler.setFormatter(formatter)
+
+  logger.setLevel(logging.INFO)
+
+
 if __name__ == '__main__':
 
   if len(sys.argv) == 1:
-    print('usage: python3 %s build|local|beta|stable [name]' % sys.argv[0])
-    print('  build   to build bob.devtools')
-    print('  local   to bootstrap deploy|pypi stages for bob.devtools builds')
-    print('  beta    to bootstrap CI environment for beta builds')
-    print('  stable  to bootstrap CI environment for stable builds')
-    print('  [name]  (optional) if command is one of local|beta|stable, ')
-    print('          provide the name of env for bob.devtools installation')
+    print(__doc__ % sys.argv[0])
     sys.exit(1)
+
+  setup_logger()
+
+  if sys.argv[1] == 'test':
+    # sets up local variables for testing
+    os.environ['CI_PROJECT_DIR'] = os.path.realpath(os.curdir)
+    os.environ['CONDA_ROOT'] = os.path.join(os.environ['CI_PROJECT_DIR'],
+        'miniconda')
 
   prefix = os.environ['CONDA_ROOT']
   logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
@@ -236,8 +319,10 @@ if __name__ == '__main__':
     install_miniconda(prefix)
 
   # creates the condarc file
-  baserc = os.path.join(workdir, 'bob', 'devtools', 'data', 'base-condarc')
   logger.info('(copy) %s -> %s', baserc, condarc)
+  with open(condarc, 'wt') as f:
+    write(BASE_CONDARC)
+
   shutil.copy2(baserc, condarc)
 
   conda_version = '4'
