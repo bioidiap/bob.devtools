@@ -254,9 +254,12 @@ if __name__ == '__main__':
   pyver = os.environ['PYTHON_VERSION']
   logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
 
-  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, os.environ)
-  bootstrap.set_environment('LANG', 'en_US.UTF-8', os.environ)
-  bootstrap.set_environment('LC_ALL', os.environ['LANG'], os.environ)
+  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, os.environ,
+      verbose=True)
+  bootstrap.set_environment('LANG', 'en_US.UTF-8', os.environ,
+      verbose=True)
+  bootstrap.set_environment('LC_ALL', os.environ['LANG'], os.environ,
+      verbose=True)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
@@ -298,8 +301,8 @@ if __name__ == '__main__':
       stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
   build_number = next_build_number(condarc_options['channels'][0], name,
       version, pyver)
-  os.environ['BOB_BUILD_NUMBER'] = build_number
-  logger.info('os.environ["%s"] = %s', 'BOB_BUILD_NUMBER', build_number)
+  bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
+      verbose=True)
 
   # runs the build using the conda-build API
   arch = osname()
