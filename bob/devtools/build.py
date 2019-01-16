@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import yaml
-import packaging
+import distutils.version
 import conda_build.api
 
 
@@ -276,8 +276,11 @@ if __name__ == '__main__':
   logger.info('os.environ["%s"] = %s', 'BOB_PACKAGE_VERSION', version)
 
   # if we're build a stable release, ensure a tag is set
-  parsed_version = packaging.version.Version(version)
-  if parsed_version.is_prerelease:
+  parsed_version = distutils.version.LooseVersion(version).version
+  is_prerelease = 'a' in parsed_version or \
+      'b' in parsed_version or \
+      'c' in parsed_version
+  if is_prerelease:
     if os.environ.get('CI_COMMIT_TAG') is not None:
       raise EnvironmentError('"version.txt" indicates version is a ' \
           'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
