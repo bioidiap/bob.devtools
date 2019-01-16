@@ -254,9 +254,9 @@ if __name__ == '__main__':
   pyver = os.environ['PYTHON_VERSION']
   logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
 
-  set_environment('DOCSERVER', bootstrap._SERVER, os.environ)
-  set_environment('LANG', 'en_US.UTF-8', os.environ)
-  set_environment('LC_ALL', os.environ['LANG'], os.environ)
+  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, os.environ)
+  bootstrap.set_environment('LANG', 'en_US.UTF-8', os.environ)
+  bootstrap.set_environment('LC_ALL', os.environ['LANG'], os.environ)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
