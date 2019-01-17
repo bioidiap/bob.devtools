@@ -92,7 +92,6 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   # get potential channel upload and other auxiliary channels
   channels = get_channels(public=(not private), stable=stable, server=server,
       intranet=private)
-  channel = channels[0]  # where we would upload this package
 
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
@@ -133,12 +132,9 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     rendered_recipe = get_parsed_recipe(metadata)
 
     # if a channel URL was passed, set the build number
-    if channel:
-      build_number, _ = next_build_number(channel,
-          rendered_recipe['package']['name'],
-          rendered_recipe['package']['version'], python)
-    else:
-      build_number = 0
+    build_number, _ = next_build_number(channels[0],
+        rendered_recipe['package']['name'],
+        rendered_recipe['package']['version'], python)
 
     set_environment('BOB_BUILD_NUMBER', str(build_number), os.environ)
 

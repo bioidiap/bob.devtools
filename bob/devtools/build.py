@@ -105,6 +105,23 @@ def next_build_number(channel_url, name, version, python):
 
 
 def make_conda_config(config, python, append_file, condarc_options):
+  '''Creates a conda configuration for a build merging various sources
+
+  This function will use the conda-build API to construct a configuration by
+  merging different sources of information.
+
+  Args:
+
+    config: Path leading to the ``conda_build_config.yaml`` to use
+    python: The version of python to use for the build as ``x.y`` (e.g.
+      ``3.6``)
+    append_file: Path leading to the ``recipe_append.yaml`` file to use
+    condarc_options: A dictionary (typically read from a condarc YAML file)
+      that contains build and channel options
+
+  Returns: A dictionary containing the merged configuration, as produced by
+  conda-build API's ``get_or_merge_config()`` function.
+  '''
 
   from conda_build.api import get_or_merge_config
   from conda_build.conda_interface import url_path
@@ -271,6 +288,13 @@ if __name__ == '__main__':
   with open(condarc, 'rb') as f:
     condarc_options = yaml.load(f)
 
+  # notice this condarc typically will only contain the defaults channel - we
+  # need to boost this up with more channels to get it right.
+  channels = bootstrap.get_channels(
+      public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
+      stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
+  condarc_options['channels'] = channels + ['defaults']
+
   conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
       condarc_options)
 
@@ -296,9 +320,7 @@ if __name__ == '__main__':
           'a tagged build. Use ``bdt release`` to create stable releases',
           version)
 
-  channels = bootstrap.get_channels(
-      public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
-      stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
+  # retrieve the current build number for this build
   build_number, _ = next_build_number(channels[0], name, version, pyver)
   bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
       verbose=True)
