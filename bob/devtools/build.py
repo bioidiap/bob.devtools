@@ -278,6 +278,29 @@ if __name__ == '__main__':
   bootstrap.set_environment('LC_ALL', os.environ['LANG'], os.environ,
       verbose=True)
 
+  # get information about the version of the package being built
+  version = open("version.txt").read().rstrip()
+  os.environ['BOB_PACKAGE_VERSION'] = version
+  logger.info('os.environ["%s"] = %s', 'BOB_PACKAGE_VERSION', version)
+
+  # if we're building a stable release, ensure a tag is set
+  parsed_version = distutils.version.LooseVersion(version).version
+  is_prerelease = any([isinstance(k, str) for k in parsed_version])
+  if is_prerelease:
+    if os.environ.get('CI_COMMIT_TAG') is not None:
+      raise EnvironmentError('"version.txt" indicates version is a ' \
+          'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
+          'which indicates this is a **stable** build. ' \
+          'Have you created the tag using ``bdt release``?', version,
+          os.environ['CI_COMMIT_TAG'])
+  else:  #it is a stable build
+    if os.environ.get('CI_COMMIT_TAG') is None:
+      raise EnvironmentError('"version.txt" indicates version is a ' \
+          'stable build (v%s) - but there is no os.environ["CI_COMMIT_TAG"] ' \
+          'variable defined, which indicates this is **not** ' \
+          'a tagged build. Use ``bdt release`` to create stable releases',
+          version)
+
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
   recipe_append = os.path.join(mydir, 'data', 'recipe_append.yaml')
@@ -299,28 +322,6 @@ if __name__ == '__main__':
 
   conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
       condarc_options)
-
-  version = open("version.txt").read().rstrip()
-  os.environ['BOB_PACKAGE_VERSION'] = version
-  logger.info('os.environ["%s"] = %s', 'BOB_PACKAGE_VERSION', version)
-
-  # if we're build a stable release, ensure a tag is set
-  parsed_version = distutils.version.LooseVersion(version).version
-  is_prerelease = any([isinstance(k, str) for k in parsed_version])
-  if is_prerelease:
-    if os.environ.get('CI_COMMIT_TAG') is not None:
-      raise EnvironmentError('"version.txt" indicates version is a ' \
-          'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
-          'which indicates this is a **stable** build. ' \
-          'Have you created the tag using ``bdt release``?', version,
-          os.environ['CI_COMMIT_TAG'])
-  else:  #it is a stable build
-    if os.environ.get('CI_COMMIT_TAG') is None:
-      raise EnvironmentError('"version.txt" indicates version is a ' \
-          'stable build (v%s) - but there is no os.environ["CI_COMMIT_TAG"] ' \
-          'variable defined, which indicates this is **not** ' \
-          'a tagged build. Use ``bdt release`` to create stable releases',
-          version)
 
   # retrieve the current build number for this build
   build_number, _ = next_build_number(channels[0], name, version, pyver)
