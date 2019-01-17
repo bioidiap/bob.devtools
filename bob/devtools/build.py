@@ -298,7 +298,7 @@ def get_docserver_setup(public, stable, server, intranet):
         server + prefix + '/docs/bob/%(name)s/master/',
         ]
 
-  if private:
+  if not public:
     # add private channels, (notice they are not accessible outside idiap)
     prefix = '/private' if intranet else ''
     if stable:
