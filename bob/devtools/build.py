@@ -293,6 +293,8 @@ if __name__ == '__main__':
   channels = bootstrap.get_channels(
       public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
       stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
+  logger.info('Using the following channels during build:%s',
+      '\n  - '.join(channels))
   condarc_options['channels'] = channels + ['defaults']
 
   conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
