@@ -12,7 +12,7 @@ import yaml
 
 from . import bdt
 from ..log import verbosity_option
-from ..build import next_build_number, osname, should_skip_build, \
+from ..build import next_build_number, conda_arch, should_skip_build, \
     get_rendered_metadata, get_parsed_recipe, make_conda_config
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
@@ -125,9 +125,10 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     metadata = get_rendered_metadata(d, conda_config)
 
     # checks we should actually build this recipe
+    arch = conda_arch()
     if should_skip_build(metadata):
       logger.warn('Skipping UNSUPPORTED build of "%s" for py%s on %s',
-          d, python.replace('.',''), osname())
+          d, python.replace('.',''), arch)
       return 0
 
     # converts the metadata output into parsed yaml and continues the process
@@ -143,7 +144,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     logger.info('Building %s-%s-py%s (build: %d) for %s',
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python.replace('.',''),
-        build_number, osname())
+        build_number, arch)
     if not dry_run:
       from conda_build.api import build
       build(d, config=conda_config, notest=no_test)

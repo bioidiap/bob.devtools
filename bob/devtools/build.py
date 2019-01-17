@@ -26,8 +26,8 @@ import distutils.version
 import conda_build.api
 
 
-def osname():
-  """Returns the current OS name as recognized by conda"""
+def conda_arch():
+  """Returns the current OS name and architecture as recognized by conda"""
 
   r = 'unknown'
   if platform.system().lower() == 'linux':
@@ -329,8 +329,9 @@ if __name__ == '__main__':
       verbose=True)
 
   # runs the build using the conda-build API
+  arch = conda_arch()
   logger.info('Building %s-%s-py%s (build: %d) for %s',
-      name, version, pyver.replace('.',''), build_number, osname())
+      name, version, pyver.replace('.',''), build_number, arch)
   conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
 
   # runs git clean to clean everything that is not needed. This helps to keep
@@ -339,7 +340,7 @@ if __name__ == '__main__':
       "miniconda.sh",   #the installer, cached
       "miniconda/pkgs/*.tar.bz2",  #downloaded packages, cached
       "miniconda/pkgs/urls.txt",  #download index, cached
-      "miniconda/conda-bld/${_os}-64/*.tar.bz2",  #build artifact -- conda
+      "miniconda/conda-bld/%s/*.tar.bz2" % (arch,),  #build artifact -- conda
       "dist/*.zip",  #build artifact -- pypi package
       "sphinx",  #build artifact -- documentation
       ]
