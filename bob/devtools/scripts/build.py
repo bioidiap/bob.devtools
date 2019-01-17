@@ -6,9 +6,10 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 
-import pkg_resources
-import click
 import yaml
+import click
+import pkg_resources
+import conda_build.api
 
 from . import bdt
 from ..log import verbosity_option
@@ -107,16 +108,16 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)
 
-  set_environment('LANG', 'en_US.UTF-8', os.environ)
-  set_environment('LC_ALL', os.environ['LANG'], os.environ)
-  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, os.environ)
+  set_environment('LANG', 'en_US.UTF-8', verbose=True)
+  set_environment('LC_ALL', os.environ['LANG'], verbose=True)
+  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
 
   # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
   # and derived documentation building via Sphinx)
-  set_environment('DOCSERVER', server, os.environ)
+  set_environment('DOCSERVER', server, verbose=True)
   doc_urls = get_docserver_setup(public=(not private), stable=stable,
       server=server, intranet=private)
-  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, server=server)
+  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
 
   for d in recipe_dir:
 
@@ -126,7 +127,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     version_candidate = os.path.join(d, '..', 'version.txt')
     if os.path.exists(version_candidate):
       version = open(version_candidate).read().rstrip()
-      set_environment('BOB_PACKAGE_VERSION', version, os.environ)
+      set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
 
     # pre-renders the recipe - figures out package name and version
     metadata = get_rendered_metadata(d, conda_config)
@@ -146,12 +147,11 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python)
 
-    set_environment('BOB_BUILD_NUMBER', str(build_number), os.environ)
+    set_environment('BOB_BUILD_NUMBER', str(build_number), verbose=True)
 
     logger.info('Building %s-%s-py%s (build: %d) for %s',
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python.replace('.',''),
         build_number, arch)
     if not dry_run:
-      from conda_build.api import build
-      build(d, config=conda_config, notest=no_test)
+      conda_build.api.build(d, config=conda_config, notest=no_test)

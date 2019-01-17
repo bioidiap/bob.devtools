@@ -13,8 +13,14 @@ from click_plugins import with_plugins
 from . import bdt
 from ..log import verbosity_option
 from ..ci import is_stable, is_visible_outside
-from ..constants import SERVER, WEBDAV_PATHS, CACERT
 from ..webdav3 import client as webdav
+
+from ..constants import SERVER, WEBDAV_PATHS, CACERT, CONDA_BUILD_CONFIG, \
+    CONDA_RECIPE_APPEND, MATPLOTLIB_RCDIR, BASE_CONDARC
+from ..build import next_build_number, conda_arch, should_skip_build, \
+    get_rendered_metadata, get_parsed_recipe, make_conda_config, \
+    get_docserver_setup, check_version, git_clean_build
+from ..bootstrap import set_environment, get_channels, run_cmdline
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -201,3 +207,90 @@ def pypi(dry_run):
       from twine.commands.upload import upload
       upload(settings, zip_files)
       logger.info('Deployment to PyPI successful')
+
+
+@ci.command(epilog='''
+Examples:
+
+  1. Builds the current package
+
+     $ bdt ci build -vv
+
+''')
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+def build(dry_run):
+  """Builds packages
+
+  This command builds packages in the CI infrastructure.  It is **not** meant
+  to be used outside this context.
+  """
+
+  if dry_run:
+      logger.warn('!!!! DRY RUN MODE !!!!')
+      logger.warn('Nothing is being built')
+
+  prefix = os.environ['CONDA_ROOT']
+  logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
+
+  workdir = os.environ['CI_PROJECT_DIR']
+  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
+
+  name = os.environ['CI_PROJECT_NAME']
+  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_NAME', name)
+
+  pyver = os.environ['PYTHON_VERSION']
+  logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
+
+  set_environment('LANG', 'en_US.UTF-8', os.environ, verbose=True)
+  set_environment('LC_ALL', os.environ['LANG'], os.environ, verbose=True)
+  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
+
+  # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
+  # and derived documentation building via Sphinx)
+  set_environment('DOCSERVER', SERVER, os.environ, verbose=True)
+  public = ( os.environ['CI_PROJECT_VISIBILITY']=='public' )
+  doc_urls = get_docserver_setup(public=public, stable=(not is_prerelease),
+      server=SERVER, intranet=True)
+  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
+
+  # get information about the version of the package being built
+  version, is_prerelease = check_version(workdir,
+      os.environ.get('CI_COMMIT_TAG'))
+  set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
+
+  condarc = os.path.join(prefix, 'condarc')
+  logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
+  with open(condarc, 'rb') as f:
+    condarc_options = yaml.load(f)
+
+  # notice this condarc typically will only contain the defaults channel - we
+  # need to boost this up with more channels to get it right.
+  channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
+      server=SERVER, intranet=True)
+  logger.info('Using the following channels during build:\n  - %s',
+      '\n  - '.join(channels + ['defaults']))
+  condarc_options['channels'] = channels + ['defaults']
+
+  # create the build configuration
+  logger.info('Merging conda configuration files...')
+  conda_config = make_conda_config(CONDA_BUILD_CONFIG, pyver,
+      CONDA_RECIPE_APPEND, condarc_options)
+
+  # retrieve the current build number for this build
+  build_number, _ = next_build_number(channels[0], name, version, pyver)
+  set_environment('BOB_BUILD_NUMBER', str(build_number), verbose=True)
+
+  # runs the build using the conda-build API
+  arch = conda_arch()
+  logger.info('Building %s-%s-py%s (build: %d) for %s',
+      name, version, pyver.replace('.',''), build_number, arch)
+
+  if not dry_run:
+    conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
+
+  git_clean_build(run_cmdline, arch)

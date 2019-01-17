@@ -314,6 +314,77 @@ def get_docserver_setup(public, stable, server, intranet):
   return '|'.join(entries)
 
 
+def check_version(workdir, envtag):
+  '''Checks if the version being built and the value reported match
+
+  This method will read the contents of the file ``version.txt`` and compare it
+  to the potentially set ``envtag`` (may be ``None``).  If the value of
+  ``envtag`` is different than ``None``, ensure it matches the value in
+  ``version.txt`` or raises an exception.
+
+
+  Args:
+
+    workdir: The work directory where the repo of the package being built was
+      checked-out
+    envtag: The output of os.environ.get('CI_COMMIT_TAG') (may be ``None``)
+
+
+  Returns: A tuple with the version of the package that we're currently
+  building and a boolean flag indicating if the version number represents a
+  pre-release or a stable release.
+  '''
+
+  version = open(os.path.join(workdir, "version.txt"), 'rt').read().rstrip()
+
+  # if we're building a stable release, ensure a tag is set
+  parsed_version = distutils.version.LooseVersion(version).version
+  is_prerelease = any([isinstance(k, str) for k in parsed_version])
+  if is_prerelease:
+    if envtag is not None:
+      raise EnvironmentError('"version.txt" indicates version is a ' \
+          'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
+          'which indicates this is a **stable** build. ' \
+          'Have you created the tag using ``bdt release``?' % (version,
+          envtag))
+  else:  #it is a stable build
+    if envtag is None:
+      raise EnvironmentError('"version.txt" indicates version is a ' \
+          'stable build (v%s) - but there is no os.environ["CI_COMMIT_TAG"] ' \
+          'variable defined, which indicates this is **not** ' \
+          'a tagged build. Use ``bdt release`` to create stable releases' % \
+          (version,))
+    if envtag[1:] != version:
+      raise EnvironmentError('"version.txt" and the value of ' \
+          'os.environ["CI_COMMIT_TAG"] do **NOT** agree - the former ' \
+          'reports version %s, the latter, %s' % (version, envtag[1:]))
+
+  return version, is_prerelease
+
+
+def git_clean_build(runner, arch):
+  '''Runs git-clean to clean-up build products
+
+  Args:
+
+    runner: A pointer to the ``run_cmdline()`` function
+
+  '''
+
+  # runs git clean to clean everything that is not needed. This helps to keep
+  # the disk usage on CI machines to a minimum.
+  exclude_from_cleanup = [
+      "miniconda.sh",   #the installer, cached
+      "miniconda/pkgs/*.tar.bz2",  #downloaded packages, cached
+      "miniconda/pkgs/urls.txt",  #download index, cached
+      "miniconda/conda-bld/%s/*.tar.bz2" % (arch,),  #build artifact -- conda
+      "dist/*.zip",  #build artifact -- pypi package
+      "sphinx",  #build artifact -- documentation
+      ]
+  runner(['git', 'clean', '-qffdx'] + \
+      ['--exclude=%s' % k for k in exclude_from_cleanup])
+
+
 if __name__ == '__main__':
 
   # loads the "adjacent" bootstrap module
@@ -338,40 +409,18 @@ if __name__ == '__main__':
   pyver = os.environ['PYTHON_VERSION']
   logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
 
-  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, os.environ,
-      verbose=True)
-  bootstrap.set_environment('LANG', 'en_US.UTF-8', os.environ,
-      verbose=True)
-  bootstrap.set_environment('LC_ALL', os.environ['LANG'], os.environ,
-      verbose=True)
+  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=True)
+  bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=True)
+  bootstrap.set_environment('LC_ALL', os.environ['LANG'], verbose=True)
 
   # get information about the version of the package being built
-  version = open("version.txt").read().rstrip()
-  os.environ['BOB_PACKAGE_VERSION'] = version
-  logger.info('os.environ["%s"] = %s', 'BOB_PACKAGE_VERSION', version)
-
-  # if we're building a stable release, ensure a tag is set
-  parsed_version = distutils.version.LooseVersion(version).version
-  is_prerelease = any([isinstance(k, str) for k in parsed_version])
-  if is_prerelease:
-    if os.environ.get('CI_COMMIT_TAG') is not None:
-      raise EnvironmentError('"version.txt" indicates version is a ' \
-          'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
-          'which indicates this is a **stable** build. ' \
-          'Have you created the tag using ``bdt release``?', version,
-          os.environ['CI_COMMIT_TAG'])
-  else:  #it is a stable build
-    if os.environ.get('CI_COMMIT_TAG') is None:
-      raise EnvironmentError('"version.txt" indicates version is a ' \
-          'stable build (v%s) - but there is no os.environ["CI_COMMIT_TAG"] ' \
-          'variable defined, which indicates this is **not** ' \
-          'a tagged build. Use ``bdt release`` to create stable releases',
-          version)
+  version, is_prerelease = check_version(workdir,
+      os.environ.get('CI_COMMIT_TAG'))
+  bootstrap.set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
   recipe_append = os.path.join(mydir, 'data', 'recipe_append.yaml')
-  logger.info('Merging conda configuration files...')
 
   condarc = os.path.join(prefix, 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
@@ -380,13 +429,14 @@ if __name__ == '__main__':
 
   # notice this condarc typically will only contain the defaults channel - we
   # need to boost this up with more channels to get it right.
-  channels = bootstrap.get_channels(
-      public=(os.environ['CI_PROJECT_VISIBILITY']=='public'),
-      stable=(not is_prerelease), server=bootstrap._SERVER, intranet=True)
+  public = ( os.environ['CI_PROJECT_VISIBILITY']=='public' )
+  channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
+      server=bootstrap._SERVER, intranet=True)
   logger.info('Using the following channels during build:\n  - %s',
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
 
+  logger.info('Merging conda configuration files...')
   conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
       condarc_options)
 
@@ -401,15 +451,4 @@ if __name__ == '__main__':
       name, version, pyver.replace('.',''), build_number, arch)
   conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
 
-  # runs git clean to clean everything that is not needed. This helps to keep
-  # the disk usage on CI machines to a minimum.
-  exclude_from_cleanup = [
-      "miniconda.sh",   #the installer, cached
-      "miniconda/pkgs/*.tar.bz2",  #downloaded packages, cached
-      "miniconda/pkgs/urls.txt",  #download index, cached
-      "miniconda/conda-bld/%s/*.tar.bz2" % (arch,),  #build artifact -- conda
-      "dist/*.zip",  #build artifact -- pypi package
-      "sphinx",  #build artifact -- documentation
-      ]
-  bootstrap.run_cmdline(['git', 'clean', '-qffdx'] + \
-      ['--exclude=%s' % k for k in exclude_from_cleanup])
+  git_clean_build(bootstrap.run_cmdline, arch)
