@@ -100,8 +100,8 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   else:
     # use default and add channels
     condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
-    logger.info('Using the following channels during build:%s',
-        '\n  - '.join(channels))
+    logger.info('Using the following channels during build:\n  - %s',
+        '\n  - '.join(channels + ['defaults']))
     condarc_options['channels'] = channels + ['defaults']
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)
