@@ -6,6 +6,7 @@ import glob
 import logging
 logger = logging.getLogger(__name__)
 
+import yaml
 import click
 import pkg_resources
 from click_plugins import with_plugins
