@@ -11,7 +11,6 @@ import click
 from click_plugins import with_plugins
 
 from ..log import setup
-from ..bootstrap import set_environment
 logger = setup('bob')
 
 
@@ -49,19 +48,9 @@ def raise_on_error(view_func):
     return wraps(view_func)(_decorator)
 
 
-# must set LANG and LC_ALL before using click
-set_environment('LANG', 'en_US.UTF-8', os.environ, verbose=False)
-set_environment('LC_ALL', os.environ['LANG'], os.environ, verbose=False)
-
-
 @with_plugins(pkg_resources.iter_entry_points('bdt.cli'))
 @click.group(cls=AliasedGroup,
              context_settings=dict(help_option_names=['-?', '-h', '--help']))
 def main():
     """Bob Development Tools - see available commands below"""
-
-    #sets up basic environment variables required everywhere
-    from ..constants import CACERT
-
-    set_environment('SSL_CERT_FILE', CACERT, os.environ)
-    set_environment('REQUESTS_CA_BUNDLE', CACERT, os.environ)
+    pass

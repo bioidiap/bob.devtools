@@ -74,14 +74,12 @@ def set_environment(name, value, env=os.environ, verbose=False):
       verbose: Increases the verbosity of variable reporting
     '''
 
-    if name in env:
-      logger.warn('Overriding existing environment variable ${%s} (was: "%s")',
-          name, env[name])
     env[name] = value
     logat = logger.debug
     if verbose:
       logat = logger.info
     logat('environ["%s"] = %s', name, value)
+    return value
 
 
 def human_time(seconds, granularity=2):
