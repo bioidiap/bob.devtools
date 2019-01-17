@@ -13,7 +13,8 @@ import yaml
 from . import bdt
 from ..log import verbosity_option
 from ..build import next_build_number, conda_arch, should_skip_build, \
-    get_rendered_metadata, get_parsed_recipe, make_conda_config
+    get_rendered_metadata, get_parsed_recipe, make_conda_config, \
+    get_docserver_setup
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
@@ -108,8 +109,14 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   set_environment('LANG', 'en_US.UTF-8', os.environ)
   set_environment('LC_ALL', os.environ['LANG'], os.environ)
-  set_environment('DOCSERVER', server, os.environ)
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, os.environ)
+
+  # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
+  # and derived documentation building via Sphinx)
+  set_environment('DOCSERVER', server, os.environ)
+  doc_urls = get_docserver_setup(public=(not private), stable=stable,
+      server=server, intranet=private)
+  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, server=server)
 
   for d in recipe_dir:
 

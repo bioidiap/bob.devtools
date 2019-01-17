@@ -282,11 +282,11 @@ def get_channels(public, stable, server, intranet):
 
   '''
 
-  channels = []
-
   if (not public) and (not intranet):
     raise RuntimeError('You cannot request for private channels and set' \
         ' intranet=False (server=%s) - these are conflicting options' % server)
+
+  channels = []
 
   if not public:
     prefix = '/private' if intranet else ''

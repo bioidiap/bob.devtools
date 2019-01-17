@@ -247,6 +247,73 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
       yaml.dump(condarc, f, indent=2)
 
 
+def get_docserver_setup(public, stable, server, intranet):
+  '''Returns a setup for BOB_DOCUMENTATION_SERVER
+
+  What is available to build the documentation depends on the setup of
+  ``public`` and ``stable``:
+
+  * public and stable: only returns the public stable channel(s)
+  * public and not stable: returns both public stable and beta channels
+  * not public and stable: returns both public and private stable channels
+  * not public and not stable: returns all channels
+
+  Beta channels have priority over stable channels, if returned.  Private
+  channels have priority over public channles, if turned.
+
+
+  Args:
+
+    public: Boolean indicating if we're supposed to include only public
+      channels
+    stable: Boolean indicating if we're supposed to include only stable
+      channels
+    server: The base address of the server containing our conda channels
+    intranet: Boolean indicating if we should add "private"/"public" prefixes
+      on the returned paths
+
+
+  Returns: a string to be used by bob.extension to find dependent
+  documentation projects.
+
+  '''
+
+  if (not public) and (not intranet):
+    raise RuntimeError('You cannot request for private channels and set' \
+        ' intranet=False (server=%s) - these are conflicting options' % server)
+
+  entries = []
+
+  # public documentation: always can access
+  prefix = '/software/bob'
+  if server.endswith(prefix):  # don't repeat yourself...
+    prefix = ''
+  if stable:
+    entries += [
+        server + prefix + '/docs/bob/%(name)s/%(version)s/',
+        server + prefix + '/docs/bob/%(name)s/stable/',
+        ]
+  else:
+    entries += [
+        server + prefix + '/docs/bob/%(name)s/master/',
+        ]
+
+  if private:
+    # add private channels, (notice they are not accessible outside idiap)
+    prefix = '/private' if intranet else ''
+    if stable:
+      entries += [
+          server + prefix + '/docs/bob/%(name)s/%(version)s/',
+          server + prefix + '/docs/bob/%(name)s/stable/',
+          ]
+    else:
+      entries += [
+          server + prefix + '/docs/bob/%(name)s/master/',
+          ]
+
+  return '|'.join(entries)
+
+
 if __name__ == '__main__':
 
   # loads the "adjacent" bootstrap module
