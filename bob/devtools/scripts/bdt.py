@@ -48,9 +48,22 @@ def raise_on_error(view_func):
     return wraps(view_func)(_decorator)
 
 
+# warning: must set LANG and LC_ALL before using click
+# see: https://click.palletsprojects.com/en/7.x/python3/
+if 'LANG' not in os.environ:
+  os.environ['LANG'] = 'en_US.UTF-8'
+if 'LC_ALL' not in os.environ:
+  os.environ['LC_ALL'] = 'en_US.UTF-8'
+
 @with_plugins(pkg_resources.iter_entry_points('bdt.cli'))
 @click.group(cls=AliasedGroup,
              context_settings=dict(help_option_names=['-?', '-h', '--help']))
 def main():
     """Bob Development Tools - see available commands below"""
-    pass
+
+    from ..constants import CACERT
+    from ..bootstrap import set_environment
+
+    # certificate setup: required for gitlab API interaction
+    set_environment('SSL_CERT_FILE', CACERT, os.environ)
+    set_environment('REQUESTS_CA_BUNDLE', CACERT, os.environ)
