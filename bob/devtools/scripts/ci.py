@@ -246,8 +246,6 @@ def build(dry_run):
   pyver = os.environ['PYTHON_VERSION']
   logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
 
-  set_environment('LANG', 'en_US.UTF-8', os.environ, verbose=True)
-  set_environment('LC_ALL', os.environ['LANG'], os.environ, verbose=True)
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
 
   # get information about the version of the package being built

@@ -122,8 +122,6 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
 
   # set some environment variables before continuing
   set_environment('DOCSERVER', server, os.environ)
-  set_environment('LANG', 'en_US.UTF-8', os.environ)
-  set_environment('LC_ALL', os.environ['LANG'], os.environ)
 
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)

@@ -108,8 +108,6 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)
 
-  set_environment('LANG', 'en_US.UTF-8', verbose=True)
-  set_environment('LC_ALL', os.environ['LANG'], verbose=True)
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
 
   # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
