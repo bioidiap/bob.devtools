@@ -250,6 +250,11 @@ def build(dry_run):
   set_environment('LC_ALL', os.environ['LANG'], os.environ, verbose=True)
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
 
+  # get information about the version of the package being built
+  version, is_prerelease = check_version(workdir,
+      os.environ.get('CI_COMMIT_TAG'))
+  set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
+
   # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
   # and derived documentation building via Sphinx)
   set_environment('DOCSERVER', SERVER, os.environ, verbose=True)
@@ -257,11 +262,6 @@ def build(dry_run):
   doc_urls = get_docserver_setup(public=public, stable=(not is_prerelease),
       server=SERVER, intranet=True)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
-
-  # get information about the version of the package being built
-  version, is_prerelease = check_version(workdir,
-      os.environ.get('CI_COMMIT_TAG'))
-  set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
 
   condarc = os.path.join(prefix, 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
