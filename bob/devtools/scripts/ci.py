@@ -269,7 +269,7 @@ def build(dry_run):
 
   # notice this condarc typically will only contain the defaults channel - we
   # need to boost this up with more channels to get it right.
-  channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
+  channels = get_channels(public=public, stable=(not is_prerelease),
       server=SERVER, intranet=True)
   logger.info('Using the following channels during build:\n  - %s',
       '\n  - '.join(channels + ['defaults']))
