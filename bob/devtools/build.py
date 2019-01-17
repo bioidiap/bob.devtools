@@ -343,5 +343,5 @@ if __name__ == '__main__':
       "dist/*.zip",  #build artifact -- pypi package
       "sphinx",  #build artifact -- documentation
       ]
-  bootstrap.run_cmdline(['git', 'clean', '-ffdx'] + \
+  bootstrap.run_cmdline(['git', 'clean', '-qffdx'] + \
       ['--exclude=%s' % k for k in exclude_from_cleanup])
