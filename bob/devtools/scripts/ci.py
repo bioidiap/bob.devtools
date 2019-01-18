@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 import yaml
 import click
 import pkg_resources
+import conda_build.api
 from click_plugins import with_plugins
 
 from . import bdt
