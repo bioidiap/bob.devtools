@@ -109,7 +109,8 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
   condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
 
-  conda_config = make_conda_config(config, python, append_file, condarc_options)
+  conda_config = make_conda_config(config, python, append_file,
+      condarc_options)
 
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
 

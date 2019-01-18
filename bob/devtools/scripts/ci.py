@@ -14,15 +14,9 @@ from click_plugins import with_plugins
 
 from . import bdt
 from ..log import verbosity_option
-from ..ci import is_stable, is_visible_outside
 from ..webdav3 import client as webdav
-
-from ..constants import SERVER, WEBDAV_PATHS, CACERT, CONDA_BUILD_CONFIG, \
-    CONDA_RECIPE_APPEND, MATPLOTLIB_RCDIR, BASE_CONDARC
-from ..build import next_build_number, conda_arch, should_skip_build, \
-    get_rendered_metadata, get_parsed_recipe, make_conda_config, \
-    get_docserver_setup, check_version, git_clean_build
-from ..bootstrap import set_environment, get_channels, run_cmdline
+from ..constants import SERVER, WEBDAV_PATHS, CACERT
+from ..bootstrap import set_environment, run_cmdline
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -72,11 +66,12 @@ def deploy(dry_run):
     package = os.environ['CI_PROJECT_PATH']
 
     # determine project visibility
-    visible = is_visible_outside(package, os.environ['CI_PROJECT_VISIBILITY'])
+    visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
     # determine if building master branch or tag - and if tag is on master
-    tag = os.environ.get('CI_COMMIT_TAG')
-    stable = is_stable(package, os.environ['CI_COMMIT_REF_NAME'], tag)
+    stable = is_stable(package,
+        os.environ['CI_COMMIT_REF_NAME'],
+        os.environ['CI_COMMIT_TAG'])
 
     server_info = WEBDAV_PATHS[stable][visible]
 
@@ -174,7 +169,7 @@ def pypi(dry_run):
     package = os.environ['CI_PROJECT_PATH']
 
     # determine project visibility
-    visible = is_visible_outside(package, os.environ['CI_PROJECT_VISIBILITY'])
+    visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
     if not visible:
       raise RuntimeError('The repository %s is not public - a package ' \
@@ -233,84 +228,23 @@ def build(dry_run):
   to be used outside this context.
   """
 
-  if dry_run:
-      logger.warn('!!!! DRY RUN MODE !!!!')
-      logger.warn('Nothing is being built')
+  from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
+  from ..build import git_clean_build
+  from ..bootstrap import run_cmdline
 
-  prefix = os.environ['CONDA_ROOT']
-  logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
-
-  workdir = os.environ['CI_PROJECT_DIR']
-  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
-
-  pyver = os.environ['PYTHON_VERSION']
-  logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
-
-  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
-
-  # get information about the version of the package being built
-  version, is_prerelease = check_version(workdir,
-      os.environ.get('CI_COMMIT_TAG'))
-  set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
-
-  # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
-  # and derived documentation building via Sphinx)
-  set_environment('DOCSERVER', SERVER, os.environ, verbose=True)
-  public = ( os.environ['CI_PROJECT_VISIBILITY']=='public' )
-  doc_urls = get_docserver_setup(public=public, stable=(not is_prerelease),
-      server=SERVER, intranet=True)
-  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
-
-  condarc = os.path.join(prefix, 'condarc')
-  logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
-  with open(condarc, 'rb') as f:
-    condarc_options = yaml.load(f)
-
-  # notice this condarc typically will only contain the defaults channel - we
-  # need to boost this up with more channels to get it right.
-  channels = get_channels(public=public, stable=(not is_prerelease),
-      server=SERVER, intranet=True)
-  logger.info('Using the following channels during build:\n  - %s',
-      '\n  - '.join(channels + ['defaults']))
-  condarc_options['channels'] = channels + ['defaults']
-
-  # dump packages at conda_root
-  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
-
-  # create the build configuration
-  logger.info('Merging conda configuration files...')
-  conda_config = make_conda_config(CONDA_BUILD_CONFIG, pyver,
-      CONDA_RECIPE_APPEND, condarc_options)
-
-  recipe_dir = os.path.join(workdir, 'conda')
-  if not os.path.exists(recipe_dir):
-    raise RuntimeError("The directory %s does not exist" % recipe_dir)
-
-  # pre-renders the recipe - figures out package name and version
-  metadata = get_rendered_metadata(recipe_dir, conda_config)
-
-  arch = conda_arch()
-  if should_skip_build(metadata):
-    logger.warn('Skipping UNSUPPORTED build of "%s" for py%s on %s',
-        d, python.replace('.',''), arch)
-    return 0
-
-  # converts the metadata output into parsed yaml and continues the process
-  rendered_recipe = get_parsed_recipe(metadata)
-
-  # retrieve the current build number for this build
-  build_number, _ = next_build_number(channels[0],
-      rendered_recipe['package']['name'],
-      rendered_recipe['package']['version'], python)
-  set_environment('BOB_BUILD_NUMBER', str(build_number), verbose=True)
-
-  # runs the build using the conda-build API
-  logger.info('Building %s-%s-py%s (build: %d) for %s',
-      rendered_recipe['package']['name'],
-      rendered_recipe['package']['version'], python.replace('.',''),
-      build_number, arch)
-
-  if not dry_run:
-    conda_build.api.build(recipe_dir, config=conda_config)
+  from .build import build
+  build(
+      recipe_dir=[os.path.join(os.path.realpath(os.curdir), 'conda')],
+      python=os.environ['PYTHON_VERSION'],  #python version
+      condarc=None,  #custom build configuration
+      config=CONDA_BUILD_CONFIG,
+      no_test=False,
+      append_file=CONDA_RECIPE_APPEND,
+      server=SERVER,
+      private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
+      stable='CI_COMMIT_TAG' in os.environ,
+      dry_run=dry_run,
+      verbosity=verbosity,
+      )
 
   git_clean_build(run_cmdline, arch)

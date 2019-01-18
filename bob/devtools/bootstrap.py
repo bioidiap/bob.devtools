@@ -7,7 +7,7 @@ This command uses a bare-minimum python3 installation (with SSL support) to
 bootstrap a new miniconda installation preset for the defined activity.  It is
 primarily intended for CI operation and prefixes build and deployment steps.
 
-Usage: python3 %s <cmd> build|local|beta|stable [<name>]
+Usage: python3 %s <cmd> build|local|channel [<name>]
 
 Arguments:
 
@@ -15,8 +15,7 @@ Arguments:
 
          build   to build bob.devtools
          local   to bootstrap deploy|pypi stages for bob.devtools builds
-         beta    to bootstrap CI environment for beta builds
-         stable  to bootstrap CI environment for stable builds
+         channel to bootstrap CI environment for beta/stable builds
          test    to locally test this bootstrap script
 
   <name>  (optional) if command is one of ``local|beta|stable`` provide the
@@ -363,6 +362,8 @@ if __name__ == '__main__':
   logger.info('(create) %s', condarc)
   with open(condarc, 'wt') as f:
     f.write(_BASE_CONDARC)
+  # we just add the "defaults" channels to the stock condarc
+  add_channels_condarc(['defaults'], condarc)
 
   conda_version = '4'
   conda_build_version = '3'
@@ -370,7 +371,6 @@ if __name__ == '__main__':
   if sys.argv[1] in ('build', 'test'):
 
     # simple - just use the defaults channels when self building
-    add_channels_condarc(['defaults'], condarc)
     run_cmdline([conda_bin, 'install', '-n', 'base',
       'python',
       'conda=%s' % conda_version,
@@ -389,23 +389,29 @@ if __name__ == '__main__':
     run_cmdline([conda_bin, 'index', conda_bld_path])
     # add the locally build directory before defaults, boot from there
     channels = get_channels(public=True, stable=True, server=_SERVER,
-        intranet=True)
-    add_channels_condarc(channels + [conda_bld_path, 'defaults'], condarc)
-    run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
+        intranet=True) + ['defaults']
+    channels = ['--override-channels'] + \
+        ['--channel=' + conda_bld_path] + \
+        ['--channel=%s' % k for k in channels]
+    run_cmdline([conda_bin, 'create'] + channels + \
+        ['-n', sys.argv[2], 'bob.devtools'])
 
-  elif sys.argv[1] in ('beta', 'stable'):
+  elif sys.argv[1] == 'channel':
 
     # installs from channel
     channels = get_channels(
-        public=os.environ['CI_PROJECT_VISIBILITY'] == 'public',
-        stable=os.environ.get('CI_COMMIT_TAG') is not None,
+        public=(os.environ['CI_PROJECT_VISIBILITY'] == 'public'),
+        stable=('CI_COMMIT_TAG' in os.environ),
         server=_SERVER, intranet=True)
+    channels = ['--override-channels'] + \
+        ['--channel=%s' % k for k in channels]
     add_channels_condarc(channels + ['defaults'], condarc)
-    run_cmdline([conda_bin, 'create', '-n', sys.argv[2], 'bob.devtools'])
+    run_cmdline([conda_bin, 'create'] + channels + \
+        ['-n', sys.argv[2], 'bob.devtools'])
 
   else:
 
-    logger.error("Bootstrap with 'build', or 'local|beta|stable <name>'")
+    logger.error("Bootstrap with 'build', or 'local|channel <name>'")
     logger.error("The value '%s' is not currently supported", sys.argv[1])
     sys.exit(1)
 

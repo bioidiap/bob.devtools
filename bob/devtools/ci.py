@@ -38,20 +38,6 @@ def is_master(refname, tag):
   return refname == 'master'
 
 
-def is_visible_outside(package, visibility):
-  '''Determines if the project is visible outside Idiap'''
-
-  logger.info('Project %s visibility is "%s"', package, visibility)
-
-  if visibility == 'internal':
-    visibility = 'private' #the same thing for this command
-    logger.warn('Project %s visibility switched to "%s".  ' \
-        'For this command, it all boils down to the same...', package,
-        visibility)
-
-  return visibility == 'public'
-
-
 def is_stable(package, refname, tag):
   '''Determines if the package being published is stable
 
