@@ -71,7 +71,8 @@ def deploy(dry_run):
     from ..ci import is_stable
     stable = is_stable(package,
         os.environ['CI_COMMIT_REF_NAME'],
-        os.environ['CI_COMMIT_TAG'])
+        os.environ['CI_COMMIT_TAG'],
+        os.environ['CI_PROJECT_DIR'])
 
     from ..constants import WEBDAV_PATHS
     server_info = WEBDAV_PATHS[stable][visible]

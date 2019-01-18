@@ -4,8 +4,6 @@
 '''Tools to help CI-based builds and artifact deployment'''
 
 
-import os
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -13,7 +11,7 @@ import git
 import distutils.version
 
 
-def is_master(refname, tag):
+def is_master(refname, tag, repodir):
   '''Tells if we're on the master branch via ref_name or tag
 
   This function checks if the name of the branch being built is "master".  If a
@@ -31,14 +29,14 @@ def is_master(refname, tag):
   '''
 
   if tag is not None:
-    repo = git.Repo(os.environ['CI_PROJECT_DIR'])
+    repo = git.Repo(repodir)
     _tag = repo.tag('refs/tags/%s' % tag)
     return _tag.commit in repo.iter_commits(rev='master')
 
   return refname == 'master'
 
 
-def is_stable(package, refname, tag):
+def is_stable(package, refname, tag, repodir):
   '''Determines if the package being published is stable
 
   This is done by checking if a tag was set for the package.  If that is the
@@ -51,6 +49,7 @@ def is_stable(package, refname, tag):
     refname: The current value of the environment ``CI_COMMIT_REF_NAME``
     tag: The current value of the enviroment ``CI_COMMIT_TAG`` (may be
       ``None``)
+    repodir: The directory that contains the clone of the git repository
 
   Returns: a boolean, indicating if the current build is for a stable release
   '''
@@ -64,7 +63,7 @@ def is_stable(package, refname, tag):
       logger.warn('Pre-release detected - not publishing to stable channels')
       return False
 
-    if is_master(os.environ['CI_COMMIT_REF_NAME'], tag):
+    if is_master(refname, tag, repodir):
       return True
     else:
       logger.warn('Tag %s in non-master branch will be ignored', tag)
