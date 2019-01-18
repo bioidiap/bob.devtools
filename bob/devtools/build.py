@@ -436,6 +436,9 @@ if __name__ == '__main__':
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
 
+  # dump packages at conda_root
+  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
+
   logger.info('Merging conda configuration files...')
   conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
       condarc_options)

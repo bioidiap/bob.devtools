@@ -348,16 +348,12 @@ if __name__ == '__main__':
 
   if sys.argv[1] == 'test':
     # sets up local variables for testing
-    set_environment('CI_PROJECT_DIR', os.path.realpath(os.curdir), verbose=True)
     set_environment('CI_PROJECT_NAME', 'bob.devtools', verbose=True)
-    set_environment('CONDA_ROOT', os.path.join(os.environ['CI_PROJECT_DIR'],
+    set_environment('CONDA_ROOT', os.path.join(os.path.realpath(os.curdir),
         'miniconda'), verbose=True)
 
   prefix = os.environ['CONDA_ROOT']
   logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
-
-  workdir = os.environ['CI_PROJECT_DIR']
-  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
 
   install_miniconda(prefix)
   conda_bin = os.path.join(prefix, 'bin', 'conda')

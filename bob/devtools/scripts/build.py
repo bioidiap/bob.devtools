@@ -15,7 +15,7 @@ from . import bdt
 from ..log import verbosity_option
 from ..build import next_build_number, conda_arch, should_skip_build, \
     get_rendered_metadata, get_parsed_recipe, make_conda_config, \
-    get_docserver_setup
+    get_docserver_setup, get_env_directory
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
@@ -43,8 +43,7 @@ Examples:
 @click.argument('recipe-dir', required=False, type=click.Path(file_okay=False,
   dir_okay=True, exists=True), nargs=-1)
 @click.option('-p', '--python', default=('%d.%d' % sys.version_info[:2]),
-    show_default=True, help='Version of python to build the ' \
-        'environment for [default: %(default)s]')
+    show_default=True, help='Version of python to build the environment for')
 @click.option('-r', '--condarc',
     help='Use custom conda configuration file instead of our own',)
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
@@ -105,6 +104,10 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     logger.info('Using the following channels during build:\n  - %s',
         '\n  - '.join(channels + ['defaults']))
     condarc_options['channels'] = channels + ['defaults']
+
+  # dump packages at base environment
+  prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
+  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)
 

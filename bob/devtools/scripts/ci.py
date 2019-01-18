@@ -243,9 +243,6 @@ def build(dry_run):
   workdir = os.environ['CI_PROJECT_DIR']
   logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
 
-  name = os.environ['CI_PROJECT_NAME']
-  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_NAME', name)
-
   pyver = os.environ['PYTHON_VERSION']
   logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
 
@@ -277,21 +274,43 @@ def build(dry_run):
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
 
+  # dump packages at conda_root
+  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
+
   # create the build configuration
   logger.info('Merging conda configuration files...')
   conda_config = make_conda_config(CONDA_BUILD_CONFIG, pyver,
       CONDA_RECIPE_APPEND, condarc_options)
 
+  recipe_dir = os.path.join(workdir, 'conda')
+  if not os.path.exists(recipe_dir):
+    raise RuntimeError("The directory %s does not exist" % recipe_dir)
+
+  # pre-renders the recipe - figures out package name and version
+  metadata = get_rendered_metadata(recipe_dir, conda_config)
+
+  arch = conda_arch()
+  if should_skip_build(metadata):
+    logger.warn('Skipping UNSUPPORTED build of "%s" for py%s on %s',
+        d, python.replace('.',''), arch)
+    return 0
+
+  # converts the metadata output into parsed yaml and continues the process
+  rendered_recipe = get_parsed_recipe(metadata)
+
   # retrieve the current build number for this build
-  build_number, _ = next_build_number(channels[0], name, version, pyver)
+  build_number, _ = next_build_number(channels[0],
+      rendered_recipe['package']['name'],
+      rendered_recipe['package']['version'], python)
   set_environment('BOB_BUILD_NUMBER', str(build_number), verbose=True)
 
   # runs the build using the conda-build API
-  arch = conda_arch()
   logger.info('Building %s-%s-py%s (build: %d) for %s',
-      name, version, pyver.replace('.',''), build_number, arch)
+      rendered_recipe['package']['name'],
+      rendered_recipe['package']['version'], python.replace('.',''),
+      build_number, arch)
 
   if not dry_run:
-    conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
+    conda_build.api.build(recipe_dir, config=conda_config)
 
   git_clean_build(run_cmdline, arch)
