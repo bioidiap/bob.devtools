@@ -225,7 +225,8 @@ Examples:
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def build(dry_run):
+@click.pass_context
+def build(ctx, dry_run):
   """Builds packages
 
   This command builds packages in the CI infrastructure.  It is **not** meant
@@ -237,7 +238,7 @@ def build(dry_run):
   from ..bootstrap import run_cmdline
 
   from .build import build
-  build(
+  ctx.invoke(build,
       recipe_dir=[os.path.join(os.path.realpath(os.curdir), 'conda')],
       python=os.environ['PYTHON_VERSION'],  #python version
       condarc=None,  #custom build configuration
@@ -248,7 +249,6 @@ def build(dry_run):
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
       dry_run=dry_run,
-      verbosity=verbosity,
       )
 
   git_clean_build(run_cmdline, arch)
