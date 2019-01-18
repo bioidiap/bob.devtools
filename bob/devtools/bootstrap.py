@@ -389,7 +389,7 @@ if __name__ == '__main__':
     channels = get_channels(
         public=(os.environ['CI_PROJECT_VISIBILITY'] == 'public'),
         stable=('CI_COMMIT_TAG' in os.environ),
-        server=_SERVER, intranet=True)
+        server=_SERVER, intranet=True) + ['defaults']
     channels = ['--override-channels'] + \
         ['--channel=%s' % k for k in channels]
     run_cmdline([conda_bin, 'create'] + channels + \
