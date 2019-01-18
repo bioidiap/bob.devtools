@@ -14,9 +14,7 @@ from click_plugins import with_plugins
 
 from . import bdt
 from ..log import verbosity_option
-from ..webdav3 import client as webdav
-from ..constants import SERVER, WEBDAV_PATHS, CACERT
-from ..bootstrap import set_environment, run_cmdline
+from ..constants import SERVER
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -30,6 +28,7 @@ def ci():
   may occur.
   """
   # ensure messages don't get garbled at the output on the CI logs
+  from ..bootstrap import set_environment
   set_environment('PYTHONUNBUFFERED', '1', os.environ)
 
 
@@ -69,10 +68,12 @@ def deploy(dry_run):
     visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
     # determine if building master branch or tag - and if tag is on master
+    from ..ci import is_stable
     stable = is_stable(package,
         os.environ['CI_COMMIT_REF_NAME'],
         os.environ['CI_COMMIT_TAG'])
 
+    from ..constants import WEBDAV_PATHS
     server_info = WEBDAV_PATHS[stable][visible]
 
     logger.info('Deploying conda packages to %s%s%s...', SERVER,
@@ -85,6 +86,7 @@ def deploy(dry_run):
         'webdav_login': os.environ['DOCUSER'],
         'webdav_password': os.environ['DOCPASS'],
         }
+    from ..webdav3 import client as webdav
     davclient = webdav.Client(webdav_options)
     assert davclient.valid()
 
@@ -192,6 +194,7 @@ def pypi(dry_run):
     logger.info('Deploying python package %s to PyPI', zip_files[0])
     #twine upload --skip-existing --username ${PYPIUSER} --password ${PYPIPASS}
     #dist/*.zip
+    from ..constants import CACERT
     from twine.settings import Settings
 
     settings = Settings(
