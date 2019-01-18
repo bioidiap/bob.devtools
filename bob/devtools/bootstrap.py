@@ -352,7 +352,6 @@ if __name__ == '__main__':
         'miniconda'), verbose=True)
 
   prefix = os.environ['CONDA_ROOT']
-  logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
 
   install_miniconda(prefix)
   conda_bin = os.path.join(prefix, 'bin', 'conda')
