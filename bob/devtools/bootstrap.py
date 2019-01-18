@@ -36,6 +36,8 @@ quiet: true #!final
 show_channel_urls: true #!final
 anaconda_upload: false #!final
 ssl_verify: false #!final
+channels:
+  - defaults
 '''
 
 _SERVER = 'http://www.idiap.ch'
@@ -299,18 +301,6 @@ def get_channels(public, stable, server, intranet):
   return channels
 
 
-def add_channels_condarc(channels, condarc):
-  '''Appends passed channel list to condarc file, print contents'''
-
-  with open(condarc, 'at') as f:
-    f.write('channels:\n')
-    for k in channels:
-      f.write('  - %s\n' % k)
-
-  with open(condarc, 'rt') as f:
-    logger.info('Contents of installed CONDARC:\n%s', f.read())
-
-
 def setup_logger(logger):
   '''Sets-up the logging for this command at level ``INFO``'''
 
@@ -361,8 +351,6 @@ if __name__ == '__main__':
   logger.info('(create) %s', condarc)
   with open(condarc, 'wt') as f:
     f.write(_BASE_CONDARC)
-  # we just add the "defaults" channels to the stock condarc
-  add_channels_condarc(['defaults'], condarc)
 
   conda_version = '4'
   conda_build_version = '3'
@@ -404,7 +392,6 @@ if __name__ == '__main__':
         server=_SERVER, intranet=True)
     channels = ['--override-channels'] + \
         ['--channel=%s' % k for k in channels]
-    add_channels_condarc(channels + ['defaults'], condarc)
     run_cmdline([conda_bin, 'create'] + channels + \
         ['-n', sys.argv[2], 'bob.devtools'])
 
