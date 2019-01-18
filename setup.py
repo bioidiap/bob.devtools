@@ -55,6 +55,7 @@ setup(
           ],
 
         'bdt.ci.cli': [
+          'build = bob.devtools.scripts.ci:build',
           'deploy = bob.devtools.scripts.ci:deploy',
           'pypi = bob.devtools.scripts.ci:pypi',
           ],
