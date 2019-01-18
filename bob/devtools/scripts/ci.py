@@ -34,7 +34,8 @@ def ci():
   attempt to run these commands in your own installation.  Unexpected errors
   may occur.
   """
-  pass
+  # ensure messages don't get garbled at the output on the CI logs
+  set_environment('PYTHONUNBUFFERED', '1', os.environ)
 
 
 @ci.command(epilog='''
