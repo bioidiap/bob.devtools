@@ -121,7 +121,7 @@ pypi:
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
-    - bdt ci pypi -vv
+    - bdt ci pypi -vv dist/*.zip
   dependencies:
     - build_linux_36
     - build_macosx_36

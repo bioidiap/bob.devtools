@@ -146,11 +146,51 @@ def deploy(dry_run):
 @ci.command(epilog='''
 Examples:
 
-  1. Deploys current build artifacts to the Python Package Index (PyPI):
+  1. Checks the long description of setup.py (correctly parseable and will
+     display nicely at PyPI).  Notice this step requires the zip python
+     packages:
 
-     $ bdt ci pypi -vv
+     $ bdt ci readme -vv dist/*.zip
 
 ''')
+@click.argument('package', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=-1)
+@verbosity_option()
+@bdt.raise_on_error
+def readme(package):
+    """Checks setup.py's ``long_description`` syntax
+
+    This program checks the syntax of the contents of the ``long_description``
+    field at the package's ``setup()`` function.  It verifies it will be
+    correctly displayed at PyPI.
+    """
+
+    for k in package:
+
+      logger.info('Checking python package %s', k)
+      #twine check dist/*.zip
+
+      from twine.commands.check import check
+      failed = check(k)
+
+      if failed:
+        raise RuntimeError('long_description of package %s cannot be ' \
+            'correctly parsed (twine check returned a failure)' % \
+            (k,))
+      else:
+        logger.info('Package %s\'s long_description: OK', k)
+
+
+@ci.command(epilog='''
+Examples:
+
+  1. Deploys current build artifacts to the Python Package Index (PyPI):
+
+     $ bdt ci pypi -vv dist/*.zip
+
+''')
+@click.argument('package', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=-1)
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
@@ -180,21 +220,6 @@ def pypi(dry_run):
           'You must follow the relevant software disclosure procedures ' \
           'and set this repository to "public" before trying again.' % package)
 
-    # finds the package that should be published
-    zip_glob = os.path.join(os.environ['CI_PROJECT_DIR'], 'dist', '*-*.zip')
-    zip_files = glob.glob(zip_glob)
-
-    if len(zip_files) == 0:
-      raise RuntimeError('Cannot find .zip files on the "dist" directory')
-
-    if len(zip_files) > 1:
-      raise RuntimeError('There are %d .zip files on the "dist" directory: ' \
-          '%s - I\'m confused on what to publish to PyPI...' % \
-          (len(zip_files), ', '.join(zip_files)))
-
-    logger.info('Deploying python package %s to PyPI', zip_files[0])
-    #twine upload --skip-existing --username ${PYPIUSER} --password ${PYPIPASS}
-    #dist/*.zip
     from ..constants import CACERT
     from twine.settings import Settings
 
@@ -207,8 +232,12 @@ def pypi(dry_run):
 
     if not dry_run:
       from twine.commands.upload import upload
-      upload(settings, zip_files)
-      logger.info('Deployment to PyPI successful')
+
+      for k in packages:
+
+        logger.info('Deploying python package %s to PyPI', k)
+        upload(settings, [k])
+        logger.info('%s: Deployed to PyPI - OK', k)
 
 
 @ci.command(epilog='''
