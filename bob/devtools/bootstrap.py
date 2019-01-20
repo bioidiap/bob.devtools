@@ -1,26 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''Bootstraps a new miniconda installation and prepares it for development
 
-This command uses a bare-minimum python3 installation (with SSL support) to
-bootstrap a new miniconda installation preset for the defined activity.  It is
-primarily intended for CI operation and prefixes build and deployment steps.
-
-Usage: python3 %s <cmd> build|local|channel [<name>]
-
-Arguments:
-
-  <cmd>  How to prepare the current environment. Use:
-
-         build   to build bob.devtools
-         local   to bootstrap deploy|pypi stages for bob.devtools builds
-         channel to bootstrap CI environment for beta/stable builds
-         test    to locally test this bootstrap script
-
-  <name>  (optional) if command is one of ``local|beta|stable`` provide the
-          name of env for bob.devtools installation')
-'''
+'''Bootstraps a new miniconda installation and prepares it for development'''
 
 
 _BASE_CONDARC = '''\
