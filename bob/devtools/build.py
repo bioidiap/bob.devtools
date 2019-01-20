@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Tools for self-building and other utilities
+'''Tools for self-building and other utilities'''
 
-This script, if called in standalone format, can be used to build the current
-package.  It contains various functions and utilities that can be used by
-modules inside the package itself.  It assumes a base installation for the
-build is operational (i.e., the python package for ``conda-build`` is
-installed).
-'''
 
 import os
 import re
@@ -341,7 +335,7 @@ def check_version(workdir, envtag):
 
     workdir: The work directory where the repo of the package being built was
       checked-out
-    envtag: The output of os.environ.get('CI_COMMIT_TAG') (may be ``None``)
+    envtag: (optional) tag provided by the environment
 
 
   Returns: A tuple with the version of the package that we're currently
@@ -357,20 +351,20 @@ def check_version(workdir, envtag):
   if is_prerelease:
     if envtag is not None:
       raise EnvironmentError('"version.txt" indicates version is a ' \
-          'pre-release (v%s) - but os.environ["CI_COMMIT_TAG"]="%s", ' \
+          'pre-release (v%s) - but environment provided tag "%s", ' \
           'which indicates this is a **stable** build. ' \
           'Have you created the tag using ``bdt release``?' % (version,
           envtag))
   else:  #it is a stable build
     if envtag is None:
       raise EnvironmentError('"version.txt" indicates version is a ' \
-          'stable build (v%s) - but there is no os.environ["CI_COMMIT_TAG"] ' \
+          'stable build (v%s) - but there is **NO** tag environment ' \
           'variable defined, which indicates this is **not** ' \
           'a tagged build. Use ``bdt release`` to create stable releases' % \
           (version,))
     if envtag[1:] != version:
       raise EnvironmentError('"version.txt" and the value of ' \
-          'os.environ["CI_COMMIT_TAG"] do **NOT** agree - the former ' \
+          'the provided tag do **NOT** agree - the former ' \
           'reports version %s, the latter, %s' % (version, envtag[1:]))
 
   return version, is_prerelease
@@ -401,6 +395,40 @@ def git_clean_build(runner, arch):
 
 if __name__ == '__main__':
 
+  import argparse
+
+  parser = argparse.ArgumentParser(description='Builds bob.devtools on the CI')
+  parser.add_argument('-n', '--name',
+      default=os.environ.get('CI_PROJECT_NAME', 'bob.devtools'),
+      help='The name of the project being built [default: %(default)s]')
+  parser.add_argument('-c', '--conda-root',
+      default=os.environ.get('CONDA_ROOT',
+        os.path.realpath(os.path.join(os.curdir, 'miniconda'))),
+      help='The location where we should install miniconda ' \
+          '[default: %(default)s]')
+  parser.add_argument('-V', '--visibility',
+      choices=['public', 'internal', 'private'],
+      default=os.environ.get('CI_PROJECT_VISIBILITY', 'public'),
+      help='The visibility level for this project [default: %(default)s]')
+  parser.add_argument('-t', '--tag',
+      default=os.environ.get('CI_COMMIT_TAG', None),
+      help='If building a tag, pass it with this flag [default: %(default)s]')
+  parser.add_argument('-w', '--work-dir',
+      default=os.environ.get('CI_PROJECT_DIR', os.path.realpath(os.curdir)),
+      help='The directory where the repo was cloned [default: %(default)s]')
+  parser.add_argument('-p', '--python-version',
+      default=os.environ.get('PYTHON_VERSION', '%d.%d' % sys.version_info[:2]),
+      help='The version of python to build for [default: %(default)s]')
+  parser.add_argument('--verbose', '-v', action='count',
+      help='Increases the verbosity level.  We always prints error and ' \
+          'critical messages. Use a single ``-v`` to enable warnings, ' \
+          'two ``-vv`` to enable information messages and three ``-vvv`` ' \
+          'to enable debug messages')
+
+  args = parser.parse_args()
+
+  setup_logger(logger, args.verbose)
+
   # loads the "adjacent" bootstrap module
   import importlib.util
   mydir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -411,39 +439,26 @@ if __name__ == '__main__':
 
   bootstrap.setup_logger(logger, level=2)
 
-  prefix = os.environ['CONDA_ROOT']
-  logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
-
-  workdir = os.environ['CI_PROJECT_DIR']
-  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_DIR', workdir)
-
-  name = os.environ['CI_PROJECT_NAME']
-  logger.info('os.environ["%s"] = %s', 'CI_PROJECT_NAME', name)
-
-  pyver = os.environ['PYTHON_VERSION']
-  logger.info('os.environ["%s"] = %s', 'PYTHON_VERSION', pyver)
-
   bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=True)
   bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=True)
   bootstrap.set_environment('LC_ALL', os.environ['LANG'], verbose=True)
 
   # get information about the version of the package being built
-  version, is_prerelease = check_version(workdir,
-      os.environ.get('CI_COMMIT_TAG'))
+  version, is_prerelease = check_version(args.work_dir, args.tag)
   bootstrap.set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
   recipe_append = os.path.join(mydir, 'data', 'recipe_append.yaml')
 
-  condarc = os.path.join(prefix, 'condarc')
+  condarc = os.path.join(args.conda_root, 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
   with open(condarc, 'rb') as f:
     condarc_options = yaml.load(f)
 
   # notice this condarc typically will only contain the defaults channel - we
   # need to boost this up with more channels to get it right.
-  public = ( os.environ['CI_PROJECT_VISIBILITY']=='public' )
+  public = ( args.visibility == 'public' )
   channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
       server=bootstrap._SERVER, intranet=True)
   logger.info('Using the following channels during build:\n  - %s',
@@ -451,21 +466,24 @@ if __name__ == '__main__':
   condarc_options['channels'] = channels + ['defaults']
 
   # dump packages at conda_root
-  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
+  condarc_options['croot'] = os.path.join(args.conda_root, 'conda-bld')
 
   logger.info('Merging conda configuration files...')
-  conda_config = make_conda_config(conda_build_config, pyver, recipe_append,
-      condarc_options)
+  conda_config = make_conda_config(conda_build_config, args.python_version,
+      recipe_append, condarc_options)
 
   # retrieve the current build number for this build
-  build_number, _ = next_build_number(channels[0], name, version, pyver)
+  build_number, _ = next_build_number(channels[0], args.name, version,
+      args.python_version)
   bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
       verbose=True)
 
   # runs the build using the conda-build API
   arch = conda_arch()
   logger.info('Building %s-%s-py%s (build: %d) for %s',
-      name, version, pyver.replace('.',''), build_number, arch)
-  conda_build.api.build(os.path.join(workdir, 'conda'), config=conda_config)
+      args.name, version, args.python_version.replace('.',''), build_number,
+      arch)
+  conda_build.api.build(os.path.join(args.work_dir, 'conda'),
+      config=conda_config)
 
   git_clean_build(bootstrap.run_cmdline, arch)
