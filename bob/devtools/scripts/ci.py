@@ -249,6 +249,7 @@ def build(ctx, dry_run):
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
       dry_run=dry_run,
+      ci=True,
       )
 
   git_clean_build(run_cmdline, arch)

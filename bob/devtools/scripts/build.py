@@ -69,10 +69,12 @@ Examples:
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
+@click.option('-C', '--ci/--no-ci', default=False, hidden=True,
+    help='Use this flag to indicate the build will be running on the CI')
 @verbosity_option()
 @bdt.raise_on_error
 def build(recipe_dir, python, condarc, config, no_test, append_file,
-    server, private, stable, dry_run):
+    server, private, stable, dry_run, ci):
   """Builds package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
@@ -92,7 +94,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   # get potential channel upload and other auxiliary channels
   channels = get_channels(public=(not private), stable=stable, server=server,
-      intranet=private)
+      intranet=ci)
 
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
@@ -118,7 +120,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   # and derived documentation building via Sphinx)
   set_environment('DOCSERVER', server, verbose=True)
   doc_urls = get_docserver_setup(public=(not private), stable=stable,
-      server=server, intranet=private)
+      server=server, intranet=ci)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
 
   for d in recipe_dir:
