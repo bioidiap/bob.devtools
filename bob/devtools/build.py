@@ -409,7 +409,7 @@ if __name__ == '__main__':
   bootstrap = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(bootstrap)
 
-  bootstrap.setup_logger(logger)
+  bootstrap.setup_logger(logger, level=2)
 
   prefix = os.environ['CONDA_ROOT']
   logger.info('os.environ["%s"] = %s', 'CONDA_ROOT', prefix)
