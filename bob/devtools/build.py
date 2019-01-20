@@ -176,13 +176,27 @@ def parse_dependencies(recipe_dir, config):
 
 
 def get_env_directory(conda, name):
+  '''Get the directory of a particular conda environment or fail silently'''
 
   cmd = [conda, 'env', 'list', '--json']
   output = subprocess.check_output(cmd)
   data = json.loads(output)
-  retval = [k for k in data.get('envs', []) if k.endswith(os.sep + name)]
+  paths = data.get('envs', [])
+
+  if not paths:
+    # real error condition, reports it at least, but no exception raising...
+    logger.error('No environments in conda (%s) installation?', conda)
+    return None
+
+  if name in ('base', 'root'):
+    return paths[0]  #first environment is base
+
+  # else, must search for the path ending in ``/name``
+  retval = [k for k in paths if k.endswith(os.sep + name)]
   if retval:
     return retval[0]
+
+  # if no environment with said name is found, return ``None``
   return None
 
 
