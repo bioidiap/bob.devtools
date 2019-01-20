@@ -427,8 +427,6 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
 
-  setup_logger(logger, args.verbose)
-
   # loads the "adjacent" bootstrap module
   import importlib.util
   mydir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -437,7 +435,7 @@ if __name__ == '__main__':
   bootstrap = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(bootstrap)
 
-  bootstrap.setup_logger(logger, level=2)
+  bootstrap.setup_logger(logger, args.verbose)
 
   bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=True)
   bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=True)
