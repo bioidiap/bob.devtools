@@ -369,18 +369,19 @@ if __name__ == '__main__':
           '[default: %(default)s]')
   parser.add_argument('-n', '--name',
       default=os.environ.get('CI_PROJECT_NAME', 'bob.devtools'),
-      help='The name of the project being built [defaults: %(default)s]')
+      help='The name of the project being built [default: %(default)s]')
   parser.add_argument('-c', '--conda-root',
       default=os.environ.get('CONDA_ROOT',
         os.path.realpath(os.path.join(os.curdir, 'miniconda'))),
       help='The location where we should install miniconda ' \
-          '[defaults: %(default)s]')
+          '[default: %(default)s]')
   parser.add_argument('-V', '--visibility',
+      choices=['public', 'internal', 'private'],
       default=os.environ.get('CI_PROJECT_VISIBILITY', 'public'),
-      help='The visibility level for this project [defaults: %(default)s]')
+      help='The visibility level for this project [default: %(default)s]')
   parser.add_argument('-t', '--tag',
       default=os.environ.get('CI_COMMIT_TAG', None),
-      help='If building a tag, pass it with this flag [defaults: %(default)s]')
+      help='If building a tag, pass it with this flag [default: %(default)s]')
   parser.add_argument('--verbose', '-v', action='count',
       help='Increases the verbosity level.  We always prints error and ' \
           'critical messages. Use a single ``-v`` to enable warnings, ' \
