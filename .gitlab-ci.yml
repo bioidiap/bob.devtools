@@ -14,7 +14,7 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
-    - python3 ./bob/devtools/bootstrap.py build
+    - python3 ./bob/devtools/bootstrap.py -vv build
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
@@ -76,10 +76,10 @@ build_macosx_36:
 .deploy_template: &deploy_job
   stage: deploy
   before_script:
-    - python3 ./bob/devtools/bootstrap.py local myenv
+    - python3 ./bob/devtools/bootstrap.py -vv local bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
+    - conda activate bdt
     - bdt ci deploy -vv
   dependencies:
     - build_linux_36
@@ -117,10 +117,10 @@ pypi:
   except:
     - branches
   before_script:
-    - python3 ./bob/devtools/bootstrap.py local myenv
+    - python3 ./bob/devtools/bootstrap.py -vv local bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
+    - conda activate bdt
     - bdt ci pypi -vv
   dependencies:
     - build_linux_36

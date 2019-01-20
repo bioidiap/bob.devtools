@@ -133,10 +133,10 @@ def run_cmdline(cmd, env=None):
   out = b''
 
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-      env=env)
+      env=env, bufsize=1, universal_newlines=True)
 
-  for line in iter(p.stdout.readline, b''):
-    sys.stdout.write(line.decode(sys.stdout.encoding))
+  for line in iter(p.stdout.readline, ''):
+    sys.stdout.write(line)
     sys.stdout.flush()
 
   if p.wait() != 0:
@@ -156,8 +156,15 @@ def touch(path):
     os.utime(path, None)
 
 
-def merge_conda_cache(cache, prefix):
-  '''Merges conda pkg caches and conda-bld folders'''
+def merge_conda_cache(cache, prefix, name):
+  '''Merges conda pkg caches and conda-bld folders
+
+  Args:
+
+    cache: The cached directory (from previous builds)
+    prefix: The current prefix (root of conda installation)
+    name: The name of the current package
+  '''
 
   pkgs_dir = os.path.join(prefix, 'pkgs')
   pkgs_urls_txt = os.path.join(pkgs_dir, 'urls.txt')
@@ -171,7 +178,7 @@ def merge_conda_cache(cache, prefix):
   cached_pkgs_dir = os.path.join(cache, 'pkgs')
   cached_packages = glob.glob(os.path.join(cached_pkgs_dir, '*.tar.bz2'))
   cached_packages = [k for k in cached_packages if not \
-      k.startswith(os.environ['CI_PROJECT_NAME'] + '-')]
+      k.startswith(name + '-')]
   logger.info('Merging %d cached conda packages', len(cached_packages))
   for k in cached_packages:
     dst = os.path.join(pkgs_dir, os.path.basename(k))
@@ -226,8 +233,15 @@ def get_miniconda_sh():
     f.write(r1.read())
 
 
-def install_miniconda(prefix):
-  '''Creates a new miniconda installation'''
+def install_miniconda(prefix, name):
+  '''Creates a new miniconda installation
+
+  Args:
+
+    prefix: The path leading to the (new) root of the miniconda installation
+    name: The name of this package
+
+  '''
 
   logger.info("Installing miniconda in %s...", prefix)
 
@@ -247,7 +261,7 @@ def install_miniconda(prefix):
 
   run_cmdline(['bash', 'miniconda.sh', '-b', '-p', prefix])
   if cached is not None:
-    merge_conda_cache(cached, prefix)
+    merge_conda_cache(cached, prefix, name)
     shutil.rmtree(cached)
 
 
@@ -301,7 +315,7 @@ def get_channels(public, stable, server, intranet):
   return channels
 
 
-def setup_logger(logger):
+def setup_logger(logger, level):
   '''Sets-up the logging for this command at level ``INFO``'''
 
   warn_err = logging.StreamHandler(sys.stderr)
@@ -324,30 +338,64 @@ def setup_logger(logger):
   for handler in logger.handlers:
     handler.setFormatter(formatter)
 
-  logger.setLevel(logging.INFO)
+  if level not in range(0, 4):
+    raise ValueError(
+        "The verbosity level %d does not exist. Please reduce the number of "
+        "'--verbose' parameters in your command line" % level)
+  # set up the verbosity level of the logging system
+  log_level = {
+      0: logging.ERROR,
+      1: logging.WARNING,
+      2: logging.INFO,
+      3: logging.DEBUG
+  }[level]
+
+  logger.setLevel(log_level)
 
 
 if __name__ == '__main__':
 
-  if len(sys.argv) == 1:
-    print(__doc__ % sys.argv[0])
-    sys.exit(1)
+  import argparse
 
-  setup_logger(logger)
+  parser = argparse.ArgumentParser(description='Bootstraps a new miniconda ' \
+      'installation and prepares it for development')
+  parser.add_argument('command', choices=['build', 'local', 'channel'],
+      help='How to prepare the current environment. Use: ``build``, to ' \
+          'build bob.devtools, ``local``, to bootstrap deploy or pypi ' \
+          'stages for bob.devtools builds, ``channel`` channel to bootstrap ' \
+          'CI environment for beta/stable builds')
+  parser.add_argument('envname', nargs='?', default='bdt',
+      help='The name of the conda environment that will host bdt ' \
+          '[default: %(default)s]')
+  parser.add_argument('-n', '--name',
+      default=os.environ.get('CI_PROJECT_NAME', 'bob.devtools'),
+      help='The name of the project being built [defaults: %(default)s]')
+  parser.add_argument('-c', '--conda-root',
+      default=os.environ.get('CONDA_ROOT',
+        os.path.realpath(os.path.join(os.curdir, 'miniconda'))),
+      help='The location where we should install miniconda ' \
+          '[defaults: %(default)s]')
+  parser.add_argument('-V', '--visibility',
+      default=os.environ.get('CI_PROJECT_VISIBILITY', 'public'),
+      help='The visibility level for this project [defaults: %(default)s]')
+  parser.add_argument('-t', '--tag',
+      default=os.environ.get('CI_COMMIT_TAG', None),
+      help='If building a tag, pass it with this flag [defaults: %(default)s]')
+  parser.add_argument('--verbose', '-v', action='count',
+      help='Increases the verbosity level.  We always prints error and ' \
+          'critical messages. Use a single ``-v`` to enable warnings, ' \
+          'two ``-vv`` to enable information messages and three ``-vvv`` ' \
+          'to enable debug messages')
 
-  if sys.argv[1] == 'test':
-    # sets up local variables for testing
-    set_environment('CI_PROJECT_NAME', 'bob.devtools', verbose=True)
-    set_environment('CONDA_ROOT', os.path.join(os.path.realpath(os.curdir),
-        'miniconda'), verbose=True)
+  args = parser.parse_args()
 
-  prefix = os.environ['CONDA_ROOT']
+  setup_logger(logger, args.verbose)
 
-  install_miniconda(prefix)
-  conda_bin = os.path.join(prefix, 'bin', 'conda')
+  install_miniconda(args.conda_root, args.name)
+  conda_bin = os.path.join(args.conda_root, 'bin', 'conda')
 
   # creates the condarc file
-  condarc = os.path.join(prefix, 'condarc')
+  condarc = os.path.join(args.conda_root, 'condarc')
   logger.info('(create) %s', condarc)
   with open(condarc, 'wt') as f:
     f.write(_BASE_CONDARC)
@@ -355,24 +403,30 @@ if __name__ == '__main__':
   conda_version = '4'
   conda_build_version = '3'
 
-  if sys.argv[1] in ('build', 'test'):
+  conda_verbosity = ''
+  if args.verbose >= 2:
+    conda_verbosity = '-v'
+  if args.verbose >= 3:
+    conda_verbosity = '-vv'
+
+  if args.command == 'build':
 
     # simple - just use the defaults channels when self building
-    run_cmdline([conda_bin, 'install', '-n', 'base',
+    run_cmdline([conda_bin, 'install', conda_verbosity, '-n', 'base',
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
       ])
 
-  elif sys.argv[1] == 'local':
+  elif args.command == 'local':
 
     # index the locally built packages
-    run_cmdline([conda_bin, 'install', '-n', 'base',
+    run_cmdline([conda_bin, 'install', conda_verbosity, '-n', 'base',
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
       ])
-    conda_bld_path = os.path.join(prefix, 'conda-bld')
+    conda_bld_path = os.path.join(args.conda_root, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])
     # add the locally build directory before defaults, boot from there
     channels = get_channels(public=True, stable=True, server=_SERVER,
@@ -380,29 +434,23 @@ if __name__ == '__main__':
     channels = ['--override-channels'] + \
         ['--channel=' + conda_bld_path] + \
         ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create'] + channels + \
-        ['-n', sys.argv[2], 'bob.devtools'])
+    run_cmdline([conda_bin, 'create', conda_verbosity] + channels + \
+        ['-n', args.envname, 'bob.devtools'])
 
-  elif sys.argv[1] == 'channel':
+  elif args.command == 'channel':
 
     # installs from channel
     channels = get_channels(
-        public=(os.environ['CI_PROJECT_VISIBILITY'] == 'public'),
-        stable=('CI_COMMIT_TAG' in os.environ),
+        public=(args.visibility == 'public'),
+        stable=(args.tag is not None),
         server=_SERVER, intranet=True) + ['defaults']
     channels = ['--override-channels'] + \
         ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create'] + channels + \
-        ['-n', sys.argv[2], 'bob.devtools'])
-
-  else:
-
-    logger.error("Bootstrap with 'build', or 'local|channel <name>'")
-    logger.error("The value '%s' is not currently supported", sys.argv[1])
-    sys.exit(1)
+    run_cmdline([conda_bin, 'create', conda_verbosity] + channels + \
+        ['-n', args.envname, 'bob.devtools'])
 
   # clean up
-  run_cmdline([conda_bin, 'clean', '--lock'])
+  run_cmdline([conda_bin, 'clean', conda_verbosity, '--lock'])
 
   # print conda information for debugging purposes
-  run_cmdline([conda_bin, 'info'])
+  run_cmdline([conda_bin, 'info', conda_verbosity])
