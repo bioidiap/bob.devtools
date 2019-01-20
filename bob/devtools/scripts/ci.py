@@ -234,7 +234,7 @@ def build(ctx, dry_run):
   """
 
   from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
-  from ..build import git_clean_build
+  from ..build import conda_arch, git_clean_build
   from ..bootstrap import run_cmdline
 
   from .build import build
@@ -252,4 +252,4 @@ def build(ctx, dry_run):
       ci=True,
       )
 
-  git_clean_build(run_cmdline, arch)
+  git_clean_build(run_cmdline, conda_arch())
