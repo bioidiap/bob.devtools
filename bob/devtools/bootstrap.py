@@ -395,6 +395,7 @@ if __name__ == '__main__':
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
+      'twine',  #required for checking readme of python (zip) distro
       ])
 
   elif args.command == 'local':
@@ -404,6 +405,7 @@ if __name__ == '__main__':
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
+      'twine',  #required for checking readme of python (zip) distro
       ])
     conda_bld_path = os.path.join(args.conda_root, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])

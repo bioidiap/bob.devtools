@@ -57,6 +57,11 @@ build_linux_36:
   variables:
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
+  script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     expire_in: 1 week
     paths:

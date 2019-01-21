@@ -433,6 +433,9 @@ if __name__ == '__main__':
   parser.add_argument('-p', '--python-version',
       default=os.environ.get('PYTHON_VERSION', '%d.%d' % sys.version_info[:2]),
       help='The version of python to build for [default: %(default)s]')
+  parser.add_argument('-T', '--twine-check', action='store_true',
+      default=False, help='If set, then performs the equivalent of a ' \
+          '"twine check" on the generated python package (zip file)')
   parser.add_argument('--verbose', '-v', action='count', default=0,
       help='Increases the verbosity level.  We always prints error and ' \
           'critical messages. Use a single ``-v`` to enable warnings, ' \
@@ -496,5 +499,18 @@ if __name__ == '__main__':
       arch)
   conda_build.api.build(os.path.join(args.work_dir, 'conda'),
       config=conda_config)
+
+  # checks if long_description of python package renders fine
+  if args.twine_check:
+    from twine.commands.check import check
+    package = glob.glob('dist/*.zip')
+    failed = check(package)
+
+    if failed:
+      raise RuntimeError('long_description of package %s cannot be ' \
+          'correctly parsed (twine check returned a failure)' % \
+          (package[0],))
+    else:
+      logger.info('Package %s\'s long_description: OK', package[0])
 
   git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 2))
