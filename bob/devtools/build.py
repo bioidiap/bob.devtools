@@ -7,6 +7,7 @@
 import os
 import re
 import sys
+import glob
 import json
 import shutil
 import platform
@@ -370,26 +371,39 @@ def check_version(workdir, envtag):
   return version, is_prerelease
 
 
-def git_clean_build(runner, arch):
+def git_clean_build(runner, verbose):
   '''Runs git-clean to clean-up build products
 
   Args:
 
     runner: A pointer to the ``run_cmdline()`` function
+    verbose: A boolean flag indicating if the git command should report erased
+      files or not
 
   '''
 
-  # runs git clean to clean everything that is not needed. This helps to keep
-  # the disk usage on CI machines to a minimum.
+  # glob wild card entries we'd like to keep
   exclude_from_cleanup = [
       "miniconda.sh",   #the installer, cached
-      "miniconda/pkgs/*.tar.bz2",  #downloaded packages, cached
       "miniconda/pkgs/urls.txt",  #download index, cached
-      "miniconda/conda-bld/%s/*.tar.bz2" % (arch,),  #build artifact -- conda
-      "dist/*.zip",  #build artifact -- pypi package
       "sphinx",  #build artifact -- documentation
       ]
-  runner(['git', 'clean', '-qffdx'] + \
+
+  # cache
+  exclude_from_cleanup += glob.glob("miniconda/pkgs/*.tar.bz2")
+
+  # artifacts
+  exclude_from_cleanup += glob.glob("miniconda/conda-bld/*/*.tar.bz2")
+  exclude_from_cleanup += glob.glob("dist/*.zip")
+
+  logger.debug('Excluding the following paths from git-clean:\n  - %s',
+      '  - '.join(exclude_from_cleanup))
+
+  # decide on verbosity
+  flags = '-ffdx'
+  if not verbose: flags += 'q'
+
+  runner(['git', 'clean', flags] + \
       ['--exclude=%s' % k for k in exclude_from_cleanup])
 
 
@@ -437,13 +451,15 @@ if __name__ == '__main__':
 
   bootstrap.setup_logger(logger, args.verbose)
 
-  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=True)
-  bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=True)
-  bootstrap.set_environment('LC_ALL', os.environ['LANG'], verbose=True)
+  VERB = (verbose >= 2)
+
+  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=VERB)
+  bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=VERB)
+  bootstrap.set_environment('LC_ALL', os.environ['LANG'], verbose=VERB)
 
   # get information about the version of the package being built
   version, is_prerelease = check_version(args.work_dir, args.tag)
-  bootstrap.set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
+  bootstrap.set_environment('BOB_PACKAGE_VERSION', version, verbose=VERB)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
@@ -474,7 +490,7 @@ if __name__ == '__main__':
   build_number, _ = next_build_number(channels[0], args.name, version,
       args.python_version)
   bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
-      verbose=True)
+      verbose=VERB)
 
   # runs the build using the conda-build API
   arch = conda_arch()
@@ -484,4 +500,4 @@ if __name__ == '__main__':
   conda_build.api.build(os.path.join(args.work_dir, 'conda'),
       config=conda_config)
 
-  git_clean_build(bootstrap.run_cmdline, arch)
+  git_clean_build(bootstrap.run_cmdline, verbose=VERB)

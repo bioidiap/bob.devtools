@@ -263,8 +263,6 @@ def build(ctx, dry_run):
   """
 
   from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
-  from ..build import conda_arch, git_clean_build
-  from ..bootstrap import run_cmdline
 
   from .build import build
   ctx.invoke(build,
@@ -281,4 +279,26 @@ def build(ctx, dry_run):
       ci=True,
       )
 
-  git_clean_build(run_cmdline, conda_arch())
+
+@ci.command(epilog='''
+Examples:
+
+  1. Cleans the current build (and prints what it cleans)
+
+     $ bdt ci clean -vv
+
+''')
+@verbosity_option()
+@bdt.raise_on_error
+@click.pass_context
+def clean(ctx):
+  """Cleans builds
+
+  This command cleans builds in the CI infrastructure.  It is **not** meant
+  to be used outside this context.
+  """
+
+  from ..build import git_clean_build
+  from ..bootstrap import run_cmdline
+
+  git_clean_build(run_cmdline, verbose=(ctx.meta['verbosity']>=2))
