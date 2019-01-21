@@ -382,16 +382,16 @@ if __name__ == '__main__':
   conda_version = '4'
   conda_build_version = '3'
 
-  conda_verbosity = ''
+  conda_verbosity = []
   #if args.verbose >= 2:
-  #  conda_verbosity = '-v'
+  #  conda_verbosity = ['-v']
   if args.verbose >= 3:
-    conda_verbosity = '-vv'
+    conda_verbosity = ['-vv']
 
   if args.command == 'build':
 
     # simple - just use the defaults channels when self building
-    run_cmdline([conda_bin, 'install', conda_verbosity, '-n', 'base',
+    run_cmdline([conda_bin, 'install'] + conda_verbosity + ['-n', 'base',
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
@@ -400,7 +400,7 @@ if __name__ == '__main__':
   elif args.command == 'local':
 
     # index the locally built packages
-    run_cmdline([conda_bin, 'install', conda_verbosity, '-n', 'base',
+    run_cmdline([conda_bin, 'install'] + conda_verbosity + ['-n', 'base',
       'python',
       'conda=%s' % conda_version,
       'conda-build=%s' % conda_build_version,
@@ -413,7 +413,7 @@ if __name__ == '__main__':
     channels = ['--override-channels'] + \
         ['--channel=' + conda_bld_path] + \
         ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create', conda_verbosity] + channels + \
+    run_cmdline([conda_bin, 'create'] + conda_verbosity + channels + \
         ['-n', args.envname, 'bob.devtools'])
 
   elif args.command == 'channel':
@@ -425,11 +425,11 @@ if __name__ == '__main__':
         server=_SERVER, intranet=True) + ['defaults']
     channels = ['--override-channels'] + \
         ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create', conda_verbosity] + channels + \
+    run_cmdline([conda_bin, 'create'] + conda_verbosity + channels + \
         ['-n', args.envname, 'bob.devtools'])
 
   # clean up
-  run_cmdline([conda_bin, 'clean', conda_verbosity, '--lock'])
+  run_cmdline([conda_bin, 'clean'] + conda_verbosity + ['--lock'])
 
   # print conda information for debugging purposes
-  run_cmdline([conda_bin, 'info', conda_verbosity])
+  run_cmdline([conda_bin, 'info'] + conda_verbosity)
