@@ -174,12 +174,9 @@ def readme(package):
       failed = check([k])
 
       if failed:
-        raise RuntimeError('long_description of package %s cannot be ' \
-            'correctly parsed (twine check returned a failure)' % \
-            (k,))
+        raise RuntimeError('twine check (a.k.a. readme check) %s: FAILED' % k)
       else:
-        logger.info('Package %s\'s long_description: OK', k)
-
+        logger.info('twine check (a.k.a. readme check) %s: OK', k)
 
 @ci.command(epilog='''
 Examples:

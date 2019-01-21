@@ -507,10 +507,9 @@ if __name__ == '__main__':
     failed = check(package)
 
     if failed:
-      raise RuntimeError('long_description of package %s cannot be ' \
-          'correctly parsed (twine check returned a failure)' % \
-          (package[0],))
+      raise RuntimeError('twine check (a.k.a. readme check) %s: FAILED' % \
+          package[0])
     else:
-      logger.info('Package %s\'s long_description: OK', package[0])
+      logger.info('twine check (a.k.a. readme check) %s: OK', package[0])
 
   git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 2))
