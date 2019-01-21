@@ -141,9 +141,9 @@ def run_cmdline(cmd, env=None):
             del readable[fd]
           else:
             if fd == masters[0]: # We caught stdout
-              utils.echo(data.rstrip())
+              print(data.rstrip().decode(sys.stdout.encoding))
             else: # We caught stderr
-              utils.echo(data.rstrip(), err=True)
+              print(data.rstrip().decode(sys.stderr.encoding))
 
             readable[fd].flush()
 
