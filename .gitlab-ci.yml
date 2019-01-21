@@ -13,9 +13,8 @@ stages:
 # Build targets
 .build_template: &build_job
   stage: build
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
   script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
     - python3 ./bob/devtools/build.py -vv
@@ -75,15 +74,11 @@ build_macosx_36:
 # Deploy targets
 .deploy_template: &deploy_job
   stage: deploy
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv local bdt
   script:
+    - python3 ./bob/devtools/bootstrap.py -vv local bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci deploy -vv
-  after_script:
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
     - bdt ci clean -vv
   dependencies:
     - build_linux_36
@@ -120,14 +115,19 @@ pypi:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv local bdt
   script:
+    - python3 ./bob/devtools/bootstrap.py -vv local bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci pypi -vv dist/*.zip
+    - bdt ci clean -vv
   dependencies:
     - build_linux_36
     - build_macosx_36
   tags:
     - docker
+  cache: &build_caches
+    paths:
+      - miniconda.sh
+      - ${CONDA_ROOT}/pkgs/*.tar.bz2
+      - ${CONDA_ROOT}/pkgs/urls.txt
