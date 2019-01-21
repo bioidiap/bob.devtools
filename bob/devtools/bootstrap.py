@@ -383,8 +383,8 @@ if __name__ == '__main__':
   conda_build_version = '3'
 
   conda_verbosity = ''
-  if args.verbose >= 2:
-    conda_verbosity = '-v'
+  #if args.verbose >= 2:
+  #  conda_verbosity = '-v'
   if args.verbose >= 3:
     conda_verbosity = '-vv'
 
