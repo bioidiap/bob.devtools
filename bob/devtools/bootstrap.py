@@ -36,12 +36,9 @@ _INTERVALS = (
 
 import os
 import sys
-import pty
 import glob
 import time
-import errno
 import shutil
-import select
 import platform
 import subprocess
 
@@ -96,9 +93,6 @@ def human_time(seconds, granularity=2):
 def run_cmdline(cmd, env=None):
   '''Runs a command on a environment, logs output and reports status
 
-  Copied from: https://github.com/terminal-labs/cli-passthrough, which is in
-  turn based on https://stackoverflow.com/a/31953436.
-
 
   Parameters:
 
@@ -115,48 +109,21 @@ def run_cmdline(cmd, env=None):
 
   start = time.time()
 
-  masters, slaves = zip(pty.openpty(), pty.openpty())
+  p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+      env=env, bufsize=1, universal_newlines=True)
 
-  with subprocess.Popen(cmd, stdin=slaves[0], stdout=slaves[0],
-      stderr=slaves[1], env=env) as p:
+  for line in iter(p.stdout.readline, ''):
+    sys.stdout.write(line)
+    sys.stdout.flush()
 
-    for fd in slaves:
-      os.close(fd) # no input
-      readable = {
-          masters[0]: sys.stdout.buffer, # store buffers seperately
-          masters[1]: sys.stderr.buffer,
-          }
-
-    while readable:
-
-      for fd in select.select(readable, [], [])[0]:
-        try:
-          data = os.read(fd, 1024) # read available
-        except OSError as e:
-          if e.errno != errno.EIO:
-            raise #XXX cleanup
-          del readable[fd] # EIO means EOF on some systems
-        else:
-          if not data: # EOF
-            del readable[fd]
-          else:
-            if fd == masters[0]: # We caught stdout
-              print(data.rstrip().decode(sys.stdout.encoding))
-            else: # We caught stderr
-              print(data.rstrip().decode(sys.stderr.encoding))
-
-            readable[fd].flush()
-
-  for fd in masters:
-      os.close(fd)
-
-  if p.returncode != 0:
+  if p.wait() != 0:
     raise RuntimeError("command `%s' exited with error state (%d)" % \
         (' '.join(cmd), p.returncode))
 
   total = time.time() - start
 
   logger.info('command took %s' % human_time(total))
+
 
 
 def touch(path):
