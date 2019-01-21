@@ -70,7 +70,7 @@ build_linux_36:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci build -vv
-    - bdt ci readme -vv
+    - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
   artifacts:
     expire_in: 1 week
@@ -136,7 +136,7 @@ pypi:
     - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
-    - bdt ci pypi -vv
+    - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
     - build_linux_36
