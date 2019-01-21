@@ -19,8 +19,8 @@ stages:
 .build_template: &build_job
   stage: build
   script:
-    - echo "conda-root is: ${CONDA_ROOT}"
-    - echo "bootstrap is: ${BOOTSTRAP}"
+    - echo "conda-root is ${CONDA_ROOT}"
+    - echo "bootstrap is ${BOOTSTRAP}"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -67,8 +67,8 @@ build_linux_36:
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
   script:
-    - echo "conda-root is: ${CONDA_ROOT}"
-    - echo "bootstrap is: ${BOOTSTRAP}"
+    - echo "conda-root is ${CONDA_ROOT}"
+    - echo "bootstrap is ${BOOTSTRAP}"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
