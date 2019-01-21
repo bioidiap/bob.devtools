@@ -171,7 +171,7 @@ def readme(package):
       #twine check dist/*.zip
 
       from twine.commands.check import check
-      failed = check(k)
+      failed = check([k])
 
       if failed:
         raise RuntimeError('long_description of package %s cannot be ' \
