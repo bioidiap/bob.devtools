@@ -5,6 +5,7 @@
 # Definition of global variables (all stages)
 variables:
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+  BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
 
 
 # Definition of our build pipeline order
