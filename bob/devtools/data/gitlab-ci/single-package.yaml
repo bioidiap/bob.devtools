@@ -18,10 +18,9 @@ stages:
 # Build targets
 .build_template: &build_job
   stage: build
-  before_script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel bdt
   script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci build -vv
@@ -65,6 +64,14 @@ build_linux_36:
   variables:
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
+  script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel bdt
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate bdt
+    - bdt ci build -vv
+    - bdt ci readme -vv
+    - bdt ci clean -vv
   artifacts:
     expire_in: 1 week
     paths:
@@ -82,10 +89,9 @@ build_macosx_36:
 # Deploy targets
 .deploy_template: &deploy_job
   stage: deploy
-  before_script:
+  script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py channel bdt
-  script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci deploy -vv
@@ -125,13 +131,13 @@ pypi:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
-  before_script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel bdt
   script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate bdt
     - bdt ci pypi -vv
+    - bdt ci clean -vv
   dependencies:
     - build_linux_36
     - build_macosx_36
