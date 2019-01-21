@@ -433,11 +433,11 @@ if __name__ == '__main__':
   parser.add_argument('-p', '--python-version',
       default=os.environ.get('PYTHON_VERSION', '%d.%d' % sys.version_info[:2]),
       help='The version of python to build for [default: %(default)s]')
-  parser.add_argument('--verbose', '-v', action='count',
+  parser.add_argument('--verbose', '-v', action='count', default=0,
       help='Increases the verbosity level.  We always prints error and ' \
           'critical messages. Use a single ``-v`` to enable warnings, ' \
           'two ``-vv`` to enable information messages and three ``-vvv`` ' \
-          'to enable debug messages')
+          'to enable debug messages [default: %(default)s]')
 
   args = parser.parse_args()
 
