@@ -360,11 +360,11 @@ if __name__ == '__main__':
   parser.add_argument('-t', '--tag',
       default=os.environ.get('CI_COMMIT_TAG', None),
       help='If building a tag, pass it with this flag [default: %(default)s]')
-  parser.add_argument('--verbose', '-v', action='count',
+  parser.add_argument('--verbose', '-v', action='count', default=0,
       help='Increases the verbosity level.  We always prints error and ' \
           'critical messages. Use a single ``-v`` to enable warnings, ' \
           'two ``-vv`` to enable information messages and three ``-vvv`` ' \
-          'to enable debug messages')
+          'to enable debug messages [default: %(default)s]')
 
   args = parser.parse_args()
 
