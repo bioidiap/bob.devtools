@@ -451,15 +451,13 @@ if __name__ == '__main__':
 
   bootstrap.setup_logger(logger, args.verbose)
 
-  VERB = (verbose >= 2)
-
-  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER, verbose=VERB)
-  bootstrap.set_environment('LANG', 'en_US.UTF-8', verbose=VERB)
-  bootstrap.set_environment('LC_ALL', os.environ['LANG'], verbose=VERB)
+  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER)
+  bootstrap.set_environment('LANG', 'en_US.UTF-8')
+  bootstrap.set_environment('LC_ALL', os.environ['LANG'])
 
   # get information about the version of the package being built
   version, is_prerelease = check_version(args.work_dir, args.tag)
-  bootstrap.set_environment('BOB_PACKAGE_VERSION', version, verbose=VERB)
+  bootstrap.set_environment('BOB_PACKAGE_VERSION', version)
 
   # create the build configuration
   conda_build_config = os.path.join(mydir, 'data', 'conda_build_config.yaml')
@@ -489,8 +487,7 @@ if __name__ == '__main__':
   # retrieve the current build number for this build
   build_number, _ = next_build_number(channels[0], args.name, version,
       args.python_version)
-  bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number),
-      verbose=VERB)
+  bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number))
 
   # runs the build using the conda-build API
   arch = conda_arch()
@@ -500,4 +497,4 @@ if __name__ == '__main__':
   conda_build.api.build(os.path.join(args.work_dir, 'conda'),
       config=conda_config)
 
-  git_clean_build(bootstrap.run_cmdline, verbose=VERB)
+  git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 2))

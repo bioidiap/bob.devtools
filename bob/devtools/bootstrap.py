@@ -46,7 +46,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def set_environment(name, value, env=os.environ, verbose=False):
+def set_environment(name, value, env=os.environ):
     '''Function to setup the environment variable and print debug message
 
     Args:
@@ -54,14 +54,10 @@ def set_environment(name, value, env=os.environ, verbose=False):
       name: The name of the environment variable to set
       value: The value to set the environment variable to
       env: Optional environment (dictionary) where to set the variable at
-      verbose: Increases the verbosity of variable reporting
     '''
 
     env[name] = value
-    logat = logger.debug
-    if verbose:
-      logat = logger.info
-    logat('environ["%s"] = %s', name, value)
+    logger.info('environ["%s"] = %s', name, value)
     return value
 
 

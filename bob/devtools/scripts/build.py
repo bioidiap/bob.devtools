@@ -114,14 +114,14 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   conda_config = make_conda_config(config, python, append_file,
       condarc_options)
 
-  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR, verbose=True)
+  set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR)
 
   # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
   # and derived documentation building via Sphinx)
-  set_environment('DOCSERVER', server, verbose=True)
+  set_environment('DOCSERVER', server)
   doc_urls = get_docserver_setup(public=(not private), stable=stable,
       server=server, intranet=ci)
-  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls, verbose=True)
+  set_environment('BOB_DOCUMENTATION_SERVER', doc_urls)
 
   for d in recipe_dir:
 
@@ -131,7 +131,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     version_candidate = os.path.join(d, '..', 'version.txt')
     if os.path.exists(version_candidate):
       version = open(version_candidate).read().rstrip()
-      set_environment('BOB_PACKAGE_VERSION', version, verbose=True)
+      set_environment('BOB_PACKAGE_VERSION', version)
 
     # pre-renders the recipe - figures out package name and version
     metadata = get_rendered_metadata(d, conda_config)
@@ -151,7 +151,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python)
 
-    set_environment('BOB_BUILD_NUMBER', str(build_number), verbose=True)
+    set_environment('BOB_BUILD_NUMBER', str(build_number))
 
     logger.info('Building %s-%s-py%s (build: %d) for %s',
         rendered_recipe['package']['name'],
