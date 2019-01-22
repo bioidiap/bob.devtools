@@ -65,12 +65,8 @@ def deploy(dry_run):
     # determine project visibility
     visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
-    # determine if building master branch or tag - and if tag is on master
-    from ..ci import is_stable
-    stable = is_stable(package,
-        os.environ['CI_COMMIT_REF_NAME'],
-        os.environ.get('CI_COMMIT_TAG'),
-        os.environ['CI_PROJECT_DIR'])
+    # determine if building branch or tag
+    stable = ('CI_COMMIT_TAG' in os.environ)
 
     from ..constants import WEBDAV_PATHS
     server_info = WEBDAV_PATHS[stable][visible]
