@@ -192,7 +192,7 @@ Examples:
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def pypi(dry_run):
+def pypi(package, dry_run):
     """Deploys build artifacts (python packages to PyPI)
 
     Deployment is only allowed for packages in which the visibility is
@@ -204,8 +204,6 @@ def pypi(dry_run):
         logger.warn('!!!! DRY RUN MODE !!!!')
         logger.warn('Nothing is being deployed to server')
 
-    package = os.environ['CI_PROJECT_PATH']
-
     # determine project visibility
     visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
@@ -213,7 +211,8 @@ def pypi(dry_run):
       raise RuntimeError('The repository %s is not public - a package ' \
           'deriving from it therefore, CANNOT be published to PyPI. ' \
           'You must follow the relevant software disclosure procedures ' \
-          'and set this repository to "public" before trying again.' % package)
+          'and set this repository to "public" before trying again.' % \
+          os.environ['CI_PROJECT_PATH'])
 
     from ..constants import CACERT
     from twine.settings import Settings
@@ -228,7 +227,7 @@ def pypi(dry_run):
     if not dry_run:
       from twine.commands.upload import upload
 
-      for k in packages:
+      for k in package:
 
         logger.info('Deploying python package %s to PyPI', k)
         upload(settings, [k])
