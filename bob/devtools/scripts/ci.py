@@ -27,9 +27,7 @@ def ci():
   attempt to run these commands in your own installation.  Unexpected errors
   may occur.
   """
-  # ensure messages don't get garbled at the output on the CI logs
-  from ..bootstrap import set_environment
-  set_environment('PYTHONUNBUFFERED', '1', os.environ)
+  pass
 
 
 @ci.command(epilog='''
