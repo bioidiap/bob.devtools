@@ -58,7 +58,9 @@ To manually update the changelog, follow these guidelines:
        version of this package will be automatically updated during the next
        tag/release. You can change ``patch`` to ``minor`` or ``major``, and the
        package will be then tagged/released with either minor or major version
-       bump.
+       bump.  You may also set an explicit tag to the package (e.g.
+       ``v1.0.0``), which may be required if no tags are available yet on
+       gitlab.
     3. Once all commits were changed to corresponding tag descriptions (no more
        lines start with ``-`` characters), this package is ready for release
        and you can continue to another package in the changelog.

@@ -153,14 +153,25 @@ def get_parsed_tag(gitpkg, tag):
 
     # if we bump the version, we need to find the latest released version for
     # this package
-    if 'patch' == tag or 'minor' == tag or 'major' == tag:
+    if tag in ('major', 'minor', 'patch'):
 
         # find the correct latest tag of this package (without 'v' in front),
         # None if there are no tags yet
         latest_tag_name = get_latest_tag_name(gitpkg)
 
         # if there were no tags yet, assume the very first version
-        if not latest_tag_name: return 'v0.0.1'
+        if latest_tag_name is None:
+            if tag == 'major':
+              assume_version = 'v1.0.0'
+            elif tag == 'minor':
+              assume_version = 'v0.1.0'
+            elif tag == 'path':
+              assume_version = 'v0.0.1'
+            logger.warn('Package %s does not have any tags. I\'m assuming ' \
+                'version will be %s since you proposed a "%s" bump',
+                gitpkg.attributes['path_with_namespace'], assume_version,
+                tag)
+            return assume_version
 
         # check that it has expected format #.#.#
         # latest_tag_name = Version(latest_tag_name)
