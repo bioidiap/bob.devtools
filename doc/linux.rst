@@ -29,14 +29,26 @@ this to `/etc/hosts`:
 
    $ echo "" >> /etc/hosts
    $ echo "#We fake www.idiap.ch to keep things internal" >> /etc/hosts
-   $ echo "172.31.100.235 www.idiap.ch" >> /etc/hosts
-   $ echo "2001:620:7a3:600:0:acff:fe1f:64eb www.idiap.ch" >> /etc/hosts
+   $ echo "What is the internal server IPv4 address?"
+   $ read ipv4add
+   $ echo "${ipv4add} www.idiap.ch" >> /etc/hosts
+   $ echo "What is the internal server IPv6 address?"
+   $ read ipv6add
+   $ echo "${ipv6add} www.idiap.ch" >> /etc/hosts
+
+
+.. note::
+
+   You should obtain the values of the internal IPv4 and IPv6 addresses from
+   inside the Idiap network.  We cannot replicate them in this manual for
+   security reasons.
 
 
 Gitlab runner configuration
 ===========================
 
-We are currently using this:
+We are currently using this (notice you need to replace the values of
+``<internal.ipv4.address>`` and ``<token>`` on the template below):
 
 .. code-block:: ini
 
@@ -47,7 +59,7 @@ We are currently using this:
      name = "docker"
      output_limit = 102400
      url = "https://gitlab.idiap.ch/ci"
-     token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     token = "<token>"
      executor = "docker"
      limit = 4
      builds_dir = "/local/builds"
@@ -58,7 +70,7 @@ We are currently using this:
        privileged = false
        disable_cache = false
        volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/local/cache"]
-       extra_hosts = ["www.idiap.ch:172.31.100.235"]
+       extra_hosts = ["www.idiap.ch:<internal.ipv4.address>"]
      [runners.cache]
         Insecure = false
 
@@ -68,7 +80,7 @@ We are currently using this:
      executor = "shell"
      shell = "bash"
      url = "https://gitlab.idiap.ch/ci"
-     token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     token = "<token>"
      limit = 4
      builds_dir = "/local/builds"
      cache_dir = "/local/cache"

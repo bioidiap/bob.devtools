@@ -6,6 +6,10 @@ else
   echo "Updating /etc/hosts..."
   echo "" >> /etc/hosts
   echo "#We fake www.idiap.ch to keep things internal" >> /etc/hosts
-  echo "172.31.100.235 www.idiap.ch" >> /etc/hosts
-  echo "2001:620:7a3:600:0:acff:fe1f:64eb www.idiap.ch" >> /etc/hosts
+  echo "What is the internal server IPv4 address?"
+  read ipv4add
+  echo "${ipv4add} www.idiap.ch" >> /etc/hosts
+  echo "What is the internal server IPv6 address?"
+  read ipv6add
+  echo "${ipv6add} www.idiap.ch" >> /etc/hosts
 fi
