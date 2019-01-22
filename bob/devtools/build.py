@@ -454,6 +454,7 @@ if __name__ == '__main__':
 
   bootstrap.setup_logger(logger, args.verbose)
 
+  bootstrap.set_environment('PYTHONUNBUFFERED', '1')
   bootstrap.set_environment('DOCSERVER', bootstrap._SERVER)
   bootstrap.set_environment('LANG', 'en_US.UTF-8')
   bootstrap.set_environment('LC_ALL', os.environ['LANG'])
