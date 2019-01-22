@@ -2,11 +2,11 @@
 
 .. _bob.devtools:
 
-=======================
- Bob Development Tools
-=======================
+============================
+ Bob/BEAT Development Tools
+============================
 
-This package provides tools to help maintain Bob_.
+This package provides tools to help maintain Bob_ and BEAT_.
 
 
 Documentation

@@ -24,6 +24,20 @@ Using these scripts is a 2-step process:
 
 Use the ``--help`` flag in each command to learn more about each command.
 
+.. warning::
+
+   While *beta* builds of packages will use the beta version of this package,
+   *stable* will look for the **latest stable** version of this package for
+   their build configuration.
+
+   To **correctly** produce a release, ensure a **STABLE** version of
+   bob.devtools is properly released **before** you start tagging packages.
+   The builds will then use such version of this package to enforce the correct
+   build environment during the packaging.
+
+   If you forget to properly tag this package before doing so you risk building
+   against the wrong set of dependencies.
+
 
 Manually update changelog
 =========================

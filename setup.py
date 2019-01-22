@@ -23,11 +23,11 @@ requires = [
 setup(
     name="bob.devtools",
     version=version,
-    description="Tools for development and CI integration of Bob packages",
+    description="Tools for development and CI integration of Bob/BEAT packages",
     url='http://gitlab.idiap.ch/bob/bob.devtools',
     license="BSD",
-    author='Bob Developers',
-    author_email='bob-devel@googlegroups.com',
+    author='Bob/BEAT Developers',
+    author_email='bob-devel@googlegroups.com,beat-devel@googlegroups.com',
     long_description=open('README.rst').read(),
 
     packages=find_packages(),
@@ -64,12 +64,12 @@ setup(
     },
     classifiers=[
         'Framework :: Bob',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Build Tools',
     ],
 )
