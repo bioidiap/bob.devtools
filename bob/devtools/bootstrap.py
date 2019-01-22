@@ -166,6 +166,8 @@ def merge_conda_cache(cache, prefix, name):
   logger.info('Merging urls.txt files from cache...')
   urls = []
   cached_pkgs_urls_txt = os.path.join(cached_pkgs_dir, 'urls.txt')
+  logger.info('touch %s', cached_pkgs_urls_txt)
+  touch(cached_pkgs_urls_txt)  #sometimes it does not exist yet
   with open(pkgs_urls_txt, 'rb') as f1, \
       open(cached_pkgs_urls_txt, 'rb') as f2:
     data = set(f1.readlines() + f2.readlines())
