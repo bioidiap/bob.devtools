@@ -17,6 +17,7 @@ Documentation
 
    install
    release
+   templates
    api
    ci
 
