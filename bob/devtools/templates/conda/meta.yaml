@@ -38,7 +38,8 @@ test:
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
   requires:
-    - bob-devel {{ bob_devel }}.*
+    - bob-devel {{ bob_devel }}.*(% if group == 'beat' %)
+    - beat-devel {{ beat_devel }}.*(% endif %)
     - nose
     - coverage
     - sphinx
@@ -46,7 +47,7 @@ test:
     # extend this list with further test-time-only dependencies
 
 about:
-  home: https://www.idiap.ch/software/bob/
+  home: https://www.idiap.ch/software/{{ group }}/
   license: (% if license == 'gplv3' %)GNU General Public License v3 (GPLv3)(% else %)BSD 3-Clause(% endif %)
   license_family: (% if license == 'gplv3' %)GPL(% else %)BSD(% endif %)
   summary: (( title ))

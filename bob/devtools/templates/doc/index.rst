@@ -1,6 +1,6 @@
 .. -*- coding: utf-8 -*-
 
-.. _{{ package }}:
+.. _{{ name }}:
 
 {{ rst_title }}
 
