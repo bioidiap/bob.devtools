@@ -18,6 +18,7 @@ requires = [
     'pyyaml',
     'twine',
     'lxml',
+    'jinja2',
     ]
 
 setup(
@@ -43,6 +44,7 @@ setup(
         ],
         'bdt.cli': [
           'release = bob.devtools.scripts.release:release',
+          'new = bob.devtools.scripts.new:new',
           'changelog = bob.devtools.scripts.changelog:changelog',
           'lasttag = bob.devtools.scripts.lasttag:lasttag',
           'visibility = bob.devtools.scripts.visibility:visibility',

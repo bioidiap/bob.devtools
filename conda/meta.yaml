@@ -45,6 +45,7 @@ requirements:
     - pyyaml
     - twine
     - lxml
+    - jinja2
 
 test:
   requires:
@@ -64,6 +65,7 @@ test:
     - bdt build --help
     - bdt getpath --help
     - bdt caupdate --help
+    - bdt new --help
     - bdt ci --help
     - bdt ci build --help
     - bdt ci deploy --help

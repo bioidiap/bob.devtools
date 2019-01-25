@@ -1,0 +1,52 @@
+{% set name = '(( name ))' %}
+{% set project_dir = environ.get('RECIPE_DIR') + '/..' %}
+
+package:
+  name: {{ name }}
+  version: {{ environ.get('BOB_PACKAGE_VERSION', '0.0.1') }}
+
+build:
+  number: {{ environ.get('BOB_BUILD_NUMBER', 0) }}
+  run_exports:
+    - {{ pin_subpackage(name) }}
+  script:
+    - cd {{ project_dir }}
+    {% if environ.get('BUILD_EGG') %}
+    - python setup.py sdist --formats=zip
+    {% endif %}
+    - python setup.py install --single-version-externally-managed --record record.txt
+
+requirements:
+  # place your build dependencies before the 'host' section
+  host:
+    - python {{ python }}
+    - setuptools {{ setuptools }}
+    # place your other host dependencies here
+  run:
+    - python
+    - setuptools
+    # place other runtime dependencies here (same as requirements.txt)
+
+test:
+  imports:
+    - {{ name }}
+  commands:
+    # test commands ("script" entry-points) from your package here
+    - nosetests --with-coverage --cover-package={{ name }} -sv {{ name }}
+    - sphinx-build -aEW {{ project_dir }}/doc {{ project_dir }}/sphinx
+    - sphinx-build -aEb doctest {{ project_dir }}/doc sphinx
+    - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
+    - conda inspect objects -p $PREFIX {{ name }}  # [osx]
+  requires:
+    - bob-devel {{ bob_devel }}.*
+    - nose
+    - coverage
+    - sphinx
+    - sphinx_rtd_theme
+    # extend this list with further test-time-only dependencies
+
+about:
+  home: https://www.idiap.ch/software/bob/
+  license: (% if license == 'gplv3' %)GNU General Public License v3 (GPLv3)(% else %)BSD 3-Clause(% endif %)
+  license_family: (% if license == 'gplv3' %)GPL(% else %)BSD(% endif %)
+  summary: (( title ))
