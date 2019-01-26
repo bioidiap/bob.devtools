@@ -437,8 +437,5 @@ if __name__ == '__main__':
     run_cmdline([conda_bin, 'create'] + conda_verbosity + channels + \
         ['-n', args.envname, 'bob.devtools'])
 
-  # clean up
-  run_cmdline([conda_bin, 'clean'] + conda_verbosity + ['--lock'])
-
   # print conda information for debugging purposes
   run_cmdline([conda_bin, 'info'] + conda_verbosity)
