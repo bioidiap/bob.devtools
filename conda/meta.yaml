@@ -31,7 +31,7 @@ requirements:
   run:
     - python
     - setuptools
-    - click
+    - click >=7
     - click-plugins
     - conda=4
     - conda-build=3
