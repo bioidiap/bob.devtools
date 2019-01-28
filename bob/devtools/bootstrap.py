@@ -360,10 +360,6 @@ if __name__ == '__main__':
         os.path.realpath(os.path.join(os.curdir, 'miniconda'))),
       help='The location where we should install miniconda ' \
           '[default: %(default)s]')
-  parser.add_argument('-V', '--visibility',
-      choices=['public', 'internal', 'private'],
-      default=os.environ.get('CI_PROJECT_VISIBILITY', 'public'),
-      help='The visibility level for this project [default: %(default)s]')
   parser.add_argument('-t', '--tag',
       default=os.environ.get('CI_COMMIT_TAG', None),
       help='If building a tag, pass it with this flag [default: %(default)s]')
@@ -428,8 +424,7 @@ if __name__ == '__main__':
   elif args.command == 'channel':
 
     # installs from channel
-    channels = get_channels(
-        public=(args.visibility == 'public'),
+    channels = get_channels(public=True,
         stable=(args.tag is not None),
         server=_SERVER, intranet=True) + ['defaults']
     channels = ['--override-channels'] + \
