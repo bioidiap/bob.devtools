@@ -171,7 +171,7 @@ def _write_commits_range(f, pkg_name, commits):
         commit_title = commit_title.strip()
         commit_title = commit_title.replace('!', pkg_name + '!').replace(pkg_name + pkg_name, pkg_name)
         commit_title = commit_title.replace('#', pkg_name + '#')
-        f.write('%s- %s' % (' ' * 5, commit_title))
+        f.write('%s- %s\n' % (' ' * 5, commit_title))
 
 
 def _write_mergerequests_range(f, pkg_name, mrs):
