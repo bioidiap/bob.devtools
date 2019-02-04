@@ -190,9 +190,13 @@ def _write_mergerequests_range(f, pkg_name, mrs):
         title = mr.title.strip().replace('\r','').replace('\n', '  ')
         title = title.replace(' !', ' ' + pkg_name + '!')
         title = title.replace(' #', ' ' + pkg_name + '#')
-        description = mr.description.strip().replace('\r','').replace('\n', '  ')
-        description = description.replace(' !', ' ' + pkg_name + '!')
-        description = description.replace(' #', ' ' + pkg_name + '#')
+        if mr.description is not None:
+          description = \
+              mr.description.strip().replace('\r','').replace('\n', '  ')
+          description = description.replace(' !', ' ' + pkg_name + '!')
+          description = description.replace(' #', ' ' + pkg_name + '#')
+        else:
+          description = 'No description for this MR'
         space = ': ' if description else ''
         log = '''     - {pkg}!{iid} {title}{space}{description}'''
         f.write(log.format(pkg=pkg_name, iid=mr.iid, title=title, space=space, description=description))
