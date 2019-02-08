@@ -436,6 +436,8 @@ if __name__ == '__main__':
   parser.add_argument('-T', '--twine-check', action='store_true',
       default=False, help='If set, then performs the equivalent of a ' \
           '"twine check" on the generated python package (zip file)')
+  parser.add_argument('--internet', '-i', default=False, action='store_true',
+      help='If executing on an internet-connected server, unset this flag')
   parser.add_argument('--verbose', '-v', action='count', default=0,
       help='Increases the verbosity level.  We always prints error and ' \
           'critical messages. Use a single ``-v`` to enable warnings, ' \
@@ -451,11 +453,13 @@ if __name__ == '__main__':
   spec = importlib.util.spec_from_file_location("bootstrap", bootstrap_file)
   bootstrap = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(bootstrap)
+  server = bootstrap._SERVER if (not args.internet) else \
+      'https://www.idiap.ch/software/bob'
 
   bootstrap.setup_logger(logger, args.verbose)
 
   bootstrap.set_environment('PYTHONUNBUFFERED', '1')
-  bootstrap.set_environment('DOCSERVER', bootstrap._SERVER)
+  bootstrap.set_environment('DOCSERVER', server)
   bootstrap.set_environment('LANG', 'en_US.UTF-8')
   bootstrap.set_environment('LC_ALL', os.environ['LANG'])
 
@@ -476,7 +480,7 @@ if __name__ == '__main__':
   # need to boost this up with more channels to get it right.
   public = ( args.visibility == 'public' )
   channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
-      server=bootstrap._SERVER, intranet=True)
+      server=server, intranet=(not args.internet))
   logger.info('Using the following channels during build:\n  - %s',
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
