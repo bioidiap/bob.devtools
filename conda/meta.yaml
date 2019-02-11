@@ -34,7 +34,7 @@ requirements:
     - click >=7
     - click-plugins
     - conda=4
-    - conda-build=3
+    - conda-build=3.16
     - certifi
     - pytz
     - python-dateutil
