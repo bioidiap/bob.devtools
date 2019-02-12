@@ -514,8 +514,8 @@ def base_build(server, intranet, recipe_dir, conda_build_config,
       recipe['package']['version'], recipe['build']['number'],
       python_version)
   if candidate is not None:
-    logger.info('Skipping build for %s-%s-(py%s_?)%s for %s - exists ' \
-        'on channel', candidate[0], candidate[1], candidate[2], py_ver, arch)
+    logger.info('Skipping build for %s-%s-%s for %s - exists ' \
+        'on channel', candidate[0], candidate[1], candidate[2], arch)
     return
 
   # if you get to this point, just builds the package
