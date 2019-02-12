@@ -68,6 +68,7 @@ test:
     - bdt new --help
     - bdt ci --help
     - bdt ci build --help
+    - bdt ci base-deploy --help
     - bdt ci deploy --help
     - bdt ci pypi --help
     - bdt ci readme --help

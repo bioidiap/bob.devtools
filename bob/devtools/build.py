@@ -154,6 +154,43 @@ def get_parsed_recipe(metadata):
   return yaml.load(output)
 
 
+def exists_on_channel(channel_url, name, version, build_number):
+  """Checks on the given channel if a package with the specs exist
+
+  Args:
+
+    channel_url: The URL where to look for packages clashes (normally a beta
+      channel)
+    name: The name of the package
+    version: The version of the package
+    build_number: The build number of the package
+
+  Returns: ``True``, if the package already exists in the channel or ``False``
+  otherwise
+
+  """
+
+  from conda.exports import get_index
+
+  # get the channel index
+  logger.debug('Downloading channel index from %s', channel_url)
+  index = get_index(channel_urls=[channel_url], prepend=False)
+
+  logger.info('Checking for %s-%s_*_%s...', name, version, build_number)
+  for dist in index:
+
+    if dist.name == name and dist.version == version and \
+        dist.build_string.endswith('_%s' % build_number):
+      match = re.match('py[2-9][0-9]+', dist.build_string)
+      logger.info('Found matching package (%s-%s_%s)', dist.name, dist.version,
+          dist.build_string)
+      return True
+
+  logger.info('No matches for %s-%s_%s found among %d packages',
+      name, version, build_number, len(index))
+  return False
+
+
 def remove_pins(deps):
   return [l.split()[0] for l in deps]
 
@@ -407,6 +444,52 @@ def git_clean_build(runner, verbose):
       ['--exclude=%s' % k for k in exclude_from_cleanup])
 
 
+def base_build(server, intranet, recipe_dir, config):
+  '''Builds a non-beat/bob software dependence that does not exist on defaults
+
+  This function will build a software dependence that is required for our
+  software stack, but does not (yet) exist on the defaults channels.  It first
+  check if the build should run for the current architecture, checks if the
+  package is not already built on our public channel and, if that is true, then
+  proceeds with the build of the dependence.
+
+
+  Args:
+
+    server: The base address of the server containing our conda channels
+    intranet: Boolean indicating if we should add "private"/"public" prefixes
+      on the returned paths
+    recipe_dir: The directory containing the recipe's ``meta.yaml`` file
+    config: A dictionary containing the merged configuration, as produced by
+      conda-build API's ``get_or_merge_config()`` function
+
+  '''
+
+  # if you get to this point, tries to build the package
+  public_channel = bootstrap.get_channels(public=True, stable=True,
+    server=server, intranet=intranet)[0]
+  metadata = get_rendered_metadata(recipe_dir, config)
+  recipe = get_parsed_recipe(metadata)
+
+  if recipe is None:
+    logger.warn('Skipping build for %s - rendering returned None', recipe_dir)
+    continue
+
+  if exists_on_channel(public_channel, recipe['package']['name'],
+      recipe['package']['version'], recipe['build']['number']):
+    logger.warn('Skipping build for %s-%s_%s - exists on channel already',
+        recipe['package']['name'], recipe['package']['version'],
+        recipe['build']['number'])
+    continue
+
+  # if you get to this point, just builds the package
+  arch = conda_arch()
+  logger.info('Building %s-%s (build: %d) for %s',
+      recipe['package']['name'], recipe['package']['version'],
+      recipe['build']['number'], arch)
+  conda_build.api.build(recipe_dir, config=conda_config)
+
+
 if __name__ == '__main__':
 
   import argparse
@@ -477,7 +560,8 @@ if __name__ == '__main__':
     condarc_options = yaml.load(f)
 
   # notice this condarc typically will only contain the defaults channel - we
-  # need to boost this up with more channels to get it right.
+  # need to boost this up with more channels to get it right for this package's
+  # build
   public = ( args.visibility == 'public' )
   channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
       server=server, intranet=(not args.internet))
@@ -491,6 +575,15 @@ if __name__ == '__main__':
   logger.info('Merging conda configuration files...')
   conda_config = make_conda_config(conda_build_config, args.python_version,
       recipe_append, condarc_options)
+
+  # builds all dependencies in the 'deps' subdirectory - or at least checks
+  # these dependencies are already available; these dependencies go directly to
+  # the public channel once built
+  for recipe in glob.glob(os.path.join('deps', '*')):
+    if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
+      # ignore - not a conda package
+      continue
+    base_build(server, not args.internet, recipe, conda_config)
 
   # retrieve the current build number for this build
   build_number, _ = next_build_number(channels[0], args.name, version,
@@ -517,4 +610,4 @@ if __name__ == '__main__':
     else:
       logger.info('twine check (a.k.a. readme check) %s: OK', package[0])
 
-  git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 2))
+  git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 3))
