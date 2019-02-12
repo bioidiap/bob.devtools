@@ -10,8 +10,8 @@ source:
   sha256: 401ef8929db4dcb5b08e0a2263a0a70599fc7e5b27615f956ac26d245802d09e
 
 build:
-  number: 0
-  script: "{{ PYTHON }} -m pip install . -vv"
+  number: 1
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed ."
   entry_points:
     - gitlab = gitlab.cli:main
 
@@ -27,6 +27,8 @@ requirements:
 test:
   imports:
     - gitlab
+  commands:
+    - gitlab -h
 
 about:
   home: https://github.com/python-gitlab/python-gitlab
