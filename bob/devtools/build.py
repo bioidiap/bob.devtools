@@ -473,14 +473,14 @@ def base_build(server, intranet, recipe_dir, config):
 
   if recipe is None:
     logger.warn('Skipping build for %s - rendering returned None', recipe_dir)
-    continue
+    return
 
   if exists_on_channel(public_channel, recipe['package']['name'],
       recipe['package']['version'], recipe['build']['number']):
     logger.warn('Skipping build for %s-%s_%s - exists on channel already',
         recipe['package']['name'], recipe['package']['version'],
         recipe['build']['number'])
-    continue
+    return
 
   # if you get to this point, just builds the package
   arch = conda_arch()
