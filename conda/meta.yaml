@@ -61,11 +61,13 @@ test:
     - bdt release --help
     - bdt visibility --help
     - bdt dumpsphinx --help
+    - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
     - bdt build --help
     - bdt getpath --help
     - bdt caupdate --help
     - bdt new --help
+    - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
     - bdt ci --help
     - bdt ci build --help
     - bdt ci base-deploy --help
