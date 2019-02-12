@@ -1,4 +1,4 @@
 include LICENSE README.rst buildout.cfg version.txt
 recursive-include doc conf.py *.rst *.sh *.png *.ico
 recursive-include bob/devtools/data *.md *.yaml *.pem matplotlibrc
-recursive-include bob/devtools/templates conf.py *.rst *.png *.ico LICENSE COPYING .gitlab-ci.yml .gitignore *.cfg *.txt *.py
+recursive-include bob/devtools/templates conf.py *.rst *.png *.ico LICENSE COPYING MANIFEST.in .gitlab-ci.yml .gitignore *.cfg *.txt *.py

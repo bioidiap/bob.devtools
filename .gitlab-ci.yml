@@ -56,6 +56,12 @@ build_linux_36:
   <<: *linux_build_job
   variables:
     PYTHON_VERSION: "3.6"
+
+
+build_linux_37:
+  <<: *linux_build_job
+  variables:
+    PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
   script:
     - python3 ./bob/devtools/bootstrap.py -vv build
@@ -76,18 +82,27 @@ build_macosx_36:
     PYTHON_VERSION: "3.6"
 
 
+build_macosx_37:
+  <<: *macosx_build_job
+  variables:
+    PYTHON_VERSION: "3.7"
+
+
 # Deploy targets
 .deploy_template: &deploy_job
   stage: deploy
   script:
-    - python3 ./bob/devtools/bootstrap.py -vv local bdt
+    - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
+    - bdt ci base-deploy -vv
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
     - build_linux_36
+    - build_linux_37
     - build_macosx_36
+    - build_macosx_37
   tags:
     - docker
   cache: &build_caches
@@ -121,14 +136,16 @@ pypi:
   except:
     - branches
   script:
-    - python3 ./bob/devtools/bootstrap.py -vv local bdt
+    - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
     - build_linux_36
+    - build_linux_37
     - build_macosx_36
+    - build_macosx_37
   tags:
     - docker
   cache: &build_caches

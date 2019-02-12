@@ -33,6 +33,76 @@ def ci():
 @ci.command(epilog='''
 Examples:
 
+  1. Deploys base build artifacts (dependencies) to the appropriate channels:
+
+     $ bdt ci base-deploy -vv
+
+''')
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+def base_deploy(dry_run):
+    """Deploys dependencies not available at the defaults channel
+
+    Deployment happens to our public channel directly, as these are
+    dependencies are required for proper bob/beat package runtime environments.
+    """
+
+    if dry_run:
+        logger.warn('!!!! DRY RUN MODE !!!!')
+        logger.warn('Nothing is being deployed to server')
+
+    package = os.environ['CI_PROJECT_PATH']
+
+    from ..constants import WEBDAV_PATHS
+    server_info = WEBDAV_PATHS[True][True]  #stable=True, visible=True
+
+    logger.info('Deploying dependence packages to %s%s%s...', SERVER,
+        server_info['root'], server_info['conda'])
+
+    # setup webdav connection
+    webdav_options = {
+        'webdav_hostname': SERVER,
+        'webdav_root': server_info['root'],
+        'webdav_login': os.environ['DOCUSER'],
+        'webdav_password': os.environ['DOCPASS'],
+        }
+    from ..webdav3 import client as webdav
+    davclient = webdav.Client(webdav_options)
+    assert davclient.valid()
+
+    group, name = package.split('/')
+
+    # uploads conda package artificats
+    for arch in ('linux-64', 'osx-64', 'noarch'):
+      # finds conda dependencies and uploads what we can find
+      package_path = os.path.join(os.environ['CONDA_ROOT'], 'conda-bld', arch,
+          '*.tar.bz2')
+      deploy_packages = glob.glob(package_path)
+      for k in deploy_packages:
+        basename = os.path.basename(k)
+        if basename.startswith(name):
+          logger.debug('Skipping deploying of %s - not a base package', k)
+          continue
+
+        remote_path = '%s/%s/%s' % (server_info['conda'], arch, basename)
+        if davclient.check(remote_path):
+          raise RuntimeError('The file %s/%s already exists on the server ' \
+              '- this can be due to more than one build with deployment ' \
+              'running at the same time.  Re-running the broken builds ' \
+              'normally fixes it' % (SERVER, remote_path))
+        logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
+            remote_path)
+        if not dry_run:
+          davclient.upload(local_path=k, remote_path=remote_path)
+
+
+@ci.command(epilog='''
+Examples:
+
   1. Deploys current build artifacts to the appropriate channels:
 
      $ bdt ci deploy -vv
@@ -291,4 +361,4 @@ def clean(ctx):
   from ..build import git_clean_build
   from ..bootstrap import run_cmdline
 
-  git_clean_build(run_cmdline, verbose=(ctx.meta['verbosity']>=2))
+  git_clean_build(run_cmdline, verbose=(ctx.meta['verbosity']>=3))
