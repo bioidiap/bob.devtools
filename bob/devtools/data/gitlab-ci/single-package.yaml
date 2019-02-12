@@ -20,9 +20,9 @@ stages:
   stage: build
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel bdt
+    - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
     - bdt ci build -vv
     - bdt ci clean -vv
   cache: &build_caches
@@ -66,9 +66,9 @@ build_linux_36:
     BUILD_EGG: "true"
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel bdt
+    - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
@@ -91,9 +91,9 @@ build_macosx_36:
   stage: deploy
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel bdt
+    - python3 bootstrap.py channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
@@ -133,9 +133,9 @@ pypi:
     - branches
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel bdt
+    - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate bdt
+    - conda activate base
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
