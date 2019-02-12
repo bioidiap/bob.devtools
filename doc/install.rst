@@ -8,17 +8,30 @@
 ==============
 
 You can install this package via conda_, simply pointing to our stable or beta
-channels::
+channels:
 
-  $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda bob.devtools
-  # or, for beta releases:
-  $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda/label/beta bob.devtools
+.. code-block:: sh
 
-We provide packages for both 64-bit Linux and MacOS.  Once installed, you can
-use these tools within the created environment like this::
+   $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda bob.devtools
+   # or, for beta releases:
+   $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
 
-  $ conda activate bdt
-  (bdt) $ bdt --help
+If you use one of our supported Python versions on your base environment, you
+may also install ``bdt`` on it:
+
+.. code-block:: sh
+
+   $ conda install -n base -c https://www.idiap.ch/software/bob/conda bob.devtools
+   # or, for beta releases:
+   $ conda install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
+
+We provide packages for both 64-bit Linux and MacOS, for Python 3.6+.  Once
+installed, you can use these tools within the created environment like this:
+
+.. code-block:: sh
+
+   $ conda activate base  #or bdt, depending where you installed it
+   (bdt) $ bdt --help
 
 
 
