@@ -412,13 +412,13 @@ if __name__ == '__main__':
       ])
     conda_bld_path = os.path.join(args.conda_root, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])
-    # add the locally build directory before defaults, boot from there
     channels = get_channels(public=True, stable=True, server=_SERVER,
         intranet=True) + ['defaults']
     channels = ['--override-channels'] + \
         ['--channel=' + conda_bld_path] + \
         ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create'] + conda_verbosity + channels + \
+    conda_cmd = 'install' if args.envname in ('base', 'root') else 'create'
+    run_cmdline([conda_bin, conda_cmd] + conda_verbosity + channels + \
         ['-n', args.envname, 'bob.devtools'])
 
   elif args.command == 'channel':
@@ -427,9 +427,9 @@ if __name__ == '__main__':
     channels = get_channels(public=True,
         stable=(args.tag is not None),
         server=_SERVER, intranet=True) + ['defaults']
-    channels = ['--override-channels'] + \
-        ['--channel=%s' % k for k in channels]
-    run_cmdline([conda_bin, 'create'] + conda_verbosity + channels + \
+    channels = ['--override-channels'] + ['--channel=%s' % k for k in channels]
+    conda_cmd = 'install' if args.envname in ('base', 'root') else 'create'
+    run_cmdline([conda_bin, conda_cmd] + conda_verbosity + channels + \
         ['-n', args.envname, 'bob.devtools'])
 
   # print conda information for debugging purposes
