@@ -7,9 +7,11 @@ version = open("version.txt").read().rstrip()
 
 requires = [
     'setuptools',
-    'click>=7.0.0',
+    'click>=7',
     'click-plugins',
-    'conda-build>=3.0.0',
+    'conda>=4,<5',
+    'conda-build>=3,<4',
+    'conda-verify>=3,<4',
     'certifi',
     'requests',
     'gitpython',
