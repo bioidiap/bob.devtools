@@ -303,6 +303,57 @@ def pypi(package, dry_run):
 @ci.command(epilog='''
 Examples:
 
+  1. Builds a list of packages (base dependencies) defined in a text file
+
+     $ bdt ci base-build -vv order.txt
+
+''')
+@click.argument('order', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=1)
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+def base_build(order, dry_run):
+  """Builds base (dependence) packages
+
+  This command builds dependence packages (packages that are not Bob/BEAT
+  packages) in the CI infrastructure.  It is **not** meant to be used outside
+  this context.
+  """
+
+  from ..constants import CONDA_BUILD_CONFIG
+  from ..build import base_build as _build
+
+  condarc = os.path.join(os.environ['CONDA_ROOT'], 'condarc')
+  logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
+  with open(condarc, 'rb') as f:
+    condarc_options = yaml.load(f)
+
+  # dump packages at conda_root
+  condarc_options['croot'] = os.path.join(os.environ['CONDA_ROOT'],
+      'conda-bld')
+
+  # loads dirnames from order file (accepts # comments and empty lines)
+  recipes = []
+  with open(order, 'rt') as f:
+    for line in f:
+      line = line.partition('#')[0].strip()
+      if line: recipes.append(line)
+
+  for recipe in recipes:
+    if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
+      # ignore - not a conda package
+      continue
+    base_build(SERVER, True, recipe, CONDA_BUILD_CONFIG,
+        os.environ['PYTHON_VERSION'], args.python_version, condarc_options)
+
+
+@ci.command(epilog='''
+Examples:
+
   1. Builds the current package
 
      $ bdt ci build -vv
