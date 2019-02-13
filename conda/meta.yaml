@@ -70,7 +70,7 @@ test:
     - bdt create --help
     - bdt build --help
     - bdt getpath --help
-    - bdt getpath -vv bob/bob.devtools .gitignore
+      #- bdt getpath -vv bob/bob.devtools .gitignore
     - bdt caupdate --help
     - bdt new --help
     - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
