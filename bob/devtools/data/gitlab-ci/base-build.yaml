@@ -22,7 +22,7 @@ stages:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
     - bdt ci base-build -vv order.txt
-    - [ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv
+    - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
     - bdt ci clean -vv
   cache: &build_caches
     paths:
