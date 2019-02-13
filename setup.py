@@ -59,6 +59,7 @@ setup(
           ],
 
         'bdt.ci.cli': [
+          'base-build = bob.devtools.scripts.ci:base_build',
           'build = bob.devtools.scripts.ci:build',
           'clean = bob.devtools.scripts.ci:clean',
           'base-deploy = bob.devtools.scripts.ci:base_deploy',

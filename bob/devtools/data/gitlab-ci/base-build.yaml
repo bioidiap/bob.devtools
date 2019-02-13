@@ -1,0 +1,49 @@
+# This YAML file contains descriptions for the CI of most of our Bob/BEAT/BATL
+# packages - do **not** modify it unless you know what you're doing (and up
+# to!)
+
+# Definition of global variables (all stages)
+variables:
+  CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+  BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
+
+
+# Definition of our build pipeline order
+stages:
+  - build
+
+
+# Build targets
+.build_template: &build_job
+  stage: build
+  script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel base
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - bdt ci base-build -vv order.txt
+    - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
+    - bdt ci clean -vv
+  cache: &build_caches
+    paths:
+      - miniconda.sh
+      - ${CONDA_ROOT}/pkgs/*.tar.bz2
+      - ${CONDA_ROOT}/pkgs/urls.txt
+
+
+build_linux:
+  <<: *build_job
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
+  cache:
+    <<: *build_caches
+    key: "linux-cache"
+
+build_macosx:
+  <<: *build_job
+  tags:
+    - macosx
+  cache:
+    <<: *build_caches
+    key: "macosx-cache"
