@@ -58,11 +58,11 @@ test:
     - bdt -?
     - bdt --help
     - bdt lasttag --help
-    - bdt lasttag -vv bob/bob.devtools
+      #- bdt lasttag -vv bob/bob.devtools
     - bdt changelog --help
-    - bdt changelog -vv bob/bob.devtools changelog.md
+      #- bdt changelog -vv bob/bob.devtools changelog.md
     - bdt release --help
-    - bdt release -vvd changelog.md
+      #- bdt release -vvd changelog.md
     - bdt visibility --help
     - bdt visibility -vv bob/bob.devtools
     - bdt dumpsphinx --help
