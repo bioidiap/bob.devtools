@@ -64,7 +64,7 @@ test:
     - bdt release --help
       #- bdt release -vvd changelog.md
     - bdt visibility --help
-    - bdt visibility -vv bob/bob.devtools
+      #- bdt visibility -vv bob/bob.devtools
     - bdt dumpsphinx --help
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
