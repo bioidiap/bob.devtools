@@ -70,7 +70,11 @@ def get_gitlab_instance():
           logger.debug('Did not find any of %s nor CI_JOB_TOKEN is defined. ' \
               'Asking for user token on the command line...', '|'.join(cfgs))
           token = input("Your %s (private) token: " % server)
-        gl = gitlab.Gitlab(server, private_token=token, api_version=4)
+          gl = gitlab.Gitlab(server, private_token=token, api_version=4)
+        else:
+          username = 'gitlab-ci-token'
+          gl = gitlab.Gitlab(server, email='gitlab-ci-token', password=token)
+          gl.auth()
 
     return gl
 
