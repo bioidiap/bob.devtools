@@ -31,8 +31,10 @@ stages:
       - ${CONDA_ROOT}/pkgs/urls.txt
 
 
-build_linux:
+build_linux_36:
   <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.6"
   tags:
     - docker
   image: continuumio/conda-concourse-ci
@@ -40,8 +42,10 @@ build_linux:
     <<: *build_caches
     key: "linux-cache"
 
-build_macosx:
+build_macosx_36:
   <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.6"
   tags:
     - macosx
   cache:
