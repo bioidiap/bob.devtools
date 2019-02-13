@@ -70,10 +70,11 @@ test:
     - bdt create --help
     - bdt build --help
     - bdt getpath --help
-    - bdt getpath -vv bob/devtools README.rst
+    - bdt getpath -vv bob/bob.devtools .gitignore
     - bdt caupdate --help
     - bdt new --help
     - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
+    - bdt new -t "New package" -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
     - bdt ci --help
     - bdt ci base-build --help
     - bdt ci build --help
