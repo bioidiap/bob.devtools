@@ -21,7 +21,8 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci base-build -vv order.txt
+    - bdt ci base-build -vv nopython.txt
+    - bdt ci base-build -vv --python=3.6 python.txt
     - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
     - bdt ci clean -vv
   cache: &build_caches
@@ -31,10 +32,8 @@ stages:
       - ${CONDA_ROOT}/pkgs/urls.txt
 
 
-build_linux_36:
+build_linux:
   <<: *build_job
-  variables:
-    PYTHON_VERSION: "3.6"
   tags:
     - docker
   image: continuumio/conda-concourse-ci
@@ -42,10 +41,9 @@ build_linux_36:
     <<: *build_caches
     key: "linux-cache"
 
-build_macosx_36:
+
+build_macosx:
   <<: *build_job
-  variables:
-    PYTHON_VERSION: "3.6"
   tags:
     - macosx
   cache:

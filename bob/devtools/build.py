@@ -86,7 +86,10 @@ def next_build_number(channel_url, name, version, python):
   for dist in index:
 
     if dist.name == name and dist.version == version:
-      match = re.match('py[2-9][0-9]+', dist.build_string)
+      if py_ver:
+        match = re.match('py[2-9][0-9]+', dist.build_string)
+      else:
+        match = re.match('py', dist.build_string)
 
       if match and match.group() == 'py{}'.format(py_ver):
         logger.debug("Found match at %s for %s-%s-py%s", index[dist].url,
@@ -165,7 +168,9 @@ def exists_on_channel(channel_url, name, version, build_number,
     name: The name of the package
     version: The version of the package
     build_number: The build number of the package
-    python_version: The current version of python we're building for
+    python_version: The current version of python we're building for.  May be
+      ``noarch``, to check for "noarch" packages or ``None``, in which case we
+      don't check for the python version
 
   Returns: A complete package name, version and build string, if the package
   already exists in the channel or ``None`` otherwise.
@@ -174,8 +179,10 @@ def exists_on_channel(channel_url, name, version, build_number,
 
   from conda.exports import get_index
 
-  # no dot in py_ver
-  py_ver = python_version.replace('.', '')
+  # handles different cases as explained on the description of
+  # ``python_version``
+  py_ver = python_version.replace('.', '') if python_version else None
+  if py_ver == 'noarch': py_ver = ''
 
   # get the channel index
   logger.debug('Downloading channel index from %s', channel_url)
@@ -204,8 +211,12 @@ def exists_on_channel(channel_url, name, version, build_number,
             dist.version, dist.build_string)
         return (dist.name, dist.version, dist.build_string)
 
-  logger.info('No matches for %s-%s-(py%s_?)%s found among %d packages',
-      name, version, py_ver, build_number, len(index))
+  if py_ver is None:
+    logger.info('No matches for %s-%s-%s found among %d packages',
+        name, version, build_number, len(index))
+  else:
+    logger.info('No matches for %s-%s-py%s_%s found among %d packages',
+        name, version, py_ver, build_number, len(index))
   return
 
 
@@ -483,7 +494,10 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
     recipe_dir: The directory containing the recipe's ``meta.yaml`` file
     conda_build_config: Path to the ``conda_build_config.yaml`` file to use
     python_version: String with the python version to build for, in the format
-      ``x.y`` (should be passed even if not building a python package)
+      ``x.y`` (should be passed even if not building a python package).  It
+      can also be set to ``noarch``, or ``None``.  If set to ``None``, then we
+      don't assume there is a python-specific version being built.  If set to
+      ``noarch``, then it is a python package without a specific build.
     condarc_options: Pre-parsed condarc options loaded from the respective YAML
       file
 
@@ -498,8 +512,12 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
   condarc_options['channels'] = public_channels + ['defaults']
 
   logger.info('Merging conda configuration files...')
-  conda_config = make_conda_config(conda_build_config, python_version,
-      None, condarc_options)
+  if python_version not in ('noarch', None):
+    conda_config = make_conda_config(conda_build_config, python_version,
+        None, condarc_options)
+  else:
+    conda_config = make_conda_config(conda_build_config, None, None,
+        condarc_options)
 
   metadata = get_rendered_metadata(recipe_dir, conda_config)
   recipe = get_parsed_recipe(metadata)
@@ -508,8 +526,10 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
     logger.info('Skipping build for %s - rendering returned None', recipe_dir)
     return
 
-  # no dot in py_ver
-  py_ver = python_version.replace('.', '')
+  # handles different cases as explained on the description of
+  # ``python_version``
+  py_ver = python_version.replace('.', '') if python_version else None
+  if py_ver == 'noarch': py_ver = ''
   arch = conda_arch()
 
   candidate = exists_on_channel(public_channels[0], recipe['package']['name'],
@@ -521,9 +541,14 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
     return
 
   # if you get to this point, just builds the package
-    logger.info('Building %s-%s-(py%s_?)%s for %s',
+  if py_ver is None:
+    logger.info('Building %s-%s-%s for %s',
       recipe['package']['name'], recipe['package']['version'],
-      recipe['build']['number'], py_ver, arch)
+      recipe['build']['number'], arch)
+  else:
+    logger.info('Building %s-%s-py%s_%s for %s',
+      recipe['package']['name'], recipe['package']['version'], py_ver,
+      recipe['build']['number'], arch)
   conda_build.api.build(recipe_dir, config=conda_config)
 
 
