@@ -21,6 +21,7 @@ requires = [
     'twine',
     'lxml',
     'jinja2',
+    'termcolor',
     ]
 
 setup(

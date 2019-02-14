@@ -6,10 +6,10 @@
 import os
 import pkg_resources
 
-import logging
-logger = logging.getLogger(__name__)
-
 from . import bootstrap
+
+from .log import get_logger
+logger = get_logger(__name__)
 
 
 BASE_CONDARC = bootstrap._BASE_CONDARC

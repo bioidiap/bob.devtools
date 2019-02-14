@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import os
-import logging
-logger = logging.getLogger(__name__)
 
 import click
 
 from . import bdt
-from ..log import verbosity_option
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''

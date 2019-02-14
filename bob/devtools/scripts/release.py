@@ -4,16 +4,16 @@
 
 import os
 
-import logging
-logger = logging.getLogger(__name__)
-
 import click
 
 from . import bdt
-from ..log import verbosity_option
 from ..release import release_bob, parse_and_process_package_changelog
 from ..release import release_package, wait_for_pipeline_to_finish
 from ..release import get_gitlab_instance
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
+
 
 @click.command(epilog='''
 Examples:

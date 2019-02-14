@@ -2,16 +2,16 @@
 
 import os
 import shutil
-import logging
 import datetime
-logger = logging.getLogger(__name__)
 
 import click
 import jinja2
 import pkg_resources
 
 from . import bdt
-from ..log import verbosity_option
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
 
 
 def copy_file(template, output_dir):

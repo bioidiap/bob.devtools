@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 
 import functools
-import logging
 import os
 import shutil
 import threading
@@ -15,6 +14,10 @@ from .connection import *
 from .exceptions import *
 from .urn import Urn
 
+from ..log import get_logger
+logger = get_logger(__name__)
+
+
 try:
     from urllib.parse import unquote, urlsplit
 except ImportError:
@@ -22,7 +25,6 @@ except ImportError:
     from urlparse import urlsplit
 
 __version__ = "0.2"
-log = logging.getLogger(__name__)
 
 
 def listdir(directory):

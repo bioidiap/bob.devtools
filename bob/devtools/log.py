@@ -7,6 +7,10 @@
 import sys
 import logging
 
+import click
+import termcolor
+
+
 # get the default root logger of Bob
 _logger = logging.getLogger('bob')
 
@@ -26,6 +30,87 @@ _debug_info = logging.StreamHandler(sys.stdout)
 _debug_info.setLevel(logging.DEBUG)
 _debug_info.addFilter(_InfoFilter())
 _logger.addHandler(_debug_info)
+
+
+COLORMAP = dict(
+    debug=dict(),
+    info=dict(attrs=['bold']),
+    warn=dict(color='yellow', attrs=['bold']),
+    warning=dict(color='yellow', attrs=['bold']),
+    error=dict(color='red'),
+    exception=dict(color='red', attrs=['bold']),
+    critical=dict(color='red', attrs=['bold']),
+    )
+'''Default color map for homogenized color display'''
+
+
+def _supports_color():
+  """
+  Returns True if the running system's terminal supports color, and False
+  otherwise.
+  """
+  plat = sys.platform
+  supported_platform = plat != 'Pocket PC' and (plat != 'win32' or
+                                                'ANSICON' in os.environ)
+  # isatty is not always implemented, #6223.
+  is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+  if not supported_platform or not is_a_tty:
+    return False
+  return True
+
+
+class ColorLog(object):
+  '''Colorizes logging colors'''
+
+  def __init__(self, logger):
+    self._log = logger
+
+  def __getattr__(self, name):
+    if name in ['debug', 'info', 'warn', 'warning', 'error', 'exception',
+        'critical']:
+      if _supports_color():
+        return lambda s, *args: getattr(self._log, name)(
+            termcolor.colored(s, **COLORMAP[name]), *args)
+      else:
+        return lambda s, *args: getattr(self._log, name)(s, *args)
+
+    return getattr(self._log, name)
+
+
+def get_logger(name):
+  """Returns the default logger as setup by this module"""
+
+  return ColorLog(logging.getLogger(name))
+
+
+def _echo(text, *args, **kwargs):
+  """Provides a colorized version of :py:func:`click.echo` (for terminals)
+
+  The color is stripped off if outputting to a file or piping the results of
+  a command using this function.
+
+  Parameters:
+
+    text (str): The text to be printed
+    args (tuple): Tuple of attributes directly passed to
+      :py:func:`termcolor.colored`
+    kwargs (dict): Dictionary of attributes directly passed to
+      :py:func:`termcolor.colored`
+  """
+
+  click.echo(termcolor.colored(text, *args, **kwargs))
+
+
+def echo_normal(text):
+  """Color preset for normal text output for :py:func:`click.echo`"""
+
+  _echo(text, 'green')
+
+
+def echo_warning(text):
+  """Color preset for normal warning output for :py:func:`click.echo`"""
+
+  _echo(text, **COLORMAP['warn'])
 
 
 # helper functions to instantiate and set-up logging
@@ -68,7 +153,7 @@ def setup(logger_name,
   for handler in _logger.handlers:
     handler.setFormatter(formatter)
 
-  return logger
+  return ColorLog(logger)
 
 
 def set_verbosity_level(logger, level):

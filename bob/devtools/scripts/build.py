@@ -3,8 +3,6 @@
 
 import os
 import sys
-import logging
-logger = logging.getLogger(__name__)
 
 import yaml
 import click
@@ -12,13 +10,15 @@ import pkg_resources
 import conda_build.api
 
 from . import bdt
-from ..log import verbosity_option
 from ..build import next_build_number, conda_arch, should_skip_build, \
     get_rendered_metadata, get_parsed_recipe, make_conda_config, \
     get_docserver_setup, get_env_directory
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''

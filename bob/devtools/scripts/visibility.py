@@ -6,12 +6,11 @@ import sys
 import click
 import gitlab
 
-import logging
-logger = logging.getLogger(__name__)
-
 from . import bdt
-from ..log import verbosity_option
 from ..release import get_gitlab_instance
+
+from ..log import verbosity_option, get_logger, echo_normal, echo_warning
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''
@@ -48,12 +47,12 @@ def visibility(target, group):
 
     # reads package list or considers name to be a package name
     if os.path.exists(target) and os.path.isfile(target):
-        logger.info('Reading package names from file %s...', target)
+        logger.debug('Reading package names from file %s...', target)
         with open(target, 'rt') as f:
             packages = [k.strip() for k in f.readlines() if k.strip() and not \
                 k.strip().startswith('#')]
     else:
-        logger.info('Assuming %s is a package name (file does not ' \
+        logger.debug('Assuming %s is a package name (file does not ' \
             'exist)...', target)
         packages = [target]
 
@@ -66,11 +65,11 @@ def visibility(target, group):
         # retrieves the gitlab package object
         try:
           use_package = gl.projects.get(package)
-          logger.info('Found gitlab project %s (id=%d)',
+          logger.debug('Found gitlab project %s (id=%d)',
               use_package.attributes['path_with_namespace'], use_package.id)
-          click.echo('%s: %s' % (package,
+          echo_normal('%s: %s' % (package,
             use_package.attributes['visibility'].lower()))
         except gitlab.GitlabGetError as e:
           logger.warn('Gitlab access error - package %s does not exist?',
               package)
-          click.echo('%s: unknown' % (package,))
+          echo_warning('%s: unknown' % (package,))

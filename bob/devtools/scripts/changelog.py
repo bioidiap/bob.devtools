@@ -4,16 +4,15 @@ import os
 import sys
 import datetime
 
-import logging
-logger = logging.getLogger(__name__)
-
 import click
 
 from . import bdt
-from ..log import verbosity_option
 from ..changelog import get_last_tag_date, write_tags_with_commits
 from ..changelog import parse_date
 from ..release import get_gitlab_instance
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''

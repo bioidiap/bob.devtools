@@ -3,19 +3,19 @@
 
 import os
 import sys
-import logging
-logger = logging.getLogger(__name__)
 
 import pkg_resources
 import click
 import yaml
 
 from . import bdt
-from ..log import verbosity_option
 from ..build import parse_dependencies, conda_create, make_conda_config
 from ..constants import BASE_CONDARC, CONDA_BUILD_CONFIG, \
     CONDA_RECIPE_APPEND, SERVER
 from ..bootstrap import set_environment, get_channels
+
+from ..log import verbosity_option, get_logger, echo_normal
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''
@@ -138,4 +138,4 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
   deps = parse_dependencies(recipe_dir, conda_config)
   status = conda_create(conda, name, overwrite, condarc_options, deps,
       dry_run, use_local)
-  click.echo('Execute on your shell: "conda activate %s"' % name)
+  echo_normal('Execute on your shell: "conda activate %s"' % name)
