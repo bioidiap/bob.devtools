@@ -57,6 +57,8 @@ def commitfile(package, message, file, path, branch, auto_merge, dry_run):
         raise RuntimeError('PACKAGE should be specified as "group/name"')
 
     gl = get_gitlab_instance()
+    gl.auth()
+    user_id = gl.user.attributes['id']
 
     # we lookup the gitlab package once
     use_package = gl.projects.get(package)
@@ -75,10 +77,10 @@ def commitfile(package, message, file, path, branch, auto_merge, dry_run):
       contents = f.read()
 
     components = os.path.splitext(path)[0].split(os.sep)
-    branch = 'update-%s' % components[-1].lower()
-    message = message or ("[%s] update" % \
-        ''.join(['[%s]' % k for k in components]))
+    branch = branch or 'update-%s' % components[-1].lower()
+    message = message or ("%s update" % \
+        ''.join(['[%s]' % k.lower() for k in components]))
 
     # commit and push changes
     update_files_with_mr(use_package, {path: contents}, message, branch,
-      auto_merge, dry_run)
+      auto_merge, dry_run, user_id)

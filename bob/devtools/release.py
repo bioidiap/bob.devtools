@@ -229,7 +229,7 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
 
 
 def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
-    dry_run):
+    dry_run, user_id):
     """Update (via a commit) files of a given gitlab package, through an MR
 
     This function can update a file in a gitlab package, but will do this
@@ -244,6 +244,7 @@ def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
         automerge: If we should set the "merge if build suceeds" flag on the
           created MR
         dry_run: If True, nothing will be pushed to gitlab
+        user_id: The integer which numbers the user to attribute this MR to
 
     """
 
@@ -268,17 +269,15 @@ def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
     logger.debug("Creating merge request %s -> master", branch)
     logger.debug("Set merge-when-pipeline-succeeds = %s", automerge)
     if not dry_run:
-        mr = project.mergerequests.create({
+        mr = gitpkg.mergerequests.create({
           'source_branch': branch,
           'target_branch': 'master',
           'title': message,
+          'remove_source_branch': True,
+          'assignee_id': user_id,
           })
-        accept = {
-            'merge_when_pipeline_succeeds': 'true' if automerge else 'false',
-            'should_remove_source_branch': 'true',
-            }
-        mr.merge(accept)
-
+        time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
+        mr.merge(merge_when_pipeline_succeeds=automerge)
 
 
 def update_files_at_master(gitpkg, files_dict, message, dry_run):
