@@ -520,17 +520,26 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
         condarc_options)
 
   metadata = get_rendered_metadata(recipe_dir, conda_config)
-  recipe = get_parsed_recipe(metadata)
-
-  if recipe is None:
-    logger.info('Skipping build for %s - rendering returned None', recipe_dir)
-    return
 
   # handles different cases as explained on the description of
   # ``python_version``
   py_ver = python_version.replace('.', '') if python_version else None
   if py_ver == 'noarch': py_ver = ''
   arch = conda_arch()
+
+  # checks we should actually build this recipe
+  if should_skip_build(metadata):
+    if py_ver is None:
+      logger.warn('Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch)
+    elif not py_ver:
+      logger.warn('Skipping UNSUPPORTED build of "%s" for (noarch) python ' \
+          'on %s', recipe_dir, arch)
+    else:
+      logger.warn('Skipping UNSUPPORTED build of "%s" for python-%s ' \
+          'on %s', recipe_dir, python_version, arch)
+    return
+
+  recipe = get_parsed_recipe(metadata)
 
   candidate = exists_on_channel(public_channels[0], recipe['package']['name'],
       recipe['package']['version'], recipe['build']['number'],
