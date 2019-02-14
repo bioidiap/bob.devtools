@@ -366,7 +366,7 @@ def base_build(order, python, dry_run):
     click.echo('\n' + (80*'='))
     pytext = 'for python-%s' % pyver if pyver is not None else ''
     click.echo('Building "%s" %s(%d/%d)' % \
-        (recipe, pytext, order+1, total_recipes))
+        (recipe, pytext, order+1, len(recipes)))
     click.echo((80*'=') + '\n')
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
