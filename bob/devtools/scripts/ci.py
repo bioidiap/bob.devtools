@@ -364,7 +364,7 @@ def base_build(order, python, dry_run):
 
   for order, (pyver, recipe) in enumerate(recipes):
     click.echo('\n' + (80*'='))
-    pytext = 'for python-%s' % pyver if pyver is not None else ''
+    pytext = 'for python-%s ' % pyver if pyver is not None else ''
     click.echo('Building "%s" %s(%d/%d)' % \
         (recipe, pytext, order+1, len(recipes)))
     click.echo((80*'=') + '\n')
