@@ -47,6 +47,7 @@ requirements:
     - twine
     - lxml
     - jinja2
+    - termcolor
 
 test:
   requires:
