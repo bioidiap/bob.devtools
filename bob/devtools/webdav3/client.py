@@ -67,7 +67,7 @@ def get_options(option_type, from_options):
 def wrap_connection_error(fn):
     @functools.wraps(fn)
     def _wrapper(self, *args, **kw):
-        log.debug("Requesting %s(%s, %s)", fn, args, kw)
+        logger.debug("Requesting %s(%s, %s)", fn, args, kw)
         try:
             res = fn(self, *args, **kw)
         except requests.ConnectionError:
