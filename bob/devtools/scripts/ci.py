@@ -348,7 +348,7 @@ def base_build(order, dry_run):
       # ignore - not a conda package
       continue
     base_build(SERVER, True, recipe, CONDA_BUILD_CONFIG,
-        os.environ['PYTHON_VERSION'], args.python_version, condarc_options)
+        os.environ['PYTHON_VERSION'], condarc_options)
 
 
 @ci.command(epilog='''
