@@ -233,7 +233,7 @@ def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
     """Update (via a commit) files of a given gitlab package, through an MR
 
     This function can update a file in a gitlab package, but will do this
-    through a formal merge request.
+    through a formal merge request.  You can auto-merge this request
 
     Args:
 
@@ -261,13 +261,14 @@ def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
         update_action['content'] = files_dict[filename]
         data['actions'].append(update_action)
 
-    logger.debug("Committing changes in files (%s) to new branch '%s'",
+    logger.debug("Committing changes in files (%s) to branch '%s'",
         ', '.join(files_dict.keys()), branch)
     if not dry_run:
         commit = gitpkg.commits.create(data)
+        logger.info('Created commit %s at %s (branch=%s)',
+            commit.short_id, gitpkg.attributes['path_with_namespace'], branch)
 
     logger.debug("Creating merge request %s -> master", branch)
-    logger.debug("Set merge-when-pipeline-succeeds = %s", automerge)
     if not dry_run:
         mr = gitpkg.mergerequests.create({
           'source_branch': branch,
@@ -276,8 +277,17 @@ def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
           'remove_source_branch': True,
           'assignee_id': user_id,
           })
-        time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
-        mr.merge(merge_when_pipeline_succeeds=automerge)
+        logger.info('Created merge-request !%d (%s -> %s) at %s', mr.iid,
+            branch, 'master', gitpkg.attributes['path_with_namespace'])
+
+        if automerge:
+          if '[ci skip]' in message.lower() or '[skip ci]' in message.lower():
+            logger.info('Merging !%d immediately - CI was skipped', mr.iid)
+            mr.merge()
+          else:
+            logger.info('Auto-merging !%d only if pipeline succeeds', mr.iid)
+            time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
+            mr.merge(merge_when_pipeline_succeeds=True)
 
 
 def update_files_at_master(gitpkg, files_dict, message, dry_run):
@@ -305,9 +315,12 @@ def update_files_at_master(gitpkg, files_dict, message, dry_run):
         update_action['content'] = files_dict[filename]
         data['actions'].append(update_action)
 
-    logger.debug("Committing changes in files: %s", ', '.join(files_dict.keys()))
+    logger.debug("Committing changes in files (%s) to branch 'master'",
+        ', '.join(files_dict.keys()))
     if not dry_run:
-        gitpkg.commits.create(data)
+        commit = gitpkg.commits.create(data)
+        logger.info('Created commit %s at %s (branch=%s)',
+            commit.short_id, gitpkg.attributes['path_with_namespace'], 'master')
 
 
 def get_last_pipeline(gitpkg):
