@@ -59,6 +59,7 @@ test:
     - bdt --help
     - bdt lasttag --help
       #- bdt lasttag -vv bob/bob.devtools
+    - bdt commitfile --help
     - bdt changelog --help
       #- bdt changelog -vv bob/bob.devtools changelog.md
     - bdt release --help

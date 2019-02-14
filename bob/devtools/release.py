@@ -228,8 +228,61 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
     return tag
 
 
-def commit_files(gitpkg, files_dict, message='Updated files', dry_run=False):
-    """Commit files of a given GitLab package.
+def update_files_with_mr(gitpkg, files_dict, message, branch, automerge,
+    dry_run, user_id):
+    """Update (via a commit) files of a given gitlab package, through an MR
+
+    This function can update a file in a gitlab package, but will do this
+    through a formal merge request.
+
+    Args:
+
+        gitpkg: gitlab package object
+        files_dict: Dictionary of file names and their contents (as text)
+        message: Commit message
+        branch: The branch name to use for the merge request
+        automerge: If we should set the "merge if build suceeds" flag on the
+          created MR
+        dry_run: If True, nothing will be pushed to gitlab
+        user_id: The integer which numbers the user to attribute this MR to
+
+    """
+
+    data = {
+        'branch': branch,
+        'start_branch': 'master',
+        'commit_message': message,
+        'actions': []
+    }
+
+    # add files to update
+    for filename in files_dict.keys():
+        update_action = dict(action='update', file_path=filename)
+        update_action['content'] = files_dict[filename]
+        data['actions'].append(update_action)
+
+    logger.debug("Committing changes in files (%s) to new branch '%s'",
+        ', '.join(files_dict.keys()), branch)
+    if not dry_run:
+        commit = gitpkg.commits.create(data)
+
+    logger.debug("Creating merge request %s -> master", branch)
+    logger.debug("Set merge-when-pipeline-succeeds = %s", automerge)
+    if not dry_run:
+        mr = gitpkg.mergerequests.create({
+          'source_branch': branch,
+          'target_branch': 'master',
+          'title': message,
+          'remove_source_branch': True,
+          'assignee_id': user_id,
+          })
+        time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
+        mr.merge(merge_when_pipeline_succeeds=automerge)
+
+
+def update_files_at_master(gitpkg, files_dict, message, dry_run):
+    """Update (via a commit) files of a given gitlab package, directly on the
+    master branch.
 
     Args:
 
@@ -398,7 +451,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     readme_content = readme_file.decode().decode()
     readme_content = _update_readme(readme_content, version_number)
     # commit and push changes
-    commit_files(gitpkg,
+    update_files_at_master(gitpkg,
         {
           'README.rst': readme_content,
           'version.txt': version_number
@@ -427,7 +480,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     major, minor, patch = version_number.split('.')
     version_number = '{}.{}.{}b0'.format(major, minor, int(patch)+1)
     # commit and push changes
-    commit_files(gitpkg, {
+    update_files_at_master(gitpkg, {
       'README.rst': readme_content,
       'version.txt': version_number,
       },
