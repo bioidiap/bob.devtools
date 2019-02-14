@@ -303,9 +303,16 @@ def pypi(package, dry_run):
 @ci.command(epilog='''
 Examples:
 
-  1. Builds a list of packages (base dependencies) defined in a text file
+  1. Builds a list of non-python packages (base dependencies) defined in a text
+     file:
 
      $ bdt ci base-build -vv order.txt
+
+
+  2. Builds a list of python-dependent packages (base dependencies) defined in
+     a text file, for python 3.6 and 3.7:
+
+     $ bdt ci base-build -vv --python=3.6 --python=3.7 order.txt
 
 ''')
 @click.argument('order', required=True, type=click.Path(file_okay=True,
