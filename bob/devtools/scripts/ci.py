@@ -343,11 +343,13 @@ def base_build(order, dry_run):
       line = line.partition('#')[0].strip()
       if line: recipes.append(line)
 
+  from .. import bootstrap
+
   for recipe in recipes:
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    _build(SERVER, True, recipe, CONDA_BUILD_CONFIG,
+    _build(bootstrap, SERVER, True, recipe, CONDA_BUILD_CONFIG,
         os.environ['PYTHON_VERSION'], condarc_options)
 
 

@@ -462,7 +462,7 @@ def git_clean_build(runner, verbose):
       ['--exclude=%s' % k for k in exclude_from_cleanup])
 
 
-def base_build(server, intranet, recipe_dir, conda_build_config,
+def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
     python_version, condarc_options):
   '''Builds a non-beat/bob software dependence that does not exist on defaults
 
@@ -475,6 +475,8 @@ def base_build(server, intranet, recipe_dir, conda_build_config,
 
   Args:
 
+    bootstrap: Module that should be pre-loaded so this function can be used
+      in a pre-bdt build
     server: The base address of the server containing our conda channels
     intranet: Boolean indicating if we should add "private"/"public" prefixes
       on the returned paths
@@ -604,8 +606,8 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    base_build(server, not args.internet, recipe, conda_build_config,
-        args.python_version, condarc_options)
+    base_build(bootstrap, server, not args.internet, recipe,
+        conda_build_config, args.python_version, condarc_options)
 
   # notice this condarc typically will only contain the defaults channel - we
   # need to boost this up with more channels to get it right for this package's
