@@ -347,7 +347,7 @@ def base_build(order, dry_run):
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    base_build(SERVER, True, recipe, CONDA_BUILD_CONFIG,
+    _build(SERVER, True, recipe, CONDA_BUILD_CONFIG,
         os.environ['PYTHON_VERSION'], condarc_options)
 
 
