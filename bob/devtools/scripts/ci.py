@@ -345,9 +345,12 @@ def base_build(order, dry_run):
 
   from .. import bootstrap
 
-  for recipe in recipes:
+  for order, recipe in enumerate(recipes):
+    click.echo('\n' + (60*'='))
+    click.echo('Building "%s" (%d/%d)' % (recipe, order+1, len(recipes)))
+    click.echo((60*'=') + '\n')
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
-      # ignore - not a conda package
+      logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
     _build(bootstrap, SERVER, True, recipe, CONDA_BUILD_CONFIG,
         os.environ['PYTHON_VERSION'], condarc_options)
