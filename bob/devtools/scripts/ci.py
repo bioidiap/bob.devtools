@@ -303,20 +303,30 @@ def pypi(package, dry_run):
 @ci.command(epilog='''
 Examples:
 
-  1. Builds a list of packages (base dependencies) defined in a text file
+  1. Builds a list of non-python packages (base dependencies) defined in a text
+     file:
 
      $ bdt ci base-build -vv order.txt
+
+
+  2. Builds a list of python-dependent packages (base dependencies) defined in
+     a text file, for python 3.6 and 3.7:
+
+     $ bdt ci base-build -vv --python=3.6 --python=3.7 order.txt
 
 ''')
 @click.argument('order', required=True, type=click.Path(file_okay=True,
   dir_okay=False, exists=True), nargs=1)
+@click.option('-p', '--python', multiple=True,
+    help='Versions of python in the format "x.y" we should build for.  Pass ' \
+        'various times this option to build for multiple python versions')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def base_build(order, dry_run):
+def base_build(order, python, dry_run):
   """Builds base (dependence) packages
 
   This command builds dependence packages (packages that are not Bob/BEAT
@@ -343,17 +353,26 @@ def base_build(order, dry_run):
       line = line.partition('#')[0].strip()
       if line: recipes.append(line)
 
+  import itertools
   from .. import bootstrap
 
-  for order, recipe in enumerate(recipes):
-    click.echo('\n' + (60*'='))
-    click.echo('Building "%s" (%d/%d)' % (recipe, order+1, len(recipes)))
-    click.echo((60*'=') + '\n')
+  # combine all versions of python with recipes
+  if python:
+    recipes = list(itertools.product(python, recipes))
+  else:
+    recipes = list(itertools.product([None], recipes))
+
+  for order, (pyver, recipe) in enumerate(recipes):
+    click.echo('\n' + (80*'='))
+    pytext = 'for python-%s' % pyver if pyver is not None else ''
+    click.echo('Building "%s" %s(%d/%d)' % \
+        (recipe, pytext, order+1, total_recipes))
+    click.echo((80*'=') + '\n')
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
-    _build(bootstrap, SERVER, True, recipe, CONDA_BUILD_CONFIG,
-        os.environ['PYTHON_VERSION'], condarc_options)
+    _build(bootstrap, SERVER, True, recipe, CONDA_BUILD_CONFIG, pyver,
+        condarc_options)
 
 
 @ci.command(epilog='''
