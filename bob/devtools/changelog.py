@@ -5,11 +5,12 @@
 
 import io
 import datetime
-import logging
-logger = logging.getLogger(__name__)
 
 import pytz
 import dateutil.parser
+
+from .log import get_logger
+logger = get_logger(__name__)
 
 
 def parse_date(d):

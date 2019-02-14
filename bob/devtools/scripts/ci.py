@@ -3,8 +3,6 @@
 import os
 import re
 import glob
-import logging
-logger = logging.getLogger(__name__)
 
 import yaml
 import click
@@ -13,8 +11,10 @@ import conda_build.api
 from click_plugins import with_plugins
 
 from . import bdt
-from ..log import verbosity_option
 from ..constants import SERVER
+
+from ..log import verbosity_option, get_logger, echo_normal
+logger = get_logger(__name__)
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -363,11 +363,11 @@ def base_build(order, python, dry_run):
     recipes = list(itertools.product([None], recipes))
 
   for order, (pyver, recipe) in enumerate(recipes):
-    click.echo('\n' + (80*'='))
+    echo_normal('\n' + (80*'='))
     pytext = 'for python-%s ' % pyver if pyver is not None else ''
-    click.echo('Building "%s" %s(%d/%d)' % \
+    echo_normal('Building "%s" %s(%d/%d)' % \
         (recipe, pytext, order+1, len(recipes)))
-    click.echo((80*'=') + '\n')
+    echo_normal((80*'=') + '\n')
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue

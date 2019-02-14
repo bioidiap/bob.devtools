@@ -4,11 +4,11 @@
 '''Tools to help CI-based builds and artifact deployment'''
 
 
-import logging
-logger = logging.getLogger(__name__)
-
 import git
 import distutils.version
+
+from .log import get_logger
+logger = get_logger(__name__)
 
 
 def is_master(refname, tag, repodir):

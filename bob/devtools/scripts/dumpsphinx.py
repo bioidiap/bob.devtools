@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 
 
-import logging
-logger = logging.getLogger(__name__)
-
 from sphinx.ext import intersphinx
 
 import click
 
 from . import bdt
-from ..log import verbosity_option
+
+from ..log import verbosity_option, get_logger
+logger = get_logger(__name__)
 
 
 @click.command(epilog='''

@@ -9,8 +9,8 @@ import time
 import shutil
 import gitlab
 
-import logging
-logger = logging.getLogger(__name__)
+from .log import get_logger
+logger = get_logger(__name__)
 
 from distutils.version import StrictVersion
 
