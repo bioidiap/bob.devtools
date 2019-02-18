@@ -378,6 +378,45 @@ def base_build(order, python, dry_run):
 @ci.command(epilog='''
 Examples:
 
+  1. Tests the current package
+
+     $ bdt ci test -vv
+
+''')
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+@click.pass_context
+def test(ctx, dry_run):
+  """Tests packages
+
+  This command tests packages in the CI infrastructure.  It is **not** meant
+  to be used outside this context.
+  """
+
+  from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
+
+  from .test import test
+  ctx.invoke(test,
+      package = glob.glob(os.path.join(os.environ['CONDA_ROOT'], 'conda-bld',
+        arch, name + '*.tar.bz2')),
+      condarc=None,  #custom build configuration
+      config=CONDA_BUILD_CONFIG,
+      append_file=CONDA_RECIPE_APPEND,
+      server=SERVER,
+      private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
+      stable='CI_COMMIT_TAG' in os.environ,
+      dry_run=dry_run,
+      ci=True,
+      )
+
+
+@ci.command(epilog='''
+Examples:
+
   1. Builds the current package
 
      $ bdt ci build -vv

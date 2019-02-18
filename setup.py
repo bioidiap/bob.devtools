@@ -55,6 +55,7 @@ setup(
           'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
           'create = bob.devtools.scripts.create:create',
           'build = bob.devtools.scripts.build:build',
+          'test = bob.devtools.scripts.test:test',
           'getpath = bob.devtools.scripts.getpath:getpath',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
           'ci = bob.devtools.scripts.ci:ci',
@@ -63,6 +64,7 @@ setup(
         'bdt.ci.cli': [
           'base-build = bob.devtools.scripts.ci:base_build',
           'build = bob.devtools.scripts.ci:build',
+          'test = bob.devtools.scripts.ci:test',
           'clean = bob.devtools.scripts.ci:clean',
           'base-deploy = bob.devtools.scripts.ci:base_deploy',
           'deploy = bob.devtools.scripts.ci:deploy',
