@@ -70,7 +70,7 @@ Examples:
 @bdt.raise_on_error
 def test(package, condarc, config, append_file, server, private, stable,
     dry_run, ci):
-  """Tests (pre-built_ package through conda-build with stock configuration
+  """Tests (pre-built) package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
   conda configuration we use for our CI.  It always set
