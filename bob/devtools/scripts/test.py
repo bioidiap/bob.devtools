@@ -10,9 +10,8 @@ import pkg_resources
 import conda_build.api
 
 from . import bdt
-from ..build import next_build_number, conda_arch, should_skip_build, \
-    get_rendered_metadata, get_parsed_recipe, make_conda_config, \
-    get_docserver_setup, get_env_directory
+from ..build import conda_arch, make_conda_config, get_docserver_setup, \
+    get_env_directory
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
@@ -40,17 +39,13 @@ Examples:
 
      $ bdt build --python=3.6 -vv path/to/recipe-dir1 path/to/recipe-dir2
 ''')
-@click.argument('recipe-dir', required=False, type=click.Path(file_okay=False,
-  dir_okay=True, exists=True), nargs=-1)
-@click.option('-p', '--python', default=('%d.%d' % sys.version_info[:2]),
-    show_default=True, help='Version of python to build the environment for')
+@click.argument('package', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=-1)
 @click.option('-r', '--condarc',
     help='Use custom conda configuration file instead of our own',)
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
     default=CONDA_BUILD_CONFIG, help='overwrites the path leading to ' \
         'variant configuration file to use')
-@click.option('-n', '--no-test', is_flag=True,
-    help='Do not test the package, only builds it')
 @click.option('-a', '--append-file', show_default=True,
     default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
         'appended configuration file to use')
@@ -73,9 +68,9 @@ Examples:
     help='Use this flag to indicate the build will be running on the CI')
 @verbosity_option()
 @bdt.raise_on_error
-def build(recipe_dir, python, condarc, config, no_test, append_file,
-    server, private, stable, dry_run, ci):
-  """Builds package through conda-build with stock configuration
+def test(package, condarc, config, append_file, server, private, stable,
+    dry_run, ci):
+  """Tests (pre-built) package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
   conda configuration we use for our CI.  It always set
@@ -86,8 +81,6 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   if dry_run:
       logger.warn('!!!! DRY RUN MODE !!!!')
       logger.warn('Nothing will be really built')
-
-  recipe_dir = recipe_dir or [os.path.join(os.path.realpath('.'), 'conda')]
 
   # get potential channel upload and other auxiliary channels
   channels = get_channels(public=(not private), stable=stable, server=server,
@@ -108,7 +101,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
   condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
 
-  conda_config = make_conda_config(config, python, append_file,
+  conda_config = make_conda_config(config, None, append_file,
       condarc_options)
 
   set_environment('MATPLOTLIBRC', MATPLOTLIB_RCDIR)
@@ -120,39 +113,8 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
       server=server, intranet=ci)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls)
 
-  for d in recipe_dir:
-
-    if not os.path.exists(d):
-      raise RuntimeError("The directory %s does not exist" % recipe_dir)
-
-    version_candidate = os.path.join(d, '..', 'version.txt')
-    if os.path.exists(version_candidate):
-      version = open(version_candidate).read().rstrip()
-      set_environment('BOB_PACKAGE_VERSION', version)
-
-    # pre-renders the recipe - figures out package name and version
-    metadata = get_rendered_metadata(d, conda_config)
-
-    # checks we should actually build this recipe
-    arch = conda_arch()
-    if should_skip_build(metadata):
-      logger.warn('Skipping UNSUPPORTED build of "%s" for py%s on %s',
-          d, python.replace('.',''), arch)
-      return 0
-
-    # converts the metadata output into parsed yaml and continues the process
-    rendered_recipe = get_parsed_recipe(metadata)
-
-    # if a channel URL was passed, set the build number
-    build_number, _ = next_build_number(channels[0],
-        rendered_recipe['package']['name'],
-        rendered_recipe['package']['version'], python)
-
-    set_environment('BOB_BUILD_NUMBER', str(build_number))
-
-    logger.info('Building %s-%s-py%s (build: %d) for %s',
-        rendered_recipe['package']['name'],
-        rendered_recipe['package']['version'], python.replace('.',''),
-        build_number, arch)
+  arch = conda_arch()
+  for p in package:
+    logger.info('Testing %s at %s', p, arch)
     if not dry_run:
-      conda_build.api.build(d, config=conda_config, notest=no_test)
+      conda_build.api.test(p, config=conda_config)
