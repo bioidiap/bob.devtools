@@ -402,7 +402,7 @@ def test(ctx, dry_run):
   from .test import test
   ctx.invoke(test,
       package = glob.glob(os.path.join(os.environ['CONDA_ROOT'], 'conda-bld',
-        '*', name + '*.tar.bz2')),
+        '*', os.environ['CI_PROJECT_NAME'] + '*.tar.bz2')),
       condarc=None,  #custom build configuration
       config=CONDA_BUILD_CONFIG,
       append_file=CONDA_RECIPE_APPEND,
