@@ -17,12 +17,10 @@ build:
     - python setup.py sdist --formats=zip
     {% endif %}
     - python setup.py install --single-version-externally-managed --record record.txt
-    # installs the documentation source, readme and license to share/doc
-    # so it is available during test time
-    - install -d ${PREFIX}/share/doc/{{ name }}
-    - install -m 644 -D README.rst ${PREFIX}/share/doc/{{ name }}
-    - install -m 644 -D LICENSE ${PREFIX}/share/doc/{{ name }}
-    - find doc -type f -exec install -m 644 -D "{}" "${PREFIX}/share/doc/{{ name }}/{}" \;
+     # installs the documentation source, readme to share/doc so it is available
+    # during test time
+    - install -d "${PREFIX}/share/doc/{{ name }}"
+    - cp -R README.rst doc "${PREFIX}/share/doc/{{ name }}/"
 
 requirements:
   host:
@@ -77,7 +75,8 @@ test:
     - bdt caupdate --help
     - bdt new --help
     - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
-    - bdt new -t "New package" -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
+    - bdt new -t "New package" -l bsd -o bob.foobar2 bob/bob.foobar "John Doe" "joe.doe@example.com"
+    - bdt new -t "New package" -l bsd -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
     - bdt ci --help
     - bdt ci base-build --help
     - bdt ci build --help
@@ -93,3 +92,4 @@ about:
   license: BSD 3-Clause
   summary: Tools for development and CI integration of Bob packages
   license_family: BSD
+  license_file: ../LICENSE
