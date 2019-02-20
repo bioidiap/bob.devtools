@@ -54,14 +54,16 @@ Examples:
 @click.option('-a', '--append-file', show_default=True,
     default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
         'appended configuration file to use')
-@click.option('-S', '--server', show_default=True,
-    default='https://www.idiap.ch/software/bob', help='Server used for ' \
-    'downloading conda packages and documentation indexes of required packages')
+@click.option('-S', '--server', show_default=True, default=SERVER,
+    help='Server used for downloading conda packages and documentation ' \
+        'indexes of required packages')
+@click.option('-g', '--group', show_default=True, default='bob',
+    help='Group of packages (gitlab namespace) this package belongs to')
 @click.option('-P', '--private/--no-private', default=False,
     help='Set this to **include** private channels on your build - ' \
         'you **must** be at Idiap to execute this build in this case - ' \
         'you **must** also use the correct server name through --server - ' \
-        'notice this option has no effect if you also pass --condarc')
+        'notice this option has no effect to conda if you also pass --condarc')
 @click.option('-X', '--stable/--no-stable', default=False,
     help='Set this to **exclude** beta channels from your build - ' \
         'notice this option has no effect if you also pass --condarc')
@@ -74,7 +76,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def build(recipe_dir, python, condarc, config, no_test, append_file,
-    server, private, stable, dry_run, ci):
+    server, group, private, stable, dry_run, ci):
   """Builds package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
@@ -89,9 +91,12 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   recipe_dir = recipe_dir or [os.path.join(os.path.realpath('.'), 'conda')]
 
+  logger.info('This package is considered part of group "%s" - tunning ' \
+      'conda package and documentation URLs for this...', group)
+
   # get potential channel upload and other auxiliary channels
   channels = get_channels(public=(not private), stable=stable, server=server,
-      intranet=ci)
+      intranet=ci, group=group)
 
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
@@ -117,7 +122,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   # and derived documentation building via Sphinx)
   set_environment('DOCSERVER', server)
   doc_urls = get_docserver_setup(public=(not private), stable=stable,
-      server=server, intranet=ci)
+      server=server, intranet=ci, group=group)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls)
 
   for d in recipe_dir:

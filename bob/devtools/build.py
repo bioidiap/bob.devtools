@@ -322,7 +322,7 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
       yaml.dump(condarc, f, indent=2)
 
 
-def get_docserver_setup(public, stable, server, intranet):
+def get_docserver_setup(public, stable, server, intranet, group):
   '''Returns a setup for BOB_DOCUMENTATION_SERVER
 
   What is available to build the documentation depends on the setup of
@@ -346,6 +346,9 @@ def get_docserver_setup(public, stable, server, intranet):
     server: The base address of the server containing our conda channels
     intranet: Boolean indicating if we should add "private"/"public" prefixes
       on the returned paths
+    group: The group of packages (gitlab namespace) the package we're compiling
+      is part of.  Values should match URL namespaces currently available on
+      our internal webserver.  Currently, only "bob" or "beat" will work.
 
 
   Returns: a string to be used by bob.extension to find dependent
@@ -360,30 +363,28 @@ def get_docserver_setup(public, stable, server, intranet):
   entries = []
 
   # public documentation: always can access
-  prefix = '/software/bob'
-  if server.endswith(prefix):  # don't repeat yourself...
-    prefix = ''
+  prefix = '/software/%s' % group
   if stable:
     entries += [
-        server + prefix + '/docs/bob/%(name)s/%(version)s/',
-        server + prefix + '/docs/bob/%(name)s/stable/',
+        server + prefix + '/docs/' + group + '/%(name)s/%(version)s/',
+        server + prefix + '/docs/' + group + '/%(name)s/stable/',
         ]
   else:
     entries += [
-        server + prefix + '/docs/bob/%(name)s/master/',
+        server + prefix + '/docs/' + group + '/%(name)s/master/',
         ]
 
   if not public:
     # add private channels, (notice they are not accessible outside idiap)
-    prefix = '/private' if intranet else ''
+    prefix = '/private'
     if stable:
       entries += [
-          server + prefix + '/docs/bob/%(name)s/%(version)s/',
-          server + prefix + '/docs/bob/%(name)s/stable/',
+          server + prefix + '/docs/' + group + '/%(name)s/%(version)s/',
+          server + prefix + '/docs/' + group + '/%(name)s/stable/',
           ]
     else:
       entries += [
-          server + prefix + '/docs/bob/%(name)s/master/',
+          server + prefix + '/docs/' + group + '/%(name)s/master/',
           ]
 
   return '|'.join(entries)
@@ -473,9 +474,9 @@ def git_clean_build(runner, verbose):
       ['--exclude=%s' % k for k in exclude_from_cleanup])
 
 
-def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
-    python_version, condarc_options):
-  '''Builds a non-beat/bob software dependence that does not exist on defaults
+def base_build(bootstrap, server, intranet, group, recipe_dir,
+    conda_build_config, python_version, condarc_options):
+  '''Builds a non-beat/non-bob software dependence that doesn't exist on defaults
 
   This function will build a software dependence that is required for our
   software stack, but does not (yet) exist on the defaults channels.  It first
@@ -491,6 +492,9 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
     server: The base address of the server containing our conda channels
     intranet: Boolean indicating if we should add "private"/"public" prefixes
       on the returned paths
+    group: The group of packages (gitlab namespace) the package we're compiling
+      is part of.  Values should match URL namespaces currently available on
+      our internal webserver.  Currently, only "bob" or "beat" will work.
     recipe_dir: The directory containing the recipe's ``meta.yaml`` file
     conda_build_config: Path to the ``conda_build_config.yaml`` file to use
     python_version: String with the python version to build for, in the format
@@ -505,7 +509,7 @@ def base_build(bootstrap, server, intranet, recipe_dir, conda_build_config,
 
   # if you get to this point, tries to build the package
   public_channels = bootstrap.get_channels(public=True, stable=True,
-    server=server, intranet=intranet)
+    server=server, intranet=intranet, group=group)
 
   logger.info('Using the following channels during (potential) build:\n  - %s',
       '\n  - '.join(public_channels + ['defaults']))
@@ -566,6 +570,9 @@ if __name__ == '__main__':
   import argparse
 
   parser = argparse.ArgumentParser(description='Builds bob.devtools on the CI')
+  parser.add_argument('-g', '--group',
+      default=os.environ.get('CI_PROJECT_NAMESPACE', 'bob'),
+      help='The namespace of the project being built [default: %(default)s]')
   parser.add_argument('-n', '--name',
       default=os.environ.get('CI_PROJECT_NAME', 'bob.devtools'),
       help='The name of the project being built [default: %(default)s]')
@@ -607,8 +614,7 @@ if __name__ == '__main__':
   spec = importlib.util.spec_from_file_location("bootstrap", bootstrap_file)
   bootstrap = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(bootstrap)
-  server = bootstrap._SERVER if (not args.internet) else \
-      'https://www.idiap.ch/software/bob'
+  server = bootstrap._SERVER
 
   bootstrap.setup_logger(logger, args.verbose)
 
@@ -640,7 +646,7 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    base_build(bootstrap, server, not args.internet, recipe,
+    base_build(bootstrap, server, not args.internet, args.group, recipe,
         conda_build_config, args.python_version, condarc_options)
 
   # notice this condarc typically will only contain the defaults channel - we
@@ -648,7 +654,7 @@ if __name__ == '__main__':
   # build
   public = ( args.visibility == 'public' )
   channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
-      server=server, intranet=(not args.internet))
+      server=server, intranet=(not args.internet), group=args.group)
   logger.info('Using the following channels during build:\n  - %s',
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']

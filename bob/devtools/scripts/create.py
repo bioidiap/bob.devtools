@@ -72,9 +72,11 @@ Examples:
 @click.option('-a', '--append-file', show_default=True,
       default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
           'appended configuration file to use')
-@click.option('-S', '--server', show_default=True,
-    default='https://www.idiap.ch/software/bob', help='Server used for ' \
-    'downloading conda packages and documentation indexes of required packages')
+@click.option('-S', '--server', show_default=True, default=SERVER,
+    help='Server used for downloading conda packages and documentation ' \
+        'indexes of required packages')
+@click.option('-g', '--group', show_default=True, default='bob',
+    help='Group of packages (gitlab namespace) this package belongs to')
 @click.option('-P', '--private/--no-private', default=False,
     help='Set this to **include** private channels on your build - ' \
         'you **must** be at Idiap to execute this build in this case - ' \
@@ -123,6 +125,9 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
   # set some environment variables before continuing
   set_environment('DOCSERVER', server, os.environ)
 
+  logger.info('This package is considered part of group "%s" - tunning ' \
+      'conda package URLs for this...', group)
+
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
@@ -131,7 +136,7 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
     # use default and add channels
     condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
     channels = get_channels(public=(not private), stable=stable, server=server,
-        intranet=private)
+        intranet=private, group=group)
     condarc_options['channels'] = channels + ['defaults']
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)

@@ -49,14 +49,16 @@ Examples:
 @click.option('-a', '--append-file', show_default=True,
     default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
         'appended configuration file to use')
-@click.option('-S', '--server', show_default=True,
-    default='https://www.idiap.ch/software/bob', help='Server used for ' \
-    'downloading conda packages and documentation indexes of required packages')
+@click.option('-S', '--server', show_default=True, default=SERVER,
+    help='Server used for downloading conda packages and documentation ' \
+        'indexes of required packages')
+@click.option('-g', '--group', show_default=True, default='bob',
+    help='Group of packages (gitlab namespace) this package belongs to')
 @click.option('-P', '--private/--no-private', default=False,
     help='Set this to **include** private channels on your build - ' \
         'you **must** be at Idiap to execute this build in this case - ' \
         'you **must** also use the correct server name through --server - ' \
-        'notice this option has no effect if you also pass --condarc')
+        'notice this option has no effect to conda if you also pass --condarc')
 @click.option('-X', '--stable/--no-stable', default=False,
     help='Set this to **exclude** beta channels from your build - ' \
         'notice this option has no effect if you also pass --condarc')
@@ -68,7 +70,7 @@ Examples:
     help='Use this flag to indicate the build will be running on the CI')
 @verbosity_option()
 @bdt.raise_on_error
-def test(package, condarc, config, append_file, server, private, stable,
+def test(package, condarc, config, append_file, server, group, private, stable,
     dry_run, ci):
   """Tests (pre-built) package through conda-build with stock configuration
 
@@ -82,9 +84,12 @@ def test(package, condarc, config, append_file, server, private, stable,
       logger.warn('!!!! DRY RUN MODE !!!!')
       logger.warn('Nothing will be really built')
 
+  logger.info('This package is considered part of group "%s" - tunning ' \
+      'conda package and documentation URLs for this...', group)
+
   # get potential channel upload and other auxiliary channels
   channels = get_channels(public=(not private), stable=stable, server=server,
-      intranet=ci)
+      intranet=ci, group=group)
 
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
@@ -110,7 +115,7 @@ def test(package, condarc, config, append_file, server, private, stable,
   # and derived documentation building via Sphinx)
   set_environment('DOCSERVER', server)
   doc_urls = get_docserver_setup(public=(not private), stable=stable,
-      server=server, intranet=ci)
+      server=server, intranet=ci, group=group)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls)
 
   arch = conda_arch()
