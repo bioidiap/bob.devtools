@@ -317,6 +317,9 @@ Examples:
 ''')
 @click.argument('order', required=True, type=click.Path(file_okay=True,
   dir_okay=False, exists=True), nargs=1)
+@click.option('-g', '--group', show_default=True,
+    default=os.environ['CI_PROJECT_NAMESPACE'],
+    help='Group of packages (gitlab namespace) this package belongs to')
 @click.option('-p', '--python', multiple=True,
     help='Versions of python in the format "x.y" we should build for.  Pass ' \
         'various times this option to build for multiple python versions')
@@ -326,7 +329,7 @@ Examples:
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def base_build(order, python, dry_run):
+def base_build(order, group, python, dry_run):
   """Builds base (dependence) packages
 
   This command builds dependence packages (packages that are not Bob/BEAT
@@ -335,7 +338,6 @@ def base_build(order, python, dry_run):
   """
 
   from ..constants import CONDA_BUILD_CONFIG
-  from ..build import base_build as _build
 
   condarc = os.path.join(os.environ['CONDA_ROOT'], 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
@@ -355,6 +357,7 @@ def base_build(order, python, dry_run):
 
   import itertools
   from .. import bootstrap
+  from ..build import base_build as _build
 
   # combine all versions of python with recipes
   if python:
@@ -371,7 +374,7 @@ def base_build(order, python, dry_run):
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
-    _build(bootstrap, SERVER, True, recipe, CONDA_BUILD_CONFIG, pyver,
+    _build(bootstrap, SERVER, True, group, recipe, CONDA_BUILD_CONFIG, pyver,
         condarc_options)
 
 
@@ -399,6 +402,11 @@ def test(ctx, dry_run):
 
   from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
 
+  group = os.environ['CI_PROJECT_NAMESPACE']
+  if group not in ('bob', 'beat'):
+    # defaults back to bob - no other server setups are available as of now
+    group = 'bob'
+
   from .test import test
   ctx.invoke(test,
       package = glob.glob(os.path.join(os.environ['CONDA_ROOT'], 'conda-bld',
@@ -407,6 +415,7 @@ def test(ctx, dry_run):
       config=CONDA_BUILD_CONFIG,
       append_file=CONDA_RECIPE_APPEND,
       server=SERVER,
+      group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
       dry_run=dry_run,
@@ -438,6 +447,11 @@ def build(ctx, dry_run):
 
   from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
 
+  group = os.environ['CI_PROJECT_NAMESPACE']
+  if group not in ('bob', 'beat'):
+    # defaults back to bob - no other server setups are available as of now
+    group = 'bob'
+
   from .build import build
   ctx.invoke(build,
       recipe_dir=[os.path.join(os.path.realpath(os.curdir), 'conda')],
@@ -447,6 +461,7 @@ def build(ctx, dry_run):
       no_test=False,
       append_file=CONDA_RECIPE_APPEND,
       server=SERVER,
+      group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
       dry_run=dry_run,

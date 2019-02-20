@@ -250,7 +250,7 @@ def install_miniconda(prefix, name):
     shutil.rmtree(cached)
 
 
-def get_channels(public, stable, server, intranet):
+def get_channels(public, stable, server, intranet, group):
   '''Returns the relevant conda channels to consider if building project
 
   The subset of channels to be returned depends on the visibility and stability
@@ -274,6 +274,9 @@ def get_channels(public, stable, server, intranet):
     server: The base address of the server containing our conda channels
     intranet: Boolean indicating if we should add "private"/"public" prefixes
       on the conda paths
+    group: The group of packages (gitlab namespace) the package we're compiling
+      is part of.  Values should match URL namespaces currently available on
+      our internal webserver.  Currently, only "bob" or "beat" will work.
 
 
   Returns: a list of channels that need to be considered.
@@ -287,12 +290,13 @@ def get_channels(public, stable, server, intranet):
   channels = []
 
   if not public:
-    prefix = '/private' if intranet else ''
+    prefix = '/private'
     if not stable:  #allowed private channels
       channels += [server + prefix + '/conda/label/beta']  #allowed betas
     channels += [server + prefix + '/conda']
 
-  prefix = '/public' if intranet else ''
+  # do not use '/public' versions here
+  prefix = '/software/' + group
   if not stable:
     channels += [server + prefix + '/conda/label/beta']  #allowed betas
   channels += [server + prefix + '/conda']
@@ -416,7 +420,7 @@ if __name__ == '__main__':
     conda_bld_path = os.path.join(args.conda_root, 'conda-bld')
     run_cmdline([conda_bin, 'index', conda_bld_path])
     channels = get_channels(public=True, stable=True, server=_SERVER,
-        intranet=True) + ['defaults']
+        intranet=True, group='bob') + ['defaults']
     channels = ['--override-channels'] + \
         ['--channel=' + conda_bld_path] + \
         ['--channel=%s' % k for k in channels]
@@ -429,7 +433,7 @@ if __name__ == '__main__':
     # installs from channel
     channels = get_channels(public=True,
         stable=(args.tag is not None),
-        server=_SERVER, intranet=True) + ['defaults']
+        server=_SERVER, intranet=True, group='bob') + ['defaults']
     channels = ['--override-channels'] + ['--channel=%s' % k for k in channels]
     conda_cmd = 'install' if args.envname in ('base', 'root') else 'create'
     run_cmdline([conda_bin, conda_cmd] + conda_verbosity + channels + \
