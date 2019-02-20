@@ -212,6 +212,7 @@ rst_epilog = """
 .. |current-year| date:: %%Y
 """ % (version, )
 
+
 # Default processing flags for sphinx
 autoclass_content = 'class'
 autodoc_member_order = 'bysource'
@@ -221,13 +222,14 @@ autodoc_default_flags = [
     'show-inheritance',
 ]
 
+
 # For inter-documentation mapping:
 from bob.extension.utils import link_documentation, load_requirements
 sphinx_requirements = "extra-intersphinx.txt"
 if os.path.exists(sphinx_requirements):
     intersphinx_mapping = link_documentation(
-        additional_packages=['python', 'numpy'] +
-        load_requirements(sphinx_requirements))
+        additional_packages=['python', 'numpy'] + \
+            load_requirements(sphinx_requirements))
 else:
     intersphinx_mapping = link_documentation()
 
