@@ -91,7 +91,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   recipe_dir = recipe_dir or [os.path.join(os.path.realpath('.'), 'conda')]
 
-  logger.info('This package is considered part of group "%s" - tunning ' \
+  logger.debug('This package is considered part of group "%s" - tunning ' \
       'conda package and documentation URLs for this...', group)
 
   # get potential channel upload and other auxiliary channels

@@ -125,7 +125,7 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
   # set some environment variables before continuing
   set_environment('DOCSERVER', server, os.environ)
 
-  logger.info('This package is considered part of group "%s" - tunning ' \
+  logger.debug('This package is considered part of group "%s" - tunning ' \
       'conda package URLs for this...', group)
 
   if condarc is not None:

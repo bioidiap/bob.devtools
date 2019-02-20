@@ -84,7 +84,7 @@ def test(package, condarc, config, append_file, server, group, private, stable,
       logger.warn('!!!! DRY RUN MODE !!!!')
       logger.warn('Nothing will be really built')
 
-  logger.info('This package is considered part of group "%s" - tunning ' \
+  logger.debug('This package is considered part of group "%s" - tunning ' \
       'conda package and documentation URLs for this...', group)
 
   # get potential channel upload and other auxiliary channels
