@@ -646,7 +646,7 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    base_build(bootstrap, server, not args.internet, group, recipe,
+    base_build(bootstrap, server, not args.internet, args.group, recipe,
         conda_build_config, args.python_version, condarc_options)
 
   # notice this condarc typically will only contain the defaults channel - we
@@ -654,7 +654,7 @@ if __name__ == '__main__':
   # build
   public = ( args.visibility == 'public' )
   channels = bootstrap.get_channels(public=public, stable=(not is_prerelease),
-      server=server, intranet=(not args.internet), group=group)
+      server=server, intranet=(not args.internet), group=args.group)
   logger.info('Using the following channels during build:\n  - %s',
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
