@@ -17,19 +17,19 @@ Examples:
 
   1. Replaces the README.rst file on the package bob/bob.extension, through a direct commit to the master branch, using the contents of the local file with the same name:
 
-     $ bdt commitfile -vv bob/bob.extension README.rst
+     $ bdt gitlab commitfile -vv bob/bob.extension README.rst
 
 
   2. Replaces the README.rst file on the package beat/beat.core, specifying a commit message:
 
 \b
-     $ bdt commitfile -vv --message="[readme] Update [ci skip]" beat/beat.core README.rst
+     $ bdt gitlab commitfile -vv --message="[readme] Update [ci skip]" beat/beat.core README.rst
 
 
   3. Replaces the file conda/meta.yaml on the package bob/bob.blitz through a merge request through a new branch called "conda-changes", specifying a commit/merge-request message, using the contents of the local file new.yaml, and setting the merge-request property "merge-when-pipeline-succeeds":
 
 \b
-     $ bdt commitfile -vv bob/bob.blitz --path=conda/meta.yaml --branch=conda-changes --auto-merge new.yaml
+     $ bdt gitlab commitfile -vv bob/bob.blitz --path=conda/meta.yaml --branch=conda-changes --auto-merge new.yaml
 
 ''')
 @click.argument('package')

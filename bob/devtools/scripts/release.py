@@ -20,28 +20,28 @@ Examples:
 
   1. Releases a single package:
 
-     $ bdt release --package=bob.package.xyz changelog.md
+     $ bdt gitlab release --package=bob.package.xyz changelog.md
 
 
   2. If there is a single package in the ``changelog.md`` file, the flag
      ``--package`` is not required:
 
-     $ bdt release changelog.md
+     $ bdt gitlab release changelog.md
 
 
   2. Releases the whole of bob using `changelog_since_last_release.md`:
 
-     $ bdt release bob/devtools/data/changelog_since_last_release.md
+     $ bdt gitlab release bob/devtools/data/changelog_since_last_release.md
 
 
   3. In case of errors, resume the release of the whole of Bob:
 
-     $ bdt release --resume bob/devtools/data/changelog_since_last_release.md
+     $ bdt gitlab release --resume bob/devtools/data/changelog_since_last_release.md
 
 
   4. The option `-dry-run` can be used to let the script print what it would do instead of actually doing it:
 
-     $ bdt release --dry-run changelog_since_last_release.md
+     $ bdt gitlab release --dry-run changelog_since_last_release.md
 '''
 )
 @click.argument('changelog', type=click.File('rt', lazy=False))

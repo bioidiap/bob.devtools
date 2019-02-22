@@ -20,33 +20,33 @@ Examples:
 
   1. Generates the changelog for a single package using merge requests:
 
-     $ bdt changelog group/package.xyz changelog.md
+     $ bdt gitlab changelog group/package.xyz changelog.md
 
 
   2. The same as above, but dumps the changelog to stdout instead of a file:
 
-     $ bdt changelog group/package.xyz
+     $ bdt gitlab changelog group/package.xyz
 
 
   3. Generates the changelog for a single package looking at commits
      (not merge requests):
 
-     $ bdt changelog --mode=commits group/package.xyz changelog.md
+     $ bdt gitlab changelog --mode=commits group/package.xyz changelog.md
 
 
   4. Generates the changelog for a single package looking at merge requests starting from a given date of January 1, 2016:
 
 \b
-     $ bdt changelog --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
+     $ bdt gitlab changelog --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
 
 
   5. Generates a complete list of changelogs for a list of packages (one per line:
 
 \b
-     $ bdt getpath bob/bob.nightlies order.txt
-     $ bdt lasttag bob/bob
+     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab lasttag bob/bob
      # copy and paste date to next command
-     $ bdt changelog --since="2018-07-17 10:23:40" order.txt changelog.md
+     $ bdt gitlab changelog --since="2018-07-17 10:23:40" order.txt changelog.md
 ''')
 @click.argument('target')
 @click.argument('changelog', type=click.Path(exists=False, dir_okay=False,

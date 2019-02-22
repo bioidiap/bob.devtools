@@ -46,19 +46,23 @@ setup(
             'bdt = bob.devtools.scripts.bdt:main',
         ],
         'bdt.cli': [
-          'release = bob.devtools.scripts.release:release',
           'new = bob.devtools.scripts.new:new',
-          'commitfile = bob.devtools.scripts.commitfile:commitfile',
-          'changelog = bob.devtools.scripts.changelog:changelog',
-          'lasttag = bob.devtools.scripts.lasttag:lasttag',
-          'visibility = bob.devtools.scripts.visibility:visibility',
           'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
           'create = bob.devtools.scripts.create:create',
           'build = bob.devtools.scripts.build:build',
           'test = bob.devtools.scripts.test:test',
-          'getpath = bob.devtools.scripts.getpath:getpath',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
           'ci = bob.devtools.scripts.ci:ci',
+          'gitlab = bob.devtools.scripts.gitlab:gitlab',
+          ],
+
+        'bdt.gitlab.cli': [
+          'commitfile = bob.devtools.scripts.commitfile:commitfile',
+          'release = bob.devtools.scripts.release:release',
+          'changelog = bob.devtools.scripts.changelog:changelog',
+          'lasttag = bob.devtools.scripts.lasttag:lasttag',
+          'visibility = bob.devtools.scripts.visibility:visibility',
+          'getpath = bob.devtools.scripts.getpath:getpath',
           ],
 
         'bdt.ci.cli': [
@@ -71,6 +75,7 @@ setup(
           'readme = bob.devtools.scripts.ci:readme',
           'pypi = bob.devtools.scripts.ci:pypi',
           ],
+
     },
     classifiers=[
         'Framework :: Bob',

@@ -19,8 +19,8 @@ Usage
 
 Using these scripts is a 2-step process:
 
-1. Generate a changelog using ``bdt changelog``
-2. Tag a release using ``bdt release``
+1. Generate a changelog using ``bdt gitlab changelog``
+2. Tag a release using ``bdt gitlab release``
 
 Use the ``--help`` flag in each command to learn more about each command.
 
@@ -46,7 +46,7 @@ Manually update changelog
 
 The changelog since the last release can be found in the file
 ``bob/devtools/data/changelog_since_last_release.md``. The structure is
-documented as part of the help message of ``bdt release``. Read it.
+documented as part of the help message of ``bdt gitlab release``. Read it.
 
 To manually update the changelog, follow these guidelines:
 
@@ -77,15 +77,15 @@ Here are the instructions to release Bob meta package:
 
   .. code-block:: sh
 
-     $ bdt getpath bob/bob.nightlies order.txt
-     $ bdt visibility order.txt
+     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab visibility order.txt
 
 * Put the list of public packages in ../../bob/requirements.txt
-* Run ``bdt changelog`` first:
+* Run ``bdt gitlab changelog`` first:
 
   .. code-block:: sh
 
-     $ bdt changelog ../../bob/requirements.txt bob_changelog.md
+     $ bdt gitlab changelog ../../bob/requirements.txt bob_changelog.md
 
 * Put the beta of version of the intended release version in
   ``../../bob/version.txt``
@@ -97,7 +97,7 @@ Here are the instructions to release Bob meta package:
 
   .. code-block:: sh
 
-     $ bdt release -p bob -c bob_changelog.md --bob-version 5.0.0 -- TOKEN
+     $ bdt gitlab release -p bob -c bob_changelog.md --bob-version 5.0.0 -- TOKEN
 
 * Put the pinnings below in requirements.txt and meta.yaml (like ``bob.buildout
   == 2.1.6``) and meta.yaml (like ``bob.buildout 2.1.6``)

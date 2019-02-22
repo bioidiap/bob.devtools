@@ -18,14 +18,14 @@ Examples:
 
   1. Check the visibility of a package you can access
 
-     $ bdt visibility bob/bob.extension
+     $ bdt gitlab visibility bob/bob.extension
 
 
   2. Checks the visibility of all packages in a file list:
 
 \b
-     $ bdt getpath bob/bob.nightlies order.txt
-     $ bdt visibility order.txt
+     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab visibility order.txt
 ''')
 @click.argument('target')
 @click.option('-g', '--group', default='bob', show_default=True,

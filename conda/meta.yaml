@@ -55,27 +55,28 @@ test:
     - bdt -h
     - bdt -?
     - bdt --help
-    - bdt lasttag --help
-      #- bdt lasttag -vv bob/bob.devtools
-    - bdt commitfile --help
-    - bdt changelog --help
-      #- bdt changelog -vv bob/bob.devtools changelog.md
-    - bdt release --help
-      #- bdt release -vvd changelog.md
-    - bdt visibility --help
-      #- bdt visibility -vv bob/bob.devtools
     - bdt dumpsphinx --help
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
     - bdt build --help
     - bdt test --help
-    - bdt getpath --help
-      #- bdt getpath -vv bob/bob.devtools .gitignore
     - bdt caupdate --help
     - bdt new --help
     - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
     - bdt new -t "New package" -l bsd -o bob.foobar2 bob/bob.foobar "John Doe" "joe.doe@example.com"
     - bdt new -t "New package" -l bsd -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
+    - bdt gitlab --help
+    - bdt gitlab lasttag --help
+      #- bdt gitlab lasttag -vv bob/bob.devtools
+    - bdt gitlab commitfile --help
+    - bdt gitlab changelog --help
+      #- bdt gitlab changelog -vv bob/bob.devtools changelog.md
+    - bdt gitlab release --help
+      #- bdt gitlab release -vvd changelog.md
+    - bdt gitlab visibility --help
+      #- bdt gitlab visibility -vv bob/bob.devtools
+    - bdt gitlab getpath --help
+      #- bdt gitlab getpath -vv bob/bob.devtools .gitignore
     - bdt ci --help
     - bdt ci base-build --help
     - bdt ci build --help

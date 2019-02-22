@@ -18,12 +18,12 @@ Examples:
 
   1. Get the last tag information of the bob/bob package
 
-     $ bdt lasttag bob/bob
+     $ bdt gitlab lasttag bob/bob
 
 
   2. Get the last tag information of the beat/beat.core package
 
-     $ bdt lasttag beat/beat.core
+     $ bdt gitlab lasttag beat/beat.core
 
 ''')
 @click.argument('package')

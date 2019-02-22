@@ -16,17 +16,17 @@ Examples:
 
   1. Get the file ``order.txt`` from bob.nightlies master branch:
 
-     $ bdt getpath bob/bob.nightlies order.txt
+     $ bdt gitlab getpath bob/bob.nightlies order.txt
 
 
   2. Get the file ``order.txt`` from a different branch ``2.x``:
 
-     $ bdt getpath --ref=2.x bob/bob.nightlies order.txt
+     $ bdt gitlab getpath --ref=2.x bob/bob.nightlies order.txt
 
 
   3. Get the directory ``gitlab`` (and eventual sub-directories) from bob.admin, save outputs in directory ``_ci``:
 
-     $ bdt getpath bob/bob.admin master gitlab _ci
+     $ bdt gitlab getpath bob/bob.admin master gitlab _ci
 ''')
 @click.argument('package')
 @click.argument('path')
