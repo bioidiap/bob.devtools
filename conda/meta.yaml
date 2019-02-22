@@ -77,6 +77,8 @@ test:
       #- bdt gitlab visibility -vv bob/bob.devtools
     - bdt gitlab getpath --help
       #- bdt gitlab getpath -vv bob/bob.devtools .gitignore
+    - bdt gitlab runners --help
+    - bdt gitlab jobs --help
     - bdt ci --help
     - bdt ci base-build --help
     - bdt ci build --help

@@ -166,3 +166,12 @@ The `docker-cleanup.sh` is:
    # Unused image leafs
    echo "Removing unused image leafs..."
    docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+
+
+Conda and shared builds
+=======================
+
+To avoid problems with conda and using shared builders, consider creating the
+directory ``~gitlab-runner/.conda`` and touching the file
+``environments.txt`` in that directory, setting a mode of ``444`` (i.e., make
+it read-only).
