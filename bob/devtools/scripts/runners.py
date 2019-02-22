@@ -5,8 +5,7 @@ import os
 import click
 
 from . import bdt
-from ..release import get_gitlab_instance, update_files_with_mr, \
-    update_files_at_master
+from ..release import get_gitlab_instance
 
 from ..log import verbosity_option, get_logger
 logger = get_logger(__name__)
