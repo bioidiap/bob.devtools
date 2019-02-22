@@ -74,10 +74,10 @@ this to `/etc/hosts`:
 Gitlab runner configuration
 ===========================
 
-Once that is setup, install gitlab-runner from https://docs.gitlab.com/runner/install/linux-repository.html
+Once that is setup, install gitlab-runner from https://docs.gitlab.com/runner/install/linux-repository.html, and then register it https://docs.gitlab.com/runner/register/.
 
-We are currently using this (notice you need to replace the values of
-``<internal.ipv4.address>`` and ``<token>`` on the template below):
+We are currently using this kind of configuration (notice you need to replace
+the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below):
 
 .. code-block:: ini
 
