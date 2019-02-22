@@ -61,6 +61,7 @@ setup(
           'release = bob.devtools.scripts.release:release',
           'changelog = bob.devtools.scripts.changelog:changelog',
           'lasttag = bob.devtools.scripts.lasttag:lasttag',
+          'runners = bob.devtools.scripts.runners:runners',
           'visibility = bob.devtools.scripts.visibility:visibility',
           'getpath = bob.devtools.scripts.getpath:getpath',
           ],
