@@ -8,15 +8,42 @@
 
 This document contains instructions to build and deploy a new bare-OS CI for
 Linux.  Instructions for deployment assume a freshly installed machine, with
-Debian 9.x running.  Our builds use Docker images.  We also configure
-docker-in-docker to enable to run docker builds (and other tests) within docker
-images.
+Idiap's latest Debian distribution running.  Our builds use Docker images.  We
+also configure docker-in-docker to enable to run docker builds (and other
+tests) within docker images.
 
 
 Docker and Gitlab-runner setup
 ------------------------------
 
-Just follow the advices from https://medium.com/@tonywooster/docker-in-docker-in-gitlab-runners-220caeb708ca
+Base docker installation:
+https://docs.docker.com/install/linux/docker-ce/debian/
+
+Ensure to add/configure for auto-loading the ``overlay`` kernel module in
+``/etc/modules``.  Then update/create ``/etc/docker/daemon.json`` to contain
+the entry ``"storage-driver": "overlay2"``.  Restart the daemon.  Eventually
+reboot the machine to ensure everything works fine.
+
+To install docker at Idiap, you also need to follow the security guidelines
+from Cédric at https://secure.idiap.ch/intranet/system/software/docker.  If you
+do not follow such guidelines, the machine will not be acessible from outside
+via the login gateway, as the default docker installation conflicts with
+Idiap's internal setup.  You may also find other network connectivity issues.
+
+Also, you want to place ``/var/lib/docker`` on a **fast** disk.  Normally, we
+have a scratch partition for this.  Follow the instructions at
+https://linuxconfig.org/how-to-move-docker-s-default-var-lib-docker-to-another-directory-on-ubuntu-debian-linux
+for this step:
+
+.. code-block:: sh
+
+   $ mkdir /scratch/docker
+   $ chmod g-rw,o-rw /scratch/docker
+   $ service docker stop
+   $ rsync -aqxP /var/lib/docker/ /scratch/docker
+   $ rm -rf /var/lib/docker
+   $ vim /etc/docker/daemon.json  # add data-root -> /scratch/docker
+   $ service docker start
 
 
 Hosts section
@@ -47,43 +74,49 @@ this to `/etc/hosts`:
 Gitlab runner configuration
 ===========================
 
+Once that is setup, install gitlab-runner from https://docs.gitlab.com/runner/install/linux-repository.html
+
 We are currently using this (notice you need to replace the values of
 ``<internal.ipv4.address>`` and ``<token>`` on the template below):
 
 .. code-block:: ini
 
-   concurrent = 4
+   concurrent = 20
    check_interval = 10
 
+   [session_server]
+     session_timeout = 1800
+
    [[runners]]
-     name = "docker"
+     name = "<machine-name>"
      output_limit = 102400
-     url = "https://gitlab.idiap.ch/ci"
+     url = "https://gitlab.idiap.ch/"
+     token = "<token>"
+     executor = "shell"
+     shell = "bash"
+     builds_dir = "/scratch/builds"
+     cache_dir = "/scratch/cache"
+
+   [[runners]]
+     name = "bp-srv01"
+     output_limit = 102400
+     url = "https://gitlab.idiap.ch/"
      token = "<token>"
      executor = "docker"
-     limit = 4
-     builds_dir = "/local/builds"
-     cache_dir = "/local/cache"
+     builds_dir = "/scratch/builds"
+     cache_dir = "/scratch/cache"
      [runners.docker]
        tls_verify = false
        image = "continuumio/conda-concourse-ci"
        privileged = false
+       disable_entrypoint_overwrite = false
+       oom_kill_disable = false
        disable_cache = false
-       volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/local/cache"]
+       volumes = ["/scratch/cache"]
+       shm_size = 0
        extra_hosts = ["www.idiap.ch:<internal.ipv4.address>"]
      [runners.cache]
-        Insecure = false
-
-   [[runners]]
-     name = "docker-build"
-     output_limit = 102400
-     executor = "shell"
-     shell = "bash"
-     url = "https://gitlab.idiap.ch/ci"
-     token = "<token>"
-     limit = 4
-     builds_dir = "/local/builds"
-     cache_dir = "/local/cache"
+       Insecure = false
 
 
 Crontabs
