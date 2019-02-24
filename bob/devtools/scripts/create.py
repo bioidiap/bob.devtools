@@ -92,7 +92,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
-    append_file, server, private, stable, dry_run):
+    append_file, server, group, private, stable, dry_run):
   """Creates a development environment for a recipe
 
   It uses the conda render API to render a recipe and install an environment
