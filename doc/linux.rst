@@ -134,6 +134,17 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
       $ chown gitlab-runner:gitlab-runner /scratch/cache
 
 
+.. note::
+
+   If you want the Idiap docker registry (docker.idiap.ch) to be accessible
+   from the shell executors, you must also ensure Idiap registry certificates
+   are available on the host.  You may copy the contents of ``docker.idiap.ch``
+   directory in this documentation set for that purpose, to the directory
+   ``/etc/docker/certs.d``.  Then, ensure to use something like:
+   ``docker login -u gitlab-ci-token -p $CI_JOB_TOKEN docker.idiap.ch`` on the
+   (global) ``before_script`` phase in jobs requiring access to the registry.
+
+
 Crontabs
 ========
 
