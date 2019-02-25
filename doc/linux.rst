@@ -142,35 +142,54 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
       $ chown gitlab-runner:gitlab-runner /scratch/cache
 
 
-.. note::
+Access to Idiap's docker registry
+=================================
 
-   If you want the Idiap docker registry (docker.idiap.ch) to be accessible
-   from the shell executors, you must also ensure Idiap registry certificates
-   are available on the host.  You may copy the contents of ``docker.idiap.ch``
-   directory in this documentation set for that purpose, to the directory
-   ``/etc/docker/certs.d``.  Then, ensure to use something like:
-   ``docker login -u gitlab-ci-token -p $CI_JOB_TOKEN docker.idiap.ch`` on the
-   (global) ``before_script`` phase in jobs requiring access to the registry.
+If you want the Idiap docker registry (docker.idiap.ch) to be accessible from
+the shell executors, you must also ensure Idiap registry certificates are
+available on the host.  You may copy the contents of ``docker.idiap.ch``
+directory in this documentation set for that purpose, to the directory
+``/etc/docker/certs.d``.  Then, ensure to use something like: ``docker login -u
+gitlab-ci-token -p $CI_JOB_TOKEN docker.idiap.ch`` on the (global)
+``before_script`` phase in jobs requiring access to the registry.
 
 
-.. note::
+Repository cloning from CI jobs
+===============================
 
-   If you'd like to allow the (shell-based) runner to clone repositories other
-   than the one being built, you need to ensure the following is configured at
-   ``~/.ssh/config`` of the user running the ``gitlab-runner`` process
-   (typically ``gitlab-runner``):
+If you'd like to allow the (shell-based) runner to clone repositories other
+than the one being built, you need to ensure the following is configured at
+``~/.ssh/config`` of the user running the ``gitlab-runner`` process
+(typically ``gitlab-runner``):
 
-   .. code-block:: text
+.. code-block:: text
 
-      Host gitlab.idiap.ch
-        ForwardX11 no
-        ForwardX11Trusted no
-        ForwardAgent yes
-        StrictHostKeyChecking no
-        ControlMaster auto
-        ControlPath /tmp/%r@%h-%p
-        ControlPersist 600
-        Compression yes
+   Host gitlab.idiap.ch
+     ForwardX11 no
+     ForwardX11Trusted no
+     ForwardAgent yes
+     StrictHostKeyChecking no
+     ControlMaster auto
+     ControlPath /tmp/%r@%h-%p
+     ControlPersist 600
+     Compression yes
+
+Make sure to use an "https" git-clone strategy in your recipes.
+
+
+Git
+===
+
+The version of git (2.11) shipped with Debian Stretch (9.x) is broken.  The
+git-clean command does not honour the ``--exclude`` passed via the
+command-line.  I advise you install the most recent version from debian
+backports by enabling this repository or configuring it with instructions from
+https://backports.debian.org.  To install the newest git version, after an
+``apt update``, just run the following command as root:
+
+.. code-block:: sh
+
+   $ apt-get -t stretch-backports install "git"
 
 
 Crontabs
