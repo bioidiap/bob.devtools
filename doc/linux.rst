@@ -119,6 +119,21 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
        Insecure = false
 
 
+.. note::
+
+   You must make both ``/scratch/builds`` and ``/scratch/cache`` owned by the
+   user running the ``gitlab-runner`` process.  Typically, it is
+   ``gitlab-runner``.  These commands, in this case, are in order to complete
+   the setup::
+
+   .. code-block:: sh
+
+      $ mkdir /scratch/builds
+      $ chown gitlab-runner:gitlab-runner /scratch/builds
+      $ mkdir /scratch/cache
+      $ chown gitlab-runner:gitlab-runner /scratch/cache
+
+
 Crontabs
 ========
 
