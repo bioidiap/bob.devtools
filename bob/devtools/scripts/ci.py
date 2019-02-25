@@ -545,7 +545,7 @@ def nightlies(ctx, order, dry_run):
 
     echo_normal('\n' + (80*'='))
     echo_normal('Testing/Re-building %s@%s (%d/%d)' % (package, branch, n+1,
-      len(packages))
+      len(packages)))
     echo_normal((80*'=') + '\n')
 
     group, name = package.split('/', 1)
