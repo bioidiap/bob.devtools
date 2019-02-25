@@ -98,10 +98,6 @@ def test(package, condarc, config, append_file, server, group, private, stable,
         '\n  - '.join(channels + ['defaults']))
     condarc_options['channels'] = channels + ['defaults']
 
-  # dump packages at base environment
-  prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
-  condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
-
   conda_config = make_conda_config(config, None, append_file,
       condarc_options)
 
