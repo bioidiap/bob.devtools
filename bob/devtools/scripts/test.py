@@ -23,21 +23,17 @@ logger = get_logger(__name__)
 @click.command(epilog='''
 Examples:
 
-  1. Builds recipe from one of our build dependencies (inside bob.conda):
+  1. Tests conda package:
 
 \b
-     $ cd bob.conda
-     $ bdt build -vv conda/libblitz
+     $ bdt test -vv /path/to/conda-package-v1.0.0.tar.bz2
 
 
-  2. Builds recipe from one of our packages, for Python 3.6 (if that is not already the default for you):
+  2. Tests multiple conda packages, one after the other:
 
-     $ bdt build --python=3.6 -vv path/to/conda/dir
+\b
+     $ bdt test -vv /path/to/conda-package-v1.0.0.tar.bz2 /path/to/other-conda-package-v2.0.0.tar.bz2
 
-
-  3. To build multiple recipes, just pass the paths to them:
-
-     $ bdt build --python=3.6 -vv path/to/recipe-dir1 path/to/recipe-dir2
 ''')
 @click.argument('package', required=True, type=click.Path(file_okay=True,
   dir_okay=False, exists=True), nargs=-1)
