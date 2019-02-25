@@ -1,3 +1,6 @@
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN docker.idiap.ch
+
 build_linux_36:
   tags:
     - docker-build
