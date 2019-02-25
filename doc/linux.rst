@@ -17,12 +17,17 @@ Docker and Gitlab-runner setup
 ------------------------------
 
 Base docker installation:
-https://docs.docker.com/install/linux/docker-ce/debian/
+https://secure.idiap.ch/intranet/system/software/docker
 
 Ensure to add/configure for auto-loading the ``overlay`` kernel module in
 ``/etc/modules``.  Then update/create ``/etc/docker/daemon.json`` to contain
-the entry ``"storage-driver": "overlay2"``.  Restart the daemon.  Eventually
-reboot the machine to ensure everything works fine.
+the entry ``"storage-driver": "overlay2"``.
+
+To ensure that you can control memory and CPU usage for launched docker
+containers, you'll need to enable "cgroups" on your machine.  In essence,
+change ``/etc/default/grub`` to contain the line
+``GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"``. Then, re-run
+``update-grub`` after such change.
 
 To install docker at Idiap, you also need to follow the security guidelines
 from Cédric at https://secure.idiap.ch/intranet/system/software/docker.  If you
@@ -44,6 +49,9 @@ for this step:
    $ rm -rf /var/lib/docker
    $ vim /etc/docker/daemon.json  # add data-root -> /scratch/docker
    $ service docker start
+
+
+ Reboot the machine to ensure everything works fine.
 
 
 Hosts section
