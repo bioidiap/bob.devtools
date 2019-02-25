@@ -141,7 +141,7 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
   '''Renders the recipe and returns the interpreted YAML file'''
 
-  from conda_build.api import get_output_file_path
+  from conda_build.api import get_output_file_paths
   return get_output_file_paths(metadata, config=config)[0]
 
 
