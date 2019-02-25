@@ -12,7 +12,7 @@ import conda_build.api
 from . import bdt
 from ..build import next_build_number, conda_arch, should_skip_build, \
     get_rendered_metadata, get_parsed_recipe, make_conda_config, \
-    get_docserver_setup, get_env_directory
+    get_docserver_setup, get_env_directory, get_output_path
 from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
@@ -125,6 +125,8 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
       server=server, intranet=ci, group=group)
   set_environment('BOB_DOCUMENTATION_SERVER', doc_urls)
 
+  arch = conda_arch()
+
   for d in recipe_dir:
 
     if not os.path.exists(d):
@@ -135,24 +137,27 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
       version = open(version_candidate).read().rstrip()
       set_environment('BOB_PACKAGE_VERSION', version)
 
-    # pre-renders the recipe - figures out package name and version
+    # pre-renders the recipe - figures out the destination
     metadata = get_rendered_metadata(d, conda_config)
 
-    # checks we should actually build this recipe
-    arch = conda_arch()
-    if should_skip_build(metadata):
-      logger.warn('Skipping UNSUPPORTED build of "%s" for py%s on %s',
-          d, python.replace('.',''), arch)
-      return 0
-
-    # converts the metadata output into parsed yaml and continues the process
     rendered_recipe = get_parsed_recipe(metadata)
 
-    # if a channel URL was passed, set the build number
-    build_number, _ = next_build_number(channels[0],
-        rendered_recipe['package']['name'],
-        rendered_recipe['package']['version'], python)
+    path = get_output_path(metadata, conda_config)
 
+    # checks if we should actually build this recipe
+    if should_skip_build(metadata):
+      logger.info('Skipping UNSUPPORTED build of %s-%s-py%s for %s',
+          rendered_recipe['package']['name'],
+          rendered_recipe['package']['version'], python.replace('.',''),
+          arch)
+      continue
+
+    # gets the next build number
+    build_number, _ = next_build_number(channels[0], os.path.basename(path))
+
+    # notice we cannot build from the pre-parsed metadata because it has
+    # already resolved the "wrong" build number.  We'll have to reparse after
+    # setting the environment variable BOB_BUILD_NUMBER.
     set_environment('BOB_BUILD_NUMBER', str(build_number))
 
     logger.info('Building %s-%s-py%s (build: %d) for %s',
