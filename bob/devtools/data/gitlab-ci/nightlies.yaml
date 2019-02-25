@@ -1,0 +1,35 @@
+# This YAML file contains descriptions for the CI of nightly builds of Bob and
+# BEAT.
+
+stages:
+  - build
+
+.build_template:
+  variables:
+    CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+    PYTHON_VERSION: "3.6"
+    PYTHONUNBUFFERED: 1
+  stage: build
+    script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel base
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - bdt ci nightlies -vv order.txt
+    - bdt ci clean -vv
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - miniconda.sh
+      - ${CONDA_ROOT}/pkgs/*.tar.bz2
+      - ${CONDA_ROOT}/pkgs/urls.txt
+
+linux:
+  extends: .build_template
+  tags:
+    - docker
+
+macosx:
+  extends: .build_template
+  tags:
+    - macosx
