@@ -145,6 +145,26 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
    (global) ``before_script`` phase in jobs requiring access to the registry.
 
 
+.. note::
+
+   If you'd like to allow the (shell-based) runner to clone repositories other
+   than the one being built, you need to ensure the following is configured at
+   ``~/.ssh/config`` of the user running the ``gitlab-runner`` process
+   (typically ``gitlab-runner``):
+
+   .. code-block:: text
+
+      Host gitlab.idiap.ch
+        ForwardX11 no
+        ForwardX11Trusted no
+        ForwardAgent yes
+        StrictHostKeyChecking no
+        ControlMaster auto
+        ControlPath /tmp/%r@%h-%p
+        ControlPersist 600
+        Compression yes
+
+
 Crontabs
 ========
 
