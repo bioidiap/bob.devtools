@@ -48,58 +48,54 @@ def should_skip_build(metadata_tuples):
   return all(m[0].skip() for m in metadata_tuples)
 
 
-def next_build_number(channel_url, name, version, python):
+def next_build_number(channel_url, basename):
   """Calculates the next build number of a package given the channel
 
   This function returns the next build number (integer) for a package given its
-  recipe, dependencies, name, version and python version.  It looks on the
-  channel URL provided and figures out if any clash would happen and what would
-  be the highest build number available for that configuration.
+  resulting tarball base filename (can be obtained with
+  :py:func:`get_output_path`).
 
 
   Args:
 
     channel_url: The URL where to look for packages clashes (normally a beta
       channel)
-    name: The name of the package
-    version: The version of the package
-    python: The version of python as 2 digits (e.g.: "2.7" or "3.6")
+    basename: The tarball basename to check on the channel
 
   Returns: The next build number with the current configuration.  Zero (0) is
   returned if no match is found.  Also returns the URLs of the packages it
-  finds with matches on the name, version and python-version.
+  finds with matches on the name, version and python-version, ordered by
+  (reversed) build-number.
 
   """
 
   from conda.exports import get_index
 
-  # no dot in py_ver
-  py_ver = python.replace('.', '')
-
   # get the channel index
   logger.debug('Downloading channel index from %s', channel_url)
   index = get_index(channel_urls=[channel_url], prepend=False)
 
-  # search if package with the same version exists
+  # remove .tar.bz2 from name, then split from the end twice, on '-'
+  name, version, build = basename[:-8].rsplit('-', 2)
+
+  # remove the build number as we're looking for the next value
+  build_variant = build.rsplit('_', 1)[0]
+
+  # search if package with the same characteristics
+  urls = {}
   build_number = 0
-  urls = []
   for dist in index:
+    if dist.name == name and dist.version == version and \
+        dist.build_string.startswith(build_variant):  #match!
+      url = index[dist].url
+      logger.debug("Found match at %s for %s-%s-%s", url,
+          name, version, build_variant)
+      build_number = max(build_number, dist.build_number + 1)
+      urls[dist.build_number] = url.replace(channel_url, '')
 
-    if dist.name == name and dist.version == version:
-      if py_ver:
-        match = re.match('py[2-9][0-9]+', dist.build_string)
-      else:
-        match = re.match('py', dist.build_string)
+  sorted_urls = [urls[k] for k in reversed(list(urls.keys()))]
 
-      if match and match.group() == 'py{}'.format(py_ver):
-        logger.debug("Found match at %s for %s-%s-py%s", index[dist].url,
-            name, version, py_ver)
-        build_number = max(build_number, dist.build_number + 1)
-        urls.append(index[dist].url)
-
-  urls = [url.replace(channel_url, '') for url in urls]
-
-  return build_number, urls
+  return build_number, sorted_urls
 
 
 def make_conda_config(config, python, append_file, condarc_options):
@@ -142,6 +138,13 @@ def make_conda_config(config, python, append_file, condarc_options):
   return retval
 
 
+def get_output_path(metadata, config):
+  '''Renders the recipe and returns the interpreted YAML file'''
+
+  from conda_build.api import get_output_file_paths
+  return get_output_file_paths(metadata, config=config)[0]
+
+
 def get_rendered_metadata(recipe_dir, config):
   '''Renders the recipe and returns the interpreted YAML file'''
 
@@ -157,66 +160,35 @@ def get_parsed_recipe(metadata):
   return yaml.load(output)
 
 
-def exists_on_channel(channel_url, name, version, build_number,
-    python_version):
+def exists_on_channel(channel_url, basename):
   """Checks on the given channel if a package with the specs exist
 
   Args:
 
     channel_url: The URL where to look for packages clashes (normally a beta
       channel)
-    name: The name of the package
-    version: The version of the package
-    build_number: The build number of the package
-    python_version: The current version of python we're building for.  May be
-      ``noarch``, to check for "noarch" packages or ``None``, in which case we
-      don't check for the python version
+    basename: The basename of the tarball to search for
 
-  Returns: A complete package name, version and build string, if the package
-  already exists in the channel or ``None`` otherwise.
+  Returns: A complete package url, if the package already exists in the channel
+  or ``None`` otherwise.
 
   """
 
   from conda.exports import get_index
 
-  # handles different cases as explained on the description of
-  # ``python_version``
-  py_ver = python_version.replace('.', '') if python_version else None
-  if py_ver == 'noarch': py_ver = ''
-
   # get the channel index
   logger.debug('Downloading channel index from %s', channel_url)
   index = get_index(channel_urls=[channel_url], prepend=False)
 
-  logger.info('Checking for %s-%s-%s...', name, version, build_number)
+  logger.info('Checking for %s...', basename)
 
   for dist in index:
+    url = index[dist].url
+    if url.endswith(basename):
+      logger.debug('Found matching package (%s) at %s', basename, url)
+      return url
 
-    if dist.name == name and dist.version == version and \
-        dist.build_string.endswith('_%s' % build_number):
-
-      # two possible options must be checked - (i) the package build_string
-      # starts with ``py``, which means it is a python specific package so we
-      # must also check for the matching python version.  (ii) the package is
-      # not a python-specific package and a simple match will do
-      if dist.build_string.startswith('py'):
-        match = re.match('py[2-9][0-9]+', dist.build_string)
-        if match and match.group() == 'py{}'.format(py_ver):
-          logger.debug('Found matching package (%s-%s-%s)', dist.name,
-              dist.version, dist.build_string)
-          return (dist.name, dist.version, dist.build_string)
-
-      else:
-        logger.debug('Found matching package (%s-%s-%s)', dist.name,
-            dist.version, dist.build_string)
-        return (dist.name, dist.version, dist.build_string)
-
-  if py_ver is None:
-    logger.info('No matches for %s-%s-%s found among %d packages',
-        name, version, build_number, len(index))
-  else:
-    logger.info('No matches for %s-%s-py%s_%s found among %d packages',
-        name, version, py_ver, build_number, len(index))
+  logger.debug('No matches for %s', path)
   return
 
 
@@ -543,26 +515,16 @@ def base_build(bootstrap, server, intranet, group, recipe_dir,
           'on %s', recipe_dir, python_version, arch)
     return
 
-  recipe = get_parsed_recipe(metadata)
+  path = get_output_path(metadata, conda_config)
 
-  candidate = exists_on_channel(public_channels[0], recipe['package']['name'],
-      recipe['package']['version'], recipe['build']['number'],
-      python_version)
-  if candidate is not None:
-    logger.info('Skipping build for %s-%s-%s for %s - exists ' \
-        'on channel', candidate[0], candidate[1], candidate[2], arch)
+  url = exists_on_channel(public_channels[0], os.path.basename(path))
+  if url is not None:
+    logger.info('Skipping build for %s as it exists (at %s)', path, url)
     return
 
   # if you get to this point, just builds the package
-  if py_ver is None:
-    logger.info('Building %s-%s-%s for %s',
-      recipe['package']['name'], recipe['package']['version'],
-      recipe['build']['number'], arch)
-  else:
-    logger.info('Building %s-%s-py%s_%s for %s',
-      recipe['package']['name'], recipe['package']['version'], py_ver,
-      recipe['build']['number'], arch)
-  conda_build.api.build(recipe_dir, config=conda_config)
+  logger.info('Building %s', path)
+  conda_build.api.build(metadata, config=conda_config)
 
 
 if __name__ == '__main__':
@@ -659,20 +621,36 @@ if __name__ == '__main__':
       '\n  - '.join(channels + ['defaults']))
   condarc_options['channels'] = channels + ['defaults']
 
-  # retrieve the current build number for this build
-  build_number, _ = next_build_number(channels[0], args.name, version,
-      args.python_version)
-  bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number))
-
   logger.info('Merging conda configuration files...')
   conda_config = make_conda_config(conda_build_config, args.python_version,
       recipe_append, condarc_options)
+
+  metadata = get_rendered_metadata(os.path.join(args.work_dir, 'conda'),
+      conda_config)
+  path = get_output_path(metadata, conda_config)
+
+  # asserts we're building at the right location
+  assert path.startswith(os.path.join(args.conda_root, 'conda-bld')), \
+      'Output path for build (%s) does not start with "%s" - this ' \
+      'typically means this build is running on a shared builder and ' \
+      'the file ~/.conda/environments.txt is polluted with other ' \
+      'environment paths.  To fix, empty that file and set its mode ' \
+      'to read-only for all.' % (path, os.path.join(args.conda_root,
+        'conda-bld'))
+
+  # retrieve the current build number for this build
+  build_number, _ = next_build_number(channels[0], os.path.basename(path))
 
   # runs the build using the conda-build API
   arch = conda_arch()
   logger.info('Building %s-%s-py%s (build: %d) for %s',
       args.name, version, args.python_version.replace('.',''), build_number,
       arch)
+
+  # notice we cannot build from the pre-parsed metadata because it has already
+  # resolved the "wrong" build number.  We'll have to reparse after setting the
+  # environment variable BOB_BUILD_NUMBER.
+  bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number))
   conda_build.api.build(os.path.join(args.work_dir, 'conda'),
       config=conda_config)
 

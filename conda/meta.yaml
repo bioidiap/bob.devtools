@@ -59,6 +59,7 @@ test:
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
     - bdt build --help
+    - bdt rebuild --help
     - bdt test --help
     - bdt caupdate --help
     - bdt new --help
@@ -87,6 +88,7 @@ test:
     - bdt ci pypi --help
     - bdt ci readme --help
     - bdt ci clean --help
+    - bdt ci nightlies --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 

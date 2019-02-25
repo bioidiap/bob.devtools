@@ -11,7 +11,7 @@ import conda_build.api
 from click_plugins import with_plugins
 
 from . import bdt
-from ..constants import SERVER
+from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -317,8 +317,7 @@ Examples:
 ''')
 @click.argument('order', required=True, type=click.Path(file_okay=True,
   dir_okay=False, exists=True), nargs=1)
-@click.option('-g', '--group', show_default=True,
-    default=os.environ['CI_PROJECT_NAMESPACE'],
+@click.option('-g', '--group', show_default=True, default='bob',
     help='Group of packages (gitlab namespace) this package belongs to')
 @click.option('-p', '--python', multiple=True,
     help='Versions of python in the format "x.y" we should build for.  Pass ' \
@@ -336,8 +335,6 @@ def base_build(order, group, python, dry_run):
   packages) in the CI infrastructure.  It is **not** meant to be used outside
   this context.
   """
-
-  from ..constants import CONDA_BUILD_CONFIG
 
   condarc = os.path.join(os.environ['CONDA_ROOT'], 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
@@ -400,8 +397,6 @@ def test(ctx, dry_run):
   to be used outside this context.
   """
 
-  from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
-
   group = os.environ['CI_PROJECT_NAMESPACE']
   if group not in ('bob', 'beat'):
     # defaults back to bob - no other server setups are available as of now
@@ -444,8 +439,6 @@ def build(ctx, dry_run):
   This command builds packages in the CI infrastructure.  It is **not** meant
   to be used outside this context.
   """
-
-  from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
 
   group = os.environ['CI_PROJECT_NAMESPACE']
   if group not in ('bob', 'beat'):
@@ -491,3 +484,95 @@ def clean(ctx):
   from ..bootstrap import run_cmdline
 
   git_clean_build(run_cmdline, verbose=(ctx.meta['verbosity']>=3))
+
+
+@ci.command(epilog='''
+Examples:
+
+  1. Runs the nightly builds following a list of packages in a file:
+
+     $ bdt ci nightlies -vv order.txt
+
+''')
+@click.argument('order', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=1)
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+@click.pass_context
+def nightlies(ctx, order, dry_run):
+  """Runs nightly builds
+
+  This command can run nightly builds for packages listed on a file.
+
+  The build or each package happens in a few phases:
+
+  1. Package is checked out and switched to the requested branch (master if not
+     set otherwise)
+  2. A build string is calculated from current dependencies.  If the package
+     has already been compiled, it is downloaded from the respective conda
+     channel and tested.  If the test does not pass, the package is completely
+     rebuilt
+  3. If the rebuild is successful, the new package is uploaded to the
+     respective conda channel, and the program continues with the next package
+
+  Dependencies are searched with priority to locally built packages.  For this
+  reason, the input file **must** be provided in the right dependence order.
+  """
+
+  # loads dirnames from order file (accepts # comments and empty lines)
+  packages = []
+  with open(order, 'rt') as f:
+    for line in f:
+      line = line.partition('#')[0].strip()
+      if line:
+        if ',' in line:  #user specified a branch
+          path, branch = [k.strip() for k in line.split(',', 1)]
+          packages.append((path, branch))
+        else:
+          packages.apend((line, 'master'))
+
+  import git
+  from .rebuild import rebuild
+  from urllib.request import urlopen
+
+  # loaded all recipes, now cycle through them implementing what is described
+  # in the documentation of this function
+  for n, (package, branch) in enumerate(packages):
+
+    echo_normal('\n' + (80*'='))
+    echo_normal('Testing/Re-building %s@%s (%d/%d)' % (package, branch, n+1,
+      len(packages))
+    echo_normal((80*'=') + '\n')
+
+    group, name = package.split('/', 1)
+
+    clone_to = os.path.join(os.environ['CI_PROJECT_DIR'], 'src', group, name)
+    dirname = os.path.dirname(clone_to)
+    if not os.path.exists(dirname):
+      os.makedirs(dirname)
+
+    # clone the repo, shallow version, on the specified branch
+    logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
+    git.Repo.clone_from('https://gitlab-ci-token:%s@gitlab.idiap.ch/%s' % \
+        (token, package), clone_to, branch=branch, depth=1)
+
+    # determine package visibility
+    private = urlopen('https://gitlab.idiap.ch/%s' % package).getcode() != 200
+
+    ctx.invoke(rebuild,
+        recipe_dir=[os.path.join(clone_to, 'conda')],
+        python=os.environ['PYTHON_VERSION'],  #python version
+        condarc=None,  #custom build configuration
+        config=CONDA_BUILD_CONFIG,
+        append_file=CONDA_RECIPE_APPEND,
+        server=SERVER,
+        group=group,
+        private=private,
+        stable='STABLE' in os.environ,
+        dry_run=dry_run,
+        ci=True,
+        )

@@ -3,6 +3,7 @@
 
 import os
 import sys
+import urllib.request
 
 import yaml
 import click
@@ -17,28 +18,22 @@ from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
 
-from ..log import verbosity_option, get_logger
+from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
 
 
 @click.command(epilog='''
 Examples:
-
-  1. Builds recipe from one of our build dependencies (inside bob.conda):
+  1. Rebuilds a recipe from one of our packages, checked-out at "bob/bob.extension", for python 3.6:
 
 \b
-     $ cd bob.conda
-     $ bdt build -vv conda/libblitz
+     $ bdt rebuild -vv --python=3.6 bob/bob.extension/conda
 
 
-  2. Builds recipe from one of our packages, for Python 3.6 (if that is not already the default for you):
+  2. To rebuild multiple recipes, just pass the paths to them:
 
-     $ bdt build --python=3.6 -vv path/to/conda/dir
-
-
-  3. To build multiple recipes, just pass the paths to them:
-
-     $ bdt build --python=3.6 -vv path/to/recipe-dir1 path/to/recipe-dir2
+\b
+     $ bdt rebuild -vv --python=3.6 path/to/recipe-dir1 path/to/recipe-dir2
 ''')
 @click.argument('recipe-dir', required=False, type=click.Path(file_okay=False,
   dir_okay=True, exists=True), nargs=-1)
@@ -49,8 +44,6 @@ Examples:
 @click.option('-m', '--config', '--variant-config-files', show_default=True,
     default=CONDA_BUILD_CONFIG, help='overwrites the path leading to ' \
         'variant configuration file to use')
-@click.option('-n', '--no-test', is_flag=True,
-    help='Do not test the package, only builds it')
 @click.option('-a', '--append-file', show_default=True,
     default=CONDA_RECIPE_APPEND, help='overwrites the path leading to ' \
         'appended configuration file to use')
@@ -75,13 +68,15 @@ Examples:
     help='Use this flag to indicate the build will be running on the CI')
 @verbosity_option()
 @bdt.raise_on_error
-def build(recipe_dir, python, condarc, config, no_test, append_file,
+def rebuild(recipe_dir, python, condarc, config, append_file,
     server, group, private, stable, dry_run, ci):
-  """Builds package through conda-build with stock configuration
+  """Tests and rebuilds packages through conda-build with stock configuration
 
-  This command wraps the execution of conda-build so that you use the same
-  conda configuration we use for our CI.  It always set
-  ``--no-anaconda-upload``.
+  This command wraps the execution of conda-build in two stages: first, from
+  the original package recipe and some channel look-ups, it figures out what is
+  the lastest version of the package available.  It downloads such file and
+  runs a test.  If the test suceeds, then it proceeds to the next recipe.
+  Otherwise, it rebuilds the package and uploads a new version to the channel.
   """
 
   # if we are in a dry-run mode, let's let it be known
@@ -152,17 +147,46 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
           arch)
       continue
 
-    # gets the next build number
-    build_number, _ = next_build_number(channels[0], os.path.basename(path))
+    # Get the latest build number
+    build_number, existing = next_build_number(channels[0],
+        os.path.basename(path))
 
-    # notice we cannot build from the pre-parsed metadata because it has
-    # already resolved the "wrong" build number.  We'll have to reparse after
-    # setting the environment variable BOB_BUILD_NUMBER.
-    set_environment('BOB_BUILD_NUMBER', str(build_number))
+    should_build = True
 
-    logger.info('Building %s-%s-py%s (build: %d) for %s',
-        rendered_recipe['package']['name'],
-        rendered_recipe['package']['version'], python.replace('.',''),
-        build_number, arch)
-    if not dry_run:
-      conda_build.api.build(d, config=conda_config, notest=no_test)
+    if existing:  #other builds exist, get the latest and see if it still works
+
+      destpath = os.path.join(condarc_options['croot'], arch,
+          os.path.basename(existing[0]))
+      logger.info('Downloading %s -> %s', existing[0], destpath)
+      urllib.request.urlretrieve(existing[0], destpath)
+
+      try:
+        logger.info('Testing %s', existing[0])
+        conda_build.api.test(destpath, config=conda_config)
+        should_build = False
+        logger.info('Test for %s: SUCCESS', existing[0])
+      except Exception as error:
+        logger.exception(error)
+        logger.warn('Test for %s: FAILED. Building...', existing[0])
+
+
+    if should_build:  #something wrong happened, run a full build
+
+      logger.info('Building %s-%s-py%s (build: %d) for %s',
+          rendered_recipe['package']['name'],
+          rendered_recipe['package']['version'], python.replace('.',''),
+          build_number, arch)
+
+      # notice we cannot build from the pre-parsed metadata because it has
+      # already resolved the "wrong" build number.  We'll have to reparse after
+      # setting the environment variable BOB_BUILD_NUMBER.
+      set_environment('BOB_BUILD_NUMBER', str(build_number))
+
+      if not dry_run:
+        conda_build.api.build(d, config=conda_config, notest=no_test)
+
+    else:  #skip build, test worked
+      logger.info('Skipping build of %s-%s-py%s (build: %d) for %s',
+          rendered_recipe['package']['name'],
+          rendered_recipe['package']['version'], python.replace('.',''),
+          build_number, arch)

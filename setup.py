@@ -50,6 +50,7 @@ setup(
           'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
           'create = bob.devtools.scripts.create:create',
           'build = bob.devtools.scripts.build:build',
+          'rebuild = bob.devtools.scripts.rebuild:rebuild',
           'test = bob.devtools.scripts.test:test',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
           'ci = bob.devtools.scripts.ci:ci',
@@ -76,6 +77,7 @@ setup(
           'deploy = bob.devtools.scripts.ci:deploy',
           'readme = bob.devtools.scripts.ci:readme',
           'pypi = bob.devtools.scripts.ci:pypi',
+          'nightlies = bob.devtools.scripts.ci:nightlies',
           ],
 
     },
