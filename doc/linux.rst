@@ -255,3 +255,11 @@ To avoid problems with conda and using shared builders, consider creating the
 directory ``~gitlab-runner/.conda`` and touching the file
 ``environments.txt`` in that directory, setting a mode of ``444`` (i.e., make
 it read-only).
+
+
+Extra packages
+==============
+
+List of extra packages to ensure are installed on the shell environment:
+
+* rsync
