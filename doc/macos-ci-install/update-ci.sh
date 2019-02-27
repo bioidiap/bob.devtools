@@ -2,9 +2,10 @@
 
 # Update CI installation
 echo "Updating homebrew..."
-brew update
-brew upgrade
-brew cleanup
+brew=/usr/local/bin/brew
+${brew} update
+${brew} upgrade
+${brew} cleanup
 
 echo "Updating python packages..."
 pip=/usr/local/bin/pip3
