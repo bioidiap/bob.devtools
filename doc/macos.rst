@@ -111,7 +111,7 @@ Running regular updates
 We recommend that the CI machine to have homebrew and installed pip packages
 updated regularly (once a week).  To do so, setup a cronjob like the following:
 
-.. code-block:: crontab
+.. code-block:: text
 
    MAILTO=you@example.com
    SHELL=/bin/bash
