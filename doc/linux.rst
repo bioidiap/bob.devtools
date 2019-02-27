@@ -263,3 +263,11 @@ Extra packages
 List of extra packages to ensure are installed on the shell environment:
 
 * rsync
+
+
+Locale
+======
+
+Ensure to set the default locale as ``C.UTF-8`` by re-running
+``dpkg-reconfigure locales``.  The click (python) package `requires it
+<https://click.palletsprojects.com/en/7.x/python3/>`_.
