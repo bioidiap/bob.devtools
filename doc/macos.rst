@@ -105,4 +105,17 @@ Building the reference setup
    the runner process should be executing.  Congratulations, you're done!
 
 
+Running regular updates
+-----------------------
+
+We recommend that the CI machine to have homebrew and installed pip packages
+updated regularly (once a week).  To do so, setup a cronjob like the following:
+
+.. code-block:: crontab
+
+   MAILTO=you@example.com
+   SHELL=/bin/bash
+   00 12 * * 0 bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh)
+
+
 .. include:: links.rst
