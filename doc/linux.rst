@@ -13,6 +13,13 @@ also configure docker-in-docker to enable to run docker builds (and other
 tests) within docker images.
 
 
+.. warning::
+
+   Idiap has throttling rules that are typically applied to all machines in the
+   lab network.  To avoid issues for newly installed CI nodes, ensure you
+   request throttling to be disabled for new CI machines.
+
+
 Docker and Gitlab-runner setup
 ------------------------------
 

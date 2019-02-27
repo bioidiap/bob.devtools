@@ -20,6 +20,13 @@ macOS.  Instructions for deployment assume a freshly installed machine.
    So, if the current version is 10.14, a good base install would use 10.13.
 
 
+.. warning::
+
+   Idiap has throttling rules that are typically applied to all machines in the
+   lab network.  To avoid issues for newly installed CI nodes, ensure you
+   request throttling to be disabled for new CI machines.
+
+
 Building the reference setup
 ----------------------------
 
