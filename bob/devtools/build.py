@@ -599,7 +599,10 @@ if __name__ == '__main__':
     condarc_options = yaml.load(f)
 
   # dump packages at conda_root
-  condarc_options['croot'] = os.path.join(args.conda_root, 'conda-bld')
+  prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
+  if condarc_options.get('conda-build', {}).get('root-dir') is None:
+    condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
+
 
   # builds all dependencies in the 'deps' subdirectory - or at least checks
   # these dependencies are already available; these dependencies go directly to
