@@ -17,3 +17,7 @@ brew=/usr/local/bin/brew
 ${brew} install curl git coreutils bash-completion highlight neovim tmux htop python@3
 ${brew} link --force curl #keg-only recipe
 ${brew} cask install mactex
+
+# LaTeX slides/beamer dependencies
+pip=/usr/local/bin/pip3
+${pip} install pygments
