@@ -157,17 +157,20 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
 
       destpath = os.path.join(condarc_options['croot'], arch,
           os.path.basename(existing[0]))
-      logger.info('Downloading %s -> %s', existing[0], destpath)
-      urllib.request.urlretrieve(existing[0], destpath)
+      if not os.path.exists(os.path.dirname(destpath)):
+        os.makedirs(os.path.dirname(destpath))
+      src = channels[0] + existing[0]
+      logger.info('Downloading %s -> %s', src, destpath)
+      urllib.request.urlretrieve(src, destpath)
 
       try:
-        logger.info('Testing %s', existing[0])
+        logger.info('Testing %s', src)
         conda_build.api.test(destpath, config=conda_config)
         should_build = False
-        logger.info('Test for %s: SUCCESS', existing[0])
+        logger.info('Test for %s: SUCCESS', src)
       except Exception as error:
         logger.exception(error)
-        logger.warn('Test for %s: FAILED. Building...', existing[0])
+        logger.warn('Test for %s: FAILED. Building...', src)
 
 
     if should_build:  #something wrong happened, run a full build
