@@ -1,9 +1,18 @@
 # This YAML file contains descriptions for the CI of nightly builds of Bob and
 # BEAT.
 
+# Definition of global variables (all stages)
+variables:
+  CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+  BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
+
+
+# Definition of our build pipeline order
 stages:
   - build
 
+
+# Build targets
 .build_template:
   stage: build
   variables:
