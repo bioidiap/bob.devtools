@@ -5,12 +5,12 @@ stages:
   - build
 
 .build_template:
+  stage: build
   variables:
     CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
     PYTHON_VERSION: "3.6"
     PYTHONUNBUFFERED: 1
-  stage: build
-    script:
+  script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
