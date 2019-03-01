@@ -9,10 +9,7 @@ _BASE_CONDARC = '''\
 default_channels:
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/free
-  - https://repo.anaconda.com/pkgs/r
-  - https://repo.anaconda.com/pkgs/pro
 add_pip_as_python_dependency: false #!final
-changeps1: false #!final
 always_yes: true #!final
 quiet: true #!final
 show_channel_urls: true #!final
