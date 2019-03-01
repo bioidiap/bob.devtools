@@ -533,7 +533,7 @@ def nightlies(ctx, order, dry_run):
           path, branch = [k.strip() for k in line.split(',', 1)]
           packages.append((path, branch))
         else:
-          packages.apend((line, 'master'))
+          packages.append((line, 'master'))
 
   import git
   from .rebuild import rebuild
