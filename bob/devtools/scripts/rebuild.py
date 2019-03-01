@@ -167,7 +167,7 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
         logger.info('Testing %s', src)
         conda_build.api.test(destpath, config=conda_config)
         should_build = False
-        logger.info('Test for %s: SUCCESS', src)
+        logger.info('Test for %s: SUCCESS (package is up-to-date)', src)
       except Exception as error:
         logger.exception(error)
         logger.warn('Test for %s: FAILED. Building...', src)
