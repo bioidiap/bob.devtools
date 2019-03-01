@@ -175,7 +175,7 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
 
     if should_build:  #something wrong happened, run a full build
 
-      logger.info('Building %s-%s-py%s (build: %d) for %s',
+      logger.info('Re-building %s-%s-py%s (build: %d) for %s',
           rendered_recipe['package']['name'],
           rendered_recipe['package']['version'], python.replace('.',''),
           build_number, arch)
@@ -184,12 +184,22 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
       # already resolved the "wrong" build number.  We'll have to reparse after
       # setting the environment variable BOB_BUILD_NUMBER.
       set_environment('BOB_BUILD_NUMBER', str(build_number))
+      metadata = get_rendered_metadata(d, conda_config)
+      candidate = get_output_path(metadata, conda_config)
+
+      if os.path.exists(candidate):
+        logger.debug('Removing existing conda package at %s for rebuild...',
+            candidate)
+        os.unlink(candidate)
 
       if not dry_run:
-        conda_build.api.build(d, config=conda_config, notest=no_test)
+        conda_build.api.build(metadata, config=conda_config, notest=no_test)
+        # if you get to this point, the package was successfully rebuilt
+        # set environment to signal caller we can upload it
+        os.environ['BDT_REBUILD'] = candidate
 
     else:  #skip build, test worked
-      logger.info('Skipping build of %s-%s-py%s (build: %d) for %s',
+      logger.info('Skipping rebuild of %s-%s-py%s (build: %d) for %s',
           rendered_recipe['package']['name'],
           rendered_recipe['package']['version'], python.replace('.',''),
           build_number, arch)

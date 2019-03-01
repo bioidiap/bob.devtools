@@ -3,6 +3,7 @@
 import os
 import re
 import glob
+import shutil
 
 import yaml
 import click
@@ -11,7 +12,8 @@ import conda_build.api
 from click_plugins import with_plugins
 
 from . import bdt
-from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND
+from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
+    WEBDAV_PATHS
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -57,7 +59,6 @@ def base_deploy(dry_run):
 
     package = os.environ['CI_PROJECT_PATH']
 
-    from ..constants import WEBDAV_PATHS
     server_info = WEBDAV_PATHS[True][True]  #stable=True, visible=True
 
     logger.info('Deploying dependence packages to %s%s%s...', SERVER,
@@ -138,7 +139,6 @@ def deploy(dry_run):
     # determine if building branch or tag
     stable = ('CI_COMMIT_TAG' in os.environ)
 
-    from ..constants import WEBDAV_PATHS
     server_info = WEBDAV_PATHS[stable][visible]
 
     logger.info('Deploying conda packages to %s%s%s...', SERVER,
@@ -564,6 +564,7 @@ def nightlies(ctx, order, dry_run):
 
     # determine package visibility
     private = urlopen('https://gitlab.idiap.ch/%s' % package).getcode() != 200
+    stable = 'STABLE' in os.environ
 
     ctx.invoke(rebuild,
         recipe_dir=[os.path.join(clone_to, 'conda')],
@@ -574,7 +575,48 @@ def nightlies(ctx, order, dry_run):
         server=SERVER,
         group=group,
         private=private,
-        stable='STABLE' in os.environ,
+        stable=stable,
         dry_run=dry_run,
         ci=True,
         )
+
+    sphinx_output = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
+    if os.path.exists(sphinx_output):
+      logger.debug('Sphinx output was generated during test/rebuild of %s - ' \
+          'Erasing...', package)
+      shutil.rmtree(sphinx_output)
+
+    # re-deploys a new conda package if it was rebuilt
+    # n.b.: can only arrive here if dry_run was ``False`` (no need to check
+    # again)
+    if 'BDT_REBUILD' in os.environ:
+
+      tarball = os.environ['BDT_REBUILD']
+      del os.environ['BDT_REBUILD']
+
+      server_info = WEBDAV_PATHS[stable][not private]
+
+      logger.info('Deploying conda package to %s%s%s...', SERVER,
+          server_info['root'], server_info['conda'])
+
+      # setup webdav connection
+      webdav_options = {
+          'webdav_hostname': SERVER,
+          'webdav_root': server_info['root'],
+          'webdav_login': os.environ['DOCUSER'],
+          'webdav_password': os.environ['DOCPASS'],
+          }
+      from ..webdav3 import client as webdav
+      davclient = webdav.Client(webdav_options)
+      assert davclient.valid()
+
+      remote_path = '%s/%s/%s' % (server_info['conda'], arch,
+          os.path.basename(tarball))
+      if davclient.check(remote_path):
+        raise RuntimeError('The file %s/%s already exists on the server ' \
+            '- this can be due to more than one rebuild with deployment ' \
+            'running at the same time.  Re-running the broken builds ' \
+            'normally fixes it' % (SERVER, remote_path))
+      logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
+          remote_path)
+      davclient.upload(local_path=tarball, remote_path=remote_path)
