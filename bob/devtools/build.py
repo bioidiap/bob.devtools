@@ -288,7 +288,7 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
   if not dry_run:
     # get envdir again - it may just be created!
     envdir = get_env_directory(conda, name)
-    destrc = os.path.join(envdir, '.condarc')
+    destrc = os.path.join(envdir, 'condarc')
     logger.info('Creating %s...', destrc)
     with open(destrc, 'w') as f:
       yaml.dump(condarc, f, indent=2)
