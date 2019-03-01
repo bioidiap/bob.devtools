@@ -535,6 +535,8 @@ def nightlies(ctx, order, dry_run):
         else:
           packages.append((line, 'master'))
 
+  token = os.environ['CI_JOB_TOKEN']
+
   import git
   from .rebuild import rebuild
   from urllib.request import urlopen
