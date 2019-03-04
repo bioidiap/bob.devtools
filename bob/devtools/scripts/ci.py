@@ -75,7 +75,7 @@ def base_deploy(dry_run):
           logger.debug('Skipping deploying of %s - not a base package', k)
           continue
 
-        deploy_conda_package(k, stable=True, public=True,
+        deploy_conda_package(k, arch=arch, stable=True, public=True,
             username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
             overwrite=False, dry_run=dry_run)
 
@@ -125,7 +125,7 @@ def deploy(dry_run):
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
       for k in deploy_packages:
-        deploy_conda_package(k, stable=stable, public=public,
+        deploy_conda_package(k, arch=arch, stable=stable, public=public,
             username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
             overwrite=False, dry_run=dry_run)
 
@@ -509,11 +509,23 @@ def nightlies(ctx, order, dry_run):
         ci=True,
         )
 
-    local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
     is_master = os.environ['CI_COMMIT_REF_NAME'] == 'master'
+
+    # re-deploys a new conda package if it was rebuilt and it is the master
+    # branch
+    # n.b.: can only arrive here if dry_run was ``False`` (no need to check
+    # again)
+    if 'BDT_REBUILD' in os.environ and is_master:
+      tarball = os.environ['BDT_REBUILD']
+      del os.environ['BDT_REBUILD']
+      deploy_conda_package(tarball, arch=None, stable=stable,
+          public=(not private), username=os.environ['DOCUSER'],
+          password=os.environ['DOCPASS'], overwrite=False, dry_run=dry_run)
 
     # re-deploys freshly built documentation if we're on the master branch
     # otherwise, removes the documentation
+    local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
+
     if is_master:
       deploy_documentation(local_docs, package, stable=stable,
           public=(not private), branch='master', tag=None,
@@ -523,15 +535,3 @@ def nightlies(ctx, order, dry_run):
         logger.debug('Sphinx output was generated during test/rebuild ' \
             'of %s - Erasing...', package)
         shutil.rmtree(local_docs)
-
-    # re-deploys a new conda package if it was rebuilt and it is the master
-    # branch
-    # n.b.: can only arrive here if dry_run was ``False`` (no need to check
-    # again)
-    if 'BDT_REBUILD' in os.environ and is_master:
-      tarball = os.environ['BDT_REBUILD']
-      del os.environ['BDT_REBUILD']
-
-      deploy_conda_package(tarball, stable=stable, public=(not private),
-          username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
-          overwrite=False, dry_run=dry_run)

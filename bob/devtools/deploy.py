@@ -26,13 +26,16 @@ def _setup_webdav_client(server, root, username, password):
   return retval
 
 
-def deploy_conda_package(package, stable, public, username, password,
+def deploy_conda_package(package, arch, stable, public, username, password,
     overwrite, dry_run):
   '''Deploys a single conda package on the appropriate path
 
   Args:
 
     package (str): Path leading to the conda package to be deployed
+    arch (str): The conda architecture to deploy to (``linux-64``, ``osx-64``,
+      ``noarch``, or ``None`` - in which case the architecture is going to be
+      guessed from the directory where the package sits)
     stable (bool): Indicates if the package should be deployed on a stable
       (``True``) or beta (``False``) channel
     public (bool): Indicates if the package is supposed to be distributed
@@ -56,6 +59,7 @@ def deploy_conda_package(package, stable, public, username, password,
       server_info['root'], server_info['conda'])
 
   basename = os.path.basename(package)
+  arch = arch or os.path.basename(os.path.dirname(package))
   remote_path = '%s/%s/%s' % (server_info['conda'], arch, basename)
 
   if davclient.check(remote_path):
