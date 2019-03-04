@@ -14,6 +14,7 @@ from click_plugins import with_plugins
 from . import bdt
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS
+from ..deploy import deploy_conda_package, deploy_documentation
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -58,47 +59,25 @@ def base_deploy(dry_run):
         logger.warn('Nothing is being deployed to server')
 
     package = os.environ['CI_PROJECT_PATH']
-
-    server_info = WEBDAV_PATHS[True][True]  #stable=True, visible=True
-
-    logger.info('Deploying dependence packages to %s%s%s...', SERVER,
-        server_info['root'], server_info['conda'])
-
-    # setup webdav connection
-    webdav_options = {
-        'webdav_hostname': SERVER,
-        'webdav_root': server_info['root'],
-        'webdav_login': os.environ['DOCUSER'],
-        'webdav_password': os.environ['DOCPASS'],
-        }
-    from ..webdav3 import client as webdav
-    davclient = webdav.Client(webdav_options)
-    assert davclient.valid()
-
     group, name = package.split('/')
 
-    # uploads conda package artificats
+    # deploys all conda package artefacts currently available (erases them
+    # afterwards)
     for arch in ('linux-64', 'osx-64', 'noarch'):
       # finds conda dependencies and uploads what we can find
       package_path = os.path.join(os.environ['CONDA_ROOT'], 'conda-bld', arch,
           '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
+
       for k in deploy_packages:
-        basename = os.path.basename(k)
-        if basename.startswith(name):
+
+        if os.path.basename(k).startswith(name):
           logger.debug('Skipping deploying of %s - not a base package', k)
           continue
 
-        remote_path = '%s/%s/%s' % (server_info['conda'], arch, basename)
-        if davclient.check(remote_path):
-          raise RuntimeError('The file %s/%s already exists on the server ' \
-              '- this can be due to more than one build with deployment ' \
-              'running at the same time.  Re-running the broken builds ' \
-              'normally fixes it' % (SERVER, remote_path))
-        logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
-            remote_path)
-        if not dry_run:
-          davclient.upload(local_path=k, remote_path=remote_path)
+        deploy_conda_package(k, stable=True, public=True,
+            username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
+            overwrite=False, dry_run=dry_run)
 
 
 @ci.command(epilog='''
@@ -132,79 +111,29 @@ def deploy(dry_run):
         logger.warn('Nothing is being deployed to server')
 
     package = os.environ['CI_PROJECT_PATH']
-
-    # determine project visibility
-    visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
-
-    # determine if building branch or tag
-    stable = ('CI_COMMIT_TAG' in os.environ)
-
-    server_info = WEBDAV_PATHS[stable][visible]
-
-    logger.info('Deploying conda packages to %s%s%s...', SERVER,
-        server_info['root'], server_info['conda'])
-
-    # setup webdav connection
-    webdav_options = {
-        'webdav_hostname': SERVER,
-        'webdav_root': server_info['root'],
-        'webdav_login': os.environ['DOCUSER'],
-        'webdav_password': os.environ['DOCPASS'],
-        }
-    from ..webdav3 import client as webdav
-    davclient = webdav.Client(webdav_options)
-    assert davclient.valid()
-
     group, name = package.split('/')
 
-    # uploads conda package artificats
+    # determine if building branch or tag, and project visibility
+    stable = ('CI_COMMIT_TAG' in os.environ)
+    public = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
+
+    # deploys all conda package artefacts currently available (erases them
+    # afterwards)
     for arch in ('linux-64', 'osx-64', 'noarch'):
       # finds conda packages and uploads what we can find
       package_path = os.path.join(os.environ['CONDA_ROOT'], 'conda-bld', arch,
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
       for k in deploy_packages:
-        remote_path = '%s/%s/%s' % (server_info['conda'], arch,
-            os.path.basename(k))
-        if davclient.check(remote_path):
-          raise RuntimeError('The file %s/%s already exists on the server ' \
-              '- this can be due to more than one build with deployment ' \
-              'running at the same time.  Re-running the broken builds ' \
-              'normally fixes it' % (SERVER, remote_path))
-        logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
-            remote_path)
-        if not dry_run:
-          davclient.upload(local_path=k, remote_path=remote_path)
+        deploy_conda_package(k, stable=stable, public=visible,
+            username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
+            overwrite=False, dry_run=dry_run)
 
-    # uploads documentation artifacts
     local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
-    if not os.path.exists(local_docs):
-      raise RuntimeError('Documentation is not available at %s - ' \
-          'ensure documentation is being produced for your project!' % \
-          local_docs)
-
-    remote_path_prefix = '%s/%s' % (server_info['docs'], package)
-
-    # finds out the correct mixture of sub-directories we should deploy to.
-    # 1. if ref-name is a tag, don't forget to publish to 'master' as well -
-    # all tags are checked to come from that branch
-    # 2. if ref-name is a branch name, deploy to it
-    # 3. in case a tag is being published, make sure to deploy to the special
-    # "stable" subdir as well
-    deploy_docs_to = set([os.environ['CI_COMMIT_REF_NAME']])
-    if stable:
-      deploy_docs_to.add('master')
-      if os.environ.get('CI_COMMIT_TAG') is not None:
-        deploy_docs_to.add(os.environ['CI_COMMIT_TAG'])
-      deploy_docs_to.add('stable')
-
-    for k in deploy_docs_to:
-      remote_path = '%s/%s' % (remote_path_prefix, k)
-      logger.info('[dav] %s -> %s%s%s', local_docs, SERVER,
-          server_info['root'], remote_path)
-      if not dry_run:
-        davclient.upload_directory(local_path=local_docs,
-            remote_path=remote_path)
+    deploy_documentation(local_docs, package, stable=stable, public=public,
+        branch=os.environ['CI_COMMIT_REF_NAME'],
+        tag=os.environ.get('CI_COMMIT_TAG'), username=os.environ['DOCUSER'],
+        password=os.environ['DOCPASS'], dry_run=dry_run)
 
 
 @ci.command(epilog='''
@@ -580,43 +509,29 @@ def nightlies(ctx, order, dry_run):
         ci=True,
         )
 
-    sphinx_output = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
-    if os.path.exists(sphinx_output):
-      logger.debug('Sphinx output was generated during test/rebuild of %s - ' \
-          'Erasing...', package)
-      shutil.rmtree(sphinx_output)
+    local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
+    is_master = os.environ['CI_COMMIT_REF_NAME'] == 'master'
 
-    # re-deploys a new conda package if it was rebuilt
+    # re-deploys freshly built documentation if we're on the master branch
+    # otherwise, removes the documentation
+    if is_master:
+      deploy_documentation(local_docs, package, stable=stable,
+          public=(not private), branch='master', tag=None,
+          username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
+          dry_run=dry_run)
+    elif os.path.exists(local_docs):
+        logger.debug('Sphinx output was generated during test/rebuild ' \
+            'of %s - Erasing...', package)
+        shutil.rmtree(local_docs)
+
+    # re-deploys a new conda package if it was rebuilt and it is the master
+    # branch
     # n.b.: can only arrive here if dry_run was ``False`` (no need to check
     # again)
-    if 'BDT_REBUILD' in os.environ:
-
+    if 'BDT_REBUILD' in os.environ and is_master:
       tarball = os.environ['BDT_REBUILD']
       del os.environ['BDT_REBUILD']
 
-      server_info = WEBDAV_PATHS[stable][not private]
-
-      logger.info('Deploying conda package to %s%s%s...', SERVER,
-          server_info['root'], server_info['conda'])
-
-      # setup webdav connection
-      webdav_options = {
-          'webdav_hostname': SERVER,
-          'webdav_root': server_info['root'],
-          'webdav_login': os.environ['DOCUSER'],
-          'webdav_password': os.environ['DOCPASS'],
-          }
-      from ..webdav3 import client as webdav
-      davclient = webdav.Client(webdav_options)
-      assert davclient.valid()
-
-      remote_path = '%s/%s/%s' % (server_info['conda'], arch,
-          os.path.basename(tarball))
-      if davclient.check(remote_path):
-        raise RuntimeError('The file %s/%s already exists on the server ' \
-            '- this can be due to more than one rebuild with deployment ' \
-            'running at the same time.  Re-running the broken builds ' \
-            'normally fixes it' % (SERVER, remote_path))
-      logger.info('[dav] %s -> %s%s%s', k, SERVER, server_info['root'],
-          remote_path)
-      davclient.upload(local_path=tarball, remote_path=remote_path)
+      deploy_conda_package(tarball, stable=stable, public=(not private),
+          username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
+          overwrite=False, dry_run=dry_run)
