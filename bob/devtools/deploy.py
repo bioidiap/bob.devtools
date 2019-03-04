@@ -55,9 +55,6 @@ def deploy_conda_package(package, arch, stable, public, username, password,
   davclient = _setup_webdav_client(SERVER, server_info['root'], username,
       password)
 
-  logger.info('Deploying %s to %s%s%s...', package, SERVER,
-      server_info['root'], server_info['conda'])
-
   basename = os.path.basename(package)
   arch = arch or os.path.basename(os.path.dirname(package))
   remote_path = '%s/%s/%s' % (server_info['conda'], arch, basename)
