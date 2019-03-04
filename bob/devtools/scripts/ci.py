@@ -531,7 +531,8 @@ def nightlies(ctx, order, dry_run):
           public=(not private), branch='master', tag=None,
           username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
           dry_run=dry_run)
-    elif os.path.exists(local_docs):
-        logger.debug('Sphinx output was generated during test/rebuild ' \
-            'of %s - Erasing...', package)
-        shutil.rmtree(local_docs)
+
+    if os.path.exists(local_docs):
+      logger.debug('Sphinx output was generated during test/rebuild ' \
+          'of %s - Erasing...', package)
+      shutil.rmtree(local_docs)
