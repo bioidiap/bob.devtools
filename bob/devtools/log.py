@@ -104,6 +104,12 @@ def _echo(text, *args, **kwargs):
 def echo_normal(text):
   """Color preset for normal text output for :py:func:`click.echo`"""
 
+  click.echo(text)
+
+
+def echo_info(text):
+  """Color preset for normal text output for :py:func:`click.echo`"""
+
   _echo(text, 'green')
 
 
