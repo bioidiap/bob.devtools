@@ -125,7 +125,7 @@ def deploy(dry_run):
           name + '*.tar.bz2')
       deploy_packages = glob.glob(package_path)
       for k in deploy_packages:
-        deploy_conda_package(k, stable=stable, public=visible,
+        deploy_conda_package(k, stable=stable, public=public,
             username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
             overwrite=False, dry_run=dry_run)
 
@@ -200,9 +200,9 @@ def pypi(package, dry_run):
         logger.warn('Nothing is being deployed to server')
 
     # determine project visibility
-    visible = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
+    public = (os.environ['CI_PROJECT_VISIBILITY'] == 'public')
 
-    if not visible:
+    if not public:
       raise RuntimeError('The repository %s is not public - a package ' \
           'deriving from it therefore, CANNOT be published to PyPI. ' \
           'You must follow the relevant software disclosure procedures ' \
