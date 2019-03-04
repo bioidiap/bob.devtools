@@ -4,6 +4,7 @@
 '''Deployment utilities for conda packages and documentation via webDAV'''
 
 
+import os
 
 from .constants import WEBDAV_PATHS, SERVER
 from .log import get_logger
