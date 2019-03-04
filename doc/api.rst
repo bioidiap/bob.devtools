@@ -33,6 +33,8 @@ Detailed Information
 
 .. automodule:: bob.devtools.build
 
+.. automodule:: bob.devtools.deploy
+
 
 WebDAV Python Client
 --------------------
