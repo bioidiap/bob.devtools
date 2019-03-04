@@ -163,14 +163,21 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
       logger.info('Downloading %s -> %s', src, destpath)
       urllib.request.urlretrieve(src, destpath)
 
+      # conda_build may either raise an exception or return ``False`` in case
+      # the build fails, depending on the reason.  This bit of code tries to
+      # accomodate both code paths and decides if we should rebuild the package
+      # or not
       try:
         logger.info('Testing %s', src)
-        conda_build.api.test(destpath, config=conda_config)
-        should_build = False
-        logger.info('Test for %s: SUCCESS (package is up-to-date)', src)
+        result = conda_build.api.test(destpath, config=conda_config)
+        should_build = not result
       except Exception as error:
         logger.exception(error)
-        logger.warn('Test for %s: FAILED. Building...', src)
+      finally:
+        if should_build:
+          logger.warn('Test for %s: FAILED. Building...', src)
+        else:
+          logger.info('Test for %s: SUCCESS (package is up-to-date)', src)
 
 
     if should_build:  #something wrong happened, run a full build
