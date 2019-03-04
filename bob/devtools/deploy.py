@@ -80,7 +80,7 @@ def deploy_conda_package(package, arch, stable, public, username, password,
   if not dry_run:
     davclient.upload(local_path=package, remote_path=remote_path)
 
-    logger.debug('Removing local copy (%s) to avoid re-uploads', k)
+    logger.debug('Removing local copy (%s) to avoid re-uploads', package)
     os.unlink(package)
 
 
