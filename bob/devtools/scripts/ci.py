@@ -522,16 +522,9 @@ def nightlies(ctx, order, dry_run):
           public=(not private), username=os.environ['DOCUSER'],
           password=os.environ['DOCPASS'], overwrite=False, dry_run=dry_run)
 
-    # re-deploys freshly built documentation if we're on the master branch
-    # otherwise, removes the documentation
+    # removes the documentation to avoid permissions issues with the following
+    # projects being built
     local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
-
-    if is_master:
-      deploy_documentation(local_docs, package, stable=stable,
-          public=(not private), branch='master', tag=None,
-          username=os.environ['DOCUSER'], password=os.environ['DOCPASS'],
-          dry_run=dry_run)
-
     if os.path.exists(local_docs):
       logger.debug('Sphinx output was generated during test/rebuild ' \
           'of %s - Erasing...', package)
