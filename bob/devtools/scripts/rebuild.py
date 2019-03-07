@@ -200,7 +200,7 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
         os.unlink(candidate)
 
       if not dry_run:
-        conda_build.api.build(metadata, config=conda_config, notest=no_test)
+        conda_build.api.build(metadata[0], config=conda_config, notest=no_test)
         # if you get to this point, the package was successfully rebuilt
         # set environment to signal caller we can upload it
         os.environ['BDT_REBUILD'] = candidate
