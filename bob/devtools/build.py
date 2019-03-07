@@ -188,7 +188,7 @@ def exists_on_channel(channel_url, basename):
       logger.debug('Found matching package (%s) at %s', basename, url)
       return url
 
-  logger.debug('No matches for %s', path)
+  logger.debug('No matches for %s', basename)
   return
 
 
