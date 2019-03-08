@@ -266,9 +266,25 @@ def base_build(order, group, python, dry_run):
   """
 
   condarc = os.path.join(os.environ['CONDA_ROOT'], 'condarc')
-  logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
-  with open(condarc, 'rb') as f:
-    condarc_options = yaml.load(f)
+  if os.path.exists(condarc):
+    logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
+    with open(condarc, 'rb') as f:
+      condarc_options = yaml.load(f)
+
+  else:  #not building on the CI? - use defaults
+    import yaml
+    from ..constants import BASE_CONDARC, SERVER
+    from ..bootstrap import get_channels
+
+    # get potential channel upload and other auxiliary channels
+    channels = get_channels(public=True, stable=True, server=SERVER,
+        intranet='True', group='bob')
+
+    # use default and add channels
+    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    logger.info('Using the following channels during build:\n  - %s',
+        '\n  - '.join(channels + ['defaults']))
+    condarc_options['channels'] = channels + ['defaults']
 
   # dump packages at conda_root
   condarc_options['croot'] = os.path.join(os.environ['CONDA_ROOT'],

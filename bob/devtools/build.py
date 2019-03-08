@@ -524,7 +524,7 @@ def base_build(bootstrap, server, intranet, group, recipe_dir,
 
   # if you get to this point, just builds the package
   logger.info('Building %s', path)
-  conda_build.api.build(metadata[0], config=conda_config)
+  conda_build.api.build(metadata[0][0], config=conda_config)
 
 
 if __name__ == '__main__':
