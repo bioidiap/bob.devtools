@@ -13,7 +13,7 @@ from click_plugins import with_plugins
 
 from . import bdt
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
-    WEBDAV_PATHS
+    WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
 
 from ..log import verbosity_option, get_logger, echo_normal
@@ -272,7 +272,6 @@ def base_build(order, group, python, dry_run):
       condarc_options = yaml.load(f)
 
   else:  #not building on the CI? - use defaults
-    from ..constants import BASE_CONDARC, SERVER
     from ..bootstrap import get_channels
 
     # get potential channel upload and other auxiliary channels
