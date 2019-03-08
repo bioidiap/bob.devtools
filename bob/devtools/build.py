@@ -79,7 +79,25 @@ def next_build_number(channel_url, basename):
   name, version, build = basename[:-8].rsplit('-', 2)
 
   # remove the build number as we're looking for the next value
+  # examples to be coped with:
+  # vlfeat-0.9.20-0 -> '0'
+  # vlfeat-0.9.21-h18fa195_0 -> 'h18fa195_0'
+  # tqdm-4.11.1-py36_0 -> 'py36_0'
+  # websocket-client-0.47.0-py27haf68d3b_0 -> 'py27haf68d3b_0'
+  # websocket-client-0.47.0-py36haf68d3b_0 -> 'py36haf68d3b_0'
   build_variant = build.rsplit('_', 1)[0]
+  # vlfeat-0.9.20-0 -> '0'
+  # vlfeat-0.9.21-h18fa195_0 -> 'h18fa195'
+  # tqdm-4.11.1-py36_0 -> 'py36'
+  # websocket-client-0.47.0-py27haf68d3b_0 -> 'py27haf68d3b'
+  # websocket-client-0.47.0-py36haf68d3b_0 -> 'py36haf68d3b'
+  build_variant = build_variant.split('h', 1)[0]
+  # vlfeat-0.9.20-0 -> '0'
+  # vlfeat-0.9.21-h18fa195_0 -> ''
+  # tqdm-4.11.1-py36_0 -> 'py36'
+  # websocket-client-0.47.0-py27haf68d3b_0 -> 'py27'
+  # websocket-client-0.47.0-py36haf68d3b_0 -> 'py36'
+  if re.match('^[0-9]+$', build_variant) is not None: build_variant = ''
 
   # search if package with the same characteristics
   urls = {}
@@ -91,7 +109,7 @@ def next_build_number(channel_url, basename):
       logger.debug("Found match at %s for %s-%s-%s", url,
           name, version, build_variant)
       build_number = max(build_number, dist.build_number + 1)
-      urls[dist.build_number] = url.replace(channel_url, '')
+      urls[index[dist].timestamp] = url.replace(channel_url, '')
 
   sorted_urls = [urls[k] for k in reversed(list(urls.keys()))]
 
@@ -163,6 +181,8 @@ def get_parsed_recipe(metadata):
 def exists_on_channel(channel_url, basename):
   """Checks on the given channel if a package with the specs exist
 
+  This procedure always ignores the package hash code, if one is set
+
   Args:
 
     channel_url: The URL where to look for packages clashes (normally a beta
@@ -174,22 +194,30 @@ def exists_on_channel(channel_url, basename):
 
   """
 
-  from conda.exports import get_index
+  build_number, urls = next_build_number(channel_url, basename)
 
-  # get the channel index
-  logger.debug('Downloading channel index from %s', channel_url)
-  index = get_index(channel_urls=[channel_url], prepend=False)
+  def _get_build_number(name):
 
-  logger.info('Checking for %s...', basename)
+    # remove .tar.bz2 from name, then split from the end twice, on '-'
+    name, version, build = name[:-8].rsplit('-', 2)
 
-  for dist in index:
-    url = index[dist].url
-    if url.endswith(basename):
-      logger.debug('Found matching package (%s) at %s', basename, url)
-      return url
+    # remove the build number as we're looking for the next value
+    # examples to be coped with:
+    # vlfeat-0.9.20-0 -> '0'
+    # vlfeat-0.9.21-h18fa195_0 -> 'h18fa195_0'
+    # tqdm-4.11.1-py36_0 -> 'py36_0'
+    # websocket-client-0.47.0-py27haf68d3b_0 -> 'py27haf68d3b_0'
+    # websocket-client-0.47.0-py36haf68d3b_0 -> 'py36haf68d3b_0'
+    s = build.rsplit('_', 1)
+    return s[1] if len(s) == 2 else s[0]
 
-  logger.debug('No matches for %s', basename)
-  return
+
+  self_build_number = _get_build_number(basename)
+  other_build_numbers = [_get_build_number(os.path.basename(k)) for k in urls]
+
+  if self_build_number in other_build_numbers:
+    return ''.join((channel_url,
+        urls[other_build_numbers.index(self_build_number)]))
 
 
 def remove_pins(deps):
