@@ -272,7 +272,6 @@ def base_build(order, group, python, dry_run):
       condarc_options = yaml.load(f)
 
   else:  #not building on the CI? - use defaults
-    import yaml
     from ..constants import BASE_CONDARC, SERVER
     from ..bootstrap import get_channels
 
