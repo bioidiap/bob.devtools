@@ -481,7 +481,7 @@ def nightlies(ctx, order, dry_run):
   token = os.environ['CI_JOB_TOKEN']
 
   import git
-  from .rebuild import rebuild
+  from .build import build
   from urllib.request import urlopen
 
   # loaded all recipes, now cycle through them implementing what is described
@@ -509,12 +509,12 @@ def nightlies(ctx, order, dry_run):
     private = urlopen('https://gitlab.idiap.ch/%s' % package).getcode() != 200
     stable = 'STABLE' in os.environ
 
-    ctx.invoke(rebuild,
+    ctx.invoke(build,
         recipe_dir=[os.path.join(clone_to, 'conda')],
         python=os.environ['PYTHON_VERSION'],  #python version
         condarc=None,  #custom build configuration
         config=CONDA_BUILD_CONFIG,
-        #no_test=False,
+        no_test=False,
         append_file=CONDA_RECIPE_APPEND,
         server=SERVER,
         group=group,
