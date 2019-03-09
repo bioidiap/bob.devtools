@@ -514,6 +514,7 @@ def nightlies(ctx, order, dry_run):
         python=os.environ['PYTHON_VERSION'],  #python version
         condarc=None,  #custom build configuration
         config=CONDA_BUILD_CONFIG,
+        #no_test=False,
         append_file=CONDA_RECIPE_APPEND,
         server=SERVER,
         group=group,
@@ -529,9 +530,9 @@ def nightlies(ctx, order, dry_run):
     # branch
     # n.b.: can only arrive here if dry_run was ``False`` (no need to check
     # again)
-    if 'BDT_REBUILD' in os.environ and is_master:
-      tarball = os.environ['BDT_REBUILD']
-      del os.environ['BDT_REBUILD']
+    if 'BDT_BUILD' in os.environ and is_master:
+      tarball = os.environ['BDT_BUILD']
+      del os.environ['BDT_BUILD']
       deploy_conda_package(tarball, arch=None, stable=stable,
           public=(not private), username=os.environ['DOCUSER'],
           password=os.environ['DOCPASS'], overwrite=False, dry_run=dry_run)
