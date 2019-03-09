@@ -206,7 +206,7 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
         conda_build.api.build(metadata[0][0], config=conda_config, notest=False)
         # if you get to this point, the package was successfully rebuilt
         # set environment to signal caller we can upload it
-        os.environ['BDT_REBUILD'] = candidate
+        os.environ['BDT_BUILD'] = candidate
 
     else:  #skip build, test worked
       logger.info('Skipping rebuild of %s-%s-py%s (build: %d) for %s',
