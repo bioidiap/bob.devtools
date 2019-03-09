@@ -139,9 +139,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
     # pre-renders the recipe - figures out the destination
     metadata = get_rendered_metadata(d, conda_config)
-
     rendered_recipe = get_parsed_recipe(metadata)
-
     path = get_output_path(metadata, conda_config)
 
     # checks if we should actually build this recipe
@@ -159,10 +157,15 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     # already resolved the "wrong" build number.  We'll have to reparse after
     # setting the environment variable BOB_BUILD_NUMBER.
     set_environment('BOB_BUILD_NUMBER', str(build_number))
+    metadata = get_rendered_metadata(d, conda_config)
+    path = get_output_path(metadata, conda_config)
 
     logger.info('Building %s-%s-py%s (build: %d) for %s',
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python.replace('.',''),
         build_number, arch)
     if not dry_run:
-      conda_build.api.build(d, config=conda_config, notest=no_test)
+      conda_build.api.build(metadata[0][0], config=conda_config, notest=no_test)
+      # if you get to this point, the package was successfully rebuilt
+      # set environment to signal caller we can upload it
+      os.environ['BDT_BUILD'] = path
