@@ -167,17 +167,20 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
       # the build fails, depending on the reason.  This bit of code tries to
       # accomodate both code paths and decides if we should rebuild the package
       # or not
+      logger.info('Testing %s', src)
       try:
-        logger.info('Testing %s', src)
         result = conda_build.api.test(destpath, config=conda_config)
         should_build = not result
       except Exception as error:
         logger.exception(error)
-      finally:
-        if should_build:
-          logger.warn('Test for %s: FAILED. Building...', src)
-        else:
-          logger.info('Test for %s: SUCCESS (package is up-to-date)', src)
+      except:
+        logger.error('conda_build.api.test() threw an unknown exception - ' \
+            'looks like bad programming, but not on our side this time...')
+
+      if should_build:
+        logger.warn('Test for %s: FAILED. Building...', src)
+      else:
+        logger.info('Test for %s: SUCCESS (package is up-to-date)', src)
 
 
     if should_build:  #something wrong happened, run a full build
