@@ -489,7 +489,7 @@ def nightlies(ctx, order, dry_run):
   for n, (package, branch) in enumerate(packages):
 
     echo_normal('\n' + (80*'='))
-    echo_normal('Testing/Re-building %s@%s (%d/%d)' % (package, branch, n+1,
+    echo_normal('Building %s@%s (%d/%d)' % (package, branch, n+1,
       len(packages)))
     echo_normal((80*'=') + '\n')
 
