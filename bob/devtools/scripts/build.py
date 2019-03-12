@@ -165,7 +165,7 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
         rendered_recipe['package']['version'], python.replace('.',''),
         build_number, arch)
     if not dry_run:
-      conda_build.api.build(metadata[0][0], config=conda_config, notest=no_test)
+      conda_build.api.build(metadata[0][0], notest=no_test)
       # if you get to this point, the package was successfully rebuilt
       # set environment to signal caller we can upload it
       os.environ['BDT_BUILD'] = path
