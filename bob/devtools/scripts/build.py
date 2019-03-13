@@ -17,7 +17,7 @@ from ..constants import CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     SERVER, MATPLOTLIB_RCDIR, BASE_CONDARC
 from ..bootstrap import set_environment, get_channels
 
-from ..log import verbosity_option, get_logger
+from ..log import verbosity_option, get_logger, echo_info
 logger = get_logger(__name__)
 
 
@@ -153,19 +153,16 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
     # gets the next build number
     build_number, _ = next_build_number(channels[0], os.path.basename(path))
 
-    # notice we cannot build from the pre-parsed metadata because it has
-    # already resolved the "wrong" build number.  We'll have to reparse after
-    # setting the environment variable BOB_BUILD_NUMBER.
-    set_environment('BOB_BUILD_NUMBER', str(build_number))
-    metadata = get_rendered_metadata(d, conda_config)
-    path = get_output_path(metadata, conda_config)
-
     logger.info('Building %s-%s-py%s (build: %d) for %s',
         rendered_recipe['package']['name'],
         rendered_recipe['package']['version'], python.replace('.',''),
         build_number, arch)
+
     if not dry_run:
-      conda_build.api.build(metadata[0][0], notest=no_test)
+      # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to get it
+      # right
+      set_environment('BOB_BUILD_NUMBER', str(build_number))
+      paths = conda_build.api.build(d, config=conda_config, notest=no_test)
       # if you get to this point, the package was successfully rebuilt
-      # set environment to signal caller we can upload it
-      os.environ['BDT_BUILD'] = path
+      # set environment to signal caller we may dispose of it
+      os.environ['BDT_BUILD'] = ':'.join(paths)

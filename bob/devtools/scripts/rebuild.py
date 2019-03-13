@@ -190,23 +190,14 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
           rendered_recipe['package']['version'], python.replace('.',''),
           build_number, arch)
 
-      # notice we cannot build from the pre-parsed metadata because it has
-      # already resolved the "wrong" build number.  We'll have to reparse after
-      # setting the environment variable BOB_BUILD_NUMBER.
-      set_environment('BOB_BUILD_NUMBER', str(build_number))
-      metadata = get_rendered_metadata(d, conda_config)
-      candidate = get_output_path(metadata, conda_config)
-
-      if os.path.exists(candidate):
-        logger.debug('Removing existing conda package at %s for rebuild...',
-            candidate)
-        os.unlink(candidate)
-
       if not dry_run:
-        conda_build.api.build(metadata[0][0],  notest=False)
+        # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to get it
+        # right
+        set_environment('BOB_BUILD_NUMBER', str(build_number))
+        paths = conda_build.api.build(d, config=conda_config, notest=False)
         # if you get to this point, the package was successfully rebuilt
-        # set environment to signal caller we can upload it
-        os.environ['BDT_BUILD'] = candidate
+        # set environment to signal caller we may dispose of it
+        os.environ['BDT_BUILD'] = ':'.join(paths)
 
     else:  #skip build, test worked
       logger.info('Skipping rebuild of %s-%s-py%s (build: %d) for %s',
