@@ -135,11 +135,11 @@ def make_conda_config(config, python, append_file, condarc_options):
   conda-build API's ``get_or_merge_config()`` function.
   '''
 
-  from conda_build.api import get_or_merge_config
   from conda_build.conda_interface import url_path
 
-  retval = get_or_merge_config(None, variant_config_files=config,
-      python=python, append_sections_file=append_file, **condarc_options)
+  retval = conda_build.api.get_or_merge_config(None,
+      variant_config_files=config, python=python,
+      append_sections_file=append_file, **condarc_options)
 
   retval.channel_urls = []
 
@@ -159,22 +159,19 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
   '''Renders the recipe and returns the name of the output file'''
 
-  from conda_build.api import get_output_file_paths
-  return get_output_file_paths(metadata, config=config)[0]
+  return conda_build.api.get_output_file_paths(metadata, config=config)[0]
 
 
 def get_rendered_metadata(recipe_dir, config):
   '''Renders the recipe and returns the interpreted YAML file'''
 
-  from conda_build.api import render
-  return render(recipe_dir, config=config)
+  return conda_build.api.render(recipe_dir, config=config)
 
 
 def get_parsed_recipe(metadata):
   '''Renders the recipe and returns the interpreted YAML file'''
 
-  from conda_build.api import output_yaml
-  output = output_yaml(metadata[0][0])
+  output = conda_build.api.output_yaml(metadata[0][0])
   return yaml.load(output)
 
 
@@ -505,6 +502,12 @@ def base_build(bootstrap, server, intranet, group, recipe_dir,
     condarc_options: Pre-parsed condarc options loaded from the respective YAML
       file
 
+
+  Returns:
+
+    list: The list of built packages, as returned by
+    ``conda_build.api.build()``
+
   '''
 
   # if you get to this point, tries to build the package
@@ -552,7 +555,7 @@ def base_build(bootstrap, server, intranet, group, recipe_dir,
 
   # if you get to this point, just builds the package
   logger.info('Building %s', path)
-  conda_build.api.build(metadata[0][0], config=conda_config)
+  return conda_build.api.build(recipe_dir, config=conda_config)
 
 
 if __name__ == '__main__':
@@ -656,8 +659,8 @@ if __name__ == '__main__':
   conda_config = make_conda_config(conda_build_config, args.python_version,
       recipe_append, condarc_options)
 
-  metadata = get_rendered_metadata(os.path.join(args.work_dir, 'conda'),
-      conda_config)
+  recipe_dir = os.path.join(args.work_dir, 'conda')
+  metadata = get_rendered_metadata(recipe_dir, conda_config)
   path = get_output_path(metadata, conda_config)
 
   # asserts we're building at the right location
@@ -682,8 +685,7 @@ if __name__ == '__main__':
   # resolved the "wrong" build number.  We'll have to reparse after setting the
   # environment variable BOB_BUILD_NUMBER.
   bootstrap.set_environment('BOB_BUILD_NUMBER', str(build_number))
-  conda_build.api.build(os.path.join(args.work_dir, 'conda'),
-      config=conda_config)
+  conda_build.api.build(recipe_dir, config=conda_config)
 
   # checks if long_description of python package renders fine
   if args.twine_check:
