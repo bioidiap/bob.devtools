@@ -139,16 +139,14 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
     # pre-renders the recipe - figures out the destination
     metadata = get_rendered_metadata(d, conda_config)
-    rendered_recipe = get_parsed_recipe(metadata)
-    path = get_output_path(metadata, conda_config)
 
     # checks if we should actually build this recipe
     if should_skip_build(metadata):
-      logger.info('Skipping UNSUPPORTED build of %s-%s-py%s for %s',
-          rendered_recipe['package']['name'],
-          rendered_recipe['package']['version'], python.replace('.',''),
-          arch)
+      logger.info('Skipping UNSUPPORTED build of %s for %s', recipe_dir, arch)
       continue
+
+    rendered_recipe = get_parsed_recipe(metadata)
+    path = get_output_path(metadata, conda_config)
 
     # gets the next build number
     build_number, _ = next_build_number(channels[0], os.path.basename(path))
