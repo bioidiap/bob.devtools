@@ -134,8 +134,8 @@ def deploy_documentation(path, package, stable, public, branch, tag, username,
       logger.info('[dav] mkdir %s', remote_path_prefix)
       if not dry_run:
         davclient.mkdir(remote_path_prefix)
+    remote_path = '%s/%s' % (remote_path_prefix, k)
     logger.info('[dav] %s -> %s%s%s', path, SERVER, server_info['root'],
         remote_path)
-    remote_path = '%s/%s' % (remote_path_prefix, k)
     if not dry_run:
       davclient.upload_directory(local_path=path, remote_path=remote_path)
