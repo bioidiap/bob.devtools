@@ -128,6 +128,7 @@ def deploy_documentation(path, package, stable, public, branch, tag, username,
       deploy_docs_to.add(tag)
     deploy_docs_to.add('stable')
 
+  # creates package directory, and then uploads directory there
   for k in deploy_docs_to:
     if not davclient.check(remote_path_prefix):  #base package directory
       logger.info('[dav] mkdir %s', remote_path_prefix)
