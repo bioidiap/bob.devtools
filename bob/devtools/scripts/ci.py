@@ -511,7 +511,7 @@ def nightlies(ctx, order, dry_run):
     stable = 'STABLE' in os.environ
 
     logger.warn('Number of open files before build: %d',
-      len(psutil.Process().open_files())
+      len(psutil.Process().open_files()))
 
     ctx.invoke(build,
         recipe_dir=[os.path.join(clone_to, 'conda')],
@@ -529,7 +529,7 @@ def nightlies(ctx, order, dry_run):
         )
 
     logger.warn('Number of open files after build: %d',
-      len(psutil.Process().open_files())
+      len(psutil.Process().open_files()))
 
     is_master = os.environ['CI_COMMIT_REF_NAME'] == 'master'
 
