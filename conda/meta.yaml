@@ -45,6 +45,7 @@ requirements:
     - lxml
     - jinja2
     - termcolor
+    - psutil
 
 test:
   requires:

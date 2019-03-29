@@ -22,6 +22,7 @@ requires = [
     'lxml',
     'jinja2',
     'termcolor',
+    'psutil',
     ]
 
 setup(
