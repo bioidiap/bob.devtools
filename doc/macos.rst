@@ -73,7 +73,46 @@ Building the reference setup
    execute pieces of the script by hand if something fails.  In that case,
    please investigate why it fails and properly fix the scripts so the next
    install runs more smoothly.
-6. Enter as gitlab user and install/configure the `gitlab runner`_:
+6. Check the maximum number of files that can be opened on a shell session
+   with the command ``launchctl limit maxfiles``.  If smaller than 4096, set
+   the maximum number of open files to 4096 by creating the file
+   ``/Library/LaunchDaemons/limit.maxfiles.plist`` with the following
+   contents::
+
+     <?xml version="1.0" encoding="UTF-8"?>
+     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+       <plist version="1.0">
+         <dict>
+           <key>Label</key>
+             <string>limit.maxfiles</string>
+           <key>ProgramArguments</key>
+             <array>
+               <string>launchctl</string>
+               <string>limit</string>
+               <string>maxfiles</string>
+               <string>4096</string>
+               <string>unlimited</string>
+             </array>
+           <key>RunAtLoad</key>
+             <true/>
+           <key>ServiceIPC</key>
+             <false/>
+         </dict>
+       </plist>
+
+   At this occasion, verify if the kernel limits are not lower than this value
+   using::
+
+     $ sysctl kern.maxfilesperproc
+     10240  #example output
+     $ sysctl kern.maxfiles
+     12288  #example output
+
+   If that is the case (i.e., the values are lower than 4096), set those values
+   so they are slightly higher than that new limit with ``sudo sysctl -w
+   kern.maxfilesperproc=10240`` and ``sudo sysctl -w kern.maxfiles=12288``
+   respectively, for example.
+7. Enter as gitlab user and install/configure the `gitlab runner`_:
 
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
@@ -97,11 +136,11 @@ Building the reference setup
         builds_dir = "/Users/gitlab/builds"  # set this or bugs occur
         cache_dir = "/Users/gitlab/caches"  # this is optional, but desirable
         shell = "bash"
-7. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
+8. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
    start at login.  In "Preferences > Filesystem Sharing", ensure that
    `/var/folders` is included in the list (that is the default location for
    temporary files in macOS).
-8. Reboot the machine. At this point, the gitlab user should be auto-logged and
+9. Reboot the machine. At this point, the gitlab user should be auto-logged and
    the runner process should be executing.  Congratulations, you're done!
 
 

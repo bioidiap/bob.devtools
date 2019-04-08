@@ -229,18 +229,3 @@ def verbosity_option(**kwargs):
             "(e.g. '-vvv' for debug).",
             callback=callback, **kwargs)(f)
     return custom_verbosity_option
-
-
-def open_files():
-    '''Returns the number of open file descriptors for current process
-
-    .. warning: will only work on UNIX-like os-es.
-
-    '''
-
-    import os
-    import subprocess
-
-    pid = os.getpid()
-    procs = subprocess.check_output(['lsof', '-w', '-p', str(pid)])
-    return [k.split()[-1].decode('ascii') for k in procs.split(b'\n') if k][1:]
