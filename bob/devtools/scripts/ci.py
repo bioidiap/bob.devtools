@@ -16,7 +16,7 @@ from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
 
-from ..log import verbosity_option, get_logger, echo_normal, open_files
+from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
 
 
@@ -509,10 +509,6 @@ def nightlies(ctx, order, dry_run):
     private = urlopen('https://gitlab.idiap.ch/%s' % package).getcode() != 200
     stable = 'STABLE' in os.environ
 
-    current_open_files = open_files()
-    logger.warn('Number of open files before build: %d',
-      len(current_open_files))
-
     ctx.invoke(build,
         recipe_dir=[os.path.join(clone_to, 'conda')],
         python=os.environ['PYTHON_VERSION'],  #python version
@@ -527,11 +523,6 @@ def nightlies(ctx, order, dry_run):
         dry_run=dry_run,
         ci=True,
         )
-
-    after_open_files = open_files()
-    logger.warn('Number of open files after build: %d', len(after_open_files))
-    logger.warn('New files opened: %s',
-        ', '.join(list(set(after_open_files) - set(current_open_files))))
 
     is_master = os.environ['CI_COMMIT_REF_NAME'] == 'master'
 
