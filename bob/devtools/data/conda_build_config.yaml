@@ -86,7 +86,6 @@ freetype:
 giflib:
   - 5.1.4
 hdf5:
-  - 1.10.1
   - 1.10.2
   - 1.10.4
 jpeg:
