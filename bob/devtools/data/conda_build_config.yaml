@@ -74,7 +74,7 @@ cython:
 # we are linking against them. It is best to keep this in sync with:
 # https://github.com/AnacondaRecipes/aggregate/blob/master/conda_build_config.yaml
 numpy:
-  - 1.15.0
+  - 1.15.4
 boost:
   - 1.67.0
 ffmpeg:
