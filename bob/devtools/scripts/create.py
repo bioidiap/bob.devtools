@@ -131,10 +131,10 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
-      condarc_options = yaml.load(f)
+      condarc_options = yaml.load(f, Loader=yaml.FullLoader)
   else:
     # use default and add channels
-    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
     channels = get_channels(public=(not private), stable=stable, server=server,
         intranet=private, group=group)
     condarc_options['channels'] = channels + ['defaults']

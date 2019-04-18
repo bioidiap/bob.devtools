@@ -172,7 +172,7 @@ def get_parsed_recipe(metadata):
   '''Renders the recipe and returns the interpreted YAML file'''
 
   output = conda_build.api.output_yaml(metadata[0][0])
-  return yaml.load(output)
+  return yaml.load(output, Loader=yaml.FullLoader)
 
 
 def exists_on_channel(channel_url, basename):
@@ -627,7 +627,7 @@ if __name__ == '__main__':
   condarc = os.path.join(args.conda_root, 'condarc')
   logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
   with open(condarc, 'rb') as f:
-    condarc_options = yaml.load(f)
+    condarc_options = yaml.load(f, Loader=yaml.FullLoader)
 
   # dump packages at conda_root
   prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')

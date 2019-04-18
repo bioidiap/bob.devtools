@@ -269,7 +269,7 @@ def base_build(order, group, python, dry_run):
   if os.path.exists(condarc):
     logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
-      condarc_options = yaml.load(f)
+      condarc_options = yaml.load(f, Loader=yaml.FullLoader)
 
   else:  #not building on the CI? - use defaults
     from ..bootstrap import get_channels
@@ -279,7 +279,7 @@ def base_build(order, group, python, dry_run):
         intranet='True', group='bob')
 
     # use default and add channels
-    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
     channels = ['local'] + channels + ['defaults']
     logger.info('Using the following channels during build:\n  - %s',
         '\n  - '.join(channels))
