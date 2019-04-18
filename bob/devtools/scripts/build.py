@@ -121,7 +121,9 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   # updates the local index to get fresh packages if required
   if use_local:
     conda_bld = os.path.join(prefix, 'conda-bld')
-    if os.path.exists(conda_bld): conda_build.api.update_index(conda_bld)
+    if os.path.exists(conda_bld):
+      logger.info('Re-indexing %s', conda_bld)
+      conda_build.api.update_index(conda_bld)
 
   conda_config = make_conda_config(config, python, append_file,
       condarc_options)
