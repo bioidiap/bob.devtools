@@ -106,7 +106,8 @@ def test(package, condarc, config, append_file, server, group, private, stable,
   # updates the local index to get fresh packages if required
   if use_local and not dry_run:
     prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
-    conda_build.api.update_index(os.path.join(prefix, 'conda-bld'))
+    conda_bld = os.path.join(prefix, 'conda-bld')
+    if os.path.exists(conda_bld): conda_build.api.update_index(conda_bld)
 
   conda_config = make_conda_config(config, None, append_file,
       condarc_options)

@@ -525,7 +525,8 @@ def base_build(bootstrap, server, intranet, use_local, group, recipe_dir,
   # updates the local index to get fresh packages if required
   if use_local:
     prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
-    conda_build.api.update_index(os.path.join(prefix, 'conda-bld'))
+    conda_bld = os.path.join(prefix, 'conda-bld')
+    if os.path.exists(conda_bld): conda_build.api.update_index(conda_bld)
 
   logger.info('Merging conda configuration files...')
   if python_version not in ('noarch', None):
