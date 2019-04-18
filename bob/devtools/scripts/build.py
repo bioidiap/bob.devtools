@@ -104,12 +104,12 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
-      condarc_options = yaml.load(f)
+      condarc_options = yaml.load(f, Loader=yaml.FullLoader)
   else:
     # use default and add channels
     all_channels = ['local'] if use_local else []
     all_channels += channels + ['defaults']
-    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
     logger.info('Using the following channels during build:\n  - %s',
         '\n  - '.join(all_channels))
     condarc_options['channels'] = all_channels

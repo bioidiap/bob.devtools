@@ -17,7 +17,7 @@ requires = [
     'gitpython',
     'python-gitlab',
     'sphinx',
-    'pyyaml',
+    'pyyaml>=5.1',
     'twine',
     'lxml',
     'jinja2',

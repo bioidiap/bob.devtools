@@ -40,7 +40,7 @@ requirements:
     - python-gitlab
     - requests
     - sphinx
-    - pyyaml
+    - pyyaml >=5.1
     - twine
     - lxml
     - jinja2

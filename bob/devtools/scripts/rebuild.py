@@ -96,10 +96,10 @@ def rebuild(recipe_dir, python, condarc, config, append_file,
   if condarc is not None:
     logger.info('Loading CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
-      condarc_options = yaml.load(f)
+      condarc_options = yaml.load(f, Loader=yaml.FullLoader)
   else:
     # use default and add channels
-    condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
     logger.info('Using the following channels during build:\n  - %s',
         '\n  - '.join(channels + ['defaults']))
     condarc_options['channels'] = channels + ['defaults']
