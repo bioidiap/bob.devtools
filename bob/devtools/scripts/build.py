@@ -67,6 +67,9 @@ Examples:
 @click.option('-X', '--stable/--no-stable', default=False,
     help='Set this to **exclude** beta channels from your build - ' \
         'notice this option has no effect if you also pass --condarc')
+@click.option('-L', '--use-local/--no-use-local', default=False,
+    help='Set this to **include** the locally built packages on the search ' \
+        'list - notice this option has no effect if you also pass --condarc')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
@@ -76,7 +79,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def build(recipe_dir, python, condarc, config, no_test, append_file,
-    server, group, private, stable, dry_run, ci):
+    server, group, private, stable, use_local, dry_run, ci):
   """Builds package through conda-build with stock configuration
 
   This command wraps the execution of conda-build so that you use the same
@@ -104,10 +107,12 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
       condarc_options = yaml.load(f)
   else:
     # use default and add channels
+    all_channels = ['local'] if use_local else []
+    all_channels += channels + ['defaults']
     condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
     logger.info('Using the following channels during build:\n  - %s',
-        '\n  - '.join(channels + ['defaults']))
-    condarc_options['channels'] = channels + ['defaults']
+        '\n  - '.join(all_channels))
+    condarc_options['channels'] = all_channels
 
   # dump packages at base environment
   prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')

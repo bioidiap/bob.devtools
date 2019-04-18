@@ -280,9 +280,10 @@ def base_build(order, group, python, dry_run):
 
     # use default and add channels
     condarc_options = yaml.load(BASE_CONDARC)  #n.b.: no channels
+    channels = ['local'] + channels + ['defaults']
     logger.info('Using the following channels during build:\n  - %s',
-        '\n  - '.join(channels + ['defaults']))
-    condarc_options['channels'] = channels + ['defaults']
+        '\n  - '.join(channels))
+    condarc_options['channels'] = channels
 
   # dump packages at conda_root
   condarc_options['croot'] = os.path.join(os.environ['CONDA_ROOT'],
@@ -356,6 +357,7 @@ def test(ctx, dry_run):
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
+      use_local=False,
       dry_run=dry_run,
       ci=True,
       )
@@ -400,6 +402,7 @@ def build(ctx, dry_run):
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
+      use_local=False,
       dry_run=dry_run,
       ci=True,
       )
@@ -520,6 +523,7 @@ def nightlies(ctx, order, dry_run):
         group=group,
         private=private,
         stable=stable,
+        use_local=True,
         dry_run=dry_run,
         ci=True,
         )
