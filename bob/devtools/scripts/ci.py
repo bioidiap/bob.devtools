@@ -8,7 +8,6 @@ import shutil
 import yaml
 import click
 import pkg_resources
-import conda_build.api
 from click_plugins import with_plugins
 
 from . import bdt
@@ -315,8 +314,17 @@ def base_build(order, group, python, dry_run):
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
-    _build(bootstrap, SERVER, True, group, recipe, CONDA_BUILD_CONFIG, pyver,
-        condarc_options)
+    _build(
+        bootstrap=bootstrap,
+        server=SERVER,
+        intranet=True,
+        use_local=True,
+        group=group,
+        recipe_dir=recipe,
+        conda_build_config=CONDA_BUILD_CONFIG,
+        python_version=pyver,
+        condarc_options=condarc_options,
+        )
 
 
 @ci.command(epilog='''

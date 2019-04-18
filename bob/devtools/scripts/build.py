@@ -118,6 +118,10 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
   prefix = get_env_directory(os.environ['CONDA_EXE'], 'base')
   condarc_options['croot'] = os.path.join(prefix, 'conda-bld')
 
+  # updates the local index to get fresh packages if required
+  if use_local:
+    conda_build.api.update_index(os.path.join(prefix, 'conda-bld'))
+
   conda_config = make_conda_config(config, python, append_file,
       condarc_options)
 
