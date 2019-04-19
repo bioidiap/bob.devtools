@@ -6,7 +6,7 @@
 
 
 _BASE_CONDARC = '''\
-default_channels:
+default_channels: #!final
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/free
 add_pip_as_python_dependency: false #!final
