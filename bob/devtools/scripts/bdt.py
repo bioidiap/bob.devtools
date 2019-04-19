@@ -67,4 +67,3 @@ def main():
     # certificate setup: required for gitlab API interaction
     set_environment('SSL_CERT_FILE', CACERT, os.environ)
     set_environment('REQUESTS_CA_BUNDLE', CACERT, os.environ)
-    set_environment('PYTHONUNBUFFERED', '1', os.environ)
