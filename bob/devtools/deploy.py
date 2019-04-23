@@ -78,8 +78,8 @@ def deploy_conda_package(package, arch, stable, public, username, password,
     davclient.upload(local_path=package, remote_path=remote_path)
 
 
-def deploy_documentation(path, package, stable, public, branch, tag, username,
-    password, dry_run):
+def deploy_documentation(path, package, stable, latest, public, branch, tag,
+    username, password, dry_run):
   '''Deploys sphinx documentation to the appropriate webdav locations
 
   Args:
@@ -88,6 +88,11 @@ def deploy_documentation(path, package, stable, public, branch, tag, username,
     package (str): Full name (with namespace) of the package being treated
     stable (bool): Indicates if the documentation corresponds to the latest
       stable build
+    latest (bool): Indicates if the documentation being deployed correspond to
+      the latest stable for the package or not.  In case the documentation
+      comes from a patch release which is not on the master branch, please set
+      this flag to ``False``, which will make us avoid deployment of the
+      documentation to ``master`` and ``stable`` sub-directories.
     public (bool): Indicates if the documentation is supposed to be distributed
       publicly or privatly (within Idiap network)
     branch (str): The name of the branch for the current build
@@ -120,10 +125,11 @@ def deploy_documentation(path, package, stable, public, branch, tag, username,
   # "stable" subdir as well
   deploy_docs_to = set([branch])
   if stable:
-    deploy_docs_to.add('master')
     if tag is not None:
       deploy_docs_to.add(tag)
-    deploy_docs_to.add('stable')
+    if latest:
+      deploy_docs_to.add('master')
+      deploy_docs_to.add('stable')
 
   # creates package directory, and then uploads directory there
   for k in deploy_docs_to:
