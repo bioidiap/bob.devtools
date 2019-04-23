@@ -327,6 +327,16 @@ def base_build(order, group, python, dry_run):
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
+
+    # Use custom variants file if available on recipe-dir
+    variants_file = CONDA_BUILD_CONFIG
+    _candidate = os.path.join(recipe, 'conda_build_config.yaml')
+    if os.path.exists(_candidate):
+      variants_file = _candidate
+      logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
+          'instead of default variants file (%s)', variants_file,
+          CONDA_BUILD_CONFIG)
+
     _build(
         bootstrap=bootstrap,
         server=SERVER,
@@ -334,7 +344,7 @@ def base_build(order, group, python, dry_run):
         use_local=True,
         group=group,
         recipe_dir=recipe,
-        conda_build_config=CONDA_BUILD_CONFIG,
+        conda_build_config=variants_file,
         python_version=pyver,
         condarc_options=condarc_options,
         )
@@ -367,13 +377,32 @@ def test(ctx, dry_run):
     # defaults back to bob - no other server setups are available as of now
     group = 'bob'
 
+  # Use custom variants and append files if available on recipe-dir
+  recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
+
+  variants_file = CONDA_BUILD_CONFIG
+  _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
+  if os.path.exists(_candidate):
+    variants_file = _candidate
+    logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
+        'instead of default variants file (%s)', variants_file,
+        CONDA_BUILD_CONFIG)
+
+  append_file = CONDA_RECIPE_APPEND
+  _candidate = os.path.join(recipe_dir, 'append_file.yaml')
+  if os.path.exists(_candidate):
+    append_file = _candidate
+    logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
+        'instead of default append file (%s)', append_file,
+        CONDA_RECIPE_APPEND)
+
   from .test import test
   ctx.invoke(test,
       package = glob.glob(os.path.join(os.environ['CONDA_ROOT'], 'conda-bld',
         '*', os.environ['CI_PROJECT_NAME'] + '*.tar.bz2')),
       condarc=None,  #custom build configuration
-      config=CONDA_BUILD_CONFIG,
-      append_file=CONDA_RECIPE_APPEND,
+      config=variants_file,
+      append_file=append_file,
       server=SERVER,
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
@@ -411,14 +440,33 @@ def build(ctx, dry_run):
     # defaults back to bob - no other server setups are available as of now
     group = 'bob'
 
+  # Use custom variants and append files if available on recipe-dir
+  recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
+
+  variants_file = CONDA_BUILD_CONFIG
+  _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
+  if os.path.exists(_candidate):
+    variants_file = _candidate
+    logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
+        'instead of default variants file (%s)', variants_file,
+        CONDA_BUILD_CONFIG)
+
+  append_file = CONDA_RECIPE_APPEND
+  _candidate = os.path.join(recipe_dir, 'append_file.yaml')
+  if os.path.exists(_candidate):
+    append_file = _candidate
+    logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
+        'instead of default append file (%s)', append_file,
+        CONDA_RECIPE_APPEND)
+
   from .build import build
   ctx.invoke(build,
-      recipe_dir=[os.path.join(os.path.realpath(os.curdir), 'conda')],
+      recipe_dir=[recipe_dir],
       python=os.environ['PYTHON_VERSION'],  #python version
       condarc=None,  #custom build configuration
-      config=CONDA_BUILD_CONFIG,
+      config=variants_file,
       no_test=False,
-      append_file=CONDA_RECIPE_APPEND,
+      append_file=append_file,
       server=SERVER,
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
@@ -533,13 +581,32 @@ def nightlies(ctx, order, dry_run):
     private = urlopen('https://gitlab.idiap.ch/%s' % package).getcode() != 200
     stable = 'STABLE' in os.environ
 
+    # Use custom variants and append files if available on recipe-dir
+    recipe_dir = os.path.join(clone_to, 'conda')
+
+    variants_file = CONDA_BUILD_CONFIG
+    _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
+    if os.path.exists(_candidate):
+      variants_file = _candidate
+      logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
+          'instead of default variants file (%s)', variants_file,
+          CONDA_BUILD_CONFIG)
+
+    append_file = CONDA_RECIPE_APPEND
+    _candidate = os.path.join(recipe_dir, 'append_file.yaml')
+    if os.path.exists(_candidate):
+      append_file = _candidate
+      logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
+          'instead of default append file (%s)', append_file,
+          CONDA_RECIPE_APPEND)
+
     ctx.invoke(build,
-        recipe_dir=[os.path.join(clone_to, 'conda')],
+        recipe_dir=[recipe_dir],
         python=os.environ['PYTHON_VERSION'],  #python version
         condarc=None,  #custom build configuration
-        config=CONDA_BUILD_CONFIG,
+        config=variants_file,
         no_test=False,
-        append_file=CONDA_RECIPE_APPEND,
+        append_file=append_file,
         server=SERVER,
         group=group,
         private=private,
