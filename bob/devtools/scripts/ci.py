@@ -86,14 +86,27 @@ Examples:
 
      $ bdt ci deploy -vv
 
+
+  2. Deploys stable release from non-master branch (e.g. you're releasing a patch release for an older version of a package):
+
+     $ bdt ci deploy -vv --no-latest
+
 ''')
+@click.option('-n', '--latest/--no-latest', default=True,
+    help='If set (the default), for stable builds, deploy documentation ' \
+        'to both "stable" and "master" branches, besides "<branch>" and ' \
+        '"<tag>" - otherwise, only deploys documentation to "<branch>" ' \
+        'and "<tag>".  This option is useful if you are publishing ' \
+        'corrections of a release from a stable branch which is **NOT** ' \
+        'the master branch, so you would not like to overwrite ' \
+        'documentation deployments for "stable" and "master"')
 @click.option('-d', '--dry-run/--no-dry-run', default=False,
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
 @verbosity_option()
 @bdt.raise_on_error
-def deploy(dry_run):
+def deploy(latest, dry_run):
     """Deploys build artifacts (conda packages and sphinx documentation)
 
     Deployment happens at the "right" locations - conda packages which do not
@@ -129,8 +142,8 @@ def deploy(dry_run):
             overwrite=False, dry_run=dry_run)
 
     local_docs = os.path.join(os.environ['CI_PROJECT_DIR'], 'sphinx')
-    deploy_documentation(local_docs, package, stable=stable, public=public,
-        branch=os.environ['CI_COMMIT_REF_NAME'],
+    deploy_documentation(local_docs, package, stable=stable, latest=latest,
+        public=public, branch=os.environ['CI_COMMIT_REF_NAME'],
         tag=os.environ.get('CI_COMMIT_TAG'), username=os.environ['DOCUSER'],
         password=os.environ['DOCPASS'], dry_run=dry_run)
 
