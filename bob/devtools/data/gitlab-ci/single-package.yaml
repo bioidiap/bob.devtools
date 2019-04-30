@@ -37,8 +37,7 @@ stages:
   <<: *build_job
   before_script:
     - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    - wget https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/cuda-repo-rhel6-10.1.105-1.x86_64.rpm
-    - rpm -i cuda-repo-rhel6-10.1.105-1.x86_64.rpm
+    - yum install -y https://developer.download.nvidia.com/compute/cuda/repos/rhel6/x86_64/cuda-repo-rhel6-10.1.105-1.x86_64.rpm
     - yum clean all
     - yum install -y cuda
     - export PATH=/usr/local/cuda-10.1/bin${PATH:+:${PATH}}
