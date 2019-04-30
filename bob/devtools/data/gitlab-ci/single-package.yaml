@@ -35,6 +35,8 @@ stages:
 
 .build_linux_template: &linux_build_job
   <<: *build_job
+  before_script:
+    - yum install -y xorg-x11-drv-nouveau
   tags:
     - docker
   image: continuumio/conda-concourse-ci
