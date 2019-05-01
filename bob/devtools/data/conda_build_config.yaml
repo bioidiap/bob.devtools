@@ -130,6 +130,8 @@ coverage:
   - 4.5.3
 docopt:
   - 0.6.2
+h5py:
+  - 2.8.0
 jinja2:
   - 2.10.1
 kaldi:
