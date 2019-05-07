@@ -5,8 +5,9 @@ echo "Updating homebrew..."
 brew=/usr/local/bin/brew
 ${brew} update
 ${brew} upgrade
+echo "Updating homebrew casks..."
+${brew} cask upgrade
 ${brew} cleanup
-
 
 # Updates PIP packages installed
 function pipupdate() {
