@@ -5,8 +5,12 @@ echo "Updating homebrew..."
 brew=/usr/local/bin/brew
 ${brew} update
 ${brew} upgrade
-echo "Updating homebrew casks..."
-${brew} cask upgrade
+
+# A cask upgrade may require sudo, so we cannot do this
+# with an unattended setup
+#echo "Updating homebrew casks..."
+#${brew} cask upgrade
+
 ${brew} cleanup
 
 # Updates PIP packages installed
