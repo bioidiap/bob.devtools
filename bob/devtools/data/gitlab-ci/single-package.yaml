@@ -7,6 +7,8 @@ variables:
   PYTHONUNBUFFERED: "1"
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
   BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
+  SDKROOT: "/opt/MacOSX10.9.sdk"
+  MACOSX_DEPLOYMENT_TARGET: "10.9"
 
 
 # Definition of our build pipeline order
