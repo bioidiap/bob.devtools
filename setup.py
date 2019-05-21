@@ -79,6 +79,7 @@ setup(
           'readme = bob.devtools.scripts.ci:readme',
           'pypi = bob.devtools.scripts.ci:pypi',
           'nightlies = bob.devtools.scripts.ci:nightlies',
+          'docs = bob.devtools.scripts.ci:docs',        
           ],
 
     },

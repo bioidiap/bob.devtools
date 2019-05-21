@@ -10,7 +10,7 @@ import click
 import pkg_resources
 from click_plugins import with_plugins
 
-from . import bdt
+from . import bdt, read_packages
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
@@ -539,17 +539,8 @@ def nightlies(ctx, order, dry_run):
   """
 
   # loads dirnames from order file (accepts # comments and empty lines)
-  packages = []
-  with open(order, 'rt') as f:
-    for line in f:
-      line = line.partition('#')[0].strip()
-      if line:
-        if ',' in line:  #user specified a branch
-          path, branch = [k.strip() for k in line.split(',', 1)]
-          packages.append((path, branch))
-        else:
-          packages.append((line, 'master'))
-
+  packages = read_packages(order)
+ 
   token = os.environ['CI_JOB_TOKEN']
 
   import git
@@ -636,3 +627,98 @@ def nightlies(ctx, order, dry_run):
       logger.debug('Sphinx output was generated during test/rebuild ' \
           'of %s - Erasing...', package)
       shutil.rmtree(local_docs)
+
+
+@ci.command(epilog='''
+Examples:
+
+  1. Prepares the docs for the subsequent `bdt ci build ...`:
+
+     $ bdt ci docs -vv requirements.txt
+
+''')
+@click.argument('requirement', required=True, type=click.Path(file_okay=True,
+  dir_okay=False, exists=True), nargs=1)
+@click.option('-d', '--dry-run/--no-dry-run', default=False,
+    help='Only goes through the actions, but does not execute them ' \
+        '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
+        'printing to help you understand what will be done')
+@verbosity_option()
+@bdt.raise_on_error
+@click.pass_context
+def docs(ctx, requirement, dry_run):
+  """Prepares documentation build
+
+  This command:
+    1. Clones all the necessary packages necessary to build the bob documentation
+    2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
+
+  This command is supposed to be run before `bdt ci build...`
+
+  """
+  
+  packages = read_packages(requirement)
+
+  import git
+  token = os.environ['CI_JOB_TOKEN']
+  group = os.environ['CI_PROJECT_NAMESPACE']
+
+  # loaded all recipes, now cycle through them implementing what is described
+  # in the documentation of this function
+  extra_intersphinx = []
+  nitpick = []
+  for n, (package, branch) in enumerate(packages):
+
+    echo_normal('\n' + (80*'='))
+    echo_normal('Getting %s@%s (%d/%d)' % (package, branch, n+1,
+      len(packages)))
+    echo_normal((80*'=') + '\n')
+
+    doc_path = os.path.join(os.environ['CI_PROJECT_DIR'], 'doc')
+    clone_to = os.path.join(doc_path, package)
+    dirname = os.path.dirname(clone_to)
+    if not os.path.exists(dirname):
+      os.makedirs(dirname)
+
+    # clone the repo, shallow version, on the specified branch
+    if dry_run:    
+      logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
+    else:
+      if os.path.exists(clone_to):
+         logger.info('Repo "%s", already cloned; pulling from master...', package)
+         git.Git(clone_to).pull("origin", branch)
+      else:
+        logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
+        git.Repo.clone_from('https://gitlab-ci-token:%s@gitlab.idiap.ch/%s' % \
+            (token, group+"/"+package), clone_to, branch=branch, depth=1)
+  
+      # Copying the content from extra_intersphinx
+      extra_intersphinx_path = os.path.join(clone_to, "doc", "extra-intersphinx.txt")
+      test_requirements_path = os.path.join(clone_to, "doc", "test-requirements.txt")
+      requirements_path = os.path.join(clone_to, "requirements.txt")
+
+      if os.path.exists(extra_intersphinx_path):
+        extra_intersphinx += open(extra_intersphinx_path).readlines()
+
+      if os.path.exists(test_requirements_path):
+        extra_intersphinx += open(test_requirements_path).readlines()
+
+      if os.path.exists(requirements_path):
+        extra_intersphinx += open(requirements_path).readlines()
+
+      nitpick_path = os.path.join(clone_to, "doc", "nitpick-exceptions.txt")
+      if os.path.exists(nitpick_path):
+        nitpick += open(nitpick_path).readlines()
+
+  logger.info('Generating sphinx files')
+
+  # Making unique lists
+  extra_intersphinx = list(set([e for e in extra_intersphinx if group not in e ]))
+  nitpick = list(set([e for e in nitpick]))
+ 
+  # Removing projects that are part of the group
+  open(os.path.join(doc_path, "extra-intersphinx.txt"), "w").writelines(extra_intersphinx)
+  open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w").writelines(nitpick)
+
+  logger.info('Done!!')
+
