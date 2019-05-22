@@ -14,29 +14,10 @@ from . import bdt
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
+from ..ci import read_packages
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
-
-
-def read_packages(filename):
-  """
-  Return a python list given file containing one package per line
-
-  """
-  # loads dirnames from order file (accepts # comments and empty lines)
-  packages = []
-  with open(filename, 'rt') as f:
-    for line in f:
-      line = line.partition('#')[0].strip()
-      if line:
-        if ',' in line:  #user specified a branch
-          path, branch = [k.strip() for k in line.split(',', 1)]
-          packages.append((path, branch))
-        else:
-          packages.append((line, 'master'))
-
-  return packages
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -560,7 +541,7 @@ def nightlies(ctx, order, dry_run):
 
   # loads dirnames from order file (accepts # comments and empty lines)
   packages = read_packages(order)
- 
+
   token = os.environ['CI_JOB_TOKEN']
 
   import git
@@ -676,7 +657,7 @@ def docs(ctx, requirement, dry_run):
   This command is supposed to be run before `bdt ci build...`
 
   """
-  
+
   packages = read_packages(requirement)
 
   import git
@@ -688,7 +669,7 @@ def docs(ctx, requirement, dry_run):
   extra_intersphinx = []
   nitpick = []
   doc_path = os.path.join(os.environ['CI_PROJECT_DIR'], 'doc')
-  
+
   for n, (package, branch) in enumerate(packages):
 
     echo_normal('\n' + (80*'='))
@@ -702,7 +683,7 @@ def docs(ctx, requirement, dry_run):
       os.makedirs(dirname)
 
     # clone the repo, shallow version, on the specified branch
-    if dry_run:    
+    if dry_run:
       logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
     else:
       if os.path.exists(clone_to):
@@ -712,10 +693,12 @@ def docs(ctx, requirement, dry_run):
         logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
         git.Repo.clone_from('https://gitlab-ci-token:%s@gitlab.idiap.ch/%s' % \
             (token, group+"/"+package), clone_to, branch=branch, depth=1)
-  
+
       # Copying the content from extra_intersphinx
-      extra_intersphinx_path = os.path.join(clone_to, "doc", "extra-intersphinx.txt")
-      test_requirements_path = os.path.join(clone_to, "doc", "test-requirements.txt")
+      extra_intersphinx_path = os.path.join(clone_to, "doc",
+          "extra-intersphinx.txt")
+      test_requirements_path = os.path.join(clone_to, "doc",
+          "test-requirements.txt")
       requirements_path = os.path.join(clone_to, "requirements.txt")
 
       if os.path.exists(extra_intersphinx_path):
@@ -731,17 +714,16 @@ def docs(ctx, requirement, dry_run):
       if os.path.exists(nitpick_path):
         nitpick += open(nitpick_path).readlines()
 
-  logger.info('Generating sphinx files')
+  logger.info('Generating sphinx files...')
 
   # Making unique lists and removing all bob references
   if not dry_run:
     extra_intersphinx = list(set([e for e in extra_intersphinx if group not in e ]))
     nitpick = list(set([e for e in nitpick]))
- 
+
     # Removing projects that are part of the group
     open(os.path.join(doc_path, "extra-intersphinx.txt"), "w").writelines(extra_intersphinx)
     open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w").writelines(nitpick)
 
-  logger.info('Building !!')
+  logger.info('Building documentation...')
   ctx.invoke(build, dry_run=dry_run)
-
