@@ -13,7 +13,6 @@ variables:
 stages:
   - build
   - deploy
-  - pypi
 
 
 # Build targets
@@ -24,7 +23,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci docs requirements.txt
+    - bdt ci docs -vv requirements.txt
     - bdt ci clean -vv
   cache: &build_caches
     paths:
@@ -130,4 +129,3 @@ deploy_stable:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
-
