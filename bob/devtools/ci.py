@@ -72,3 +72,24 @@ def is_stable(package, refname, tag, repodir):
   logger.info('No tag information available at build')
   logger.info('Considering this to be a pre-release build')
   return False
+
+
+def read_packages(filename):
+  """
+  Return a python list of tuples (repository, branch), given a file containing
+  one package (and branch) per line.  Comments are excluded
+
+  """
+  # loads dirnames from order file (accepts # comments and empty lines)
+  packages = []
+  with open(filename, 'rt') as f:
+    for line in f:
+      line = line.partition('#')[0].strip()
+      if line:
+        if ',' in line:  #user specified a branch
+          path, branch = [k.strip() for k in line.split(',', 1)]
+          packages.append((path, branch))
+        else:
+          packages.append((line, 'master'))
+
+  return packages
