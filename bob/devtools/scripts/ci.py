@@ -10,13 +10,33 @@ import click
 import pkg_resources
 from click_plugins import with_plugins
 
-from . import bdt, read_packages
+from . import bdt
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
+
+
+def read_packages(filename):
+  """
+  Return a python list given file containing one package per line
+
+  """
+  # loads dirnames from order file (accepts # comments and empty lines)
+  packages = []
+  with open(filename, 'rt') as f:
+    for line in f:
+      line = line.partition('#')[0].strip()
+      if line:
+        if ',' in line:  #user specified a branch
+          path, branch = [k.strip() for k in line.split(',', 1)]
+          packages.append((path, branch))
+        else:
+          packages.append((line, 'master'))
+
+  return packages
 
 
 @with_plugins(pkg_resources.iter_entry_points('bdt.ci.cli'))
@@ -667,6 +687,8 @@ def docs(ctx, requirement, dry_run):
   # in the documentation of this function
   extra_intersphinx = []
   nitpick = []
+  doc_path = os.path.join(os.environ['CI_PROJECT_DIR'], 'doc')
+  
   for n, (package, branch) in enumerate(packages):
 
     echo_normal('\n' + (80*'='))
@@ -674,7 +696,6 @@ def docs(ctx, requirement, dry_run):
       len(packages)))
     echo_normal((80*'=') + '\n')
 
-    doc_path = os.path.join(os.environ['CI_PROJECT_DIR'], 'doc')
     clone_to = os.path.join(doc_path, package)
     dirname = os.path.dirname(clone_to)
     if not os.path.exists(dirname):
@@ -712,13 +733,15 @@ def docs(ctx, requirement, dry_run):
 
   logger.info('Generating sphinx files')
 
-  # Making unique lists
-  extra_intersphinx = list(set([e for e in extra_intersphinx if group not in e ]))
-  nitpick = list(set([e for e in nitpick]))
+  # Making unique lists and removing all bob references
+  if not dry_run:
+    extra_intersphinx = list(set([e for e in extra_intersphinx if group not in e ]))
+    nitpick = list(set([e for e in nitpick]))
  
-  # Removing projects that are part of the group
-  open(os.path.join(doc_path, "extra-intersphinx.txt"), "w").writelines(extra_intersphinx)
-  open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w").writelines(nitpick)
+    # Removing projects that are part of the group
+    open(os.path.join(doc_path, "extra-intersphinx.txt"), "w").writelines(extra_intersphinx)
+    open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w").writelines(nitpick)
 
-  logger.info('Done!!')
+  logger.info('Building !!')
+  ctx.invoke(build, dry_run=dry_run)
 
