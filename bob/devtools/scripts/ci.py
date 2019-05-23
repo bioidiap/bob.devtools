@@ -14,7 +14,7 @@ from . import bdt
 from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
     WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
-from ..ci import read_packages
+from ..ci import read_packages, comment_cleanup, uniq
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -697,24 +697,27 @@ def docs(ctx, requirement, dry_run):
       # Copying the content from extra_intersphinx
       extra_intersphinx_path = os.path.join(clone_to, "doc",
           "extra-intersphinx.txt")
+      if os.path.exists(extra_intersphinx_path):
+        with open(extra_intersphinx_path) as f:
+          extra_intersphinx += comment_cleanup(f.readlines())
+
       test_requirements_path = os.path.join(clone_to, "doc",
           "test-requirements.txt")
-      requirements_path = os.path.join(clone_to, "requirements.txt")
-
-      if os.path.exists(extra_intersphinx_path):
-        extra_intersphinx += open(extra_intersphinx_path).readlines()
-
       if os.path.exists(test_requirements_path):
-        extra_intersphinx += open(test_requirements_path).readlines()
+        with open(test_requirements_path) as f:
+          extra_intersphinx += comment_cleanup(f.readliens())
 
+      requirements_path = os.path.join(clone_to, "requirements.txt")
       if os.path.exists(requirements_path):
-        extra_intersphinx += open(requirements_path).readlines()
+        with open(requirements_path) as f:
+          extra_intersphinx += comment_cleanup(f.readlines())
 
       nitpick_path = os.path.join(clone_to, "doc", "nitpick-exceptions.txt")
       if os.path.exists(nitpick_path):
-        nitpick += open(nitpick_path).readlines()
+        with open(nitpick_path) as f:
+          nitpick += comment_cleanup(f.readlines())
 
-  logger.info('Generating sphinx files...')
+  logger.info('Generating (extra) sphinx files...')
 
   # Making unique lists and removing all bob/beat references
   if not dry_run:
@@ -723,16 +726,16 @@ def docs(ctx, requirement, dry_run):
     group = os.environ['CI_PROJECT_NAMESPACE']
     extra_intersphinx = set([k.strip() for k in extra_intersphinx \
         if not k.strip().startswith(group)])
-    logger.info('Contents of "doc/extra-intersphinx.txt":\n%s',
-        ''.join(extra_intersphinx))
+    data = '\n'.join(uniq(sorted(extra_intersphinx)))
+    logger.info('Contents of "doc/extra-intersphinx.txt":\n%s', data)
     with open(os.path.join(doc_path, 'extra-intersphinx.txt'), 'w') as f:
-      f.writelines(extra_intersphinx)
+      f.write(data)
 
     # nitpick exceptions
-    logger.info('Contents of "doc/nitpick-exceptions.txt":\n%s',
-        ''.join(nitpick))
-    with open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w") as f:
-      f.writelines(set([k.strip() for k in nitpick]))
+    data = '\n'.join(uniq(sorted(nitpick)))
+    logger.info('Contents of "doc/nitpick-exceptions.txt":\n%s', data)
+    with open(os.path.join(doc_path, 'nitpick-exceptions.txt'), 'w') as f:
+      f.write(data)
 
   logger.info('Building documentation...')
   ctx.invoke(build, dry_run=dry_run)

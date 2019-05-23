@@ -74,6 +74,13 @@ def is_stable(package, refname, tag, repodir):
   return False
 
 
+def comment_cleanup(lines):
+  """Cleans-up comments and empty lines from textual data read from files"""
+
+  no_comments = [k.partition('#')[0].strip() for k in lines]
+  return [k for k in no_comments if k]
+
+
 def read_packages(filename):
   """
   Return a python list of tuples (repository, branch), given a file containing
@@ -81,15 +88,34 @@ def read_packages(filename):
 
   """
   # loads dirnames from order file (accepts # comments and empty lines)
-  packages = []
   with open(filename, 'rt') as f:
-    for line in f:
-      line = line.partition('#')[0].strip()
-      if line:
-        if ',' in line:  #user specified a branch
-          path, branch = [k.strip() for k in line.split(',', 1)]
-          packages.append((path, branch))
-        else:
-          packages.append((line, 'master'))
+    lines = comment_cleanup(f.readlines())
+
+  packages = []
+  for line in lines:
+    if ',' in line:  #user specified a branch
+      path, branch = [k.strip() for k in line.split(',', 1)]
+      packages.append((path, branch))
+    else:
+      packages.append((line, 'master'))
 
   return packages
+
+
+def uniq(seq, idfun=None):
+  """Very fast, order preserving uniq function"""
+
+  # order preserving
+  if idfun is None:
+      def idfun(x): return x
+  seen = {}
+  result = []
+  for item in seq:
+      marker = idfun(item)
+      # in old Python versions:
+      # if seen.has_key(marker)
+      # but in new ones:
+      if marker in seen: continue
+      seen[marker] = 1
+      result.append(item)
+  return result
