@@ -62,7 +62,6 @@ build_linux_36:
   artifacts:
     expire_in: 1 week
     paths:
-      - dist/*.zip
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
