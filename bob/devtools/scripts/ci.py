@@ -681,16 +681,17 @@ def docs(ctx, requirement, dry_run):
 
     # clone the repo, shallow version, on the specified branch
     if dry_run:
-      logger.info('Cloning "%s", branch "%s" (depth=1) to %s...', package,
-          branch, clone_to)
+      logger.info('Cloning "%s" [%d/%d], branch "%s" (depth=1) to %s...',
+          package, n+1, len(packages), branch, clone_to)
     else:
       if os.path.exists(clone_to):
-         logger.info('Repo "%s", already cloned at %s; updating branch "%s"...',
-             package, clone_to, branch)
+         logger.info('Repo "%s" [%d/%d], already cloned at %s; ' \
+             'updating branch "%s"...', package, n+1, len(packages), clone_to,
+             branch)
          git.Git(clone_to).pull("origin", branch)
       else:
-        logger.info('Cloning "%s", branch "%s" (depth=1) to %s...', package,
-            branch, clone_to)
+        logger.info('Cloning "%s" [%d/%d], branch "%s" (depth=1) to %s...',
+            package, n+1, len(packages), branch, clone_to)
         git.Repo.clone_from('https://gitlab-ci-token:%s@gitlab.idiap.ch/%s' % \
                 (token, package), clone_to, branch=branch, depth=1)
 
