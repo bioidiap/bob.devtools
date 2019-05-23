@@ -724,13 +724,13 @@ def docs(ctx, requirement, dry_run):
     extra_intersphinx = set([k.strip() for k in extra_intersphinx \
         if not k.strip().startswith(group)])
     logger.info('Contents of "doc/extra-intersphinx.txt":\n%s',
-        extra_intersphinx)
+        ''.join(extra_intersphinx))
     with open(os.path.join(doc_path, 'extra-intersphinx.txt'), 'w') as f:
       f.writelines(extra_intersphinx)
 
     # nitpick exceptions
     logger.info('Contents of "doc/nitpick-exceptions.txt":\n%s',
-        nitpick)
+        ''.join(nitpick))
     with open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w") as f:
       f.writelines(set([k.strip() for k in nitpick]))
 
