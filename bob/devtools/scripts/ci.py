@@ -672,11 +672,6 @@ def docs(ctx, requirement, dry_run):
 
   for n, (package, branch) in enumerate(packages):
 
-    echo_normal('\n' + (80*'='))
-    echo_normal('Getting %s@%s (%d/%d)' % (package, branch, n+1,
-      len(packages)))
-    echo_normal((80*'=') + '\n')
-
     group, name = package.split('/', 1)
 
     clone_to = os.path.join(doc_path, group, name)
