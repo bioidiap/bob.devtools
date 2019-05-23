@@ -651,10 +651,11 @@ def docs(ctx, requirement, dry_run):
   """Prepares documentation build
 
   This command:
-    1. Clones all the necessary packages necessary to build the bob documentation
+    1. Clones all the necessary packages necessary to build the bob/beat
+       documentation
     2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
 
-  This command is supposed to be run before `bdt ci build...`
+  This command is supposed to be run **instead** of `bdt ci build...`
 
   """
 
@@ -662,7 +663,6 @@ def docs(ctx, requirement, dry_run):
 
   import git
   token = os.environ['CI_JOB_TOKEN']
-  group = os.environ['CI_PROJECT_NAMESPACE']
 
   # loaded all recipes, now cycle through them implementing what is described
   # in the documentation of this function
@@ -677,7 +677,9 @@ def docs(ctx, requirement, dry_run):
       len(packages)))
     echo_normal((80*'=') + '\n')
 
-    clone_to = os.path.join(doc_path, package)
+    group, name = package.split('/', 1)
+
+    clone_to = os.path.join(doc_path, group, name)
     dirname = os.path.dirname(clone_to)
     if not os.path.exists(dirname):
       os.makedirs(dirname)
@@ -687,12 +689,13 @@ def docs(ctx, requirement, dry_run):
       logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
     else:
       if os.path.exists(clone_to):
-         logger.info('Repo "%s", already cloned; pulling from master...', package)
+         logger.info('Repo "%s", already cloned; pulling from master...',
+             package)
          git.Git(clone_to).pull("origin", branch)
       else:
         logger.info('Cloning "%s", branch "%s" (depth=1)...', package, branch)
         git.Repo.clone_from('https://gitlab-ci-token:%s@gitlab.idiap.ch/%s' % \
-            (token, group+"/"+package), clone_to, branch=branch, depth=1)
+            (token, package), clone_to, branch=branch, depth=1)
 
       # Copying the content from extra_intersphinx
       extra_intersphinx_path = os.path.join(clone_to, "doc",
@@ -716,14 +719,23 @@ def docs(ctx, requirement, dry_run):
 
   logger.info('Generating sphinx files...')
 
-  # Making unique lists and removing all bob references
+  # Making unique lists and removing all bob/beat references
   if not dry_run:
-    extra_intersphinx = list(set([e for e in extra_intersphinx if group not in e ]))
-    nitpick = list(set([e for e in nitpick]))
 
-    # Removing projects that are part of the group
-    open(os.path.join(doc_path, "extra-intersphinx.txt"), "w").writelines(extra_intersphinx)
-    open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w").writelines(nitpick)
+    # extra requirements for sphinx
+    group = os.environ['CI_PROJECT_NAMESPACE']
+    extra_intersphinx = set([k.strip() for k in extra_intersphinx \
+        if not k.strip().startswith(group)])
+    logger.info('Contents of "doc/extra-intersphinx.txt":\n%s',
+        extra_intersphinx)
+    with open(os.path.join(doc_path, 'extra-intersphinx.txt'), 'w') as f:
+      f.writelines(extra_intersphinx)
+
+    # nitpick exceptions
+    logger.info('Contents of "doc/nitpick-exceptions.txt":\n%s',
+        nitpick)
+    with open(os.path.join(doc_path, "nitpick-exceptions.txt"), "w") as f:
+      f.writelines(set([k.strip() for k in nitpick]))
 
   logger.info('Building documentation...')
   ctx.invoke(build, dry_run=dry_run)

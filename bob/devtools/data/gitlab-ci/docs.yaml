@@ -23,7 +23,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci docs -vv requirements.txt
+    - bdt ci docs -vv packages.txt
     - bdt ci clean -vv
   cache: &build_caches
     paths:
