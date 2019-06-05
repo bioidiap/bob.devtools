@@ -55,6 +55,7 @@ setup(
           'test = bob.devtools.scripts.test:test',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
           'ci = bob.devtools.scripts.ci:ci',
+          'local = bob.devtools.scripts.local:local',
           'gitlab = bob.devtools.scripts.gitlab:gitlab',
           ],
 
@@ -80,6 +81,10 @@ setup(
           'pypi = bob.devtools.scripts.ci:pypi',
           'nightlies = bob.devtools.scripts.ci:nightlies',
           'docs = bob.devtools.scripts.ci:docs',        
+          ],
+
+        'bdt.local.cli': [
+          'docs = bob.devtools.scripts.local:docs',        
           ],
 
     },
