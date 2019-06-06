@@ -454,10 +454,10 @@ def git_clean_build(runner, verbose):
       ]
 
   # cache
-  exclude_from_cleanup += glob.glob("miniconda/pkgs/*.tar.bz2")
+  exclude_from_cleanup += ["miniconda/pkgs/"]
 
   # artifacts
-  exclude_from_cleanup += glob.glob("miniconda/conda-bld/*/*.tar.bz2")
+  exclude_from_cleanup += ["miniconda/conda-bld/"]
   exclude_from_cleanup += glob.glob("dist/*.zip")
 
   logger.debug('Excluding the following paths from git-clean:\n  - %s',
