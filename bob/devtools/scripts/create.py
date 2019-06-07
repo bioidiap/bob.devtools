@@ -141,6 +141,8 @@ def create(name, recipe_dir, python, overwrite, condarc, use_local, config,
 
   conda_config = make_conda_config(config, python, append_file, condarc_options)
   deps = parse_dependencies(recipe_dir, conda_config)
+  # when creating a local development environment, remove the always_yes option
+  del condarc_options["always_yes"]
   status = conda_create(conda, name, overwrite, condarc_options, deps,
       dry_run, use_local)
   echo_normal('Execute on your shell: "conda activate %s"' % name)
