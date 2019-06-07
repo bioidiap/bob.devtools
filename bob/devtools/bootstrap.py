@@ -15,6 +15,9 @@ quiet: true #!final
 show_channel_urls: true #!final
 anaconda_upload: false #!final
 ssl_verify: false #!final
+remote_connect_timeout_secs: 120.0 #!final
+remote_max_retries: 50 #!final
+remote_read_timeout_secs: 180.0 #!final
 channels:
   - defaults
 '''
