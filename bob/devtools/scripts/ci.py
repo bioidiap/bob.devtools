@@ -726,7 +726,7 @@ def docs(ctx, requirement, dry_run):
     # extra requirements for sphinx
     group = os.environ['CI_PROJECT_NAMESPACE']
     extra_intersphinx = set([k.strip() for k in extra_intersphinx \
-        if not k.strip().startswith(group)])
+        if not k.strip().startswith((group, "gridtk"))])
     data = '\n'.join(uniq(sorted(extra_intersphinx)))
     logger.info('Contents of "doc/extra-intersphinx.txt":\n%s', data)
     with open(os.path.join(doc_path, 'extra-intersphinx.txt'), 'w') as f:
