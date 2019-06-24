@@ -73,9 +73,16 @@ def docs(ctx, requirement, dry_run, python, group):
   """Prepares documentation build
 
   This command:
+    \b
+  
     1. Clones all the necessary packages necessary to build the bob/beat
        documentation
+       
+    \b
+
     2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
+    
+    \b
 
   """
   set_up_environment_variables(python=python, name_space=group)  
