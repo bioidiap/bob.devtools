@@ -165,7 +165,7 @@ def get_parsed_tag(gitpkg, tag):
               assume_version = 'v1.0.0'
             elif tag == 'minor':
               assume_version = 'v0.1.0'
-            elif tag == 'path':
+            elif tag == 'patch':
               assume_version = 'v0.0.1'
             logger.warn('Package %s does not have any tags. I\'m assuming ' \
                 'version will be %s since you proposed a "%s" bump',
@@ -482,7 +482,8 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     if not dry_run:
         tag = gitpkg.tags.create({'tag_name': tag_name, 'ref': 'master'})
         # update tag with comments
-        tag.set_release_description(tag_comments)
+        if tag_comments:
+            tag.set_release_description(tag_comments)
 
     # get the pipeline that is actually running with no skips
     running_pipeline = get_last_pipeline(gitpkg)
