@@ -199,6 +199,18 @@ https://backports.debian.org.  To install the newest git version, after an
    $ apt-get -t stretch-backports install "git"
 
 
+X11
+===
+
+Some utilities such as ``dot`` (graphviz) require X11 support.  If you intend
+to make use of the ``shell`` builder and ``graphviz``, you must install basic
+X11 support.  Just run the following command as root to fix this:
+
+.. code-block:: sh
+
+   $ apt install libxrender1 libxext6
+
+
 Crontabs
 ========
 
