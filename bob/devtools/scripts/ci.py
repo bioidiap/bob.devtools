@@ -651,9 +651,14 @@ def docs(ctx, requirement, dry_run):
   """Prepares documentation build
 
   This command:
+    \b
+    
     1. Clones all the necessary packages necessary to build the bob/beat
        documentation
+    \b       
+       
     2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
+    \b    
 
   This command is supposed to be run **instead** of `bdt ci build...`
 
