@@ -342,7 +342,6 @@ def base_build(order, group, python, dry_run):
         bootstrap=bootstrap,
         server=SERVER,
         intranet=True,
-        use_local=True,
         group=group,
         recipe_dir=recipe,
         conda_build_config=variants_file,
@@ -408,7 +407,6 @@ def test(ctx, dry_run):
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
-      use_local=False,
       dry_run=dry_run,
       ci=True,
       )
@@ -472,7 +470,6 @@ def build(ctx, dry_run):
       group=group,
       private=(os.environ['CI_PROJECT_VISIBILITY'] != 'public'),
       stable='CI_COMMIT_TAG' in os.environ,
-      use_local=False,
       dry_run=dry_run,
       ci=True,
       )
@@ -603,7 +600,6 @@ def nightlies(ctx, order, dry_run):
         group=group,
         private=private,
         stable=stable,
-        use_local=True,
         dry_run=dry_run,
         ci=True,
         )
