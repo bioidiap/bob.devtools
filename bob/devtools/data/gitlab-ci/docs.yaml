@@ -19,6 +19,7 @@ stages:
 .build_template: &build_job
   stage: build
   script:
+    - yum -y install dejavu-sans-fonts
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
