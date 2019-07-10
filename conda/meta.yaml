@@ -31,7 +31,7 @@ requirements:
     - click >=7
     - click-plugins
     - conda=4
-    - conda-build=3
+    - conda-build=3.16
     - conda-verify=3
     - certifi
     - pytz
@@ -90,7 +90,7 @@ test:
     - bdt ci readme --help
     - bdt ci clean --help
     - bdt ci nightlies --help
-    - bdt ci docs --help
+    - bdt ci docs --help 
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 
