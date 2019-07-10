@@ -387,7 +387,7 @@ if __name__ == '__main__':
     f.write(_BASE_CONDARC)
 
   conda_version = '4'
-  conda_build_version = '3'
+  conda_build_version = '3.16'
   conda_verify_version = '3'
 
   conda_verbosity = []
