@@ -102,7 +102,7 @@ libtiff:
 mkl:
   - 2019.1
 openfst:
-  - 1.6.1
+  - 1.6.7
 sox:
   - 14.4.2
 speex:
