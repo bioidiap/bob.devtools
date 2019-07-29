@@ -471,7 +471,7 @@ def git_clean_build(runner, verbose):
       ['--exclude=%s' % k for k in exclude_from_cleanup])
 
 
-def base_build(bootstrap, server, intranet, use_local, group, recipe_dir,
+def base_build(bootstrap, server, intranet, group, recipe_dir,
     conda_build_config, python_version, condarc_options):
   '''Builds a non-beat/non-bob software dependence that doesn't exist on defaults
 
@@ -489,8 +489,6 @@ def base_build(bootstrap, server, intranet, use_local, group, recipe_dir,
     server: The base address of the server containing our conda channels
     intranet: Boolean indicating if we should add "private"/"public" prefixes
       on the returned paths
-    use_local: If set to ``True``, search locally built packages when looking
-      for dependencies
     group: The group of packages (gitlab namespace) the package we're compiling
       is part of.  Values should match URL namespaces currently available on
       our internal webserver.  Currently, only "bob" or "beat" will work.
@@ -516,8 +514,7 @@ def base_build(bootstrap, server, intranet, use_local, group, recipe_dir,
   public_channels = bootstrap.get_channels(public=True, stable=True,
     server=server, intranet=intranet, group=group)
 
-  all_channels = ['local'] if use_local else []
-  all_channels += public_channels + ['defaults']
+  all_channels = public_channels + ['defaults']
   logger.info('Using the following channels during (potential) build:\n  - %s',
       '\n  - '.join(all_channels))
   condarc_options['channels'] = all_channels
