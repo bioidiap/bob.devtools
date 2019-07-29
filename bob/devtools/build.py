@@ -642,9 +642,8 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(recipe, 'meta.yaml')):
       # ignore - not a conda package
       continue
-    base_build(bootstrap, server, not args.internet, True,
-        args.group, recipe, conda_build_config, args.python_version,
-        condarc_options)
+    base_build(bootstrap, server, not args.internet, args.group, recipe,
+        conda_build_config, args.python_version, condarc_options)
 
   # notice this condarc typically will only contain the defaults channel - we
   # need to boost this up with more channels to get it right for this package's
