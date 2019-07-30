@@ -198,7 +198,7 @@ def get_miniconda_sh():
   import http.client
 
   server = 'repo.continuum.io'  #https
-  path = '/miniconda/Miniconda3-latest-%s-x86_64.sh'
+  path = '/miniconda/Miniconda3-4.6.14-%s-x86_64.sh'
   if platform.system() == 'Darwin':
     path = path % 'MacOSX'
   else:
