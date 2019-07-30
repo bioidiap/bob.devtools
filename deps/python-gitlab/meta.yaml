@@ -1,5 +1,5 @@
 {% set name = "python-gitlab" %}
-{% set version = "1.7.0" %}
+{% set version = "1.10.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 401ef8929db4dcb5b08e0a2263a0a70599fc7e5b27615f956ac26d245802d09e
+  sha256: c4e91b9367c54c3049d702c35dd966f9e5a8989dae1be56ef7a1c35c2b235a58
 
 build:
-  number: 1
+  number: 0
   script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed ."
   entry_points:
     - gitlab = gitlab.cli:main
