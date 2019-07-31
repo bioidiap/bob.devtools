@@ -67,7 +67,7 @@ cmake:
 pkg_config:
   - 0.29.2
 cython:
-  - 0.28.1
+  - 0.29.12
 
 # The dependencies that we link against (host requirements).
 # Ideally we want to build against the oldest possible version of packages when
@@ -144,8 +144,6 @@ matplotlib:
   - 3.0.3
 menpo:
   - 0.8.1
-menpofit:
-  - 0.5.0
 mne:
   - 0.15.2
 mr_developer:
