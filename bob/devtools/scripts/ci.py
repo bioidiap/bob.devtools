@@ -11,10 +11,10 @@ import pkg_resources
 from click_plugins import with_plugins
 
 from . import bdt
-from ..constants import SERVER, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, \
-    WEBDAV_PATHS, BASE_CONDARC
+from ..constants import SERVER, WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
-from ..ci import read_packages, comment_cleanup, uniq
+from ..ci import read_packages, comment_cleanup, uniq, \
+    select_conda_build_config, select_conda_recipe_append
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -329,14 +329,9 @@ def base_build(order, group, python, dry_run):
       logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
       continue
 
-    # Use custom variants file if available on recipe-dir
-    variants_file = CONDA_BUILD_CONFIG
-    _candidate = os.path.join(recipe, 'conda_build_config.yaml')
-    if os.path.exists(_candidate):
-      variants_file = _candidate
-      logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
-          'instead of default variants file (%s)', variants_file,
-          CONDA_BUILD_CONFIG)
+    variants_file = select_conda_build_config(paths=[recipe, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+    logger.info('Conda build configuration file: %s', variants_file)
 
     _build(
         bootstrap=bootstrap,
@@ -380,21 +375,13 @@ def test(ctx, dry_run):
   # Use custom variants and append files if available on recipe-dir
   recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
 
-  variants_file = CONDA_BUILD_CONFIG
-  _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
-  if os.path.exists(_candidate):
-    variants_file = _candidate
-    logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
-        'instead of default variants file (%s)', variants_file,
-        CONDA_BUILD_CONFIG)
+  variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
+      branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  logger.info('Conda build configuration file: %s', variants_file)
 
-  append_file = CONDA_RECIPE_APPEND
-  _candidate = os.path.join(recipe_dir, 'append_file.yaml')
-  if os.path.exists(_candidate):
-    append_file = _candidate
-    logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
-        'instead of default append file (%s)', append_file,
-        CONDA_RECIPE_APPEND)
+  append_file = select_conda_recipe_append(paths=[recipe_dir, os.curdir],
+      branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  logger.info('Conda build recipe-append file: %s', append_file)
 
   from .test import test
   ctx.invoke(test,
@@ -442,21 +429,13 @@ def build(ctx, dry_run):
   # Use custom variants and append files if available on recipe-dir
   recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
 
-  variants_file = CONDA_BUILD_CONFIG
-  _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
-  if os.path.exists(_candidate):
-    variants_file = _candidate
-    logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
-        'instead of default variants file (%s)', variants_file,
-        CONDA_BUILD_CONFIG)
+  variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
+      branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  logger.info('Conda build configuration file: %s', variants_file)
 
-  append_file = CONDA_RECIPE_APPEND
-  _candidate = os.path.join(recipe_dir, 'append_file.yaml')
-  if os.path.exists(_candidate):
-    append_file = _candidate
-    logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
-        'instead of default append file (%s)', append_file,
-        CONDA_RECIPE_APPEND)
+  append_file = select_conda_recipe_append(paths=[recipe_dir, os.curdir],
+      branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  logger.info('Conda build recipe-append file: %s', append_file)
 
   from .build import build
   ctx.invoke(build,
@@ -573,21 +552,13 @@ def nightlies(ctx, order, dry_run):
     # Use custom variants and append files if available on recipe-dir
     recipe_dir = os.path.join(clone_to, 'conda')
 
-    variants_file = CONDA_BUILD_CONFIG
-    _candidate = os.path.join(recipe_dir, 'conda_build_config.yaml')
-    if os.path.exists(_candidate):
-      variants_file = _candidate
-      logger.warn('Using local conda_build_config.yaml from recipe-dir (%s)' \
-          'instead of default variants file (%s)', variants_file,
-          CONDA_BUILD_CONFIG)
+    variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+    logger.info('Conda build configuration file: %s', variants_file)
 
-    append_file = CONDA_RECIPE_APPEND
-    _candidate = os.path.join(recipe_dir, 'append_file.yaml')
-    if os.path.exists(_candidate):
-      append_file = _candidate
-      logger.warn('Using local recipe_append.yaml from recipe-dir (%s)' \
-          'instead of default append file (%s)', append_file,
-          CONDA_RECIPE_APPEND)
+    append_file = select_conda_recipe_append(paths=[recipe_dir, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+    logger.info('Conda build recipe-append file: %s', append_file)
 
     ctx.invoke(build,
         recipe_dir=[recipe_dir],
