@@ -119,3 +119,79 @@ def uniq(seq, idfun=None):
       seen[marker] = 1
       result.append(item)
   return result
+
+
+def select_build_file(basename, paths, branch):
+  '''Selects the file to use for a build
+
+  This method will return the name of the most adequate build-accessory file
+  (conda_build_config.yaml, recipe_append.yaml) for a given build, in this
+  order of priority:
+
+  1. The first file found is returned
+  2. We first search for a *specific* file if ``branch`` is set
+  3. If that file does not exist, returns the unbranded filename if that exists
+     in one of the paths
+  4. If no candidates exists, returns ``None``
+
+  The candidate filename is built using
+  ``os.path.splitext(os.path.basename(basename))[0]``.
+
+  Args:
+
+    basename: Name of the file to use for the search
+    paths (list): A list of paths leading to the location of the variants file
+      to use.  Priority is given to paths that come first
+    branch (str): Optional key to be set when searching for the variants file
+      to use.  This is typically the git-branch name of the current branch of
+      the repo being built.
+
+
+  Returns:
+
+    str: A string containing the full, resolved path of the file to use.
+    Returns ``None``, if no candidate is found
+
+  '''
+
+  import os
+
+  basename, extension = os.path.splitext(os.path.basename(basename))
+
+  if branch:
+    specific_basename = '%s-%s' % (basename, branch)
+    for path in paths:
+      path = os.path.realpath(path)
+      candidate = os.path.join(path, '%s%s' % (specific_basename, extension))
+      if os.path.exists(candidate):
+        return candidate
+
+  for path in paths:
+    path = os.path.realpath(path)
+    candidate = os.path.join(path, '%s%s' % (basename, extension))
+    if os.path.exists(candidate):
+      return candidate
+
+
+def select_conda_build_config(paths, branch):
+  '''Selects the default conda_build_config.yaml.
+
+  See :py:func:`select_build_file` for implementation details.  If no build
+  config file is found by :py:func:`select_build_file`, then returns the
+  default ``conda_build_config.yaml`` shipped with this package.
+  '''
+
+  from .constants import CONDA_BUILD_CONFIG as default
+  return select_build_file(default, paths, branch) or default
+
+
+def select_conda_recipe_append(paths, branch):
+  '''Selects the default recipe_append.yaml.
+
+  See :py:func:`select_build_file` for implementation details.  If no recipe
+  append file is found by :py:func:`select_build_file`, then returns the
+  default ``recipe_append.yaml`` shipped with this package.
+  '''
+
+  from .constants import CONDA_RECIPE_APPEND as default
+  return select_build_file(default, paths, branch) or default
