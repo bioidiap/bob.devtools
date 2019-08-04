@@ -51,12 +51,12 @@ zip_keys:
 
 # This version of bob-devel will be used at test time of packages:
 bob_devel:
-  - 2019.07.31
+  - 2019.08.04
 
 # This version of beat-devel will be used at test time of packages. Notice it
 # uses bob-devel and should have a version that is greater or equal its value
 beat_devel:
-  - 2019.07.31
+  - 2019.08.04
 
 # The build time only dependencies (build requirements).
 # Updating these to the latest version all the time is OK and a good idea.
@@ -146,6 +146,8 @@ matplotlib:
   - 3.0.3
 menpo:
   - 0.8.1
+menpofit:
+  - 0.5.0
 mido:
   - 1.2.9
 mne:
