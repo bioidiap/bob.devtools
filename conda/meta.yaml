@@ -30,7 +30,7 @@ requirements:
     - setuptools
     - click >=7
     - click-plugins
-    - conda=4.16
+    - conda=4.6
     - conda-build=3.16
     - conda-verify=3
     - certifi
