@@ -14,7 +14,7 @@ from . import bdt
 from ..constants import SERVER, WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
 from ..ci import read_packages, comment_cleanup, uniq, \
-    select_conda_build_config, select_conda_recipe_append
+    select_conda_build_config, select_conda_recipe_append, select_user_condarc
 
 from ..log import verbosity_option, get_logger, echo_normal
 logger = get_logger(__name__)
@@ -278,7 +278,11 @@ def base_build(order, group, python, dry_run):
   this context.
   """
 
-  condarc = os.path.join(os.environ['CONDA_ROOT'], 'condarc')
+  condarc = select_user_condarc(paths=[recipe, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+
+  condarc = condarc or os.path.join(os.environ['CONDA_ROOT'], 'condarc')
+
   if os.path.exists(condarc):
     logger.info('Loading (this build\'s) CONDARC file from %s...', condarc)
     with open(condarc, 'rb') as f:
@@ -375,6 +379,11 @@ def test(ctx, dry_run):
   # Use custom variants and append files if available on recipe-dir
   recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
 
+  condarc = select_user_condarc(paths=[recipe, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  if condarc is not None:
+    logger.info('Condarc configuration file: %s', condarc)
+
   variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
       branch=os.environ.get('CI_COMMIT_REF_NAME'))
   logger.info('Conda build configuration file: %s', variants_file)
@@ -387,7 +396,7 @@ def test(ctx, dry_run):
   ctx.invoke(test,
       package = glob.glob(os.path.join(os.environ['CONDA_ROOT'], 'conda-bld',
         '*', os.environ['CI_PROJECT_NAME'] + '*.tar.bz2')),
-      condarc=None,  #custom build configuration
+      condarc=condarc,
       config=variants_file,
       append_file=append_file,
       server=SERVER,
@@ -429,6 +438,11 @@ def build(ctx, dry_run):
   # Use custom variants and append files if available on recipe-dir
   recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
 
+  condarc = select_user_condarc(paths=[recipe, os.curdir],
+        branch=os.environ.get('CI_COMMIT_REF_NAME'))
+  if condarc is not None:
+    logger.info('Condarc configuration file: %s', condarc)
+
   variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
       branch=os.environ.get('CI_COMMIT_REF_NAME'))
   logger.info('Conda build configuration file: %s', variants_file)
@@ -441,7 +455,7 @@ def build(ctx, dry_run):
   ctx.invoke(build,
       recipe_dir=[recipe_dir],
       python=os.environ['PYTHON_VERSION'],  #python version
-      condarc=None,  #custom build configuration
+      condarc=condarc,
       config=variants_file,
       no_test=False,
       append_file=append_file,
@@ -552,6 +566,11 @@ def nightlies(ctx, order, dry_run):
     # Use custom variants and append files if available on recipe-dir
     recipe_dir = os.path.join(clone_to, 'conda')
 
+    condarc = select_user_condarc(paths=[recipe, os.curdir],
+          branch=os.environ.get('CI_COMMIT_REF_NAME'))
+    if condarc is not None:
+      logger.info('Condarc configuration file: %s', condarc)
+
     variants_file = select_conda_build_config(paths=[recipe_dir, os.curdir],
         branch=os.environ.get('CI_COMMIT_REF_NAME'))
     logger.info('Conda build configuration file: %s', variants_file)
@@ -563,7 +582,7 @@ def nightlies(ctx, order, dry_run):
     ctx.invoke(build,
         recipe_dir=[recipe_dir],
         python=os.environ['PYTHON_VERSION'],  #python version
-        condarc=None,  #custom build configuration
+        condarc=condarc,
         config=variants_file,
         no_test=False,
         append_file=append_file,
