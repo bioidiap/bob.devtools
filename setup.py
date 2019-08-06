@@ -80,11 +80,12 @@ setup(
           'readme = bob.devtools.scripts.ci:readme',
           'pypi = bob.devtools.scripts.ci:pypi',
           'nightlies = bob.devtools.scripts.ci:nightlies',
-          'docs = bob.devtools.scripts.ci:docs',        
+          'docs = bob.devtools.scripts.ci:docs',
           ],
 
         'bdt.local.cli': [
-          'docs = bob.devtools.scripts.local:docs',        
+          'docs = bob.devtools.scripts.local:docs',
+          'build = bob.devtools.scripts.local:build',
           ],
 
     },

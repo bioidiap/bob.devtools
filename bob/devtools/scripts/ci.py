@@ -420,10 +420,16 @@ Examples:
     help='Only goes through the actions, but does not execute them ' \
         '(combine with the verbosity flags - e.g. ``-vvv``) to enable ' \
         'printing to help you understand what will be done')
+@click.option(
+  '-r',
+  '--recipe-dir',
+  default=os.path.join(os.path.realpath(os.curdir), 'conda'),
+  help="Custom recipe folder for build. Useful for debugging."
+)
 @verbosity_option()
 @bdt.raise_on_error
 @click.pass_context
-def build(ctx, dry_run):
+def build(ctx, dry_run, recipe_dir):
   """Builds packages
 
   This command builds packages in the CI infrastructure.  It is **not** meant
@@ -436,9 +442,7 @@ def build(ctx, dry_run):
     group = 'bob'
 
   # Use custom variants and append files if available on recipe-dir
-  recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
-
-  condarc = select_user_condarc(paths=[recipe, os.curdir],
+  condarc = select_user_condarc(paths=[recipe_dir, os.curdir],
         branch=os.environ.get('CI_COMMIT_REF_NAME'))
   if condarc is not None:
     logger.info('Condarc configuration file: %s', condarc)

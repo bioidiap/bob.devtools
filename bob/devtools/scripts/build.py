@@ -86,8 +86,8 @@ def build(recipe_dir, python, condarc, config, no_test, append_file,
 
   # if we are in a dry-run mode, let's let it be known
   if dry_run:
-      logger.warn('!!!! DRY RUN MODE !!!!')
-      logger.warn('Nothing will be really built')
+    logger.warn('!!!! DRY RUN MODE !!!!')
+    logger.warn('Nothing will be really built')
 
   recipe_dir = recipe_dir or [os.path.join(os.path.realpath('.'), 'conda')]
 
