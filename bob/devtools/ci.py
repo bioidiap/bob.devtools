@@ -195,3 +195,13 @@ def select_conda_recipe_append(paths, branch):
 
   from .constants import CONDA_RECIPE_APPEND as default
   return select_build_file(default, paths, branch) or default
+
+
+def select_user_condarc(paths, branch):
+  '''Selects the user condarc file to read (if any)
+
+  See :py:func:`select_build_file` for implementation details.  If no recipe
+  condarc is found by :py:func:`select_build_file`, then returns ``None``.
+  '''
+
+  return select_build_file('condarc', paths, branch)
