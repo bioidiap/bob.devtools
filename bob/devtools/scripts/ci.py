@@ -278,7 +278,7 @@ def base_build(order, group, python, dry_run):
   this context.
   """
 
-  condarc = select_user_condarc(paths=[recipe, os.curdir],
+  condarc = select_user_condarc(paths=[os.curdir],
         branch=os.environ.get('CI_COMMIT_REF_NAME'))
 
   condarc = condarc or os.path.join(os.environ['CONDA_ROOT'], 'condarc')
@@ -379,7 +379,7 @@ def test(ctx, dry_run):
   # Use custom variants and append files if available on recipe-dir
   recipe_dir = os.path.join(os.path.realpath(os.curdir), 'conda')
 
-  condarc = select_user_condarc(paths=[recipe, os.curdir],
+  condarc = select_user_condarc(paths=[recipe_dir, os.curdir],
         branch=os.environ.get('CI_COMMIT_REF_NAME'))
   if condarc is not None:
     logger.info('Condarc configuration file: %s', condarc)
