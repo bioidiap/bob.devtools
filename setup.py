@@ -9,9 +9,6 @@ requires = [
     'setuptools',
     'click>=7',
     'click-plugins',
-    'conda>=4,<5',
-    'conda-build>=3,<4',
-    'conda-verify>=3,<4',
     'certifi',
     'requests',
     'gitpython',
@@ -86,6 +83,7 @@ setup(
         'bdt.local.cli': [
           'docs = bob.devtools.scripts.local:docs',
           'build = bob.devtools.scripts.local:build',
+          'base-build = bob.devtools.scripts.local:base_build',
           ],
 
     },
