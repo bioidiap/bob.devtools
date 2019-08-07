@@ -28,7 +28,7 @@ requirements:
   run:
     - python
     - setuptools
-    - black
+    - black >=19
     - click >=7
     - click-plugins
     - conda=4
