@@ -41,7 +41,8 @@ def set_up_environment_variables(
     os.environ["CI_PROJECT_DIR"] = project_dir
     os.environ["CI_PROJECT_NAMESPACE"] = name_space
     os.environ["CI_PROJECT_VISIBILITY"] = project_visibility
-    os.environ["PYTHON_VERSION"] = python
+    if python:
+        os.environ["PYTHON_VERSION"] = python
 
 
 @with_plugins(pkg_resources.iter_entry_points("bdt.local.cli"))
@@ -136,10 +137,10 @@ Examples:
     "printing to help you understand what will be done",
 )
 @click.option(
-  '-r',
-  '--recipe-dir',
-  default=os.path.join(os.path.realpath(os.curdir), 'conda'),
-  help="Custom recipe folder for build."
+    "-r",
+    "--recipe-dir",
+    default=os.path.join(os.path.realpath(os.curdir), "conda"),
+    help="Custom recipe folder for build.",
 )
 @click.option(
     "-p",
@@ -164,3 +165,52 @@ def build(ctx, dry_run, recipe_dir, python, group):
     set_up_environment_variables(python=python, name_space=group)
 
     ctx.invoke(ci.build, dry_run=dry_run, recipe_dir=recipe_dir)
+
+
+@local.command(
+    epilog="""
+Examples:
+
+  1. Runs the CI build steps locally:
+
+     $ bdt local base-build -vv nopython.txt
+
+"""
+)
+@click.argument(
+    "order",
+    required=True,
+    type=click.Path(file_okay=True, dir_okay=False, exists=True),
+    nargs=1,
+)
+@click.option(
+    "-d",
+    "--dry-run/--no-dry-run",
+    default=False,
+    help="Only goes through the actions, but does not execute them "
+    "(combine with the verbosity flags - e.g. ``-vvv``) to enable "
+    "printing to help you understand what will be done",
+)
+@click.option(
+    "-p",
+    "--python",
+    multiple=True,
+    help='Versions of python in the format "x.y" we should build for.  Pass '
+    "various times this option to build for multiple python versions",
+)
+@click.option(
+    "-g",
+    "--group",
+    show_default=True,
+    default="bob",
+    help="Group of packages (gitlab namespace) this package belongs to",
+)
+@verbosity_option()
+@bdt.raise_on_error
+@click.pass_context
+def base_build(ctx, order, dry_run, python, group):
+    """Run the CI build step locally
+    """
+    set_up_environment_variables(python=python, name_space=group)
+
+    ctx.invoke(ci.base_build, order=order, dry_run=dry_run, group=group, python=python)

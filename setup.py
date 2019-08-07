@@ -83,6 +83,7 @@ setup(
         'bdt.local.cli': [
           'docs = bob.devtools.scripts.local:docs',
           'build = bob.devtools.scripts.local:build',
+          'base-build = bob.devtools.scripts.local:base_build',
           ],
 
     },
