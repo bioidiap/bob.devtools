@@ -13,9 +13,9 @@ from click_plugins import with_plugins
 from . import bdt
 from ..constants import SERVER, WEBDAV_PATHS, BASE_CONDARC
 from ..deploy import deploy_conda_package, deploy_documentation
+from ..build import comment_cleanup, load_order_file
 from ..ci import (
     read_packages,
-    comment_cleanup,
     uniq,
     select_conda_build_config,
     select_conda_recipe_append,
@@ -403,13 +403,7 @@ def base_build(order, group, python, dry_run):
         os.environ["CONDA_ROOT"], "conda-bld"
     )
 
-    # loads dirnames from order file (accepts # comments and empty lines)
-    recipes = []
-    with open(order, "rt") as f:
-        for line in f:
-            line = line.partition("#")[0].strip()
-            if line:
-                recipes.append(line)
+    recipes = load_order_file(order)
 
     import itertools
     from .. import bootstrap
@@ -421,12 +415,12 @@ def base_build(order, group, python, dry_run):
     else:
         recipes = list(itertools.product([None], recipes))
 
-    for order, (pyver, recipe) in enumerate(recipes):
+    for k, (pyver, recipe) in enumerate(recipes):
         echo_normal("\n" + (80 * "="))
         pytext = "for python-%s " % pyver if pyver is not None else ""
         echo_normal(
             'Building "%s" %s(%d/%d)'
-            % (recipe, pytext, order + 1, len(recipes))
+            % (recipe, pytext, k + 1, len(recipes))
         )
         echo_normal((80 * "=") + "\n")
         if not os.path.exists(os.path.join(recipe, "meta.yaml")):

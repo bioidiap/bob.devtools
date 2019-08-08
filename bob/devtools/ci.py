@@ -8,6 +8,7 @@ import git
 import distutils.version
 
 from .log import get_logger
+from .build import load_order_file
 
 logger = get_logger(__name__)
 
@@ -79,22 +80,14 @@ def is_stable(package, refname, tag, repodir):
     return False
 
 
-def comment_cleanup(lines):
-    """Cleans-up comments and empty lines from textual data read from files"""
-
-    no_comments = [k.partition("#")[0].strip() for k in lines]
-    return [k for k in no_comments if k]
-
-
 def read_packages(filename):
     """
   Return a python list of tuples (repository, branch), given a file containing
   one package (and branch) per line.  Comments are excluded
 
   """
-    # loads dirnames from order file (accepts # comments and empty lines)
-    with open(filename, "rt") as f:
-        lines = comment_cleanup(f.readlines())
+
+    lines = load_order_file(filename)
 
     packages = []
     for line in lines:
