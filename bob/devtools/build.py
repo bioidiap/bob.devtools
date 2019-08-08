@@ -22,6 +22,20 @@ import distutils.version
 import conda_build.api
 
 
+def comment_cleanup(lines):
+    """Cleans-up comments and empty lines from textual data read from files"""
+
+    no_comments = [k.partition("#")[0].strip() for k in lines]
+    return [k for k in no_comments if k]
+
+
+def load_order_file(path):
+    """Loads an order.txt style file, removes empty lines and comments"""
+
+    with open(path, "rt") as f:
+        return comment_cleanup(f.readlines())
+
+
 def conda_arch():
     """Returns the current OS name and architecture as recognized by conda"""
 
@@ -741,7 +755,9 @@ if __name__ == "__main__":
     # builds all dependencies in the 'deps' subdirectory - or at least checks
     # these dependencies are already available; these dependencies go directly to
     # the public channel once built
-    for recipe in glob.glob(os.path.join("deps", "*")):
+    recipes = load_order_file(os.path.join("deps", "order.txt"))
+    for k, recipe in enumerate([os.path.join("deps", k) for k in recipes]):
+
         if not os.path.exists(os.path.join(recipe, "meta.yaml")):
             # ignore - not a conda package
             continue
