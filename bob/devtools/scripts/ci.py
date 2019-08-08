@@ -570,7 +570,7 @@ def nightlies(ctx, order, dry_run):
     # Use custom variants and append files if available on recipe-dir
     recipe_dir = os.path.join(clone_to, 'conda')
 
-    condarc = select_user_condarc(paths=[recipe, os.curdir],
+    condarc = select_user_condarc(paths=[recipe_dir, os.curdir],
           branch=os.environ.get('CI_COMMIT_REF_NAME'))
     if condarc is not None:
       logger.info('Condarc configuration file: %s', condarc)
