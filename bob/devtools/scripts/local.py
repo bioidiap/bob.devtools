@@ -2,30 +2,17 @@
 
 import os
 import sys
-import re
-import glob
-import shutil
 
 import gitlab
 
-import yaml
 import click
 import pkg_resources
 from click_plugins import with_plugins
 
 from . import bdt
 from . import ci
-from ..constants import (
-    SERVER,
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    WEBDAV_PATHS,
-    BASE_CONDARC,
-)
-from ..deploy import deploy_conda_package, deploy_documentation
-from ..ci import read_packages, comment_cleanup, uniq
 
-from ..log import verbosity_option, get_logger, echo_normal
+from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
