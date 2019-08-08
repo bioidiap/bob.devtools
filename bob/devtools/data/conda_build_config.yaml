@@ -51,12 +51,12 @@ zip_keys:
 
 # This version of bob-devel will be used at test time of packages:
 bob_devel:
-  - 2019.08.04
+  - 2019.08.09
 
 # This version of beat-devel will be used at test time of packages. Notice it
 # uses bob-devel and should have a version that is greater or equal its value
 beat_devel:
-  - 2019.08.04
+  - 2019.08.09
 
 # The build time only dependencies (build requirements).
 # Updating these to the latest version all the time is OK and a good idea.
@@ -66,8 +66,6 @@ cmake:
   - 3.14.0
 pkg_config:
   - 0.29.2
-cython:
-  - 0.29.12
 
 # The dependencies that we link against (host requirements).
 # Ideally we want to build against the oldest possible version of packages when
@@ -91,8 +89,6 @@ libblitz:
   - 1.0.1
 libmatio:
   - 1.5.15
-libogg:
-  - 1.3.2
 libpng:
   - 1.6.35
 libsvm:
@@ -101,22 +97,10 @@ libtiff:
   - 4.0.9
 mkl:
   - 2019.1
-openfst:
-  - 1.6.7
 sox:
   - 14.4.2
-speex:
-  - 1.2.0
-speexdsp:
-  - 1.2rc3
-sqlite:
-  - 3.29.0
 vlfeat:
   - 0.9.21
-xz:
-  - 5.2.3
-zlib:
-  - 1.2.11
 
 # The dependencies that are needed for runtime only (run requirements).
 # These versions **should** match the versions inside bob-devel recipe.
@@ -125,11 +109,9 @@ caffe:
 click:
   - 7.0
 click_plugins:
-  - 1.0.4
-coverage:
-  - 4.5.3
+  - 1.1.1
 cyvlfeat:
-  - 0.4.6
+  - 0.5.1
 dlib:
   - 19.7
 docopt:
@@ -139,71 +121,53 @@ h5py:
 jinja2:
   - 2.10.1
 kaldi:
-  - 2017.03.13
-madmom:
-  - 0.16.1
+  - 1!5.5.164
 matplotlib:
-  - 3.0.3
+  - 3.1.0
 menpo:
-  - 0.8.1
+  - 0.9.1
 menpofit:
-  - 0.5.0
-mido:
-  - 1.2.9
+  - 0.6.1
 mne:
-  - 0.15.2
-mr_developer:
-  - 1.38
-nose:
-  - 1.3.7
+  - 0.18.1
 opencv:
   - 3.4.2
 pillow:
-  - 5.4.1
+  - 6.1.0
 pyedflib:
-  - 0.1.11
+  - 0.1.14
 pytorch:
-  - 1.0.1
+  - 1.1.0
 pyyaml:
-  - 5.1
+  - 5.1.1
 requests:
-  - 2.21.0
+  - 2.22.0
 schema:
-  - 0.6.7
+  - 0.7.0
 scikit_image:
-  - 0.14.2
+  - 0.15.0
 scikit_learn:
-  - 0.20.3
+  - 0.21.2
 scipy:
   - 1.2.1
 setuptools:
-  - 41.0.0
+  - 41.0.1
 six:
   - 1.12.0
-sphinx:
-  - 1.8.5
-sphinx_rtd_theme:
-  - 0.4.3
 sqlalchemy:
   - 1.3.1
 tabulate:
   - 0.8.3
 tensorflow:
-  - 1.13.1
-termcolor:
-  - 1.1.0
+  - 1.14.0
 torchvision:
-  - 0.2.1
-zc_buildout:
-  - 2.12.2
-zc_recipe_egg:
-  - 2.0.7
+  - 0.3.0
 
 # The dependencies that are needed for runtime only (run requirements) of BEAT
 # packages. These versions **should** match the versions inside beat-devel
 # recipe.
 docker_py:
-  - 3.6.0
+  - 4.0.2
 jsonschema:
   - 3.0.1
 oset:
@@ -215,7 +179,7 @@ pyzmq:
 simplejson:
   - 3.16.0
 sphinxcontrib_programoutput:
-  - 0.11
+  - 0.14
 sphinxcontrib_httpdomain:
   - 1.7.0
 nodejs:
