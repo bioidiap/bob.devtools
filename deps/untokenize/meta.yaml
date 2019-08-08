@@ -1,0 +1,44 @@
+{% set version = "0.1.1" %}
+
+package:
+  name: untokenize
+  version: {{ version }}
+
+source:
+  git_rev: v{{ version }}
+  git_url: https://github.com/myint/untokenize
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed ."
+
+requirements:
+  build:
+    - python
+    - pip
+
+  run:
+    - python
+
+test:
+
+  source_files:
+    - test_acid.py
+    - test_untokenize.py
+
+  requires:
+    - nose
+
+  commands:
+    - nosetests -sv test_acid.py test_untokenize.py
+
+about:
+  home: https://github.com/myint/untokenize
+  license: MIT License
+  license_family: MIT
+  summary: 'Transforms tokens into original source code (while preserving whitespace)'
+
+extra:
+  recipe-maintainers:
+    - anjos

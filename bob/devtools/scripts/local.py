@@ -2,30 +2,17 @@
 
 import os
 import sys
-import re
-import glob
-import shutil
 
 import gitlab
 
-import yaml
 import click
 import pkg_resources
 from click_plugins import with_plugins
 
 from . import bdt
 from . import ci
-from ..constants import (
-    SERVER,
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    WEBDAV_PATHS,
-    BASE_CONDARC,
-)
-from ..deploy import deploy_conda_package, deploy_documentation
-from ..ci import read_packages, comment_cleanup, uniq
 
-from ..log import verbosity_option, get_logger, echo_normal
+from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -33,11 +20,11 @@ logger = get_logger(__name__)
 def set_up_environment_variables(
     python, name_space, project_dir=".", project_visibility="public"
 ):
-    """
-  This function sets up the proper environment variables when user wants to run the commands usually run on ci
-  locally
-  """
-    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config("idiap").private_token
+    """This function sets up the proper environment variables when user wants
+    to run the commands usually run on ci locally."""
+    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config(
+        "idiap"
+    ).private_token
     os.environ["CI_PROJECT_DIR"] = project_dir
     os.environ["CI_PROJECT_NAMESPACE"] = name_space
     os.environ["CI_PROJECT_VISIBILITY"] = project_visibility
@@ -49,10 +36,10 @@ def set_up_environment_variables(
 @click.group(cls=bdt.AliasedGroup)
 def local():
     """Commands for building packages and handling certain activities locally
-  it requires a proper set up for ~/.python-gitlab.cfg
+    it requires a proper set up for ~/.python-gitlab.cfg.
 
-  Commands defined here can be run in your own installation.
-  """
+    Commands defined here can be run in your own installation.
+    """
     pass
 
 
@@ -98,21 +85,20 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def docs(ctx, requirement, dry_run, python, group):
-    """Prepares documentation build
+    """Prepares documentation build.
 
-  This command:
-    \b
+    This command:
+      \b
 
-    1. Clones all the necessary packages necessary to build the bob/beat
-       documentation
+      1. Clones all the necessary packages necessary to build the bob/beat
+         documentation
 
-    \b
+      \b
 
-    2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
+      2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
 
-    \b
-
-  """
+      \b
+    """
     set_up_environment_variables(python=python, name_space=group)
 
     ctx.invoke(ci.docs, requirement=requirement, dry_run=dry_run)
@@ -160,8 +146,7 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def build(ctx, dry_run, recipe_dir, python, group):
-    """Run the CI build step locally
-    """
+    """Run the CI build step locally."""
     set_up_environment_variables(python=python, name_space=group)
 
     ctx.invoke(ci.build, dry_run=dry_run, recipe_dir=recipe_dir)
@@ -209,8 +194,9 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def base_build(ctx, order, dry_run, python, group):
-    """Run the CI build step locally
-    """
+    """Run the CI build step locally."""
     set_up_environment_variables(python=python, name_space=group)
 
-    ctx.invoke(ci.base_build, order=order, dry_run=dry_run, group=group, python=python)
+    ctx.invoke(
+        ci.base_build, order=order, dry_run=dry_run, group=group, python=python
+    )
