@@ -167,7 +167,7 @@ torchvision:
 # packages. These versions **should** match the versions inside beat-devel
 # recipe.
 docker_py:
-  - 3.6.0
+  - 4.0.2
 jsonschema:
   - 3.0.1
 oset:
@@ -179,7 +179,7 @@ pyzmq:
 simplejson:
   - 3.16.0
 sphinxcontrib_programoutput:
-  - 0.11
+  - 0.14
 sphinxcontrib_httpdomain:
   - 1.7.0
 nodejs:
