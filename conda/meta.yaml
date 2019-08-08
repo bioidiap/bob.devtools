@@ -35,6 +35,7 @@ requirements:
     - conda-build=3.16
     - conda-verify=3
     - certifi
+    - docformatter
     - pytz
     - python-dateutil
     - gitpython
