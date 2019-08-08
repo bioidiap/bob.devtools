@@ -8,7 +8,6 @@
 _BASE_CONDARC = """\
 default_channels: #!final
   - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/free
 add_pip_as_python_dependency: false #!final
 always_yes: true #!final
 quiet: true #!final
