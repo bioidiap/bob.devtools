@@ -1,34 +1,40 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Deployment utilities for conda packages and documentation via webDAV'''
+"""Deployment utilities for conda packages and documentation via webDAV"""
 
 
 import os
 
 from .constants import WEBDAV_PATHS, SERVER
 from .log import get_logger
+
 logger = get_logger(__name__)
 
 
 def _setup_webdav_client(server, root, username, password):
-  '''Configures and checks the webdav client'''
+    """Configures and checks the webdav client"""
 
-  # setup webdav connection
-  webdav_options = dict(webdav_hostname=server, webdav_root=root,
-      webdav_login=username, webdav_password=password)
+    # setup webdav connection
+    webdav_options = dict(
+        webdav_hostname=server,
+        webdav_root=root,
+        webdav_login=username,
+        webdav_password=password,
+    )
 
-  from .webdav3 import client as webdav
+    from .webdav3 import client as webdav
 
-  retval = webdav.Client(webdav_options)
-  assert retval.valid()
+    retval = webdav.Client(webdav_options)
+    assert retval.valid()
 
-  return retval
+    return retval
 
 
-def deploy_conda_package(package, arch, stable, public, username, password,
-    overwrite, dry_run):
-  '''Deploys a single conda package on the appropriate path
+def deploy_conda_package(
+    package, arch, stable, public, username, password, overwrite, dry_run
+):
+    """Deploys a single conda package on the appropriate path
 
   Args:
 
@@ -49,38 +55,53 @@ def deploy_conda_package(package, arch, stable, public, username, password,
     dry_run (bool): If we're supposed to really do the actions, or just log
       messages.
 
-  '''
+  """
 
-  server_info = WEBDAV_PATHS[stable][public]
-  davclient = _setup_webdav_client(SERVER, server_info['root'], username,
-      password)
+    server_info = WEBDAV_PATHS[stable][public]
+    davclient = _setup_webdav_client(
+        SERVER, server_info["root"], username, password
+    )
 
-  basename = os.path.basename(package)
-  arch = arch or os.path.basename(os.path.dirname(package))
-  remote_path = '%s/%s/%s' % (server_info['conda'], arch, basename)
+    basename = os.path.basename(package)
+    arch = arch or os.path.basename(os.path.dirname(package))
+    remote_path = "%s/%s/%s" % (server_info["conda"], arch, basename)
 
-  if davclient.check(remote_path):
-    if not overwrite:
-      raise RuntimeError('The file %s/%s already exists on the server ' \
-          '- this can be due to more than one build with deployment ' \
-          'running at the same time.  Re-running the broken builds ' \
-          'normally fixes it' % (SERVER, remote_path))
+    if davclient.check(remote_path):
+        if not overwrite:
+            raise RuntimeError(
+                "The file %s/%s already exists on the server "
+                "- this can be due to more than one build with deployment "
+                "running at the same time.  Re-running the broken builds "
+                "normally fixes it" % (SERVER, remote_path)
+            )
 
-    else:
-      logger.info('[dav] rm -f %s%s%s', SERVER, server_info['root'],
-          remote_path)
-      if not dry_run:
-        davclient.clean(remote_path)
+        else:
+            logger.info(
+                "[dav] rm -f %s%s%s", SERVER, server_info["root"], remote_path
+            )
+            if not dry_run:
+                davclient.clean(remote_path)
 
-  logger.info('[dav] %s -> %s%s%s', package, SERVER, server_info['root'],
-      remote_path)
-  if not dry_run:
-    davclient.upload(local_path=package, remote_path=remote_path)
+    logger.info(
+        "[dav] %s -> %s%s%s", package, SERVER, server_info["root"], remote_path
+    )
+    if not dry_run:
+        davclient.upload(local_path=package, remote_path=remote_path)
 
 
-def deploy_documentation(path, package, stable, latest, public, branch, tag,
-    username, password, dry_run):
-  '''Deploys sphinx documentation to the appropriate webdav locations
+def deploy_documentation(
+    path,
+    package,
+    stable,
+    latest,
+    public,
+    branch,
+    tag,
+    username,
+    password,
+    dry_run,
+):
+    """Deploys sphinx documentation to the appropriate webdav locations
 
   Args:
 
@@ -104,41 +125,45 @@ def deploy_documentation(path, package, stable, latest, public, branch, tag,
     dry_run (bool): If we're supposed to really do the actions, or just log
       messages.
 
-  '''
+  """
 
-  # uploads documentation artifacts
-  if not os.path.exists(path):
-    raise RuntimeError('Documentation is not available at %s - ' \
-        'ensure documentation is being produced for your project!' % path)
+    # uploads documentation artifacts
+    if not os.path.exists(path):
+        raise RuntimeError(
+            "Documentation is not available at %s - "
+            "ensure documentation is being produced for your project!" % path
+        )
 
-  server_info = WEBDAV_PATHS[stable][public]
-  davclient = _setup_webdav_client(SERVER, server_info['root'], username,
-      password)
+    server_info = WEBDAV_PATHS[stable][public]
+    davclient = _setup_webdav_client(
+        SERVER, server_info["root"], username, password
+    )
 
-  remote_path_prefix = '%s/%s' % (server_info['docs'], package)
+    remote_path_prefix = "%s/%s" % (server_info["docs"], package)
 
-  # finds out the correct mixture of sub-directories we should deploy to.
-  # 1. if ref-name is a tag, don't forget to publish to 'master' as well -
-  # all tags are checked to come from that branch
-  # 2. if ref-name is a branch name, deploy to it
-  # 3. in case a tag is being published, make sure to deploy to the special
-  # "stable" subdir as well
-  deploy_docs_to = set([branch])
-  if stable:
-    if tag is not None:
-      deploy_docs_to.add(tag)
-    if latest:
-      deploy_docs_to.add('master')
-      deploy_docs_to.add('stable')
+    # finds out the correct mixture of sub-directories we should deploy to.
+    # 1. if ref-name is a tag, don't forget to publish to 'master' as well -
+    # all tags are checked to come from that branch
+    # 2. if ref-name is a branch name, deploy to it
+    # 3. in case a tag is being published, make sure to deploy to the special
+    # "stable" subdir as well
+    deploy_docs_to = set([branch])
+    if stable:
+        if tag is not None:
+            deploy_docs_to.add(tag)
+        if latest:
+            deploy_docs_to.add("master")
+            deploy_docs_to.add("stable")
 
-  # creates package directory, and then uploads directory there
-  for k in deploy_docs_to:
-    if not davclient.check(remote_path_prefix):  #base package directory
-      logger.info('[dav] mkdir %s', remote_path_prefix)
-      if not dry_run:
-        davclient.mkdir(remote_path_prefix)
-    remote_path = '%s/%s' % (remote_path_prefix, k)
-    logger.info('[dav] %s -> %s%s%s', path, SERVER, server_info['root'],
-        remote_path)
-    if not dry_run:
-      davclient.upload_directory(local_path=path, remote_path=remote_path)
+    # creates package directory, and then uploads directory there
+    for k in deploy_docs_to:
+        if not davclient.check(remote_path_prefix):  # base package directory
+            logger.info("[dav] mkdir %s", remote_path_prefix)
+            if not dry_run:
+                davclient.mkdir(remote_path_prefix)
+        remote_path = "%s/%s" % (remote_path_prefix, k)
+        logger.info(
+            "[dav] %s -> %s%s%s", path, SERVER, server_info["root"], remote_path
+        )
+        if not dry_run:
+            davclient.upload_directory(local_path=path, remote_path=remote_path)

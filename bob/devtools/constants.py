@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Constants used for building and more'''
+"""Constants used for building and more"""
 
 import os
 import pkg_resources
@@ -9,57 +9,60 @@ import pkg_resources
 from . import bootstrap
 
 from .log import get_logger
+
 logger = get_logger(__name__)
 
 
 BASE_CONDARC = bootstrap._BASE_CONDARC
-'''Default setup for conda builds'''
+"""Default setup for conda builds"""
 
 
-CONDA_BUILD_CONFIG = pkg_resources.resource_filename(__name__,
-    os.path.join('data', 'conda_build_config.yaml'))
-'''Configuration variants we like building'''
+CONDA_BUILD_CONFIG = pkg_resources.resource_filename(
+    __name__, os.path.join("data", "conda_build_config.yaml")
+)
+"""Configuration variants we like building"""
 
 
-CONDA_RECIPE_APPEND = pkg_resources.resource_filename(__name__,
-    os.path.join('data', 'recipe_append.yaml'))
-'''Extra information to be appended to every recipe upon building'''
+CONDA_RECIPE_APPEND = pkg_resources.resource_filename(
+    __name__, os.path.join("data", "recipe_append.yaml")
+)
+"""Extra information to be appended to every recipe upon building"""
 
 
 SERVER = bootstrap._SERVER
-'''This is the default server use use to store data and build artifacts'''
+"""This is the default server use use to store data and build artifacts"""
 
 
 WEBDAV_PATHS = {
-    True: {  #stable?
-      False: {  #visible?
-        'root': '/private-upload',
-        'conda': '/conda',
-        'docs': '/docs',
+    True: {  # stable?
+        False: {  # visible?
+            "root": "/private-upload",
+            "conda": "/conda",
+            "docs": "/docs",
         },
-      True: {  #visible?
-        'root': '/public-upload',
-        'conda': '/conda',
-        'docs': '/docs',
+        True: {  # visible?
+            "root": "/public-upload",
+            "conda": "/conda",
+            "docs": "/docs",
         },
-      },
-    False: {  #stable?
-      False: {  #visible?
-        'root': '/private-upload',
-        'conda': '/conda/label/beta',
-        'docs': '/docs',
+    },
+    False: {  # stable?
+        False: {  # visible?
+            "root": "/private-upload",
+            "conda": "/conda/label/beta",
+            "docs": "/docs",
         },
-      True: {  #visible?
-        'root': '/public-upload',
-        'conda': '/conda/label/beta',
-        'docs': '/docs',
+        True: {  # visible?
+            "root": "/public-upload",
+            "conda": "/conda/label/beta",
+            "docs": "/docs",
         },
-      },
-    }
-'''Default locations of our webdav upload paths'''
+    },
+}
+"""Default locations of our webdav upload paths"""
 
 
-IDIAP_ROOT_CA = b'''
+IDIAP_ROOT_CA = b"""
 Idiap Root CA 2016 - for internal use
 =====================================
 -----BEGIN CERTIFICATE-----
@@ -102,25 +105,26 @@ NqU3Xei/78W+eLh9HZvVqXpi4s/fF6z+lXKDHpqVRh5kNAKJbYQUfcV2H7FEtCux
 NIDS6J1GnHJKCmYPuwFSrQ5VXM/1p7w+A9MkJktsxw2kxsRUvJn7Ka+bp7M6wERU
 JHsX
 -----END CERTIFICATE-----
-'''
+"""
 
 
-CACERT_URL = 'https://curl.haxx.se/ca/cacert.pem'
-'''Location of the most up-to-date CA certificate bundle'''
+CACERT_URL = "https://curl.haxx.se/ca/cacert.pem"
+"""Location of the most up-to-date CA certificate bundle"""
 
 
-CACERT = pkg_resources.resource_filename(__name__,
-    os.path.join('data', 'cacert.pem'))
-'''We keep a copy of the CA certificates we trust here
+CACERT = pkg_resources.resource_filename(
+    __name__, os.path.join("data", "cacert.pem")
+)
+"""We keep a copy of the CA certificates we trust here
 
    To update this file use: ``curl --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem``
 
    More information here: https://curl.haxx.se/docs/caextract.html
-'''
+"""
 
 
-MATPLOTLIB_RCDIR = pkg_resources.resource_filename(__name__, 'data')
-'''Base directory where the file matplotlibrc lives
+MATPLOTLIB_RCDIR = pkg_resources.resource_filename(__name__, "data")
+"""Base directory where the file matplotlibrc lives
 
 It is required for certain builds that use matplotlib functionality.
-'''
+"""

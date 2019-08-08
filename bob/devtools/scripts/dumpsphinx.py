@@ -9,10 +9,12 @@ import click
 from . import bdt
 
 from ..log import verbosity_option, get_logger
+
 logger = get_logger(__name__)
 
 
-@click.command(epilog='''
+@click.command(
+    epilog="""
 Examples:
 
   1. Dumps objects documented in python 3.x:
@@ -28,14 +30,15 @@ Examples:
   3. Dumps objects documented in matplotlib:
 
      $ bdt dumpsphinx http://matplotlib.org/objects.inv
-''')
-@click.argument('url')
+"""
+)
+@click.argument("url")
 @verbosity_option()
 @bdt.raise_on_error
 def dumpsphinx(url):
-  """Dumps all the objects given an sphinx catalog/inventory URL
+    """Dumps all the objects given an sphinx catalog/inventory URL
 
   This command is useful when you are struggling to do proper links from your
   documentation.
   """
-  intersphinx.inspect_main([url])
+    intersphinx.inspect_main([url])

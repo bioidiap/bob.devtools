@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''Tools to help CI-based builds and artifact deployment'''
+"""Tools to help CI-based builds and artifact deployment"""
 
 
 import git
 import distutils.version
 
 from .log import get_logger
+
 logger = get_logger(__name__)
 
 
 def is_master(refname, tag, repodir):
-  '''Tells if we're on the master branch via ref_name or tag
+    """Tells if we're on the master branch via ref_name or tag
 
   This function checks if the name of the branch being built is "master".  If a
   tag is set, then it checks if the tag is on the master branch.  If so, then
@@ -26,18 +27,18 @@ def is_master(refname, tag, repodir):
 
   Returns: a boolean, indicating we're building the master branch **or** that
   the tag being built was issued on the master branch.
-  '''
+  """
 
-  if tag is not None:
-    repo = git.Repo(repodir)
-    _tag = repo.tag('refs/tags/%s' % tag)
-    return _tag.commit in repo.iter_commits(rev='master')
+    if tag is not None:
+        repo = git.Repo(repodir)
+        _tag = repo.tag("refs/tags/%s" % tag)
+        return _tag.commit in repo.iter_commits(rev="master")
 
-  return refname == 'master'
+    return refname == "master"
 
 
 def is_stable(package, refname, tag, repodir):
-  '''Determines if the package being published is stable
+    """Determines if the package being published is stable
 
   This is done by checking if a tag was set for the package.  If that is the
   case, we still cross-check the tag is on the "master" branch.  If everything
@@ -52,77 +53,85 @@ def is_stable(package, refname, tag, repodir):
     repodir: The directory that contains the clone of the git repository
 
   Returns: a boolean, indicating if the current build is for a stable release
-  '''
+  """
 
-  if tag is not None:
-    logger.info('Project %s tag is "%s"', package, tag)
-    parsed_tag = distutils.version.LooseVersion(tag[1:]).version  #remove 'v'
-    is_prerelease = any([isinstance(k, str) for k in parsed_tag])
+    if tag is not None:
+        logger.info('Project %s tag is "%s"', package, tag)
+        parsed_tag = distutils.version.LooseVersion(
+            tag[1:]
+        ).version  # remove 'v'
+        is_prerelease = any([isinstance(k, str) for k in parsed_tag])
 
-    if is_prerelease:
-      logger.warn('Pre-release detected - not publishing to stable channels')
-      return False
+        if is_prerelease:
+            logger.warn(
+                "Pre-release detected - not publishing to stable channels"
+            )
+            return False
 
-    if is_master(refname, tag, repodir):
-      return True
-    else:
-      logger.warn('Tag %s in non-master branch will be ignored', tag)
-      return False
+        if is_master(refname, tag, repodir):
+            return True
+        else:
+            logger.warn("Tag %s in non-master branch will be ignored", tag)
+            return False
 
-  logger.info('No tag information available at build')
-  logger.info('Considering this to be a pre-release build')
-  return False
+    logger.info("No tag information available at build")
+    logger.info("Considering this to be a pre-release build")
+    return False
 
 
 def comment_cleanup(lines):
-  """Cleans-up comments and empty lines from textual data read from files"""
+    """Cleans-up comments and empty lines from textual data read from files"""
 
-  no_comments = [k.partition('#')[0].strip() for k in lines]
-  return [k for k in no_comments if k]
+    no_comments = [k.partition("#")[0].strip() for k in lines]
+    return [k for k in no_comments if k]
 
 
 def read_packages(filename):
-  """
+    """
   Return a python list of tuples (repository, branch), given a file containing
   one package (and branch) per line.  Comments are excluded
 
   """
-  # loads dirnames from order file (accepts # comments and empty lines)
-  with open(filename, 'rt') as f:
-    lines = comment_cleanup(f.readlines())
+    # loads dirnames from order file (accepts # comments and empty lines)
+    with open(filename, "rt") as f:
+        lines = comment_cleanup(f.readlines())
 
-  packages = []
-  for line in lines:
-    if ',' in line:  #user specified a branch
-      path, branch = [k.strip() for k in line.split(',', 1)]
-      packages.append((path, branch))
-    else:
-      packages.append((line, 'master'))
+    packages = []
+    for line in lines:
+        if "," in line:  # user specified a branch
+            path, branch = [k.strip() for k in line.split(",", 1)]
+            packages.append((path, branch))
+        else:
+            packages.append((line, "master"))
 
-  return packages
+    return packages
 
 
 def uniq(seq, idfun=None):
-  """Very fast, order preserving uniq function"""
+    """Very fast, order preserving uniq function"""
 
-  # order preserving
-  if idfun is None:
-      def idfun(x): return x
-  seen = {}
-  result = []
-  for item in seq:
-      marker = idfun(item)
-      # in old Python versions:
-      # if seen.has_key(marker)
-      # but in new ones:
-      if marker in seen: continue
-      seen[marker] = 1
-      result.append(item)
-  return result
+    # order preserving
+    if idfun is None:
+
+        def idfun(x):
+            return x
+
+    seen = {}
+    result = []
+    for item in seq:
+        marker = idfun(item)
+        # in old Python versions:
+        # if seen.has_key(marker)
+        # but in new ones:
+        if marker in seen:
+            continue
+        seen[marker] = 1
+        result.append(item)
+    return result
 
 
 def select_build_file(basename, paths, branch):
-  '''Selects the file to use for a build
+    """Selects the file to use for a build
 
   This method will return the name of the most adequate build-accessory file
   (conda_build_config.yaml, recipe_append.yaml) for a given build, in this
@@ -152,56 +161,60 @@ def select_build_file(basename, paths, branch):
     str: A string containing the full, resolved path of the file to use.
     Returns ``None``, if no candidate is found
 
-  '''
+  """
 
-  import os
+    import os
 
-  basename, extension = os.path.splitext(os.path.basename(basename))
+    basename, extension = os.path.splitext(os.path.basename(basename))
 
-  if branch:
-    specific_basename = '%s-%s' % (basename, branch)
+    if branch:
+        specific_basename = "%s-%s" % (basename, branch)
+        for path in paths:
+            path = os.path.realpath(path)
+            candidate = os.path.join(
+                path, "%s%s" % (specific_basename, extension)
+            )
+            if os.path.exists(candidate):
+                return candidate
+
     for path in paths:
-      path = os.path.realpath(path)
-      candidate = os.path.join(path, '%s%s' % (specific_basename, extension))
-      if os.path.exists(candidate):
-        return candidate
-
-  for path in paths:
-    path = os.path.realpath(path)
-    candidate = os.path.join(path, '%s%s' % (basename, extension))
-    if os.path.exists(candidate):
-      return candidate
+        path = os.path.realpath(path)
+        candidate = os.path.join(path, "%s%s" % (basename, extension))
+        if os.path.exists(candidate):
+            return candidate
 
 
 def select_conda_build_config(paths, branch):
-  '''Selects the default conda_build_config.yaml.
+    """Selects the default conda_build_config.yaml.
 
   See :py:func:`select_build_file` for implementation details.  If no build
   config file is found by :py:func:`select_build_file`, then returns the
   default ``conda_build_config.yaml`` shipped with this package.
-  '''
+  """
 
-  from .constants import CONDA_BUILD_CONFIG as default
-  return select_build_file(default, paths, branch) or default
+    from .constants import CONDA_BUILD_CONFIG as default
+
+    return select_build_file(default, paths, branch) or default
 
 
 def select_conda_recipe_append(paths, branch):
-  '''Selects the default recipe_append.yaml.
+    """Selects the default recipe_append.yaml.
 
   See :py:func:`select_build_file` for implementation details.  If no recipe
   append file is found by :py:func:`select_build_file`, then returns the
   default ``recipe_append.yaml`` shipped with this package.
-  '''
+  """
 
-  from .constants import CONDA_RECIPE_APPEND as default
-  return select_build_file(default, paths, branch) or default
+    from .constants import CONDA_RECIPE_APPEND as default
+
+    return select_build_file(default, paths, branch) or default
 
 
 def select_user_condarc(paths, branch):
-  '''Selects the user condarc file to read (if any)
+    """Selects the user condarc file to read (if any)
 
   See :py:func:`select_build_file` for implementation details.  If no recipe
   condarc is found by :py:func:`select_build_file`, then returns ``None``.
-  '''
+  """
 
-  return select_build_file('condarc', paths, branch)
+    return select_build_file("condarc", paths, branch)

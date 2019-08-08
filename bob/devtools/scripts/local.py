@@ -37,7 +37,9 @@ def set_up_environment_variables(
   This function sets up the proper environment variables when user wants to run the commands usually run on ci
   locally
   """
-    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config("idiap").private_token
+    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config(
+        "idiap"
+    ).private_token
     os.environ["CI_PROJECT_DIR"] = project_dir
     os.environ["CI_PROJECT_NAMESPACE"] = name_space
     os.environ["CI_PROJECT_VISIBILITY"] = project_visibility
@@ -213,4 +215,6 @@ def base_build(ctx, order, dry_run, python, group):
     """
     set_up_environment_variables(python=python, name_space=group)
 
-    ctx.invoke(ci.base_build, order=order, dry_run=dry_run, group=group, python=python)
+    ctx.invoke(
+        ci.base_build, order=order, dry_run=dry_run, group=group, python=python
+    )

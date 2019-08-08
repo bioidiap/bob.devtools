@@ -7,10 +7,12 @@ import click
 from . import bdt
 
 from ..log import verbosity_option, get_logger
+
 logger = get_logger(__name__)
 
 
-@click.command(epilog='''
+@click.command(
+    epilog="""
 Examples:
 
   1. Update the root certificate authority bundle on the distribution:
@@ -19,7 +21,8 @@ Examples:
      $ git status  #to check if bundle changed
      $ git commit -m '[data] Update CA bundle'  #if need be
 
-''')
+"""
+)
 @verbosity_option()
 @bdt.raise_on_error
 def caupdate():
@@ -33,13 +36,13 @@ def caupdate():
     import requests
     from ..constants import CACERT, CACERT_URL, IDIAP_ROOT_CA
 
-    logger.info('Retrieving %s...', CACERT_URL)
+    logger.info("Retrieving %s...", CACERT_URL)
     r = requests.get(CACERT_URL, allow_redirects=True)
 
-    logger.info('Writing %s...', CACERT)
-    with open(CACERT, 'wb') as f:
-      f.write(r.content)
-      f.write(IDIAP_ROOT_CA)
+    logger.info("Writing %s...", CACERT)
+    with open(CACERT, "wb") as f:
+        f.write(r.content)
+        f.write(IDIAP_ROOT_CA)
 
-    logger.warn('CA bundle is updated')
-    logger.warn('Run git status, commit and push (if need be)')
+    logger.warn("CA bundle is updated")
+    logger.warn("Run git status, commit and push (if need be)")

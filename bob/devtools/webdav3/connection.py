@@ -21,8 +21,18 @@ class ConnectionSettings:
 class WebDAVSettings(ConnectionSettings):
     ns = "webdav:"
     prefix = "webdav_"
-    keys = {'hostname', 'login', 'password', 'token', 'root', 'cert_path', 'key_path', 'recv_speed', 'send_speed',
-            'verbose'}
+    keys = {
+        "hostname",
+        "login",
+        "password",
+        "token",
+        "root",
+        "cert_path",
+        "key_path",
+        "recv_speed",
+        "send_speed",
+        "verbose",
+    }
 
     hostname = None
     login = None
@@ -40,26 +50,34 @@ class WebDAVSettings(ConnectionSettings):
         self.options = dict()
 
         for key in self.keys:
-            value = options.get(key, '')
+            value = options.get(key, "")
             self.options[key] = value
             self.__dict__[key] = value
 
-        self.root = Urn(self.root).quote() if self.root else ''
+        self.root = Urn(self.root).quote() if self.root else ""
         self.root = self.root.rstrip(Urn.separate)
 
     def is_valid(self):
 
         if not self.hostname:
-            raise OptionNotValid(name="hostname", value=self.hostname, ns=self.ns)
+            raise OptionNotValid(
+                name="hostname", value=self.hostname, ns=self.ns
+            )
 
         if self.cert_path and not exists(self.cert_path):
-            raise OptionNotValid(name="cert_path", value=self.cert_path, ns=self.ns)
+            raise OptionNotValid(
+                name="cert_path", value=self.cert_path, ns=self.ns
+            )
 
         if self.key_path and not exists(self.key_path):
-            raise OptionNotValid(name="key_path", value=self.key_path, ns=self.ns)
+            raise OptionNotValid(
+                name="key_path", value=self.key_path, ns=self.ns
+            )
 
         if self.key_path and not self.cert_path:
-            raise OptionNotValid(name="cert_path", value=self.cert_path, ns=self.ns)
+            raise OptionNotValid(
+                name="cert_path", value=self.cert_path, ns=self.ns
+            )
 
         if self.password and not self.login:
             raise OptionNotValid(name="login", value=self.login, ns=self.ns)
@@ -71,7 +89,7 @@ class WebDAVSettings(ConnectionSettings):
 class ProxySettings(ConnectionSettings):
     ns = "proxy:"
     prefix = "proxy_"
-    keys = {'hostname', 'login', 'password'}
+    keys = {"hostname", "login", "password"}
 
     hostname = None
     login = None
@@ -82,7 +100,7 @@ class ProxySettings(ConnectionSettings):
         self.options = dict()
 
         for key in self.keys:
-            value = options.get(key, '')
+            value = options.get(key, "")
             self.options[key] = value
             self.__dict__[key] = value
 
@@ -93,4 +111,6 @@ class ProxySettings(ConnectionSettings):
 
         if self.login or self.password:
             if not self.hostname:
-                raise OptionNotValid(name="hostname", value=self.hostname, ns=self.ns)
+                raise OptionNotValid(
+                    name="hostname", value=self.hostname, ns=self.ns
+                )
