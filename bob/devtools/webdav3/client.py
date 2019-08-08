@@ -29,7 +29,8 @@ __version__ = "0.2"
 
 
 def listdir(directory):
-    """Returns list of nested files and directories for local directory by path
+    """Returns list of nested files and directories for local directory by
+    path.
 
     :param directory: absolute or relative path to local directory
     :return: list nested of file or directory names
@@ -46,7 +47,7 @@ def listdir(directory):
 
 
 def get_options(option_type, from_options):
-    """Extract options for specified option type from all options
+    """Extract options for specified option type from all options.
 
     :param option_type: the object of specified type of options
     :param from_options: all options dictionary
@@ -86,8 +87,8 @@ def wrap_connection_error(fn):
 
 
 class Client(object):
-    """The client for WebDAV servers provides an ability to control files on remote WebDAV server.
-    """
+    """The client for WebDAV servers provides an ability to control files on
+    remote WebDAV server."""
 
     # path to root directory of WebDAV
     root = "/"
@@ -168,7 +169,8 @@ class Client(object):
         return "{root}{path}".format(root=self.webdav.root, path=urn.path())
 
     def execute_request(self, action, path, data=None, headers_ext=None):
-        """Generate request to WebDAV server for specified action and path and execute it.
+        """Generate request to WebDAV server for specified action and path and
+        execute it.
 
         :param action: the action for WebDAV server which should be executed.
         :param path: the path to resource for action
@@ -218,7 +220,7 @@ class Client(object):
     meta_xmlns = {"https://webdav.yandex.ru": "urn:yandex:disk:meta"}
 
     def __init__(self, options):
-        """Constructor of WebDAV client
+        """Constructor of WebDAV client.
 
         :param options: the dictionary of connection options to WebDAV can include proxy server options.
             WebDev settings:
@@ -261,8 +263,9 @@ class Client(object):
 
     @wrap_connection_error
     def list(self, remote_path=root):
-        """Returns list of nested files and directories for remote WebDAV directory by path.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
+        """Returns list of nested files and directories for remote WebDAV
+        directory by path. More information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND.
 
         :param remote_path: path to remote directory.
         :return: list of nested file or directory names.
@@ -286,8 +289,9 @@ class Client(object):
 
     @wrap_connection_error
     def free(self):
-        """Returns an amount of free space on remote WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
+        """Returns an amount of free space on remote WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND.
 
         :return: an amount of free space in bytes.
         """
@@ -299,8 +303,9 @@ class Client(object):
 
     @wrap_connection_error
     def check(self, remote_path=root):
-        """Checks an existence of remote resource on WebDAV server by remote path.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#rfc.section.9.4
+        """Checks an existence of remote resource on WebDAV server by remote
+        path. More information you can find by link
+        http://webdav.org/specs/rfc4918.html#rfc.section.9.4.
 
         :param remote_path: (optional) path to resource on WebDAV server. Defaults is root directory of WebDAV.
         :return: True if resource is exist or False otherwise
@@ -317,12 +322,11 @@ class Client(object):
 
     @wrap_connection_error
     def mkdir(self, remote_path):
-        """Makes new directory on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_MKCOL
+        """Makes new directory on WebDAV server. More information you can find
+        by link http://webdav.org/specs/rfc4918.html#METHOD_MKCOL.
 
         :param remote_path: path to directory
         :return: True if request executed with code 200 or 201 and False otherwise.
-
         """
         directory_urn = Urn(remote_path, directory=True)
         if not self.check(directory_urn.parent()):
@@ -352,7 +356,8 @@ class Client(object):
 
     def download(self, remote_path, local_path, progress=None):
         """Downloads remote resource from WebDAV and save it in local path.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#rfc.section.9.4
+        More information you can find by link
+        http://webdav.org/specs/rfc4918.html#rfc.section.9.4.
 
         :param remote_path: the path to remote resource for downloading can be file and directory.
         :param local_path: the path to save resource locally.
@@ -373,8 +378,9 @@ class Client(object):
             )
 
     def download_directory(self, remote_path, local_path, progress=None):
-        """Downloads directory and downloads all nested files and directories from remote WebDAV to local.
-        If there is something on local path it deletes directories and files then creates new.
+        """Downloads directory and downloads all nested files and directories
+        from remote WebDAV to local. If there is something on local path it
+        deletes directories and files then creates new.
 
         :param remote_path: the path to directory for downloading form WebDAV server.
         :param local_path: the path to local directory for saving downloaded files and directories.
@@ -402,8 +408,9 @@ class Client(object):
 
     @wrap_connection_error
     def download_file(self, remote_path, local_path, progress=None):
-        """Downloads file from WebDAV server and save it locally.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#rfc.section.9.4
+        """Downloads file from WebDAV server and save it locally. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#rfc.section.9.4.
 
         :param remote_path: the path to remote file for downloading.
         :param local_path: the path to save file locally.
@@ -436,7 +443,7 @@ class Client(object):
             callback()
 
     def download_async(self, remote_path, local_path, callback=None):
-        """Downloads remote resources from WebDAV server asynchronously
+        """Downloads remote resources from WebDAV server asynchronously.
 
         :param remote_path: the path to remote resource on WebDAV server. Can be file and directory.
         :param local_path: the path to save resource locally.
@@ -449,8 +456,9 @@ class Client(object):
 
     @wrap_connection_error
     def upload_to(self, buff, remote_path):
-        """Uploads file from buffer to remote path on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PUT
+        """Uploads file from buffer to remote path on WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PUT.
 
         :param buff: the buffer with content for file.
         :param remote_path: the path to save file remotely on WebDAV server.
@@ -465,9 +473,10 @@ class Client(object):
         self.execute_request(action="upload", path=urn.quote(), data=buff)
 
     def upload(self, remote_path, local_path, progress=None):
-        """Uploads resource to remote path on WebDAV server.
-        In case resource is directory it will upload all nested files and directories.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PUT
+        """Uploads resource to remote path on WebDAV server. In case resource
+        is directory it will upload all nested files and directories. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PUT.
 
         :param remote_path: the path for uploading resources on WebDAV server. Can be file and directory.
         :param local_path: the path to local resource for uploading.
@@ -483,9 +492,9 @@ class Client(object):
             self.upload_file(local_path=local_path, remote_path=remote_path)
 
     def upload_directory(self, remote_path, local_path, progress=None):
-        """Uploads directory to remote path on WebDAV server.
-        In case directory is exist on remote server it will delete it and then upload directory with nested files and
-        directories.
+        """Uploads directory to remote path on WebDAV server. In case directory
+        is exist on remote server it will delete it and then upload directory
+        with nested files and directories.
 
         :param remote_path: the path to directory for uploading on WebDAV server.
         :param local_path: the path to local directory for uploading.
@@ -519,8 +528,9 @@ class Client(object):
 
     @wrap_connection_error
     def upload_file(self, remote_path, local_path, progress=None):
-        """Uploads file to remote path on WebDAV server. File should be 2Gb or less.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PUT
+        """Uploads file to remote path on WebDAV server. File should be 2Gb or
+        less. More information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PUT.
 
         :param remote_path: the path to uploading file on WebDAV server.
         :param local_path: the path to local file for uploading.
@@ -551,8 +561,9 @@ class Client(object):
             )
 
     def upload_sync(self, remote_path, local_path, callback=None):
-        """Uploads resource to remote path on WebDAV server synchronously.
-        In case resource is directory it will upload all nested files and directories.
+        """Uploads resource to remote path on WebDAV server synchronously. In
+        case resource is directory it will upload all nested files and
+        directories.
 
         :param remote_path: the path for uploading resources on WebDAV server. Can be file and directory.
         :param local_path: the path to local resource for uploading.
@@ -564,8 +575,9 @@ class Client(object):
             callback()
 
     def upload_async(self, remote_path, local_path, callback=None):
-        """Uploads resource to remote path on WebDAV server asynchronously.
-        In case resource is directory it will upload all nested files and directories.
+        """Uploads resource to remote path on WebDAV server asynchronously. In
+        case resource is directory it will upload all nested files and
+        directories.
 
         :param remote_path: the path for uploading resources on WebDAV server. Can be file and directory.
         :param local_path: the path to local resource for uploading.
@@ -578,8 +590,9 @@ class Client(object):
 
     @wrap_connection_error
     def copy(self, remote_path_from, remote_path_to):
-        """Copies resource from one place to another on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_COPY
+        """Copies resource from one place to another on WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_COPY.
 
         :param remote_path_from: the path to resource which will be copied,
         :param remote_path_to: the path where resource will be copied.
@@ -603,8 +616,9 @@ class Client(object):
 
     @wrap_connection_error
     def move(self, remote_path_from, remote_path_to, overwrite=False):
-        """Moves resource from one place to another on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_MOVE
+        """Moves resource from one place to another on WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_MOVE.
 
         :param remote_path_from: the path to resource which will be moved,
         :param remote_path_to: the path where resource will be moved.
@@ -632,9 +646,10 @@ class Client(object):
 
     @wrap_connection_error
     def clean(self, remote_path):
-        """Cleans (Deletes) a remote resource on WebDAV server. The name of method is not changed for back compatibility
-        with original library.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_DELETE
+        """Cleans (Deletes) a remote resource on WebDAV server. The name of
+        method is not changed for back compatibility with original library.
+        More information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_DELETE.
 
         :param remote_path: the remote resource whisch will be deleted.
         """
@@ -643,8 +658,8 @@ class Client(object):
 
     @wrap_connection_error
     def info(self, remote_path):
-        """Gets information about resource on WebDAV.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
+        """Gets information about resource on WebDAV. More information you can
+        find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND.
 
         :param remote_path: the path to remote resource.
         :return: a dictionary of information attributes and them values with following keys:
@@ -667,8 +682,8 @@ class Client(object):
 
     @wrap_connection_error
     def is_dir(self, remote_path):
-        """Checks is the remote resource directory.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
+        """Checks is the remote resource directory. More information you can
+        find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND.
 
         :param remote_path: the path to remote resource.
         :return: True in case the remote resource is directory and False otherwise.
@@ -688,8 +703,9 @@ class Client(object):
 
     @wrap_connection_error
     def get_property(self, remote_path, option):
-        """Gets metadata property of remote resource on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
+        """Gets metadata property of remote resource on WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND.
 
         :param remote_path: the path to remote resource.
         :param option: the property attribute as dictionary with following keys:
@@ -711,8 +727,9 @@ class Client(object):
 
     @wrap_connection_error
     def set_property(self, remote_path, option):
-        """Sets metadata property of remote resource on WebDAV server.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPPATCH
+        """Sets metadata property of remote resource on WebDAV server. More
+        information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PROPPATCH.
 
         :param remote_path: the path to remote resource.
         :param option: the property attribute as dictionary with following keys:
@@ -724,8 +741,9 @@ class Client(object):
 
     @wrap_connection_error
     def set_property_batch(self, remote_path, option):
-        """Sets batch metadata properties of remote resource on WebDAV server in batch.
-        More information you can find by link http://webdav.org/specs/rfc4918.html#METHOD_PROPPATCH
+        """Sets batch metadata properties of remote resource on WebDAV server
+        in batch. More information you can find by link
+        http://webdav.org/specs/rfc4918.html#METHOD_PROPPATCH.
 
         :param remote_path: the path to remote resource.
         :param option: the property attributes as list of dictionaries with following keys:
@@ -934,7 +952,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def parse_get_list_response(content):
-        """Parses of response content XML from WebDAV server and extract file and directory names.
+        """Parses of response content XML from WebDAV server and extract file
+        and directory names.
 
         :param content: the XML content of HTTP response from WebDAV server for getting list of files by remote path.
         :return: list of extracted file or directory names.
@@ -964,7 +983,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def parse_free_space_response(content, hostname):
-        """Parses of response content XML from WebDAV server and extract an amount of free space.
+        """Parses of response content XML from WebDAV server and extract an
+        amount of free space.
 
         :param content: the XML content of HTTP response from WebDAV server for getting free space.
         :param hostname: the server hostname.
@@ -984,7 +1004,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def parse_info_response(content, path, hostname):
-        """Parses of response content XML from WebDAV server and extract an information about resource.
+        """Parses of response content XML from WebDAV server and extract an
+        information about resource.
 
         :param content: the XML content of HTTP response from WebDAV server.
         :param path: the path to resource.
@@ -1011,7 +1032,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def parse_is_dir_response(content, path, hostname):
-        """Parses of response content XML from WebDAV server and extract an information about resource.
+        """Parses of response content XML from WebDAV server and extract an
+        information about resource.
 
         :param content: the XML content of HTTP response from WebDAV server.
         :param path: the path to resource.
@@ -1030,7 +1052,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def create_get_property_request_content(option):
-        """Creates an XML for requesting of getting a property value of remote WebDAV resource.
+        """Creates an XML for requesting of getting a property value of remote
+        WebDAV resource.
 
         :param option: the property attributes as dictionary with following keys:
                        `namespace`: (optional) the namespace for XML property which will be get,
@@ -1047,7 +1070,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def parse_get_property_response(content, name):
-        """Parses of response content XML from WebDAV server for getting metadata property value for some resource.
+        """Parses of response content XML from WebDAV server for getting
+        metadata property value for some resource.
 
         :param content: the XML content of response as string.
         :param name: the name of property for finding a value in response
@@ -1058,7 +1082,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def create_set_property_batch_request_content(options):
-        """Creates an XML for requesting of setting a property values for remote WebDAV resource in batch.
+        """Creates an XML for requesting of setting a property values for
+        remote WebDAV resource in batch.
 
         :param options: the property attributes as list of dictionaries with following keys:
                        `namespace`: (optional) the namespace for XML property which will be set,
@@ -1079,7 +1104,8 @@ class WebDavXmlUtils:
 
     @staticmethod
     def etree_to_string(tree):
-        """Creates string from lxml.etree.ElementTree with XML declaration and UTF-8 encoding.
+        """Creates string from lxml.etree.ElementTree with XML declaration and
+        UTF-8 encoding.
 
         :param tree: the instance of ElementTree
         :return: the string of XML.

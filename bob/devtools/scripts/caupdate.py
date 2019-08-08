@@ -26,11 +26,11 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def caupdate():
-    """Updates the root certificate authority bundle on the distribution
+    """Updates the root certificate authority bundle on the distribution.
 
     This script will download the latest CA bundle from curl at
-    https://curl.haxx.se/ca/cacert.pem and will append Idiap's Root CA to the
-    bundle, so we can use https://gitlab.idiap.ch transparently.
+    https://curl.haxx.se/ca/cacert.pem and will append Idiap's Root CA
+    to the bundle, so we can use https://gitlab.idiap.ch transparently.
     """
 
     import requests

@@ -80,7 +80,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def release(changelog, group, package, resume, dry_run):
-    """Tags packages on gitlab from an input CHANGELOG in markdown formatting
+    """Tags packages on gitlab from an input CHANGELOG in markdown formatting.
 
     By using a CHANGELOG file as an input (that can be generated with the ``bdt
     changelog`` command), this script goes through all packages in CHANGELOG

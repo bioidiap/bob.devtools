@@ -43,12 +43,12 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def visibility(target, group):
-    """Reports visibility of gitlab repository
+    """Reports visibility of gitlab repository.
 
-    This command checks if the named package is visible to the currently logged
-    in user, and reports its visibility level ('public', 'internal',
-    'private').  If the package does not exist or it is private to the current
-    user, it says 'unknown' instead.
+    This command checks if the named package is visible to the currently
+    logged in user, and reports its visibility level ('public',
+    'internal', 'private').  If the package does not exist or it is
+    private to the current user, it says 'unknown' instead.
     """
 
     gl = get_gitlab_instance()

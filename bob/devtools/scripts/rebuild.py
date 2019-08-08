@@ -145,14 +145,16 @@ def rebuild(
     dry_run,
     ci,
 ):
-    """Tests and rebuilds packages through conda-build with stock configuration
+    """Tests and rebuilds packages through conda-build with stock
+    configuration.
 
-  This command wraps the execution of conda-build in two stages: first, from
-  the original package recipe and some channel look-ups, it figures out what is
-  the lastest version of the package available.  It downloads such file and
-  runs a test.  If the test suceeds, then it proceeds to the next recipe.
-  Otherwise, it rebuilds the package and uploads a new version to the channel.
-  """
+    This command wraps the execution of conda-build in two stages:
+    first, from the original package recipe and some channel look-ups,
+    it figures out what is the lastest version of the package available.
+    It downloads such file and runs a test.  If the test suceeds, then
+    it proceeds to the next recipe. Otherwise, it rebuilds the package
+    and uploads a new version to the channel.
+    """
 
     # if we are in a dry-run mode, let's let it be known
     if dry_run:

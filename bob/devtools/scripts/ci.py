@@ -30,13 +30,13 @@ logger = get_logger(__name__)
 @with_plugins(pkg_resources.iter_entry_points("bdt.ci.cli"))
 @click.group(cls=bdt.AliasedGroup)
 def ci():
-    """Commands for building packages and handling CI activities
+    """Commands for building packages and handling CI activities.
 
-  Commands defined here are supposed to run on our CI, where a number of
-  variables that define their behavior is correctly defined.  Do **NOT**
-  attempt to run these commands in your own installation.  Unexpected errors
-  may occur.
-  """
+    Commands defined here are supposed to run on our CI, where a number
+    of variables that define their behavior is correctly defined.  Do
+    **NOT** attempt to run these commands in your own installation.
+    Unexpected errors may occur.
+    """
     pass
 
 
@@ -61,10 +61,11 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def base_deploy(dry_run):
-    """Deploys dependencies not available at the defaults channel
+    """Deploys dependencies not available at the defaults channel.
 
     Deployment happens to our public channel directly, as these are
-    dependencies are required for proper bob/beat package runtime environments.
+    dependencies are required for proper bob/beat package runtime
+    environments.
     """
 
     if dry_run:
@@ -217,11 +218,11 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def readme(package):
-    """Checks setup.py's ``long_description`` syntax
+    """Checks setup.py's ``long_description`` syntax.
 
-    This program checks the syntax of the contents of the ``long_description``
-    field at the package's ``setup()`` function.  It verifies it will be
-    correctly displayed at PyPI.
+    This program checks the syntax of the contents of the
+    ``long_description`` field at the package's ``setup()`` function.
+    It verifies it will be correctly displayed at PyPI.
     """
 
     for k in package:
@@ -271,8 +272,8 @@ def pypi(package, dry_run):
     """Deploys build artifacts (python packages to PyPI)
 
     Deployment is only allowed for packages in which the visibility is
-    "public".  This check prevents publishing of private resources to the
-    (public) PyPI webserver.
+    "public".  This check prevents publishing of private resources to
+    the (public) PyPI webserver.
     """
 
     if dry_run:
@@ -359,12 +360,12 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def base_build(order, group, python, dry_run):
-    """Builds base (dependence) packages
+    """Builds base (dependence) packages.
 
-  This command builds dependence packages (packages that are not Bob/BEAT
-  packages) in the CI infrastructure.  It is **not** meant to be used outside
-  this context.
-  """
+    This command builds dependence packages (packages that are not
+    Bob/BEAT packages) in the CI infrastructure.  It is **not** meant to
+    be used outside this context.
+    """
 
     condarc = select_user_condarc(
         paths=[os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME")
@@ -467,11 +468,11 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def test(ctx, dry_run):
-    """Tests packages
+    """Tests packages.
 
-  This command tests packages in the CI infrastructure.  It is **not** meant
-  to be used outside this context.
-  """
+    This command tests packages in the CI infrastructure.  It is **not**
+    meant to be used outside this context.
+    """
 
     group = os.environ["CI_PROJECT_NAMESPACE"]
     if group not in ("bob", "beat"):
@@ -552,11 +553,11 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def build(ctx, dry_run, recipe_dir):
-    """Builds packages
+    """Builds packages.
 
-  This command builds packages in the CI infrastructure.  It is **not** meant
-  to be used outside this context.
-  """
+    This command builds packages in the CI infrastructure.  It is
+    **not** meant to be used outside this context.
+    """
 
     group = os.environ["CI_PROJECT_NAMESPACE"]
     if group not in ("bob", "beat"):
@@ -616,11 +617,11 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def clean(ctx):
-    """Cleans builds
+    """Cleans builds.
 
-  This command cleans builds in the CI infrastructure.  It is **not** meant
-  to be used outside this context.
-  """
+    This command cleans builds in the CI infrastructure.  It is **not**
+    meant to be used outside this context.
+    """
 
     from ..build import git_clean_build
     from ..bootstrap import run_cmdline
@@ -656,24 +657,24 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def nightlies(ctx, order, dry_run):
-    """Runs nightly builds
+    """Runs nightly builds.
 
-  This command can run nightly builds for packages listed on a file.
+    This command can run nightly builds for packages listed on a file.
 
-  The build or each package happens in a few phases:
+    The build or each package happens in a few phases:
 
-  1. Package is checked out and switched to the requested branch (master if not
-     set otherwise)
-  2. A build string is calculated from current dependencies.  If the package
-     has already been compiled, it is downloaded from the respective conda
-     channel and tested.  If the test does not pass, the package is completely
-     rebuilt
-  3. If the rebuild is successful, the new package is uploaded to the
-     respective conda channel, and the program continues with the next package
+    1. Package is checked out and switched to the requested branch (master if not
+       set otherwise)
+    2. A build string is calculated from current dependencies.  If the package
+       has already been compiled, it is downloaded from the respective conda
+       channel and tested.  If the test does not pass, the package is completely
+       rebuilt
+    3. If the rebuild is successful, the new package is uploaded to the
+       respective conda channel, and the program continues with the next package
 
-  Dependencies are searched with priority to locally built packages.  For this
-  reason, the input file **must** be provided in the right dependence order.
-  """
+    Dependencies are searched with priority to locally built packages.  For this
+    reason, the input file **must** be provided in the right dependence order.
+    """
 
     # loads dirnames from order file (accepts # comments and empty lines)
     packages = read_packages(order)
@@ -816,21 +817,20 @@ Examples:
 @bdt.raise_on_error
 @click.pass_context
 def docs(ctx, requirement, dry_run):
-    """Prepares documentation build
+    """Prepares documentation build.
 
-  This command:
-    \b
+    This command:
+      \b
 
-    1. Clones all the necessary packages necessary to build the bob/beat
-       documentation
-    \b
+      1. Clones all the necessary packages necessary to build the bob/beat
+         documentation
+      \b
 
-    2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
-    \b
+      2. Generates the `extra-intersphinx.txt` and `nitpick-exceptions.txt` file
+      \b
 
-  This command is supposed to be run **instead** of `bdt ci build...`
-
-  """
+    This command is supposed to be run **instead** of `bdt ci build...`
+    """
 
     packages = read_packages(requirement)
 

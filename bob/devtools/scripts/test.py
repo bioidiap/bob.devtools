@@ -133,12 +133,12 @@ def test(
     dry_run,
     ci,
 ):
-    """Tests (pre-built) package through conda-build with stock configuration
+    """Tests (pre-built) package through conda-build with stock configuration.
 
-  This command wraps the execution of conda-build so that you use the same
-  conda configuration we use for our CI.  It always set
-  ``--no-anaconda-upload``.
-  """
+    This command wraps the execution of conda-build so that you use the
+    same conda configuration we use for our CI.  It always set ``--no-
+    anaconda-upload``.
+    """
 
     # if we are in a dry-run mode, let's let it be known
     if dry_run:

@@ -40,8 +40,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def jobs(name, status):
-    """Lists jobs on a given runner identified by description
-    """
+    """Lists jobs on a given runner identified by description."""
 
     gl = get_gitlab_instance()
     gl.auth()

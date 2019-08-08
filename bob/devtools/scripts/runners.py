@@ -46,8 +46,8 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def runners(target, cmd, name, dry_run):
-    """Enables and disables runners on whole gitlab groups or single projects
-    """
+    """Enables and disables runners on whole gitlab groups or single
+    projects."""
 
     gl = get_gitlab_instance()
     gl.auth()

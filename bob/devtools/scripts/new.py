@@ -16,13 +16,13 @@ logger = get_logger(__name__)
 
 
 def copy_file(template, output_dir):
-    """Copies a file from the template directory to the output directory
+    """Copies a file from the template directory to the output directory.
 
-  Args:
+    Args:
 
-    template: The path to the template, from the internal templates directory
-    output_dir: Where to save the output
-  """
+      template: The path to the template, from the internal templates directory
+      output_dir: Where to save the output
+    """
 
     template_file = pkg_resources.resource_filename(
         __name__, os.path.join("..", "templates", template)
@@ -39,15 +39,15 @@ def copy_file(template, output_dir):
 
 
 def render_template(jenv, template, context, output_dir):
-    """Renders a template to the output directory using specific context
+    """Renders a template to the output directory using specific context.
 
-  Args:
+    Args:
 
-    jenv: The Jinja2 environment to use for rendering the template
-    template: The path to the template, from the internal templates directory
-    context: A dictionary with the context to render the template with
-    output_dir: Where to save the output
-  """
+      jenv: The Jinja2 environment to use for rendering the template
+      template: The path to the template, from the internal templates directory
+      context: A dictionary with the context to render the template with
+      output_dir: Where to save the output
+    """
 
     output_file = os.path.join(output_dir, template)
 
@@ -100,8 +100,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def new(package, author, email, title, license, output_dir):
-    """Creates a folder structure for a new Bob/BEAT package
-    """
+    """Creates a folder structure for a new Bob/BEAT package."""
 
     if "/" not in package:
         raise RuntimeError('PACKAGE should be specified as "group/name"')

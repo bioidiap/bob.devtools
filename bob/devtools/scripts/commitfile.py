@@ -74,8 +74,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def commitfile(package, message, file, path, branch, auto_merge, dry_run):
-    """Changes a file on a given package, directly on master or through MR
-    """
+    """Changes a file on a given package, directly on master or through MR."""
 
     if "/" not in package:
         raise RuntimeError('PACKAGE should be specified as "group/name"')

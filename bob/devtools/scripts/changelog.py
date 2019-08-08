@@ -102,9 +102,9 @@ def changelog(target, changelog, group, mode, since):
     an existing file containing a list of packages that will be iterated on.
 
     For each package, we will contact the Gitlab server and create a changelog
-		using merge-requests (default), tags or commits since a given date.  If a
-		starting date is not passed, we'll use the date of the last tagged value or
-		the date of the first commit, if no tags are available in the package.
+                using merge-requests (default), tags or commits since a given date.  If a
+                starting date is not passed, we'll use the date of the last tagged value or
+                the date of the first commit, if no tags are available in the package.
     """
 
     gl = get_gitlab_instance()

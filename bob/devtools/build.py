@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tools for self-building and other utilities"""
+"""Tools for self-building and other utilities."""
 
 
 import os
@@ -23,21 +23,21 @@ import conda_build.api
 
 
 def comment_cleanup(lines):
-    """Cleans-up comments and empty lines from textual data read from files"""
+    """Cleans-up comments and empty lines from textual data read from files."""
 
     no_comments = [k.partition("#")[0].strip() for k in lines]
     return [k for k in no_comments if k]
 
 
 def load_order_file(path):
-    """Loads an order.txt style file, removes empty lines and comments"""
+    """Loads an order.txt style file, removes empty lines and comments."""
 
     with open(path, "rt") as f:
         return comment_cleanup(f.readlines())
 
 
 def conda_arch():
-    """Returns the current OS name and architecture as recognized by conda"""
+    """Returns the current OS name and architecture as recognized by conda."""
 
     r = "unknown"
     if platform.system().lower() == "linux":
@@ -57,32 +57,30 @@ def conda_arch():
 
 def should_skip_build(metadata_tuples):
     """Takes the output of render_recipe as input and evaluates if this
-  recipe's build should be skipped.
-  """
+    recipe's build should be skipped."""
 
     return all(m[0].skip() for m in metadata_tuples)
 
 
 def next_build_number(channel_url, basename):
-    """Calculates the next build number of a package given the channel
+    """Calculates the next build number of a package given the channel.
 
-  This function returns the next build number (integer) for a package given its
-  resulting tarball base filename (can be obtained with
-  :py:func:`get_output_path`).
+    This function returns the next build number (integer) for a package given its
+    resulting tarball base filename (can be obtained with
+    :py:func:`get_output_path`).
 
 
-  Args:
+    Args:
 
-    channel_url: The URL where to look for packages clashes (normally a beta
-      channel)
-    basename: The tarball basename to check on the channel
+      channel_url: The URL where to look for packages clashes (normally a beta
+        channel)
+      basename: The tarball basename to check on the channel
 
-  Returns: The next build number with the current configuration.  Zero (0) is
-  returned if no match is found.  Also returns the URLs of the packages it
-  finds with matches on the name, version and python-version, ordered by
-  (reversed) build-number.
-
-  """
+    Returns: The next build number with the current configuration.  Zero (0) is
+    returned if no match is found.  Also returns the URLs of the packages it
+    finds with matches on the name, version and python-version, ordered by
+    (reversed) build-number.
+    """
 
     from conda.exports import get_index
 
@@ -141,23 +139,23 @@ def next_build_number(channel_url, basename):
 
 
 def make_conda_config(config, python, append_file, condarc_options):
-    """Creates a conda configuration for a build merging various sources
+    """Creates a conda configuration for a build merging various sources.
 
-  This function will use the conda-build API to construct a configuration by
-  merging different sources of information.
+    This function will use the conda-build API to construct a configuration by
+    merging different sources of information.
 
-  Args:
+    Args:
 
-    config: Path leading to the ``conda_build_config.yaml`` to use
-    python: The version of python to use for the build as ``x.y`` (e.g.
-      ``3.6``)
-    append_file: Path leading to the ``recipe_append.yaml`` file to use
-    condarc_options: A dictionary (typically read from a condarc YAML file)
-      that contains build and channel options
+      config: Path leading to the ``conda_build_config.yaml`` to use
+      python: The version of python to use for the build as ``x.y`` (e.g.
+        ``3.6``)
+      append_file: Path leading to the ``recipe_append.yaml`` file to use
+      condarc_options: A dictionary (typically read from a condarc YAML file)
+        that contains build and channel options
 
-  Returns: A dictionary containing the merged configuration, as produced by
-  conda-build API's ``get_or_merge_config()`` function.
-  """
+    Returns: A dictionary containing the merged configuration, as produced by
+    conda-build API's ``get_or_merge_config()`` function.
+    """
 
     from conda_build.conda_interface import url_path
 
@@ -187,39 +185,38 @@ def make_conda_config(config, python, append_file, condarc_options):
 
 
 def get_output_path(metadata, config):
-    """Renders the recipe and returns the name of the output file"""
+    """Renders the recipe and returns the name of the output file."""
 
     return conda_build.api.get_output_file_paths(metadata, config=config)[0]
 
 
 def get_rendered_metadata(recipe_dir, config):
-    """Renders the recipe and returns the interpreted YAML file"""
+    """Renders the recipe and returns the interpreted YAML file."""
 
     return conda_build.api.render(recipe_dir, config=config)
 
 
 def get_parsed_recipe(metadata):
-    """Renders the recipe and returns the interpreted YAML file"""
+    """Renders the recipe and returns the interpreted YAML file."""
 
     output = conda_build.api.output_yaml(metadata[0][0])
     return yaml.load(output, Loader=yaml.FullLoader)
 
 
 def exists_on_channel(channel_url, basename):
-    """Checks on the given channel if a package with the specs exist
+    """Checks on the given channel if a package with the specs exist.
 
-  This procedure always ignores the package hash code, if one is set
+    This procedure always ignores the package hash code, if one is set
 
-  Args:
+    Args:
 
-    channel_url: The URL where to look for packages clashes (normally a beta
-      channel)
-    basename: The basename of the tarball to search for
+      channel_url: The URL where to look for packages clashes (normally a beta
+        channel)
+      basename: The basename of the tarball to search for
 
-  Returns: A complete package url, if the package already exists in the channel
-  or ``None`` otherwise.
-
-  """
+    Returns: A complete package url, if the package already exists in the channel
+    or ``None`` otherwise.
+    """
 
     build_number, urls = next_build_number(channel_url, basename)
 
@@ -266,7 +263,7 @@ def parse_dependencies(recipe_dir, config):
 
 
 def get_env_directory(conda, name):
-    """Get the directory of a particular conda environment or fail silently"""
+    """Get the directory of a particular conda environment or fail silently."""
 
     cmd = [conda, "env", "list", "--json"]
     output = subprocess.check_output(cmd)
@@ -291,23 +288,23 @@ def get_env_directory(conda, name):
 
 
 def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
-    """Creates a new conda environment following package specifications
+    """Creates a new conda environment following package specifications.
 
-  This command can create a new conda environment following the list of input
-  packages.  It will overwrite an existing environment if indicated.
+    This command can create a new conda environment following the list of input
+    packages.  It will overwrite an existing environment if indicated.
 
-  Args:
-    conda: path to the main conda executable of the installation
-    name: the name of the environment to create or overwrite
-    overwrite: if set to ```True``, overwrite potentially existing environments
-      with the same name
-    condarc: a dictionary of options for conda, including channel urls
-    packages: the package list specification
-    dry_run: if set, then don't execute anything, just print stuff
-    use_local: include the local conda-bld directory as a possible installation
-      channel (useful for testing multiple interdependent recipes that are
-      built locally)
-  """
+    Args:
+      conda: path to the main conda executable of the installation
+      name: the name of the environment to create or overwrite
+      overwrite: if set to ```True``, overwrite potentially existing environments
+        with the same name
+      condarc: a dictionary of options for conda, including channel urls
+      packages: the package list specification
+      dry_run: if set, then don't execute anything, just print stuff
+      use_local: include the local conda-bld directory as a possible installation
+        channel (useful for testing multiple interdependent recipes that are
+        built locally)
+    """
 
     from .bootstrap import run_cmdline
 
@@ -360,38 +357,37 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
 
 
 def get_docserver_setup(public, stable, server, intranet, group):
-    """Returns a setup for BOB_DOCUMENTATION_SERVER
+    """Returns a setup for BOB_DOCUMENTATION_SERVER.
 
-  What is available to build the documentation depends on the setup of
-  ``public`` and ``stable``:
+    What is available to build the documentation depends on the setup of
+    ``public`` and ``stable``:
 
-  * public and stable: only returns the public stable channel(s)
-  * public and not stable: returns both public stable and beta channels
-  * not public and stable: returns both public and private stable channels
-  * not public and not stable: returns all channels
+    * public and stable: only returns the public stable channel(s)
+    * public and not stable: returns both public stable and beta channels
+    * not public and stable: returns both public and private stable channels
+    * not public and not stable: returns all channels
 
-  Beta channels have priority over stable channels, if returned.  Private
-  channels have priority over public channles, if turned.
-
-
-  Args:
-
-    public: Boolean indicating if we're supposed to include only public
-      channels
-    stable: Boolean indicating if we're supposed to include only stable
-      channels
-    server: The base address of the server containing our conda channels
-    intranet: Boolean indicating if we should add "private"/"public" prefixes
-      on the returned paths
-    group: The group of packages (gitlab namespace) the package we're compiling
-      is part of.  Values should match URL namespaces currently available on
-      our internal webserver.  Currently, only "bob" or "beat" will work.
+    Beta channels have priority over stable channels, if returned.  Private
+    channels have priority over public channles, if turned.
 
 
-  Returns: a string to be used by bob.extension to find dependent
-  documentation projects.
+    Args:
 
-  """
+      public: Boolean indicating if we're supposed to include only public
+        channels
+      stable: Boolean indicating if we're supposed to include only stable
+        channels
+      server: The base address of the server containing our conda channels
+      intranet: Boolean indicating if we should add "private"/"public" prefixes
+        on the returned paths
+      group: The group of packages (gitlab namespace) the package we're compiling
+        is part of.  Values should match URL namespaces currently available on
+        our internal webserver.  Currently, only "bob" or "beat" will work.
+
+
+    Returns: a string to be used by bob.extension to find dependent
+    documentation projects.
+    """
 
     if (not public) and (not intranet):
         raise RuntimeError(
@@ -429,25 +425,25 @@ def get_docserver_setup(public, stable, server, intranet, group):
 
 
 def check_version(workdir, envtag):
-    """Checks if the version being built and the value reported match
+    """Checks if the version being built and the value reported match.
 
-  This method will read the contents of the file ``version.txt`` and compare it
-  to the potentially set ``envtag`` (may be ``None``).  If the value of
-  ``envtag`` is different than ``None``, ensure it matches the value in
-  ``version.txt`` or raises an exception.
-
-
-  Args:
-
-    workdir: The work directory where the repo of the package being built was
-      checked-out
-    envtag: (optional) tag provided by the environment
+    This method will read the contents of the file ``version.txt`` and compare it
+    to the potentially set ``envtag`` (may be ``None``).  If the value of
+    ``envtag`` is different than ``None``, ensure it matches the value in
+    ``version.txt`` or raises an exception.
 
 
-  Returns: A tuple with the version of the package that we're currently
-  building and a boolean flag indicating if the version number represents a
-  pre-release or a stable release.
-  """
+    Args:
+
+      workdir: The work directory where the repo of the package being built was
+        checked-out
+      envtag: (optional) tag provided by the environment
+
+
+    Returns: A tuple with the version of the package that we're currently
+    building and a boolean flag indicating if the version number represents a
+    pre-release or a stable release.
+    """
 
     version = open(os.path.join(workdir, "version.txt"), "rt").read().rstrip()
 
@@ -483,15 +479,14 @@ def check_version(workdir, envtag):
 
 
 def git_clean_build(runner, verbose):
-    """Runs git-clean to clean-up build products
+    """Runs git-clean to clean-up build products.
 
-  Args:
+    Args:
 
-    runner: A pointer to the ``run_cmdline()`` function
-    verbose: A boolean flag indicating if the git command should report erased
-      files or not
-
-  """
+      runner: A pointer to the ``run_cmdline()`` function
+      verbose: A boolean flag indicating if the git command should report erased
+        files or not
+    """
 
     # glob wild card entries we'd like to keep
     exclude_from_cleanup = [
@@ -533,42 +528,42 @@ def base_build(
     python_version,
     condarc_options,
 ):
-    """Builds a non-beat/non-bob software dependence that doesn't exist on defaults
+    """Builds a non-beat/non-bob software dependence that doesn't exist on
+    defaults.
 
-  This function will build a software dependence that is required for our
-  software stack, but does not (yet) exist on the defaults channels.  It first
-  check if the build should run for the current architecture, checks if the
-  package is not already built on our public channel and, if that is true, then
-  proceeds with the build of the dependence.
-
-
-  Args:
-
-    bootstrap: Module that should be pre-loaded so this function can be used
-      in a pre-bdt build
-    server: The base address of the server containing our conda channels
-    intranet: Boolean indicating if we should add "private"/"public" prefixes
-      on the returned paths
-    group: The group of packages (gitlab namespace) the package we're compiling
-      is part of.  Values should match URL namespaces currently available on
-      our internal webserver.  Currently, only "bob" or "beat" will work.
-    recipe_dir: The directory containing the recipe's ``meta.yaml`` file
-    conda_build_config: Path to the ``conda_build_config.yaml`` file to use
-    python_version: String with the python version to build for, in the format
-      ``x.y`` (should be passed even if not building a python package).  It
-      can also be set to ``noarch``, or ``None``.  If set to ``None``, then we
-      don't assume there is a python-specific version being built.  If set to
-      ``noarch``, then it is a python package without a specific build.
-    condarc_options: Pre-parsed condarc options loaded from the respective YAML
-      file
+    This function will build a software dependence that is required for our
+    software stack, but does not (yet) exist on the defaults channels.  It first
+    check if the build should run for the current architecture, checks if the
+    package is not already built on our public channel and, if that is true, then
+    proceeds with the build of the dependence.
 
 
-  Returns:
+    Args:
 
-    list: The list of built packages, as returned by
-    ``conda_build.api.build()``
+      bootstrap: Module that should be pre-loaded so this function can be used
+        in a pre-bdt build
+      server: The base address of the server containing our conda channels
+      intranet: Boolean indicating if we should add "private"/"public" prefixes
+        on the returned paths
+      group: The group of packages (gitlab namespace) the package we're compiling
+        is part of.  Values should match URL namespaces currently available on
+        our internal webserver.  Currently, only "bob" or "beat" will work.
+      recipe_dir: The directory containing the recipe's ``meta.yaml`` file
+      conda_build_config: Path to the ``conda_build_config.yaml`` file to use
+      python_version: String with the python version to build for, in the format
+        ``x.y`` (should be passed even if not building a python package).  It
+        can also be set to ``noarch``, or ``None``.  If set to ``None``, then we
+        don't assume there is a python-specific version being built.  If set to
+        ``noarch``, then it is a python package without a specific build.
+      condarc_options: Pre-parsed condarc options loaded from the respective YAML
+        file
 
-  """
+
+    Returns:
+
+      list: The list of built packages, as returned by
+      ``conda_build.api.build()``
+    """
 
     # if you get to this point, tries to build the package
     public_channels = bootstrap.get_channels(

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Utilities to needed to release packages"""
+"""Utilities to needed to release packages."""
 
 import os
 import re
@@ -17,7 +17,7 @@ from distutils.version import StrictVersion
 
 
 def download_path(package, path, output=None, ref="master"):
-    """Downloads paths from gitlab, with an optional recurse
+    """Downloads paths from gitlab, with an optional recurse.
 
     This method will download an archive of the repository from chosen
     reference, and then it will search insize the zip blob for the path to be
@@ -33,7 +33,6 @@ def download_path(package, path, output=None, ref="master"):
         the basename of ``path`` as storage point with respect to the current
         directory
       ref: the name of the git reference (branch, tag or commit hash) to use
-
     """
     from io import BytesIO
     import tarfile
@@ -60,7 +59,7 @@ def download_path(package, path, output=None, ref="master"):
 
 
 def get_gitlab_instance():
-    """Returns an instance of the gitlab object for remote operations"""
+    """Returns an instance of the gitlab object for remote operations."""
 
     # tries to figure if we can authenticate using a global configuration
     cfgs = ["~/.python-gitlab.cfg", "/etc/python-gitlab.cfg"]
@@ -83,8 +82,7 @@ def get_gitlab_instance():
 
 
 def _update_readme(readme, version):
-    """
-    Inside text of the readme, replaces parts of the links to the provided
+    """Inside text of the readme, replaces parts of the links to the provided
     version. If version is not provided, replace to `stable` or `master`.
 
     Args:
@@ -125,7 +123,8 @@ def _update_readme(readme, version):
 
 
 def get_latest_tag_name(gitpkg):
-    """Find the name of the latest tag for a given package in the format '#.#.#'
+    """Find the name of the latest tag for a given package in the format
+    '#.#.#'.
 
     Args:
         gitpkg: gitlab package object
@@ -153,9 +152,8 @@ def get_latest_tag_name(gitpkg):
 
 
 def get_parsed_tag(gitpkg, tag):
-    """
-    An older tag is formatted as 'v2.1.3 (Sep 22, 2017 10:37)', from which we
-    need only v2.1.3
+    """An older tag is formatted as 'v2.1.3 (Sep 22, 2017 10:37)', from which
+    we need only v2.1.3.
 
     The latest tag is either patch, minor, major, or none
     """
@@ -256,7 +254,7 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
 def update_files_with_mr(
     gitpkg, files_dict, message, branch, automerge, dry_run, user_id
 ):
-    """Update (via a commit) files of a given gitlab package, through an MR
+    """Update (via a commit) files of a given gitlab package, through an MR.
 
     This function can update a file in a gitlab package, but will do this
     through a formal merge request.  You can auto-merge this request
@@ -271,7 +269,6 @@ def update_files_with_mr(
           created MR
         dry_run: If True, nothing will be pushed to gitlab
         user_id: The integer which numbers the user to attribute this MR to
-
     """
 
     data = {
@@ -344,7 +341,6 @@ def update_files_at_master(gitpkg, files_dict, message, dry_run):
         files_dict: Dictionary of file names and their contents (as text)
         message: Commit message
         dry_run: If True, nothing will be committed or pushed to GitLab
-
     """
 
     data = {"branch": "master", "commit_message": message, "actions": []}  # v4
@@ -370,7 +366,7 @@ def update_files_at_master(gitpkg, files_dict, message, dry_run):
 
 
 def get_last_pipeline(gitpkg):
-    """Returns the last pipeline of the project
+    """Returns the last pipeline of the project.
 
     Args:
 
@@ -388,7 +384,7 @@ def get_last_pipeline(gitpkg):
 
 
 def just_build_package(gitpkg, dry_run=False):
-    """Creates the pipeline with the latest tag and starts it
+    """Creates the pipeline with the latest tag and starts it.
 
     Args:
 
@@ -396,7 +392,6 @@ def just_build_package(gitpkg, dry_run=False):
         dry_run: If True, the pipeline will not be created on GitLab
 
     Returns:
-
     """
 
     # get the latest tag
@@ -424,7 +419,6 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
         pipeline_id: id of the pipeline for which we are waiting to finish
         dry_run: If True, outputs log message and exit. There wil be no
                  waiting.
-
     """
 
     sleep_step = 30
@@ -478,12 +472,11 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
 
 
 def cancel_last_pipeline(gitpkg):
-    """ Cancel the last started pipeline of a package
+    """Cancel the last started pipeline of a package.
 
     Args:
 
         gitpkg: gitlab package object
-
     """
 
     pipeline = get_last_pipeline(gitpkg)
@@ -496,7 +489,7 @@ def cancel_last_pipeline(gitpkg):
 
 
 def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
-    """Release package
+    """Release package.
 
     The provided tag will be annotated with a given list of comments.
     README.rst and version.txt files will also be updated according to the
@@ -508,7 +501,6 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
         tag_name: The name of the release tag
         tag_comments_list: New annotations for this tag in a form of list
         dry_run: If True, nothing will be committed or pushed to GitLab
-
     """
 
     # if there is nothing to release, just rebuild the package
@@ -569,7 +561,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
 
 
 def parse_and_process_package_changelog(gl, gitpkg, package_changelog, dry_run):
-    """Process the changelog of a single package
+    """Process the changelog of a single package.
 
     Parse the log following specific format.  Update annotations of the
     provided older tags and release the package by following the last tag
@@ -584,7 +576,6 @@ def parse_and_process_package_changelog(gl, gitpkg, package_changelog, dry_run):
 
     Returns: the name of the latest tag, and tag's
     comments
-
     """
 
     cur_tag = None
@@ -610,7 +601,7 @@ def parse_and_process_package_changelog(gl, gitpkg, package_changelog, dry_run):
 
 
 def release_bob(changelog_file):
-    """Process the changelog and releases the ``bob`` metapackage"""
+    """Process the changelog and releases the ``bob`` metapackage."""
 
     logger.info(
         'Read the section "Releasing the Bob meta package" '

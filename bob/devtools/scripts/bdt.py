@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Main entry point for bdt
-"""
+"""Main entry point for bdt."""
 
 import os
 import pkg_resources
@@ -16,7 +15,7 @@ logger = setup("bob")
 
 
 class AliasedGroup(click.Group):
-    """ Class that handles prefix aliasing for commands """
+    """Class that handles prefix aliasing for commands."""
 
     def get_command(self, ctx, cmd_name):
         rv = click.Group.get_command(self, ctx, cmd_name)
@@ -33,8 +32,8 @@ class AliasedGroup(click.Group):
 def raise_on_error(view_func):
     """Raise a click exception if returned value is not zero.
 
-    Click exits successfully if anything is returned, in order to exit properly
-    when something went wrong an exception must be raised.
+    Click exits successfully if anything is returned, in order to exit
+    properly when something went wrong an exception must be raised.
     """
 
     from functools import wraps

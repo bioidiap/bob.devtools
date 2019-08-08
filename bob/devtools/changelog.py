@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Utilities for retrieving, parsing and auto-generating changelogs"""
+"""Utilities for retrieving, parsing and auto-generating changelogs."""
 
 import io
 import datetime
@@ -23,7 +23,7 @@ def parse_date(d):
 
 
 def _sort_commits(commits, reverse):
-    """Sorts gitlab commit objects using their ``committed_date`` attribute"""
+    """Sorts gitlab commit objects using their ``committed_date`` attribute."""
 
     return sorted(
         commits, key=lambda x: parse_date(x.committed_date), reverse=reverse
@@ -31,7 +31,7 @@ def _sort_commits(commits, reverse):
 
 
 def _sort_tags(tags, reverse):
-    """Sorts gitlab tag objects using their ``committed_date`` attribute"""
+    """Sorts gitlab tag objects using their ``committed_date`` attribute."""
 
     return sorted(
         tags,
@@ -41,13 +41,13 @@ def _sort_tags(tags, reverse):
 
 
 def get_file_from_gitlab(gitpkg, path, ref="master"):
-    """Retrieves a file from a Gitlab repository, returns a (StringIO) file"""
+    """Retrieves a file from a Gitlab repository, returns a (StringIO) file."""
 
     return io.StringIO(gitpkg.files.get(file_path=path, ref=branch).decode())
 
 
 def get_last_tag(package):
-    """Returns the last (gitlab object) tag for the given package
+    """Returns the last (gitlab object) tag for the given package.
 
     Args:
 
@@ -68,7 +68,7 @@ def get_last_tag(package):
 
 
 def get_last_tag_date(package):
-    """Returns the last release date for the given package
+    """Returns the last release date for the given package.
 
     Falls back to the first commit date if the package has not yet been tagged
 
@@ -135,14 +135,13 @@ def _get_tag_changelog(tag):
 
 
 def _write_one_tag(f, pkg_name, tag):
-    """Prints commit information for a single tag of a given package
+    """Prints commit information for a single tag of a given package.
 
     Args:
 
         f: A :py:class:`File` ready to be written at
         pkg_name: The name of the package we are writing tags of
         tag: The tag value
-
     """
 
     git_date = parse_date(tag.commit["committed_date"])
@@ -164,14 +163,14 @@ def _write_one_tag(f, pkg_name, tag):
 
 
 def _write_commits_range(f, pkg_name, commits):
-    """Writes all commits of a given package within a range, to the output file
+    """Writes all commits of a given package within a range, to the output
+    file.
 
     Args:
 
         f: A :py:class:`File` ready to be written at
         pkg_name: The name of the package we are writing tags of
         commits: List of commits to be written
-
     """
 
     for commit in commits:
@@ -195,14 +194,13 @@ def _write_commits_range(f, pkg_name, commits):
 
 def _write_mergerequests_range(f, pkg_name, mrs):
     """Writes all merge-requests of a given package, with a range, to the
-    output file
+    output file.
 
     Args:
 
         f: A :py:class:`File` ready to be written at
         pkg_name: The name of the package we are writing tags of
         mrs: The list of merge requests to write
-
     """
 
     for mr in mrs:
@@ -232,7 +230,7 @@ def _write_mergerequests_range(f, pkg_name, mrs):
 
 
 def write_tags_with_commits(f, gitpkg, since, mode):
-    """Writes all tags and commits of a given package to the output file
+    """Writes all tags and commits of a given package to the output file.
 
     Args:
 
@@ -241,7 +239,6 @@ def write_tags_with_commits(f, gitpkg, since, mode):
         since: Starting date (as a datetime object)
         mode: One of mrs (merge-requests), commits or tags indicating how to
               list entries in the changelog for this package
-
     """
 
     # get tags since release and sort them
@@ -332,14 +329,13 @@ def write_tags_with_commits(f, gitpkg, since, mode):
 
 
 def write_tags(f, gitpkg, since):
-    """Writes all tags of a given package to the output file
+    """Writes all tags of a given package to the output file.
 
     Args:
 
         f: A :py:class:`File` ready to be written at
         gitpkg: A pointer to the gitlab package object
         since: Starting date as a datetime object
-
     """
 
     tags = gitpkg.tags.list()

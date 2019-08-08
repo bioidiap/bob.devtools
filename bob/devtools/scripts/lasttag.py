@@ -33,8 +33,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def lasttag(package):
-    """Returns the last tag information on a given PACKAGE
-    """
+    """Returns the last tag information on a given PACKAGE."""
 
     if "/" not in package:
         raise RuntimeError('PACKAGE should be specified as "group/name"')

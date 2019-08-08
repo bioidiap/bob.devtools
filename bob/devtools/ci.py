@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tools to help CI-based builds and artifact deployment"""
+"""Tools to help CI-based builds and artifact deployment."""
 
 
 import git
@@ -14,21 +14,21 @@ logger = get_logger(__name__)
 
 
 def is_master(refname, tag, repodir):
-    """Tells if we're on the master branch via ref_name or tag
+    """Tells if we're on the master branch via ref_name or tag.
 
-  This function checks if the name of the branch being built is "master".  If a
-  tag is set, then it checks if the tag is on the master branch.  If so, then
-  also returns ``True``, otherwise, ``False``.
+    This function checks if the name of the branch being built is "master".  If a
+    tag is set, then it checks if the tag is on the master branch.  If so, then
+    also returns ``True``, otherwise, ``False``.
 
-  Args:
+    Args:
 
-    refname: The value of the environment variable ``CI_COMMIT_REF_NAME``
-    tag: The value of the environment variable ``CI_COMMIT_TAG`` - (may be
-      ``None``)
+      refname: The value of the environment variable ``CI_COMMIT_REF_NAME``
+      tag: The value of the environment variable ``CI_COMMIT_TAG`` - (may be
+        ``None``)
 
-  Returns: a boolean, indicating we're building the master branch **or** that
-  the tag being built was issued on the master branch.
-  """
+    Returns: a boolean, indicating we're building the master branch **or** that
+    the tag being built was issued on the master branch.
+    """
 
     if tag is not None:
         repo = git.Repo(repodir)
@@ -39,22 +39,22 @@ def is_master(refname, tag, repodir):
 
 
 def is_stable(package, refname, tag, repodir):
-    """Determines if the package being published is stable
+    """Determines if the package being published is stable.
 
-  This is done by checking if a tag was set for the package.  If that is the
-  case, we still cross-check the tag is on the "master" branch.  If everything
-  checks out, we return ``True``.  Else, ``False``.
+    This is done by checking if a tag was set for the package.  If that is the
+    case, we still cross-check the tag is on the "master" branch.  If everything
+    checks out, we return ``True``.  Else, ``False``.
 
-  Args:
+    Args:
 
-    package: Package name in the format "group/name"
-    refname: The current value of the environment ``CI_COMMIT_REF_NAME``
-    tag: The current value of the enviroment ``CI_COMMIT_TAG`` (may be
-      ``None``)
-    repodir: The directory that contains the clone of the git repository
+      package: Package name in the format "group/name"
+      refname: The current value of the environment ``CI_COMMIT_REF_NAME``
+      tag: The current value of the enviroment ``CI_COMMIT_TAG`` (may be
+        ``None``)
+      repodir: The directory that contains the clone of the git repository
 
-  Returns: a boolean, indicating if the current build is for a stable release
-  """
+    Returns: a boolean, indicating if the current build is for a stable release
+    """
 
     if tag is not None:
         logger.info('Project %s tag is "%s"', package, tag)
@@ -81,11 +81,11 @@ def is_stable(package, refname, tag, repodir):
 
 
 def read_packages(filename):
-    """
-  Return a python list of tuples (repository, branch), given a file containing
-  one package (and branch) per line.  Comments are excluded
+    """Return a python list of tuples (repository, branch), given a file
+    containing one package (and branch) per line.
 
-  """
+    Comments are excluded
+    """
 
     lines = load_order_file(filename)
 
@@ -101,7 +101,7 @@ def read_packages(filename):
 
 
 def uniq(seq, idfun=None):
-    """Very fast, order preserving uniq function"""
+    """Very fast, order preserving uniq function."""
 
     # order preserving
     if idfun is None:
@@ -124,37 +124,36 @@ def uniq(seq, idfun=None):
 
 
 def select_build_file(basename, paths, branch):
-    """Selects the file to use for a build
+    """Selects the file to use for a build.
 
-  This method will return the name of the most adequate build-accessory file
-  (conda_build_config.yaml, recipe_append.yaml) for a given build, in this
-  order of priority:
+    This method will return the name of the most adequate build-accessory file
+    (conda_build_config.yaml, recipe_append.yaml) for a given build, in this
+    order of priority:
 
-  1. The first file found is returned
-  2. We first search for a *specific* file if ``branch`` is set
-  3. If that file does not exist, returns the unbranded filename if that exists
-     in one of the paths
-  4. If no candidates exists, returns ``None``
+    1. The first file found is returned
+    2. We first search for a *specific* file if ``branch`` is set
+    3. If that file does not exist, returns the unbranded filename if that exists
+       in one of the paths
+    4. If no candidates exists, returns ``None``
 
-  The candidate filename is built using
-  ``os.path.splitext(os.path.basename(basename))[0]``.
+    The candidate filename is built using
+    ``os.path.splitext(os.path.basename(basename))[0]``.
 
-  Args:
+    Args:
 
-    basename: Name of the file to use for the search
-    paths (list): A list of paths leading to the location of the variants file
-      to use.  Priority is given to paths that come first
-    branch (str): Optional key to be set when searching for the variants file
-      to use.  This is typically the git-branch name of the current branch of
-      the repo being built.
+      basename: Name of the file to use for the search
+      paths (list): A list of paths leading to the location of the variants file
+        to use.  Priority is given to paths that come first
+      branch (str): Optional key to be set when searching for the variants file
+        to use.  This is typically the git-branch name of the current branch of
+        the repo being built.
 
 
-  Returns:
+    Returns:
 
-    str: A string containing the full, resolved path of the file to use.
-    Returns ``None``, if no candidate is found
-
-  """
+      str: A string containing the full, resolved path of the file to use.
+      Returns ``None``, if no candidate is found
+    """
 
     import os
 
@@ -180,10 +179,11 @@ def select_build_file(basename, paths, branch):
 def select_conda_build_config(paths, branch):
     """Selects the default conda_build_config.yaml.
 
-  See :py:func:`select_build_file` for implementation details.  If no build
-  config file is found by :py:func:`select_build_file`, then returns the
-  default ``conda_build_config.yaml`` shipped with this package.
-  """
+    See :py:func:`select_build_file` for implementation details.  If no
+    build config file is found by :py:func:`select_build_file`, then
+    returns the default ``conda_build_config.yaml`` shipped with this
+    package.
+    """
 
     from .constants import CONDA_BUILD_CONFIG as default
 
@@ -193,10 +193,11 @@ def select_conda_build_config(paths, branch):
 def select_conda_recipe_append(paths, branch):
     """Selects the default recipe_append.yaml.
 
-  See :py:func:`select_build_file` for implementation details.  If no recipe
-  append file is found by :py:func:`select_build_file`, then returns the
-  default ``recipe_append.yaml`` shipped with this package.
-  """
+    See :py:func:`select_build_file` for implementation details.  If no
+    recipe append file is found by :py:func:`select_build_file`, then
+    returns the default ``recipe_append.yaml`` shipped with this
+    package.
+    """
 
     from .constants import CONDA_RECIPE_APPEND as default
 
@@ -206,8 +207,9 @@ def select_conda_recipe_append(paths, branch):
 def select_user_condarc(paths, branch):
     """Selects the user condarc file to read (if any)
 
-  See :py:func:`select_build_file` for implementation details.  If no recipe
-  condarc is found by :py:func:`select_build_file`, then returns ``None``.
-  """
+    See :py:func:`select_build_file` for implementation details.  If no
+    recipe condarc is found by :py:func:`select_build_file`, then
+    returns ``None``.
+    """
 
     return select_build_file("condarc", paths, branch)

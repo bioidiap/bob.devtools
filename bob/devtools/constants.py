@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Constants used for building and more"""
+"""Constants used for building and more."""
 
 import os
 import pkg_resources

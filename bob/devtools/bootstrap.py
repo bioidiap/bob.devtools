@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-"""Bootstraps a new miniconda installation and prepares it for development"""
+"""Bootstraps a new miniconda installation and prepares it for development."""
 
 
 _BASE_CONDARC = """\
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 
 def set_environment(name, value, env=os.environ):
-    """Function to setup the environment variable and print debug message
+    """Function to setup the environment variable and print debug message.
 
     Args:
 
@@ -63,7 +63,7 @@ def set_environment(name, value, env=os.environ):
 
 
 def human_time(seconds, granularity=2):
-    '''Returns a human readable time string like "1 day, 2 hours"'''
+    """Returns a human readable time string like "1 day, 2 hours"."""
 
     result = []
 
@@ -92,17 +92,15 @@ def human_time(seconds, granularity=2):
 
 
 def run_cmdline(cmd, env=None):
-    """Runs a command on a environment, logs output and reports status
+    """Runs a command on a environment, logs output and reports status.
 
+    Parameters:
 
-  Parameters:
+      cmd (list): The command to run, with parameters separated on a list
 
-    cmd (list): The command to run, with parameters separated on a list
-
-    env (dict, Optional): Environment to use for running the program on. If not
-      set, use :py:obj:`os.environ`.
-
-  """
+      env (dict, Optional): Environment to use for running the program on. If not
+        set, use :py:obj:`os.environ`.
+    """
 
     if env is None:
         env = os.environ
@@ -136,21 +134,21 @@ def run_cmdline(cmd, env=None):
 
 
 def touch(path):
-    """Python-implementation of the "touch" command-line application"""
+    """Python-implementation of the "touch" command-line application."""
 
     with open(path, "a"):
         os.utime(path, None)
 
 
 def merge_conda_cache(cache, prefix, name):
-    """Merges conda pkg caches and conda-bld folders
+    """Merges conda pkg caches and conda-bld folders.
 
-  Args:
+    Args:
 
-    cache: The cached directory (from previous builds)
-    prefix: The current prefix (root of conda installation)
-    name: The name of the current package
-  """
+      cache: The cached directory (from previous builds)
+      prefix: The current prefix (root of conda installation)
+      name: The name of the current package
+    """
 
     pkgs_dir = os.path.join(prefix, "pkgs")
     pkgs_urls_txt = os.path.join(pkgs_dir, "urls.txt")
@@ -204,7 +202,7 @@ def merge_conda_cache(cache, prefix, name):
 
 
 def get_miniconda_sh():
-    """Retrieves the miniconda3 installer for the current system"""
+    """Retrieves the miniconda3 installer for the current system."""
 
     import http.client
 
@@ -232,14 +230,13 @@ def get_miniconda_sh():
 
 
 def install_miniconda(prefix, name):
-    """Creates a new miniconda installation
+    """Creates a new miniconda installation.
 
-  Args:
+    Args:
 
-    prefix: The path leading to the (new) root of the miniconda installation
-    name: The name of this package
-
-  """
+      prefix: The path leading to the (new) root of the miniconda installation
+      name: The name of this package
+    """
 
     logger.info("Installing miniconda in %s...", prefix)
 
@@ -264,37 +261,36 @@ def install_miniconda(prefix, name):
 
 
 def get_channels(public, stable, server, intranet, group):
-    """Returns the relevant conda channels to consider if building project
+    """Returns the relevant conda channels to consider if building project.
 
-  The subset of channels to be returned depends on the visibility and stability
-  of the package being built.  Here are the rules:
+    The subset of channels to be returned depends on the visibility and stability
+    of the package being built.  Here are the rules:
 
-  * public and stable: only returns the public stable channel(s)
-  * public and not stable: returns both public stable and beta channels
-  * not public and stable: returns both public and private stable channels
-  * not public and not stable: returns all channels
+    * public and stable: only returns the public stable channel(s)
+    * public and not stable: returns both public stable and beta channels
+    * not public and stable: returns both public and private stable channels
+    * not public and not stable: returns all channels
 
-  Beta channels have priority over stable channels, if returned.  Private
-  channels have priority over public channles, if turned.
-
-
-  Args:
-
-    public: Boolean indicating if we're supposed to include only public
-      channels
-    stable: Boolean indicating if we're supposed to include only stable
-      channels
-    server: The base address of the server containing our conda channels
-    intranet: Boolean indicating if we should add "private"/"public" prefixes
-      on the conda paths
-    group: The group of packages (gitlab namespace) the package we're compiling
-      is part of.  Values should match URL namespaces currently available on
-      our internal webserver.  Currently, only "bob" or "beat" will work.
+    Beta channels have priority over stable channels, if returned.  Private
+    channels have priority over public channles, if turned.
 
 
-  Returns: a list of channels that need to be considered.
+    Args:
 
-  """
+      public: Boolean indicating if we're supposed to include only public
+        channels
+      stable: Boolean indicating if we're supposed to include only stable
+        channels
+      server: The base address of the server containing our conda channels
+      intranet: Boolean indicating if we should add "private"/"public" prefixes
+        on the conda paths
+      group: The group of packages (gitlab namespace) the package we're compiling
+        is part of.  Values should match URL namespaces currently available on
+        our internal webserver.  Currently, only "bob" or "beat" will work.
+
+
+    Returns: a list of channels that need to be considered.
+    """
 
     if (not public) and (not intranet):
         raise RuntimeError(

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Deployment utilities for conda packages and documentation via webDAV"""
+"""Deployment utilities for conda packages and documentation via webDAV."""
 
 
 import os
@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 
 def _setup_webdav_client(server, root, username, password):
-    """Configures and checks the webdav client"""
+    """Configures and checks the webdav client."""
 
     # setup webdav connection
     webdav_options = dict(
@@ -34,28 +34,27 @@ def _setup_webdav_client(server, root, username, password):
 def deploy_conda_package(
     package, arch, stable, public, username, password, overwrite, dry_run
 ):
-    """Deploys a single conda package on the appropriate path
+    """Deploys a single conda package on the appropriate path.
 
-  Args:
+    Args:
 
-    package (str): Path leading to the conda package to be deployed
-    arch (str): The conda architecture to deploy to (``linux-64``, ``osx-64``,
-      ``noarch``, or ``None`` - in which case the architecture is going to be
-      guessed from the directory where the package sits)
-    stable (bool): Indicates if the package should be deployed on a stable
-      (``True``) or beta (``False``) channel
-    public (bool): Indicates if the package is supposed to be distributed
-      publicly or privatly (within Idiap network)
-    username (str): The name of the user on the webDAV server to use for
-      uploading the package
-    password (str): The password of the user on the webDAV server to use for
-      uploading the package
-    overwrite (bool): If we should overwrite a package with equal name existing
-      on the destination directory.  Otherwise, an exception is raised.
-    dry_run (bool): If we're supposed to really do the actions, or just log
-      messages.
-
-  """
+      package (str): Path leading to the conda package to be deployed
+      arch (str): The conda architecture to deploy to (``linux-64``, ``osx-64``,
+        ``noarch``, or ``None`` - in which case the architecture is going to be
+        guessed from the directory where the package sits)
+      stable (bool): Indicates if the package should be deployed on a stable
+        (``True``) or beta (``False``) channel
+      public (bool): Indicates if the package is supposed to be distributed
+        publicly or privatly (within Idiap network)
+      username (str): The name of the user on the webDAV server to use for
+        uploading the package
+      password (str): The password of the user on the webDAV server to use for
+        uploading the package
+      overwrite (bool): If we should overwrite a package with equal name existing
+        on the destination directory.  Otherwise, an exception is raised.
+      dry_run (bool): If we're supposed to really do the actions, or just log
+        messages.
+    """
 
     server_info = WEBDAV_PATHS[stable][public]
     davclient = _setup_webdav_client(
@@ -101,31 +100,30 @@ def deploy_documentation(
     password,
     dry_run,
 ):
-    """Deploys sphinx documentation to the appropriate webdav locations
+    """Deploys sphinx documentation to the appropriate webdav locations.
 
-  Args:
+    Args:
 
-    path (str): Path leading to the root of the documentation to be deployed
-    package (str): Full name (with namespace) of the package being treated
-    stable (bool): Indicates if the documentation corresponds to the latest
-      stable build
-    latest (bool): Indicates if the documentation being deployed correspond to
-      the latest stable for the package or not.  In case the documentation
-      comes from a patch release which is not on the master branch, please set
-      this flag to ``False``, which will make us avoid deployment of the
-      documentation to ``master`` and ``stable`` sub-directories.
-    public (bool): Indicates if the documentation is supposed to be distributed
-      publicly or privatly (within Idiap network)
-    branch (str): The name of the branch for the current build
-    tag (str): The name of the tag currently built (may be ``None``)
-    username (str): The name of the user on the webDAV server to use for
-      uploading the package
-    password (str): The password of the user on the webDAV server to use for
-      uploading the package
-    dry_run (bool): If we're supposed to really do the actions, or just log
-      messages.
-
-  """
+      path (str): Path leading to the root of the documentation to be deployed
+      package (str): Full name (with namespace) of the package being treated
+      stable (bool): Indicates if the documentation corresponds to the latest
+        stable build
+      latest (bool): Indicates if the documentation being deployed correspond to
+        the latest stable for the package or not.  In case the documentation
+        comes from a patch release which is not on the master branch, please set
+        this flag to ``False``, which will make us avoid deployment of the
+        documentation to ``master`` and ``stable`` sub-directories.
+      public (bool): Indicates if the documentation is supposed to be distributed
+        publicly or privatly (within Idiap network)
+      branch (str): The name of the branch for the current build
+      tag (str): The name of the tag currently built (may be ``None``)
+      username (str): The name of the user on the webDAV server to use for
+        uploading the package
+      password (str): The password of the user on the webDAV server to use for
+        uploading the package
+      dry_run (bool): If we're supposed to really do the actions, or just log
+        messages.
+    """
 
     # uploads documentation artifacts
     if not os.path.exists(path):

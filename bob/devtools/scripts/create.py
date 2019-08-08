@@ -163,22 +163,22 @@ def create(
     stable,
     dry_run,
 ):
-    """Creates a development environment for a recipe
+    """Creates a development environment for a recipe.
 
-  It uses the conda render API to render a recipe and install an environment
-  containing all build/host, run and test dependencies of a package. It does
-  **not** build the package itself, just install dependencies so you can build
-  the package by hand, possibly using buildout or similar. If you'd like to
-  conda-build your package, just use `conda build` instead.
+    It uses the conda render API to render a recipe and install an environment
+    containing all build/host, run and test dependencies of a package. It does
+    **not** build the package itself, just install dependencies so you can build
+    the package by hand, possibly using buildout or similar. If you'd like to
+    conda-build your package, just use `conda build` instead.
 
-  Once the environment is created, a copy of the used `condarc' file is placed
-  on the root of the environment. Installing or updating packages on the newly
-  created environment should be possible without further configuration. Notice
-  that beta packages quickly get outdated and upgrading may no longer be
-  possible for aging development environments. You're advised to always re-use
-  this app and use the flag `--overwrite` to re-create from scratch the
-  development environment.
-  """
+    Once the environment is created, a copy of the used `condarc' file is placed
+    on the root of the environment. Installing or updating packages on the newly
+    created environment should be possible without further configuration. Notice
+    that beta packages quickly get outdated and upgrading may no longer be
+    possible for aging development environments. You're advised to always re-use
+    this app and use the flag `--overwrite` to re-create from scratch the
+    development environment.
+    """
 
     recipe_dir = recipe_dir or os.path.join(os.path.realpath("."), "conda")
 

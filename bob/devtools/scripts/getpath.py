@@ -44,7 +44,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def getpath(package, path, output, ref):
-    """Downloads files and directories from gitlab
+    """Downloads files and directories from gitlab.
 
     Files are downloaded and stored.  Directories are recursed and fully
     downloaded to the client.

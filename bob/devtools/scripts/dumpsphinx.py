@@ -36,9 +36,9 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def dumpsphinx(url):
-    """Dumps all the objects given an sphinx catalog/inventory URL
+    """Dumps all the objects given an sphinx catalog/inventory URL.
 
-  This command is useful when you are struggling to do proper links from your
-  documentation.
-  """
+    This command is useful when you are struggling to do proper links
+    from your documentation.
+    """
     intersphinx.inspect_main([url])

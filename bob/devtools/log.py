@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Logging utilities
-"""
+"""Logging utilities."""
 
 import sys
 import logging
@@ -46,10 +45,8 @@ COLORMAP = dict(
 
 
 def _supports_color():
-    """
-  Returns True if the running system's terminal supports color, and False
-  otherwise.
-  """
+    """Returns True if the running system's terminal supports color, and False
+    otherwise."""
     plat = sys.platform
     supported_platform = plat != "Pocket PC" and (
         plat != "win32" or "ANSICON" in os.environ
@@ -62,7 +59,7 @@ def _supports_color():
 
 
 class ColorLog(object):
-    """Colorizes logging colors"""
+    """Colorizes logging colors."""
 
     def __init__(self, logger):
         self._log = logger
@@ -88,7 +85,7 @@ class ColorLog(object):
 
 
 def get_logger(name):
-    """Returns the default logger as setup by this module"""
+    """Returns the default logger as setup by this module."""
 
     return ColorLog(logging.getLogger(name))
 
@@ -96,17 +93,17 @@ def get_logger(name):
 def _echo(text, *args, **kwargs):
     """Provides a colorized version of :py:func:`click.echo` (for terminals)
 
-  The color is stripped off if outputting to a file or piping the results of
-  a command using this function.
+    The color is stripped off if outputting to a file or piping the results of
+    a command using this function.
 
-  Parameters:
+    Parameters:
 
-    text (str): The text to be printed
-    args (tuple): Tuple of attributes directly passed to
-      :py:func:`termcolor.colored`
-    kwargs (dict): Dictionary of attributes directly passed to
-      :py:func:`termcolor.colored`
-  """
+      text (str): The text to be printed
+      args (tuple): Tuple of attributes directly passed to
+        :py:func:`termcolor.colored`
+      kwargs (dict): Dictionary of attributes directly passed to
+        :py:func:`termcolor.colored`
+    """
 
     click.echo(termcolor.colored(text, *args, **kwargs))
 
@@ -134,23 +131,23 @@ def setup(
     logger_name, format="%(levelname)s:%(name)s@%(asctime)s: %(message)s"
 ):
     """This function returns a logger object that is set up to perform logging
-  using Bob loggers.
+    using Bob loggers.
 
-  Parameters
-  ----------
-  logger_name : str
-      The name of the module to generate logs for
-  format : :obj:`str`, optional
-      The format of the logs, see :py:class:`logging.LogRecord` for more
-      details. By default, the log contains the logger name, the log time, the
-      log level and the massage.
+    Parameters
+    ----------
+    logger_name : str
+        The name of the module to generate logs for
+    format : :obj:`str`, optional
+        The format of the logs, see :py:class:`logging.LogRecord` for more
+        details. By default, the log contains the logger name, the log time, the
+        log level and the massage.
 
-  Returns
-  -------
-  logger : :py:class:`logging.Logger`
-      The logger configured for logging. The same logger can be retrieved using
-      the :py:func:`logging.getLogger` function.
-  """
+    Returns
+    -------
+    logger : :py:class:`logging.Logger`
+        The logger configured for logging. The same logger can be retrieved using
+        the :py:func:`logging.getLogger` function.
+    """
     # generate new logger object
     logger = logging.getLogger(logger_name)
 
@@ -176,19 +173,19 @@ def setup(
 def set_verbosity_level(logger, level):
     """Sets the log level for the given logger.
 
-  Parameters
-  ----------
-  logger : :py:class:`logging.Logger` or str
-      The logger to generate logs for, or the name  of the module to generate
-      logs for.
-  level : int
-      Possible log levels are: 0: Error; 1: Warning; 2: Info; 3: Debug.
+    Parameters
+    ----------
+    logger : :py:class:`logging.Logger` or str
+        The logger to generate logs for, or the name  of the module to generate
+        logs for.
+    level : int
+        Possible log levels are: 0: Error; 1: Warning; 2: Info; 3: Debug.
 
-  Raises
-  ------
-  ValueError
-      If the level is not in range(0, 4).
-  """
+    Raises
+    ------
+    ValueError
+        If the level is not in range(0, 4).
+    """
     if level not in range(0, 4):
         raise ValueError(
             "The verbosity level %d does not exist. Please reduce the number of "
