@@ -162,6 +162,8 @@ tensorflow:
   - 1.14.0
 torchvision:
   - 0.3.0
+zc_recipe_egg:
+  - 2.0.7
 
 # The dependencies that are needed for runtime only (run requirements) of BEAT
 # packages. These versions **should** match the versions inside beat-devel
