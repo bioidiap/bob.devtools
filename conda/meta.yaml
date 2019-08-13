@@ -31,7 +31,7 @@ requirements:
     - black >=19
     - click >=7
     - click-plugins
-    - conda=4
+    - conda=4.6
     - conda-build=3.16
     - conda-verify=3
     - certifi
