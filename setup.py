@@ -52,6 +52,7 @@ setup(
           'test = bob.devtools.scripts.test:test',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
           'ci = bob.devtools.scripts.ci:ci',
+          'dav = bob.devtools.scripts.dav:dav',
           'local = bob.devtools.scripts.local:local',
           'gitlab = bob.devtools.scripts.gitlab:gitlab',
           ],
@@ -84,6 +85,14 @@ setup(
           'docs = bob.devtools.scripts.local:docs',
           'build = bob.devtools.scripts.local:build',
           'base-build = bob.devtools.scripts.local:base_build',
+          ],
+
+        'bdt.dav.cli': [
+          'list = bob.devtools.scripts.dav:list',
+          'makedirs = bob.devtools.scripts.dav:makedirs',
+          'rmtree = bob.devtools.scripts.dav:rmtree',
+          'upload = bob.devtools.scripts.dav:upload',
+          #'free = bob.devtools.scripts.dav:free',
           ],
 
     },
