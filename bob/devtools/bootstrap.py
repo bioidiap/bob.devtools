@@ -227,8 +227,8 @@ def ensure_miniconda_sh():
             logger.info("Re-using cached miniconda3 installer (hash matches)")
             return
         else:
-            logger.info("Erasing cached miniconda3 installer (%s NOT match)",
-                actual_md5)
+            logger.info("Erasing cached miniconda3 installer (%s does NOT " \
+                "match)", actual_md5)
             os.unlink("miniconda.sh")
 
     # re-downloads installer
