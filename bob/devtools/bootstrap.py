@@ -200,17 +200,39 @@ def merge_conda_cache(cache, prefix, name):
         os.rename(cached_conda_bld, dst)
 
 
-def get_miniconda_sh():
-    """Retrieves the miniconda3 installer for the current system."""
+def ensure_miniconda_sh():
+    """Retrieves the miniconda3 installer for the current system.
 
-    import http.client
+    Checks the hash of the miniconda3 installer against the expected version,
+    if that does not match, erase existing installer and re-downloads new
+    installer.
+    """
 
     server = "repo.continuum.io"  # https
+
+    # WARNING: if you update this version, remember to update hahes below
     path = "/miniconda/Miniconda3-4.6.14-%s-x86_64.sh"
     if platform.system() == "Darwin":
+        md5sum = 'ffa5f0eead5576fb26b7e6902f5eed09'
         path = path % "MacOSX"
     else:
+        md5sum = '718259965f234088d785cad1fbd7de03'
         path = path % "Linux"
+
+    if os.path.exists("miniconda.sh"):
+        logger.info("(check) miniconda.sh md5sum (== %s?)", md5sum)
+        import hashlib
+        actual_md5 = hashlib.md5(open("miniconda.sh", "rb").read()).hexdigest()
+        if actual_md5 == md5sum:
+            logger.info("Re-using cached miniconda3 installer (hash matches)")
+            return
+        else:
+            logger.info("Erasing cached miniconda3 installer (%s NOT match)",
+                actual_md5)
+            os.unlink("miniconda.sh")
+
+    # re-downloads installer
+    import http.client
 
     logger.info("Connecting to https://%s...", server)
     conn = http.client.HTTPSConnection(server)
@@ -238,11 +260,7 @@ def install_miniconda(prefix, name):
     """
 
     logger.info("Installing miniconda in %s...", prefix)
-
-    if not os.path.exists("miniconda.sh"):  # re-downloads installer
-        get_miniconda_sh()
-    else:
-        logger.info("Re-using cached miniconda3 installer")
+    ensure_miniconda_sh()
 
     cached = None
     if os.path.exists(prefix):  # this is the previous cache, move it
