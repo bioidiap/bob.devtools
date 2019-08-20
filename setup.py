@@ -92,7 +92,6 @@ setup(
           'makedirs = bob.devtools.scripts.dav:makedirs',
           'rmtree = bob.devtools.scripts.dav:rmtree',
           'upload = bob.devtools.scripts.dav:upload',
-          #'free = bob.devtools.scripts.dav:free',
           ],
 
     },

@@ -271,31 +271,3 @@ def upload(private, execute, local, remote):
             echo_info('cp %s %s' % (k, remote_path))
             if execute:
                 cl.upload_file(local_path=k, remote_path=actual_remote)
-
-
-@dav.command(
-    epilog="""
-Examples:
-
-  1. Lists the amount of free disk space on the WebDAV server:
-
-     $ bdt dav -vv free
-
-"""
-)
-@click.option(
-    "-p",
-    "--private/--no-private",
-    default=False,
-    help="If set, use the 'private' area instead of the public one",
-)
-@verbosity_option()
-@bdt.raise_on_error
-def free(private):
-    """Lists the amount of free space on the webserver disk
-    """
-
-    cl = setup_webdav_client(private)
-    echo_info('free')
-    data = cl.free()
-    echo_normal(data)
