@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import configparser
+
+from distutils.version import StrictVersion
 
 from .log import get_logger, echo_warning, echo_info
 from .deploy import _setup_webdav_client
@@ -13,25 +16,25 @@ logger = get_logger(__name__)
 def _get_config():
     """Returns a dictionary with server parameters, or ask them to the user"""
 
-    # tries to figure if we can authenticate using a global configuration
-    cfgs = ["~/.bdt-webdav.cfg"]
+    # tries to figure if we can authenticate using a configuration file
+    cfgs = ["~/.bdt.cfg"]
     cfgs = [os.path.expanduser(k) for k in cfgs]
     for k in cfgs:
         if os.path.exists(k):
             data = configparser.ConfigParser()
             data.read(k)
             if (
-                "global" not in data
-                or "server" not in data["global"]
-                or "username" not in data["global"]
-                or "password" not in data["global"]
+                "webdav" not in data
+                or "server" not in data["webdav"]
+                or "username" not in data["webdav"]
+                or "password" not in data["webdav"]
             ):
                 assert KeyError, (
                     "The file %s should contain a single "
-                    '"global" section with 3 variables defined inside: '
+                    '"dav" section with 3 variables defined inside: '
                     '"server", "username", "password".' % (k,)
                 )
-            return data["global"]
+            return data["dav"]
 
     # ask the user for the information, cache credentials for future use
     retval = dict()
@@ -41,7 +44,7 @@ def _get_config():
 
     # record file for the user
     data = configparser.ConfigParser()
-    data["global"] = retval
+    data["webdav"] = retval
     with open(cfgs[0], "w") as f:
         logger.warn('Recorded "%s" configuration file for next queries')
         data.write(f)
@@ -124,7 +127,7 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True):
             if result is not None:
                 name += "/" + result.string[:4]
 
-        target = '/'.join(path, f)
+        target = '/'.join((path, f))
         info = client.info(target)
 
         betas.setdefault(name, []).append(
