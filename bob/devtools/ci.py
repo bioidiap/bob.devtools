@@ -215,8 +215,23 @@ def select_user_condarc(paths, branch):
     return select_build_file("condarc", paths, branch)
 
 
-def clean_betas(dry_run, username, password):
+def clean_betas(dry_run, username, password, includes):
     """Cleans-up betas (through the CI).  Executes if ``dry_run==False`` only.
+
+    Parameters:
+
+        dry_run (bool): If set, then does not execute any action, just print
+          what it would do instead.
+
+        username (str): The user to use for interacting with the WebDAV service
+
+        password (str): Password the the above user
+
+        includes (re.SRE_Pattern): A regular expression that matches the names
+          of packages that should be considered for clean-up.  For example: for
+          Bob and BATL packages, you may use ``^(bob|batl|gridtk).*`` For BEAT
+          packages you may use ``^beat.*``
+
     """
 
     from .deploy import _setup_webdav_client
@@ -255,4 +270,4 @@ def clean_betas(dry_run, username, password):
             server_path = davclient.get_url(arch_path)
             echo_info('Cleaning beta packages from %s' % server_path)
             remove_old_beta_packages(client=davclient, path=arch_path,
-                    dry_run=dry_run, pyver=True)
+                    dry_run=dry_run, pyver=True, includes=includes)

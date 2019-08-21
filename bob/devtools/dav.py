@@ -66,7 +66,7 @@ def setup_webdav_client(private):
     return c
 
 
-def remove_old_beta_packages(client, path, dry_run, pyver=True):
+def remove_old_beta_packages(client, path, dry_run, pyver=True, includes=None):
     """Removes old conda packages from a conda channel.
 
     What is an old package depends on how the packages are produced.  In
@@ -100,6 +100,11 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True):
         a package will be a part of a package's name. This is need to account
         for the fact that our CI jobs run per Python version.
 
+        includes (re.SRE_Pattern): A regular expression that matches the names
+          of packages that should be considered for clean-up.  For example: for
+          Bob and BATL packages, you may use ``^(bob|batl|gridtk).*`` For BEAT
+          packages you may use ``^beat.*``
+
     """
 
     server_path = client.get_url(path)
@@ -120,6 +125,11 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True):
             continue
 
         name, version, build_string = f[:-8].rsplit("-", 2)
+
+        # see if this package should be included or not in our clean-up
+        if (includes is not None) and (not includes.match(name)):
+            continue
+
         hash_, build = build_string.rsplit("_", 1)
 
         if pyver:
