@@ -992,8 +992,15 @@ def clean_betas(dry_run):
         echo_warning("!!!! DRY RUN MODE !!!!")
         echo_warning("Nothing is being executed on server.")
 
+    import re
+    if os.environ["CI_PROJECT_NAMESPACE"] == "beat":
+        includes = re.compile(r'^beat.*')
+    else:
+        includes = re.compile(r'^(bob|batl|gridtk).*')
+
     clean_betas(
             dry_run=dry_run,
             username=os.environ["DOCUSER"],
             password=os.environ["DOCPASS"],
+            includes=includes,
             )
