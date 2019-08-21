@@ -17,7 +17,7 @@ def _get_config():
     """Returns a dictionary with server parameters, or ask them to the user"""
 
     # tries to figure if we can authenticate using a configuration file
-    cfgs = ["~/.bdt.cfg"]
+    cfgs = ["~/.bdtrc"]
     cfgs = [os.path.expanduser(k) for k in cfgs]
     for k in cfgs:
         if os.path.exists(k):
