@@ -52,7 +52,6 @@ cleanup:
   tags:
     - docker
   image: continuumio/conda-concourse-ci
-  when: always
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
