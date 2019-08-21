@@ -47,7 +47,7 @@ macosx:
 
 
 # Periodic cleanup of beta packages
-cleanup:
+.cleanup_template:
   stage: cleanup
   tags:
     - docker
@@ -64,3 +64,14 @@ cleanup:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
+
+
+# The automatic clean-up takes place when the nightly successfuly runs
+cleanup:
+  extends: .cleanup_template
+
+
+manual_cleanup:
+  extends: .cleanup_template
+  when: manual
+  allow_failure: true
