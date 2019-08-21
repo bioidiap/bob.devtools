@@ -348,7 +348,7 @@ def clean_betas(private, execute, path):
 
         arch_path = '/'.join((path, arch))
 
-        if not cl.is_dir(arch_path):
+        if not (cl.check(arch_path) and cl.is_dir(arch_path)):
             # it is normal if the directory does not exist
             continue
 

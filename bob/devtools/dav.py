@@ -4,10 +4,11 @@
 import os
 import re
 import configparser
+import dateutil.parser
 
 from distutils.version import StrictVersion
 
-from .log import get_logger, echo_warning, echo_info
+from .log import get_logger, echo_warning, echo_info, echo_normal
 from .deploy import _setup_webdav_client
 
 logger = get_logger(__name__)
@@ -31,10 +32,10 @@ def _get_config():
             ):
                 assert KeyError, (
                     "The file %s should contain a single "
-                    '"dav" section with 3 variables defined inside: '
+                    '"webdav" section with 3 variables defined inside: '
                     '"server", "username", "password".' % (k,)
                 )
-            return data["dav"]
+            return data["webdav"]
 
     # ask the user for the information, cache credentials for future use
     retval = dict()
@@ -134,27 +135,25 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True):
             (
                 StrictVersion(version),
                 int(build),  # build number
-                info['modified'],
+                dateutil.parser.parse(info['modified']).timestamp(),
                 target,
             )
         )
 
-    import ipdb; ipdb.set_trace()
-
     count = sum([len(k) for k in betas.values()]) - len(betas)
-    echo_info(" - %d variants" % len(betas))
-    echo_info(" - %d packages found" % count)
-    echo_info(" --------------------")
+    echo_normal(" - %d variants" % len(betas))
+    echo_normal(" - %d packages found" % count)
+    echo_normal(" ---------------------")
 
     for name in sorted(betas.keys()):
-        echo_info(" - packages for %s (%d) ====" % (name, len(betas[name])))
+        echo_normal(" - packages for %s (%d)" % (name, len(betas[name])))
         sorted_packages = sorted(betas[name])
         keep_version, keep_build, _, _ = sorted_packages[-1]
         for version, build, mtime, target in sorted_packages:
             if version == keep_version and build == keep_build:
-                echo_info("[keep] %s (time=%u)" % (target, mtime))
+                echo_normal("[keep] %s (time=%u)" % (target, mtime))
             else:
-                echo_info("rm %s (time=%u)" % (target, mtime))
+                echo_warning("rm %s (time=%u)" % (target, mtime))
                 if not dry_run:
                     #client.clean(target)
                     echo_info("boooom")
