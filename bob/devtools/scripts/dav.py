@@ -10,7 +10,7 @@ from click_plugins import with_plugins
 
 from . import bdt
 
-from ..dav import setup_webdav_client
+from ..dav import setup_webdav_client, remove_old_beta_packages
 from ..log import verbosity_option, get_logger, echo_normal, echo_info, \
     echo_warning
 
@@ -271,3 +271,88 @@ def upload(private, execute, local, remote):
             echo_info('cp %s %s' % (k, remote_path))
             if execute:
                 cl.upload_file(local_path=k, remote_path=actual_remote)
+
+
+@dav.command(
+    epilog="""
+Examples:
+
+  1. Cleans-up the excess of beta packages from our conda channels via WebDAV:
+
+     $ bdt dav -vv clean-betas remote/path/foo/bar
+
+     Notice this does not do anything for security.  It just displays what it
+     would do.  To actually run the rmtree comment pass the --execute flag (or
+     -x)
+
+
+  2. Realy removes (recursively), everything under the 'remote/path/foo/bar'
+     path:
+
+     $ bdt dav -vv rmtree --execute remote/path/foo/bar
+
+
+"""
+)
+@click.option(
+    "-p",
+    "--private/--no-private",
+    default=False,
+    help="If set, use the 'private' area instead of the public one",
+)
+@click.option(
+    "-x",
+    "--execute/--no-execute",
+    default=False,
+    help="If this flag is set, then execute the removal",
+)
+@click.argument(
+    "path",
+    required=True,
+)
+@verbosity_option()
+@bdt.raise_on_error
+def clean_betas(private, execute, path):
+    """Cleans-up the excess of beta packages from a conda channel via WebDAV
+
+    ATTENTION: There is no undo!  Use --execute to execute.
+    """
+
+    if not execute:
+        echo_warning("!!!! DRY RUN MODE !!!!")
+        echo_warning("Nothing is being executed on server.  Use -x to execute.")
+
+    if not path.startswith('/'): path = '/' + path
+    cl = setup_webdav_client(private)
+    remote_path = cl.get_url(path)
+
+    if not cl.is_dir(path):
+        echo_warning('Path %s is not a directory - ignoring...', remote_path)
+        return
+
+    # go through all possible variants:
+    archs = [
+            'linux-64',
+            'linux-32',
+            'linux-armv6l',
+            'linux-armv7l',
+            'linux-ppc64le',
+            'osx-64',
+            'osx-32',
+            'win-64',
+            'win-32',
+            'noarch',
+            ]
+
+    for arch in archs:
+
+        arch_path = '/'.join((path, arch))
+
+        if not cl.is_dir(arch_path):
+            # it is normal if the directory does not exist
+            continue
+
+        server_path = cl.get_url(arch_path)
+        echo_info('Cleaning beta packages from %s' % server_path)
+        remove_old_beta_packages(client=cl, path=arch_path,
+                dry_run=(not execute), pyver=True)

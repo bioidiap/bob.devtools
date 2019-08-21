@@ -92,6 +92,7 @@ setup(
           'makedirs = bob.devtools.scripts.dav:makedirs',
           'rmtree = bob.devtools.scripts.dav:rmtree',
           'upload = bob.devtools.scripts.dav:upload',
+          'clean-betas = bob.devtools.scripts.dav:clean_betas',
           ],
 
     },
