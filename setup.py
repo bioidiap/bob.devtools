@@ -79,6 +79,7 @@ setup(
           'pypi = bob.devtools.scripts.ci:pypi',
           'nightlies = bob.devtools.scripts.ci:nightlies',
           'docs = bob.devtools.scripts.ci:docs',
+          'clean-betas = bob.devtools.scripts.ci:clean_betas',
           ],
 
         'bdt.local.cli': [
@@ -92,7 +93,7 @@ setup(
           'makedirs = bob.devtools.scripts.dav:makedirs',
           'rmtree = bob.devtools.scripts.dav:rmtree',
           'upload = bob.devtools.scripts.dav:upload',
-          #'free = bob.devtools.scripts.dav:free',
+          'clean-betas = bob.devtools.scripts.dav:clean_betas',
           ],
 
     },

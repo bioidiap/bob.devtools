@@ -93,6 +93,13 @@ test:
     - bdt ci clean --help
     - bdt ci nightlies --help
     - bdt ci docs --help
+    - bdt ci clean-betas --help
+    - bdt dav --help
+    - bdt dav list --help
+    - bdt dav makedirs --help
+    - bdt dav rmtree --help
+    - bdt dav clean-betas --help
+    - bdt dav upload --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 

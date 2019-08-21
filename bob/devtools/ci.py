@@ -7,7 +7,7 @@
 import git
 import distutils.version
 
-from .log import get_logger
+from .log import get_logger, echo_info
 from .build import load_order_file
 
 logger = get_logger(__name__)
@@ -213,3 +213,46 @@ def select_user_condarc(paths, branch):
     """
 
     return select_build_file("condarc", paths, branch)
+
+
+def clean_betas(dry_run, username, password):
+    """Cleans-up betas (through the CI).  Executes if ``dry_run==False`` only.
+    """
+
+    from .deploy import _setup_webdav_client
+    from .constants import WEBDAV_PATHS, SERVER
+    from .dav import remove_old_beta_packages
+
+    for public in (True, False):
+
+        server_info = WEBDAV_PATHS[False][public]
+        davclient = _setup_webdav_client(
+            SERVER, server_info["root"], username, password
+        )
+
+        # go through all possible variants:
+        archs = [
+                'linux-64',
+                'linux-32',
+                'linux-armv6l',
+                'linux-armv7l',
+                'linux-ppc64le',
+                'osx-64',
+                'osx-32',
+                'win-64',
+                'win-32',
+                'noarch',
+                ]
+
+        for arch in archs:
+
+            arch_path = '/'.join((path, arch))
+
+            if not (davclient.check(arch_path) and davclient.is_dir(arch_path)):
+                # it is normal if the directory does not exist
+                continue
+
+            server_path = davclient.get_url(arch_path)
+            echo_info('Cleaning beta packages from %s' % server_path)
+            remove_old_beta_packages(client=davclient, path=arch_path,
+                    dry_run=dry_run, pyver=True)
