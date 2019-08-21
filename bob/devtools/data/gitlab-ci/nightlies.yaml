@@ -10,7 +10,28 @@ variables:
 
 # Definition of our build pipeline order
 stages:
+  - cleanup
   - build
+
+
+# Periodic cleanup of beta packages
+cleanup:
+  stage: cleanup
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
+  script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel base
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - bdt ci clean-betas -vv --dry-run
+  cache: &test_caches
+    key: "linux-cache"
+    paths:
+      - miniconda.sh
+      - ${CONDA_ROOT}/pkgs/*.tar.bz2
+      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 # Build targets

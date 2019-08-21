@@ -79,6 +79,7 @@ setup(
           'pypi = bob.devtools.scripts.ci:pypi',
           'nightlies = bob.devtools.scripts.ci:nightlies',
           'docs = bob.devtools.scripts.ci:docs',
+          'clean-betas = bob.devtools.scripts.ci:clean_betas',
           ],
 
         'bdt.local.cli': [

@@ -286,11 +286,9 @@ Examples:
      -x)
 
 
-  2. Realy removes (recursively), everything under the 'remote/path/foo/bar'
-     path:
+  2. Really removes (recursively), the excess of beta packages
 
-     $ bdt dav -vv rmtree --execute remote/path/foo/bar
-
+     $ bdt dav -vv clean-betas --execute remote/path/foo/bar
 
 """
 )

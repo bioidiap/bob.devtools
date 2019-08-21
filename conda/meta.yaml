@@ -93,6 +93,7 @@ test:
     - bdt ci clean --help
     - bdt ci nightlies --help
     - bdt ci docs --help
+    - bdt ci clean-betas --help
     - bdt dav --help
     - bdt dav list --help
     - bdt dav makedirs --help

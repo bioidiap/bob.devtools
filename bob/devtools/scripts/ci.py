@@ -20,6 +20,7 @@ from ..ci import (
     select_conda_build_config,
     select_conda_recipe_append,
     select_user_condarc,
+    clean_betas,
 )
 
 from ..log import verbosity_option, get_logger, echo_normal
@@ -946,3 +947,53 @@ def docs(ctx, requirement, dry_run):
 
     logger.info("Building documentation...")
     ctx.invoke(build, dry_run=dry_run)
+
+
+@ci.command(
+    epilog="""
+Examples:
+
+  1. Cleans-up the excess of beta packages from all conda channels via WebDAV:
+
+     $ bdt ci -vv clean-betas --dry-run
+
+     Notice this does not do anything.  Remove the --dry-run flag to execute
+
+
+  2. Really removes (recursively), the excess of beta packages
+
+     $ bdt ci -vv clean-betas
+
+"""
+)
+@click.option(
+    "-d",
+    "--dry-run/--no-dry-run",
+    default=False,
+    help="Only goes through the actions, but does not execute them "
+    "(combine with the verbosity flags - e.g. ``-vvv``) to enable "
+    "printing to help you understand what will be done",
+)
+@verbosity_option()
+@bdt.raise_on_error
+def clean_betas(dry_run):
+    """Cleans-up the excess of beta packages from a conda channel via WebDAV
+
+    ATTENTION: There is no undo!  Use --dry-run to test before using.
+    """
+
+    is_master = os.environ["CI_COMMIT_REF_NAME"] == "master"
+    if not is_master and dry_run == False:
+        echo_warning("Forcing dry-run mode - not in master branch")
+        echo_warning("... considering this is **not** a periodic run!")
+        dry_run = True
+
+    if dry_run:
+        echo_warning("!!!! DRY RUN MODE !!!!")
+        echo_warning("Nothing is being executed on server.")
+
+    clean_betas(
+            dry_run=dry_run,
+            username=os.environ["DOCUSER"],
+            password=os.environ["DOCPASS"],
+            )
