@@ -984,13 +984,13 @@ def clean_betas(dry_run):
 
     is_master = os.environ["CI_COMMIT_REF_NAME"] == "master"
     if not is_master and dry_run == False:
-        echo_warning("Forcing dry-run mode - not in master branch")
-        echo_warning("... considering this is **not** a periodic run!")
+        logger.warn("Forcing dry-run mode - not in master branch")
+        logger.warn("... considering this is **not** a periodic run!")
         dry_run = True
 
     if dry_run:
-        echo_warning("!!!! DRY RUN MODE !!!!")
-        echo_warning("Nothing is being executed on server.")
+        logger.warn("!!!! DRY RUN MODE !!!!")
+        logger.warn("Nothing is being executed on server.")
 
     import re
     if os.environ["CI_PROJECT_NAMESPACE"] == "beat":
