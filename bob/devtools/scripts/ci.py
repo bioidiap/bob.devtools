@@ -20,7 +20,7 @@ from ..ci import (
     select_conda_build_config,
     select_conda_recipe_append,
     select_user_condarc,
-    clean_betas,
+    cleanup,
 )
 
 from ..log import verbosity_option, get_logger, echo_normal
@@ -998,7 +998,7 @@ def clean_betas(dry_run):
     else:
         includes = re.compile(r'^(bob|batl|gridtk).*')
 
-    clean_betas(
+    cleanup(
             dry_run=dry_run,
             username=os.environ["DOCUSER"],
             password=os.environ["DOCPASS"],

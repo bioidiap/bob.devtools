@@ -215,8 +215,8 @@ def select_user_condarc(paths, branch):
     return select_build_file("condarc", paths, branch)
 
 
-def clean_betas(dry_run, username, password, includes):
-    """Cleans-up betas (through the CI).  Executes if ``dry_run==False`` only.
+def cleanup(dry_run, username, password, includes):
+    """Cleans-up WebDAV resources.  Executes if ``dry_run==False`` only.
 
     Parameters:
 
