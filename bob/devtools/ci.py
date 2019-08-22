@@ -16,9 +16,9 @@ logger = get_logger(__name__)
 def is_master(refname, tag, repodir):
     """Tells if we're on the master branch via ref_name or tag.
 
-    This function checks if the name of the branch being built is "master".  If a
-    tag is set, then it checks if the tag is on the master branch.  If so, then
-    also returns ``True``, otherwise, ``False``.
+    This function checks if the name of the branch being built is "master".  If
+    a tag is set, then it checks if the tag is on the master branch.  If so,
+    then also returns ``True``, otherwise, ``False``.
 
     Args:
 
@@ -258,6 +258,8 @@ def cleanup(dry_run, username, password, includes):
                 'win-32',
                 'noarch',
                 ]
+
+        path = server_info["conda"]
 
         for arch in archs:
 
