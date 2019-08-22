@@ -57,7 +57,7 @@ macosx:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci clean-betas -vv --dry-run
+    - bdt ci clean-betas -vv
   cache: &test_caches
     key: "linux-cache"
     paths:
