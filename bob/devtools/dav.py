@@ -165,5 +165,4 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True, includes=None):
             else:
                 echo_warning("rm %s (time=%u)" % (target, mtime))
                 if not dry_run:
-                    #client.clean(target)
-                    echo_info("boooom")
+                    client.clean(target)
