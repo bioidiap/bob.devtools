@@ -161,8 +161,8 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True, includes=None):
         keep_version, keep_build, _, _ = sorted_packages[-1]
         for version, build, mtime, target in sorted_packages:
             if version == keep_version and build == keep_build:
-                echo_normal("[keep] %s (time=%u)" % (target, mtime))
+                echo_normal("   - [keep] %s (time=%u)" % (target, mtime))
             else:
-                echo_warning("rm %s (time=%u)" % (target, mtime))
+                echo_warning("   - rm %s (time=%u)" % (target, mtime))
                 if not dry_run:
                     client.clean(target)
