@@ -17,7 +17,7 @@ stages:
 
 
 # Build targets
-.build_template: &build_job
+.build_template:
   stage: build
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -26,44 +26,57 @@ stages:
     - conda activate base
     - bdt ci build -vv
     - bdt ci clean -vv
-  cache: &build_caches
+  artifacts:
+    expire_in: 1 week
+  cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
 
 
-.build_linux_template: &linux_build_job
-  <<: *build_job
+.build_linux_template:
+  extends: .build_template
   tags:
     - docker
   image: continuumio/conda-concourse-ci
   artifacts:
-    expire_in: 1 week
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
-    <<: *build_caches
     key: "linux-cache"
 
 
-.build_macosx_template: &macosx_build_job
-  <<: *build_job
+.build_macosx_template:
+  extends: .build_template
   tags:
     - macosx
   artifacts:
-    expire_in: 1 week
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
   cache:
-    <<: *build_caches
     key: "macosx-cache"
 
 
-build_linux_36:
-  <<: *linux_build_job
+build_macosx_36:
+  extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.6"
+
+build_macosx_37:
+  extends: .build_macosx_template
+  variables:
+    PYTHON_VERSION: "3.7"
+
+build_linux_36:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.6"
+
+build_linux_37:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -74,21 +87,14 @@ build_linux_36:
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
   artifacts:
-    expire_in: 1 week
     paths:
       - dist/*.zip
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
 
-build_macosx_36:
-  <<: *macosx_build_job
-  variables:
-    PYTHON_VERSION: "3.6"
-
-
 # Test targets (not normally used)
-.test_template: &test_job
+.test_template:
   stage: test
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -97,34 +103,32 @@ build_macosx_36:
     - conda activate base
     - bdt ci test -vv
     - bdt ci clean -vv
-  cache: &test_caches
+  cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
 
 
-.test_linux_template: &linux_test_job
-  <<: *test_job
+.test_linux_template:
+  extends: .test_template
   tags:
     - docker
   image: continuumio/conda-concourse-ci
   cache:
-    <<: *test_caches
     key: "linux-cache"
 
 
-.test_macosx_template: &macosx_test_job
-  <<: *test_job
+.test_macosx_template:
+  extends: .test_template
   tags:
     - macosx
   cache:
-    <<: *test_caches
     key: "macosx-cache"
 
 
 # Deploy targets
-.deploy_template: &deploy_job
+.deploy_template:
   stage: deploy
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -136,9 +140,11 @@ build_macosx_36:
   dependencies:
     - build_linux_36
     - build_macosx_36
+    - build_linux_37
+    - build_macosx_37
   tags:
     - docker
-  cache: &build_caches
+  cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
@@ -146,14 +152,14 @@ build_macosx_36:
 
 
 deploy_beta:
-  <<: *deploy_job
+  extends: .deploy_template
   environment: beta
   only:
     - master
 
 
 deploy_stable:
-  <<: *deploy_job
+  extends: .deploy_template
   environment: stable
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
@@ -178,5 +184,7 @@ pypi:
   dependencies:
     - build_linux_36
     - build_macosx_36
+    - build_linux_37
+    - build_macosx_37
   tags:
     - docker
