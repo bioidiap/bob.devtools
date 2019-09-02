@@ -19,7 +19,6 @@ stages:
   stage: build
   variables:
     CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
-    PYTHON_VERSION: "3.6"
     PYTHONUNBUFFERED: 1
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -35,13 +34,31 @@ stages:
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
 
-linux:
+build_linux_36:
   extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.6"
   tags:
     - docker
 
-macosx:
+build_linux_37:
   extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.7"
+  tags:
+    - docker
+
+build_macosx_36:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.6"
+  tags:
+    - macosx
+
+build_macosx_37:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.6"
   tags:
     - macosx
 
@@ -58,7 +75,7 @@ macosx:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
     - bdt ci clean-betas -vv
-  cache: &test_caches
+  cache:
     key: "linux-cache"
     paths:
       - miniconda.sh

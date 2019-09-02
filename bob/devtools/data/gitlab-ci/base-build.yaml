@@ -15,7 +15,7 @@ stages:
 
 
 # Build targets
-.build_template: &build_job
+.build_template:
   stage: build
   script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
@@ -27,7 +27,7 @@ stages:
     - bdt ci base-build -vv --python=3.7 python.txt
     - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
     - bdt ci clean -vv
-  cache: &build_caches
+  cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
@@ -35,19 +35,17 @@ stages:
 
 
 build_linux:
-  <<: *build_job
+  extends: .build_template
   tags:
     - docker
   image: continuumio/conda-concourse-ci
   cache:
-    <<: *build_caches
     key: "linux-cache"
 
 
 build_macosx:
-  <<: *build_job
+  extends: .build_template
   tags:
     - macosx
   cache:
-    <<: *build_caches
     key: "macosx-cache"
