@@ -58,7 +58,7 @@ build_macosx_36:
 build_macosx_37:
   extends: .build_template
   variables:
-    PYTHON_VERSION: "3.6"
+    PYTHON_VERSION: "3.7"
   tags:
     - macosx
 
