@@ -15,81 +15,67 @@ stages:
   - deploy
 
 
-# Build targets
-.build_template: &build_job
-  stage: build
-  script:
-    - yum -y install dejavu-sans-fonts
+# All stages are prepared the same, with a base set of commands
+.bootstrap:
+  before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci docs -vv packages.txt
-    - bdt ci clean -vv
-  cache: &build_caches
+  cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
 
 
-.build_linux_template: &linux_build_job
-  <<: *build_job
-  tags:
-    - docker
-  image: continuumio/conda-concourse-ci
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
-  cache:
-    <<: *build_caches
-    key: "linux-cache"
-
-
-build_linux_37:
-  <<: *linux_build_job
+# Build target
+build:
+  extends: .bootstrap
+  stage: build
   variables:
     GITLAB_CHECKOUT_STRATEGY: "https://gitlab-ci-token:${CI_BUILD_TOKEN}@gitlab.idiap.ch/"
     PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
+  script:
+    - yum -y install dejavu-sans-fonts
+    - bdt ci docs -vv packages.txt
+    - bdt ci clean -vv
   artifacts:
     expire_in: 1 week
     paths:
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
+  cache:
+    key: "build"
 
 
-# Deploy targets
-.deploy_template: &deploy_job
+# Deploy target
+.deploy:
+  extends: .bootstrap
   stage: deploy
   script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_37
+    - build
   tags:
     - docker
-  cache: &build_caches
-    paths:
-      - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
-
+  image: continuumio/conda-concourse-ci
+  cache:
+    key: "deploy"
 
 deploy_beta:
-  <<: *deploy_job
+  extends: .deploy
   environment: beta
   only:
     - master
 
-
 deploy_stable:
-  <<: *deploy_job
+  extends: .deploy
   environment: stable
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)

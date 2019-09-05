@@ -16,23 +16,29 @@ stages:
   - pypi
 
 
-# Build targets
-.build_template:
-  stage: build
-  script:
+# All stages are prepared the same, with a base set of commands
+.bootstrap:
+  before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci build -vv
-    - bdt ci clean -vv
-  artifacts:
-    expire_in: 1 week
   cache:
     paths:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
+
+
+# Build targets
+.build_template:
+  extends: .bootstrap
+  stage: build
+  script:
+    - bdt ci build -vv
+    - bdt ci clean -vv
+  artifacts:
+    expire_in: 1 week
 
 
 .build_linux_template:
@@ -43,8 +49,6 @@ stages:
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
-  cache:
-    key: "linux-cache"
 
 
 .build_macosx_template:
@@ -54,24 +58,28 @@ stages:
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
-  cache:
-    key: "macosx-cache"
 
 
 build_macosx_36:
   extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.6"
+  cache:
+    key: "build-py36"
 
 build_macosx_37:
   extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.7"
+  cache:
+    key: "build-py37"
 
 build_linux_36:
   extends: .build_linux_template
   variables:
     PYTHON_VERSION: "3.6"
+  cache:
+    key: "build-py36"
 
 build_linux_37:
   extends: .build_linux_template
@@ -79,10 +87,6 @@ build_linux_37:
     PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
   script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
@@ -91,16 +95,15 @@ build_linux_37:
       - dist/*.zip
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
+  cache:
+    key: "build-py37"
 
 
 # Test targets (not normally used)
 .test_template:
+  extends: .bootstrap
   stage: test
   script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci test -vv
     - bdt ci clean -vv
   cache:
@@ -115,26 +118,19 @@ build_linux_37:
   tags:
     - docker
   image: continuumio/conda-concourse-ci
-  cache:
-    key: "linux-cache"
 
 
 .test_macosx_template:
   extends: .test_template
   tags:
     - macosx
-  cache:
-    key: "macosx-cache"
 
 
 # Deploy targets
 .deploy_template:
+  extends: .bootstrap
   stage: deploy
   script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
@@ -149,6 +145,8 @@ build_linux_37:
       - miniconda.sh
       - ${CONDA_ROOT}/pkgs/*.tar.bz2
       - ${CONDA_ROOT}/pkgs/urls.txt
+  cache:
+    key: "deploy"
 
 
 deploy_beta:
@@ -168,6 +166,7 @@ deploy_stable:
 
 
 pypi:
+  extends: .bootstrap
   stage: pypi
   environment: pypi
   only:
@@ -175,10 +174,6 @@ pypi:
   except:
     - branches
   script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
@@ -188,3 +183,5 @@ pypi:
     - build_macosx_37
   tags:
     - docker
+  cache:
+    key: "pypi"
