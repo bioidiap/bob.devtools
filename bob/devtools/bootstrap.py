@@ -438,7 +438,14 @@ if __name__ == "__main__":
     condarc = os.path.join(args.conda_root, "condarc")
     logger.info("(create) %s", condarc)
     with open(condarc, "wt") as f:
-        f.write(_BASE_CONDARC)
+        # Replaces https://repo.anaconda.com/pkgs/main by
+        # http://www.idiap.ch/software/bob/defaults with so it is optimized for
+        # a CI build.  Notice we consider this script is only executed in this
+        # context.  The URL should NOT work outside of Idiap's network.
+        f.write(_BASE_CONDARC.replace(
+                'https://repo.anaconda.com/pkgs/main',
+                'http://www.idiap.ch/defaults',
+                ))
 
     conda_version = "4"
     conda_build_version = "3.16"
