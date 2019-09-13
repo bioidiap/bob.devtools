@@ -1,15 +1,13 @@
 .. _bob.extension.development:
 
-=======================================
-Developing existing |project| packages
-=======================================
+=========================================
+ Local development of |project| packages
+=========================================
 
-This guide will explain how to develop existing |project| packages from their
-source checkout. The sources of packages are hosted on Idiap's gitlab_ and they
-are managed by git_. First we will explain how to setup a local environment,
-later we will talk about how to checkout and build one or several packages from
-their git_ source.
-
+Very often, developers of |project| packages are confronted with the need to
+clone repositories locally and develop installation/build and runtime code.
+It is recommended to create isolated environments to develop new projects using conda_ and `zc.buildout`. Tools implemented in `bob.devtools` helps automate this process. In the following we talk about how to checkout and build one or several packages from
+their git_ source and build proper isolated environments to develop them. 
 
 TLDR
 ----
@@ -121,36 +119,54 @@ Optionally:
     $ firefox sphinx/index.html  # view the docs.
 
 
-.. bob.extension.development_setup:
+.. bob.devtools.local_development:
 
-Local development environment
-------------------------------
+Local development of a Bob package
+==================================
 
-The first thing that you want to do is setup your local development
-environment so you can start developing. Thanks to conda_ this is quite easy.
-Here are the instructions:
 
-* Install conda_ and learn about it a bit.
-* Add our `conda channel`_ to your channels.
+Checking out |project| package sources
+--------------------------------------
+
+|project| packages are developed through Gitlab_. In order to checkout a
+package, just use git_:
+
 
 .. code-block:: sh
 
-    $ conda config --set show_channel_urls True
-    $ conda config --add channels defaults
-    $ conda config --add channels https://www.idiap.ch/software/bob/conda
+   $ git clone https://gitlab.idiap.ch/bob/<package>
+
+
+Where ``<package>`` is the package you want to develop. Various packages exist
+in |project|'s gitlab_ instance. 
+
+Create an isolated conda environment
+------------------------------------
+
+Now that we have the package checked out we need an isolated environment with proper configuration to develop the package. `bob.devtools` provides a tool that automatically creates such environment. 
+
+Before proceeding, you need to make sure that you already have a conda_ environment that has `bob.devtools` installed in. Refer to :ref:`bob.devtools.install` for information. Here we assume that you have a conda environment named `bdt` with installed `bob.devtools`
+
+.. code-block:: sh
+
+   $ cd <package>
+   $ conda activate bdt
+   $ bdt create -vv dev
+   $ conda activate dev
+
+
+Now you have an isolated conda environment with proper channels set. For more information about conda channels refer to `conda channel documentation`_.
 
 .. note::
 
-    Make sure you are using **only** our channel (with the highest priority)
-    and ``defaults`` (with the second highest priority). If you use any other
-    channel like ``conda-forge``, you may end-up with broken environments.
+    When developing and testing new features, one often wishes to work against the very latest, *bleeding edge*, available set of changes on dependent packages.
+
+    `bdt create` command adds `Bob beta channels`_ to highest priority which creates an environment with the latest dependencies instead of the latest *stable* versions of each package.
     To see which channels you are using run:
 
     .. code-block:: sh
 
         $ conda config --get channels
-
-* Create a new environment that you will use for development.
 
 .. note::
 
@@ -158,40 +174,62 @@ Here are the instructions:
     that you work on. This way you can have several isolated development
     environments which can be very different form each other.
 
+
+Running buildout
+----------------
+
+The last step is to create a hooked-up environment so you can quickly test
+local changes to your package w/o necessarily creating a conda-package. This
+step is the easiest:
+
+
 .. code-block:: sh
 
-    $ conda create --copy -n awesome-project \
-      python=3 bob-devel
-    $ source activate awesome-project
+   $ cd <package> #if that is not the case
+   $ conda activate dev
+   $ buildout
+   ...
+
+zc.buildout_ works by modifying the load paths of scripts to find the correct
+version of your package sources from the local checkout. After running,
+buildout creates a directory called ``bin`` on your local package checkout. Use
+the applications living there to develop your package. For example, if you need
+to run the test suite:
+
+
+.. code-block:: sh
+
+   $ ./bin/nosetests -sv
+
+
+A python interpreter clone can be used to run interactive sessions:
+
+
+.. code-block:: sh
+
+   $ ./bin/python
+
+You can see what is installed in your environment:
+
+.. code-block:: sh
+
+   $ conda list
+
+And you can install new necessary packages using conda:
+
+.. code-block:: sh
+
+   $ conda install <package>
+
 
 .. note::
 
-    The ``--copy`` option in the ``conda create`` command copies all files from
-    conda's cache folder into your environment. If you don't provide it, it
-    will try to create hard links to save up disk space but you will risk
-    modifying the files in **all** your environments without knowing. This can
-    easily happen if you use pip_ for example to manage your environment.
+    If you want to debug a package regarding the issues showing on the ci you can use `bob.devtools`. Make sure the conda environment containing `bob.devtools` is activated.
 
-That's it. Now you have an **isolated** conda environment for your awesome
-project! bob-devel_ is a conda meta package that pulls a set of common software
-into your environment. To see what is installed, run:
+   $ cd <package>
+   $ conda activate bdt
+   $ bdt local build   
 
-.. code-block:: sh
-
-    $ conda list
-
-You can use conda_ and zc.buildout_ (which we will talk about later) to install
-some other libraries that you may require into your environment.
-
-.. important::
-
-    Installing bob-devel_ **will not** install any |project| package. Use
-    conda_ to install the |project| packages that you require. For example to
-    get all the **core** `Bob packages`_ installed, run:
-
-    .. code-block:: sh
-
-        $ conda install bob
 
 One important advantage of using conda_ and zc.buildout_ is that it does
 **not** require administrator privileges for setting up any of the above.
@@ -199,7 +237,7 @@ Furthermore, you will be able to create distributable environments for each
 project you have. This is a great way to release code for laboratory exercises
 or for a particular publication that depends on |project|.
 
-.. _bob.extension.build_locally:
+.. _bob.devtools.build_locally:
 
 Building packages locally
 -------------------------
@@ -336,7 +374,7 @@ When the buildout command is invoked it will perform the following steps:
     points in ``setup.py`` of a package, you need to run ``buildout`` again.
 
 
-.. _bob.extension.mr.developer:
+.. _bob.devtools.mr.developer:
 
 Using mr.developer
 ==================
