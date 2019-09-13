@@ -23,7 +23,6 @@ scratch.
    changed.  In case that happens, update your package by generating a new
    setup and copying the relevant parts to your existing package(s).
 
-
 Create a new package
 --------------------
 
