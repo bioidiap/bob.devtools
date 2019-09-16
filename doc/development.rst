@@ -82,11 +82,11 @@ locally:
     $ bdt create --stable -vv awesome-project
     $ source activate awesome-project
 
-* Install necessary package for compiling bob packages
+* Install dependencies for `bob.extension` and `bob.blitz` using `conda install` command. You can find out the required dependencies by looking at `conda/meta.yaml` file for each package.
 
 .. code-block:: sh
 
-    $ conda install gcc_linux-64 gxx_linux-64
+    $ conda install gcc_linux-64 gxx_linux-64 libblitz
 
 * Run buildout and check if your desired package is being imported from the
   ``awesome-project/src`` folder.
@@ -102,17 +102,19 @@ locally:
     >>> bob.blitz # should print from '.../awesome-project/src/bob.blitz/...'
     <module 'bob.blitz' from 'awesome-project/src/bob.blitz/bob/blitz/__init__.py'>
     >>> print(bob.blitz.get_config())
-    bob.blitz: 2.0.15b0 [api=0x0202] (awesome-project/src/bob.blitz)
+    bob.blitz: 2.0.19b0 [api=0x0202] (awesome-project/src/src/bob.blitz)
     * C/C++ dependencies:
       - Blitz++: 0.10
-      - Boost: 1.61.0
-      - Compiler: {'version': '4.8.5', 'name': 'gcc'}
-      - NumPy: {'abi': '0x01000009', 'api': '0x0000000A'}
-      - Python: 2.7.13
+      - Boost: 1.62.0
+      - Compiler: {'name': 'gcc', 'version': '7.3.0'}
+      - NumPy: {'abi': '0x01000009', 'api': '0x0000000D'}
+      - Python: 3.6.9
     * Python dependencies:
-      - bob.extension: 2.4.6b0 (awesome-project/src/bob.extension)
-      - numpy: 1.12.1 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
-      - setuptools: 36.4.0 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
+      - bob.extension: 3.1.3b0 (.../awesome-project/src/bob.extension)
+      - click: 7.0 (.../awesome-project/eggs/Click-7.0-py3.6.egg)
+      - click-plugins: 1.1.1 (.../awesome-project/eggs/click_plugins-1.1.1-py3.6.egg)
+      - numpy: 1.17.2 (awesome-project/eggs/numpy-1.17.2-py3.6-linux-x86_64.egg)
+      - setuptools: 41.0.1 (.../miniconda3/envs/awesome-project/lib/python3.6/site-packages)
 
 Optionally:
 
@@ -135,8 +137,11 @@ Optionally:
 
 .. note::
     
-    Sometimes when you are calling a function not interactively it is not acting normally. In that case import pkgsources before importing your package. It is a known issue and we are working on it.
-    
+    Sometimes when you are calling a function not interactively it is not acting normally. In that case import pkg_resources before importing your package. It is a known issue and we are working on it.
+
+    .. code-block:: sh
+
+        $ ./bin/python -c "import pkg_resources; import bob.blitz; print(bob.blitz)"
 
 
 .. bob.devtools.local_development:
@@ -428,8 +433,8 @@ the entries need attention.
   *development mode* from the specified folder.
 
 The remaining options define how the (dependent) packages are built. For
-example, the ``debug`` flag defined, how the :ref:`C++ code <extension-c++>` in
-all the (dependent) packages is built. The ``verbose`` options handles the
+example, the ``debug`` flag defined, how the *C++ code* in
+all the (dependent) packages is built. For more information refer to *C/C++ modules in your package* in `bob.extension <https://www.idiap.ch/software/bob/docs/bob/bob.extension/master/index.html>`_ documentation. The ``verbose`` options handles the
 verbosity of the build. When the ``newest`` flag is set to ``true``, buildout
 will install all packages in the latest versions, even if an older version is
 already available.

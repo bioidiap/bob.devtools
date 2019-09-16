@@ -16,9 +16,9 @@ Documentation
    :maxdepth: 2
 
    install
-   release
    development
    additional
+   release
    templates
    api
    ci
