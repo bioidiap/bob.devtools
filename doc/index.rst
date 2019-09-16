@@ -17,7 +17,6 @@ Documentation
 
    install
    release
-   guide
    development
    additional
    templates
