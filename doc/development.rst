@@ -10,7 +10,7 @@ It is recommended to create isolated environments to develop new projects using 
 their git_ source and build proper isolated environments to develop them. 
 
 TLDR
-----
+====
 
 Suppose you want to develop two packages, ``bob.extension`` and ``bob.blitz``,
 locally:
@@ -24,43 +24,43 @@ locally:
     $ conda config --add channels defaults
     $ conda config --add channels https://www.idiap.ch/software/bob/conda
 
-* Create an isolated environment for the task.
+* Install `bob.devtools` on a conda environment (create a new environment or install it on your base)
 
 .. code-block:: sh
 
-    $ conda create --copy -n awesome-project \
-      python=3 bob-devel bob-extras
-    # bob-devel has all of our dependencies but no bob packages themselves and
-    # bob-extras has all of our bob packages.
-    $ source activate awesome-project
+    $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda bob.devtools
 
-* Create a folder with the following buildout configuration file.
+* Create an empty bob package using `bdt new` command:
 
 .. code-block:: sh
 
-    $ mkdir awesome-project
-    $ cd awesome-project
-    $ vi buildout.cfg
+    $ conda activate bdt
+    $ bdt new -vv bob/bob.awesome-project author_name author_email
+    $ cd bob.awesome-project
+
+* Edit `buildout.cfg` file to include the packages you want to develop.
 
 .. code-block:: guess
 
     [buildout]
     parts = scripts
 
+    develop = src/bob.extension
+              src/bob.blitz
+              .
+
+    eggs = bob.extension
+           bob.blitz
+           bob.awesome-project
+
     extensions = bob.buildout
                  mr.developer
+
+    auto-checkout = *
 
     newest = false
     verbose = true
     debug = false
-
-    auto-checkout = *
-
-    develop = src/bob.extension
-              src/bob.blitz
-
-    eggs = bob.extension
-           bob.blitz
 
     [scripts]
     recipe = bob.buildout:scripts
@@ -72,6 +72,21 @@ locally:
     ; or
     ; bob.extension = git git@gitlab.idiap.ch:bob/bob.extension.git
     ; bob.blitz = git git@gitlab.idiap.ch:bob/bob.blitz.git
+
+* Optionally add the packages you want to have in your local installation but not developing them to `eggs` in the `buildout.cfg` file and the `requirements/host` section of the `conda/meta.yaml` file.
+
+* Create an isolated environment for the your project.
+
+.. code-block:: sh
+
+    $ bdt create --stable -vv awesome-project
+    $ source activate awesome-project
+
+* Install necessary package for compiling bob packages
+
+.. code-block:: sh
+
+    $ conda install gcc_linux-64 gxx_linux-64
 
 * Run buildout and check if your desired package is being imported from the
   ``awesome-project/src`` folder.
@@ -118,11 +133,16 @@ Optionally:
     $ ../../bin/sphinx-build -aEn doc sphinx  # make sure it finishes without warnings.
     $ firefox sphinx/index.html  # view the docs.
 
+.. note::
+    
+    Sometimes when you are calling a function not interactively it is not acting normally. In that case import pkgsources before importing your package. It is a known issue and we are working on it.
+    
+
 
 .. bob.devtools.local_development:
 
-Local development of a Bob package
-==================================
+Local development of an existing Bob package
+============================================
 
 
 Checking out |project| package sources
@@ -155,7 +175,7 @@ Before proceeding, you need to make sure that you already have a conda_ environm
    $ conda activate dev
 
 
-Now you have an isolated conda environment with proper channels set. For more information about conda channels refer to `conda channel documentation`_.
+Now you have an isolated conda environment with proper channels set. Add info about what bdt create does! For more information about conda channels refer to `conda channel documentation`_.
 
 .. note::
 
@@ -226,9 +246,11 @@ And you can install new necessary packages using conda:
 
     If you want to debug a package regarding the issues showing on the ci you can use `bob.devtools`. Make sure the conda environment containing `bob.devtools` is activated.
 
-   $ cd <package>
-   $ conda activate bdt
-   $ bdt local build   
+    .. code-block:: sh
+
+       $ cd <package>
+       $ conda activate bdt
+       $ bdt local build   
 
 
 One important advantage of using conda_ and zc.buildout_ is that it does
@@ -237,10 +259,112 @@ Furthermore, you will be able to create distributable environments for each
 project you have. This is a great way to release code for laboratory exercises
 or for a particular publication that depends on |project|.
 
-.. _bob.devtools.build_locally:
+.. _bob.devtools.build_multi_package:
 
-Building packages locally
--------------------------
+Local development of a new Bob package
+======================================
+
+It so happens that you want to develop several bob.packages against each other for your project. In this case you can make a new package using `bdt` commands and develop it. You need to activate your conda environment with bob.devtools installed in it.
+
+.. code-block:: sh
+    
+    $ conda activate bdt
+    $ bdt new -vv bob/bob.awesome-project author_name author_email
+
+This command will create a new bob package named "awesome-project" that includes the correct anatomy but it doesn't have information about the packages you are depending on.
+
+In the root of your project there is a file `buildout.cfg` which should look like:
+
+.. code-block:: guess
+
+    [buildout]
+    parts = scripts
+    develop = .
+    eggs = bob.awesome-project
+    extensions = bob.buildout
+    newest = false
+    verbose = true
+
+    [scripts]
+    recipe = bob.buildout:scripts
+    dependent-scripts = true
+
+
+Let's assume you need to develop two packages at the same time, `bob.extension` and `bob.blitz`. 
+
+You need to add these packages to the `buildout.cfg` file in the newly created folder.
+
+.. code-block:: guess
+
+    [buildout]
+    parts = scripts
+
+    develop = src/bob.extension
+              src/bob.blitz
+              .
+
+    eggs = bob.extension
+           bob.blitz
+           bob.awesome-project
+
+    extensions = bob.buildout
+                 mr.developer
+
+    auto-checkout = *
+    newest = false
+    verbose = true
+
+    [scripts]
+    recipe = bob.buildout:scripts
+    dependent-scripts = true
+
+    [sources]
+    bob.extension = git git@gitlab.idiap.ch:bob/bob.extension.git
+    bob.blitz = git git@gitlab.idiap.ch:bob/bob.blitz.git
+
+
+When you build your new package the dependent packages (in this example `bob.extension` and `bob.blitz`) will be checked out on folder `src` in the root of your project.
+
+Before you proceed with building your package you need to make a new isolated conda environment. 
+
+.. code-block:: sh
+    
+    $ cd bob.awesome-project
+    $ conda activate bdt
+    $ bdt create --stable -vv awesome-project
+    $ conda activate awesome-project
+
+Now you have a conda environment that is using *stable* channels to install bob packages. Some of bob packages need compilers to be build, so before running buildout you need to install the following packages:
+
+.. code-block:: sh
+    
+    $ conda install gcc_linux-64 gxx_linux-64
+
+.. note::
+    for macos you need to install the following:
+
+    .. code-block:: sh
+    
+        $ conda install ??
+
+Now you can run buildout as usual.
+
+.. code-block:: sh
+    
+    $ buildout
+
+.. note::
+
+    sometimes you may need some of bob.packages available in your local directory without necessarily developing them. In that case first install it on your conda environment using `conda install` command. Then add it to the `eggs` section in your `buildout.cfg` file and then run `buildout`.
+
+    If you knew beforehand what are those packages that you need you can add them to the `conda/meta.yaml` file and then create the conda environment using `bdt create` command which installs those packages automatically.
+
+
+
+
+
+Some notes on buildout
+----------------------
 
 To be able to develop a package, we first need to build and install it locally.
 While developing a package, you need to install your package in *development*
@@ -260,42 +384,7 @@ you do in the source. zc.buildout_ allows you to exactly do that.
 
 zc.buildout_ provides a ``buildout`` command. ``buildout`` takes as input a
 "recipe" that explains how to build a local working environment. The recipe, by
-default, is stored in a file called ``buildout.cfg``. Let\'s create an example
-one in your project folder that will allow you to develop ``bob.extension``
-from source:
-
-.. code-block:: sh
-
-    $ mkdir awesome-project
-    $ cd awesome-project
-    # checkout bob.extension from source and put it in a folder called `src`
-    $ git clone https://gitlab.idiap.ch/bob/bob.extension src/bob.extension
-
-Create a file named ``buildout.cfg`` in the ``awesome-project`` folder with the
-following contents:
-
-.. code-block:: guess
-
-    [buildout]
-    parts = scripts
-    extensions = bob.buildout
-    newest = false
-    verbose = true
-    debug = false
-
-    develop = src/bob.extension
-    eggs = bob.extension
-
-    [scripts]
-    recipe = bob.buildout:scripts
-    dependent-scripts = true
-
-Then, invoke buildout:
-
-.. code-block:: sh
-
-    $ buildout
-
+default, is stored in a file called ``buildout.cfg``. 
 .. note::
 
     Buildout by default looks for ``buildout.cfg`` in your current folder and
@@ -306,8 +395,6 @@ Then, invoke buildout:
 
         $ buildout -c develop.cfg
 
-The buildout command with the configuration file above will install
-``bob.extension`` in *development mode* in your local buildout environment.
 
 .. important::
     Once ``buildout`` runs, it creates several executable scripts in a local
@@ -490,6 +577,6 @@ can access all packages that you have developed, including your own package:
 
 Everything is now setup for you to continue the development of the packages.
 Moreover, you can learn more about |project| packages and learn to create new
-ones in :doc:`pure_python`.
+ones in .
 
 .. include:: links.rst
