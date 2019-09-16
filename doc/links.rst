@@ -9,4 +9,13 @@
 .. _gitlab runner: https://docs.gitlab.com/runner/install/osx.html
 .. _docker for mac: https://docs.docker.com/docker-for-mac/install/
 .. _conda channel documentation: https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html
-.. _Bob beta channel: https://www.idiap.ch/software/bob/conda/label/beta
+.. _Bob beta channels: https://www.idiap.ch/software/bob/conda/label/beta
+.. _git: http://git-scm.com/
+.. _gitlab: https://gitlab.idiap.ch/bob/
+.. _nose: https://nose.readthedocs.org/en/latest/
+.. _python: http://www.python.org
+.. _pypi: http://pypi.python.org
+.. _setuptools: https://setuptools.readthedocs.io
+.. _zc.buildout: http://pypi.python.org/pypi/zc.buildout/
+.. _mr.developer: http://pypi.python.org/pypi/mr.developer/
+.. _conda channel: https://www.idiap.ch/software/bob/conda/
