@@ -17,9 +17,8 @@ Documentation
 
    install
    development
-   additional
-   release
    templates
+   release
    api
    ci
 
