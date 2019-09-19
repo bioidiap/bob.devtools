@@ -359,7 +359,7 @@ This command will create a new bob package named "awesome-project" that includes
     +-- setup.py
     +-- version.txt
 
-For more information about the functionality of each file check :ref:`.. _bob.devtools.anatomy`.  
+For more information about the functionality of each file check :ref:`bob.devtools.anatomy`.  
 
 In the root of your project there is a file `buildout.cfg` used by `buildout` to build your package locally. It should look like:
 
