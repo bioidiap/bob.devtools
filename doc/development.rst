@@ -183,7 +183,7 @@ Before proceeding, you need to make sure that you already have a conda_ environm
 
 Now you have an isolated conda environment named `dev` with proper channels set. For more information about conda channels refer to `conda channel documentation`_.
 
-The `bdt create` command assumes a directory named `conda' exists on the current directory and that it contains a file called `meta.yaml' containing the recipe for the package you want to create a development environment for.
+The `bdt create` command assumes a directory named `conda' exists on the current directory and that it contains a file called `meta.yaml` containing the recipe for the package you want to create a development environment for.
 
 .. note::
 
@@ -359,19 +359,7 @@ This command will create a new bob package named "awesome-project" that includes
     +-- setup.py
     +-- version.txt
 
-
-There is a folder named `conda` that includes a file `meta.yaml`. As explained earlier this files includes the information used to prepare a proper conda environment.
-
-The folder named `bob` which should only include a file `__init__.py` at this stage is where you will put all your new code and functionality in.
-
-The folder named `doc` includes the minimum necessary information for building package documentation. The file `conf.py` is used by sphinx to build the documentation.
-
-`.gitlab-ci.yml` includes the information about building packages on the ci. We will talk about it later.
-
-
-COPYING??? MANIFEST.IN???
-
-`requirements.txt` and `setup.py` and `buildout.cfg` are used to setup the proper development environment. We will describe in more details in :ref:`bob.devtools.buildout`_. For now let's see how to use `buildout.cfg` file.    
+For more information about the functionality of each file check :ref:`.. _bob.devtools.anatomy`.  
 
 In the root of your project there is a file `buildout.cfg` used by `buildout` to build your package locally. It should look like:
 
