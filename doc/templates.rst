@@ -140,7 +140,7 @@ guidelines on `bob.template <https://gitlab.idiap.ch/bob/bob.admin/tree/master/t
 .. _bob.devtools.anatomy:
 
 Anatomy of a new package
-------------------------
+========================
 
 There is a folder named `conda` that includes a file `meta.yaml`. As explained earlier this files includes the information used to prepare a proper conda environment.
 
