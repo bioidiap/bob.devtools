@@ -491,12 +491,8 @@ def git_clean_build(runner, verbose):
     # glob wild card entries we'd like to keep
     exclude_from_cleanup = [
         "miniconda.sh",  # the installer, cached
-        "miniconda/pkgs/urls.txt",  # download index, cached
         "sphinx",  # build artifact -- documentation
     ]
-
-    # cache
-    exclude_from_cleanup += ["miniconda/pkgs/"]
 
     # artifacts
     exclude_from_cleanup += ["miniconda/conda-bld/"]
