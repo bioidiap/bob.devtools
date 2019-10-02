@@ -24,8 +24,6 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 .build_linux_template:
@@ -107,8 +105,6 @@ build_macosx_37:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 deploy_beta:
@@ -150,5 +146,3 @@ pypi:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt

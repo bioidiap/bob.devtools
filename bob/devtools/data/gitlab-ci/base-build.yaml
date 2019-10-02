@@ -30,8 +30,6 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 build_linux:
