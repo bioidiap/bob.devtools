@@ -32,7 +32,7 @@ requirements:
     - click >=7
     - click-plugins
     - conda=4
-    - conda-build=3.17
+    - conda-build=3
     - conda-verify=3
     - certifi
     - docformatter
