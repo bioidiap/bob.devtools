@@ -448,7 +448,7 @@ if __name__ == "__main__":
                 ))
 
     conda_version = "4"
-    conda_build_version = "3.16"
+    conda_build_version = "3.17"
     conda_verify_version = "3"
 
     conda_verbosity = []
