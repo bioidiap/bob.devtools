@@ -211,12 +211,12 @@ def ensure_miniconda_sh():
     server = "repo.continuum.io"  # https
 
     # WARNING: if you update this version, remember to update hahes below
-    path = "/miniconda/Miniconda2-4.7.10-%s-x86_64.sh"
+    path = "/miniconda/Miniconda3-4.7.10-%s-x86_64.sh"
     if platform.system() == "Darwin":
-        md5sum = 'f540257a4b1df264e6f72c75f75620bb'
+        md5sum = 'b9974b2ef1b17b8be9b1fd2c619c6702'
         path = path % "MacOSX"
     else:
-        md5sum = '3bc6ffc6cda8efa467926dfd92a30bca'
+        md5sum = '1c945f2b3335c7b2b15130b1b2dc5cf4'
         path = path % "Linux"
 
     if os.path.exists("miniconda.sh"):
