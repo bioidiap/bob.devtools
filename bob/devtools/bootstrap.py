@@ -431,6 +431,15 @@ if __name__ == "__main__":
 
     setup_logger(logger, args.verbose)
 
+    #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
+    if os.path.exists('.gitignore'):
+        logger.warn('Removing ".gitignore" to overcome issues with ripgrep')
+        logger.warn('See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112')
+        os.unlink('.gitignore')
+    #### END OF HACK
+
+    condarc = os.path.join(args.conda_root, "condarc")
+
     install_miniconda(args.conda_root, args.name)
     conda_bin = os.path.join(args.conda_root, "bin", "conda")
 
