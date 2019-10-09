@@ -211,12 +211,12 @@ def ensure_miniconda_sh():
     server = "repo.continuum.io"  # https
 
     # WARNING: if you update this version, remember to update hahes below
-    path = "/miniconda/Miniconda3-4.6.14-%s-x86_64.sh"
+    path = "/miniconda/Miniconda3-4.7.10-%s-x86_64.sh"
     if platform.system() == "Darwin":
-        md5sum = 'ffa5f0eead5576fb26b7e6902f5eed09'
+        md5sum = 'b9974b2ef1b17b8be9b1fd2c619c6702'
         path = path % "MacOSX"
     else:
-        md5sum = '718259965f234088d785cad1fbd7de03'
+        md5sum = '1c945f2b3335c7b2b15130b1b2dc5cf4'
         path = path % "Linux"
 
     if os.path.exists("miniconda.sh"):
@@ -431,6 +431,15 @@ if __name__ == "__main__":
 
     setup_logger(logger, args.verbose)
 
+    #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
+    if os.path.exists('.gitignore'):
+        logger.warn('Removing ".gitignore" to overcome issues with ripgrep')
+        logger.warn('See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112')
+        os.unlink('.gitignore')
+    #### END OF HACK
+
+    condarc = os.path.join(args.conda_root, "condarc")
+
     install_miniconda(args.conda_root, args.name)
     conda_bin = os.path.join(args.conda_root, "bin", "conda")
 
@@ -448,7 +457,7 @@ if __name__ == "__main__":
                 ))
 
     conda_version = "4"
-    conda_build_version = "3.17"
+    conda_build_version = "3"
     conda_verify_version = "3"
 
     conda_verbosity = []
