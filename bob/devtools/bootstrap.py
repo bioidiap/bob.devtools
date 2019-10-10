@@ -437,6 +437,22 @@ if __name__ == "__main__":
         logger.warn('See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112')
         os.unlink('.gitignore')
     #### END OF HACK
+        
+    #### HACK that avoids this issue: https://github.com/conda/conda-build/issues/3767
+    if os.path.exists('LICENSE') and os.path.exists('conda'):
+        logger.warn('Creating symlink in `./conda` to avoid issue with conda build (https://github.com/conda/conda-build/issues/3767)')
+        logger.warn('Replacing ../LICENSE to LICENSE (https://github.com/conda/conda-build/issues/3767)')
+        pwd = os.path.abspath(os.curdir)
+        os.symlink(f"{pwd}/LICENSE", f"{pwd}/conda/LICENSE")
+        if(os.path.exists('COPYING')):
+            os.symlink(f"{pwd}/COPYING", f"{pwd}/conda/COPYING")
+        recipe = open("./conda/meta.yaml").readlines() 
+        recipe = [l.replace("../COPYING","COPYING").replace("../LICENSE","LICENSE") for l in recipe]
+        open("./conda/meta.yaml", "wt").write(''.join(recipe))
+
+
+
+    #### END OF HACK    
 
     condarc = os.path.join(args.conda_root, "condarc")
 
