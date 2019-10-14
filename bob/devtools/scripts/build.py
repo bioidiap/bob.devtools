@@ -178,29 +178,29 @@ def build(
     )
 
     #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
-    project_dir = os.path.dirname(recipe_dir[0])
-    import shutil
-    if os.path.exists(os.path.join(project_dir, '.gitignore')):
-        logger.warn('Removing ".gitignore" to overcome issues with ripgrep')
-        logger.warn('See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112')
-        os.unlink(os.path.join(project_dir, '.gitignore'))
-    #### END OF HACK
+    project_dir = os.path.dirname(recipe_dir[0])
+    import shutil
+    if os.path.exists(os.path.join(project_dir, '.gitignore')):
+        logger.warn('Removing ".gitignore" to overcome issues with ripgrep')
+        logger.warn('See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112')
+        os.unlink(os.path.join(project_dir, '.gitignore'))
+    #### END OF HACK
 
-    #### HACK that avoids this issue: https://github.com/conda/conda-build/issues/3767
-    if os.path.exists(os.path.join(project_dir,'LICENSE')) and os.path.exists(recipe_dir[0]):
-        logger.warn('Creating symlink in `./conda` to avoid issue with conda build (https://github.com/conda/conda-build/issues/3767)')
-        logger.warn('Replacing ../LICENSE to LICENSE (https://github.com/conda/conda-build/issues/3767)')
-        pwd = project_dir
-        
-        # WE NEED TO COPY. FOR SOME REASON SYMLINK DOESN'T WORK IN THIS CASE
-        shutil.copyfile(f"{pwd}/LICENSE", f"{pwd}/conda/LICENSE")
-        if(os.path.exists(os.path.join(project_dir,'COPYING'))):
-            shutil.copyfile(f"{pwd}/COPYING", f"{pwd}/conda/COPYING")
-        recipe = open(os.path.join(recipe_dir[0],"meta.yaml")).readlines()
-        recipe = [l.replace("../COPYING","COPYING").replace("../LICENSE","LICENSE") for l in recipe]
-        open(os.path.join(recipe_dir[0],"meta.yaml"), "wt").write(''.join(recipe))
+    #### HACK that avoids this issue: https://github.com/conda/conda-build/issues/3767
+    if os.path.exists(os.path.join(project_dir,'LICENSE')) and os.path.exists(recipe_dir[0]):
+        logger.warn('Creating symlink in `./conda` to avoid issue with conda build (https://github.com/conda/conda-build/issues/3767)')
+        logger.warn('Replacing ../LICENSE to LICENSE (https://github.com/conda/conda-build/issues/3767)')
+        pwd = project_dir
 
-    #### END OF HACK
+        # WE NEED TO COPY. FOR SOME REASON SYMLINK DOESN'T WORK IN THIS CASE
+        shutil.copyfile(f"{pwd}/LICENSE", f"{pwd}/conda/LICENSE")
+        if(os.path.exists(os.path.join(project_dir,'COPYING'))):
+            shutil.copyfile(f"{pwd}/COPYING", f"{pwd}/conda/COPYING")
+        recipe = open(os.path.join(recipe_dir[0],"meta.yaml")).readlines()
+        recipe = [l.replace("../COPYING","COPYING").replace("../LICENSE","LICENSE") for l in recipe]
+        open(os.path.join(recipe_dir[0],"meta.yaml"), "wt").write(''.join(recipe))
+
+    #### END OF HACK
 
     # get potential channel upload and other auxiliary channels
     channels = get_channels(
