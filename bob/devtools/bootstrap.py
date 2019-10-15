@@ -75,9 +75,14 @@ def do_hack(project_dir):
         copying_file = os.path.join(project_dir, 'COPYING')
         if(os.path.exists(copying_file)):
             shutil.copyfile(copying_file, os.path.join(recipe_dir,"COPYING"))
+            
+        agpl_file = os.path.join(project_dir, 'LICENSE.AGPL')
+        if(os.path.exists(agpl_file)):
+            shutil.copyfile(agpl_file, os.path.join(recipe_dir,"LICENSE.AGPL"))
+            
         meta_file = os.path.join(recipe_dir,"meta.yaml")
         recipe = open(meta_file).readlines()
-        recipe = [l.replace("../COPYING","COPYING").replace("../LICENSE","LICENSE") for l in recipe]
+        recipe = [l.replace("../COPYING","COPYING").replace("../LICENSE","LICENSE").replace("../LICENSE.AGPL","LICENSE.AGPL") for l in recipe]
         open(meta_file, "wt").write(''.join(recipe))
     #### END OF HACK
 
