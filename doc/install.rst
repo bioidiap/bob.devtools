@@ -61,5 +61,20 @@ We recommend you set ``chmod 600`` to this file to avoid prying eyes to read
 out your personal token. Once you have your token set up, communication should
 work transparently between the built-in gitlab client and the server.
 
+If you would like to use the WebDAV interface to our web service for manually
+uploading contents, you may also setup the address, username and password for
+that server inside the file ``~/.bdtrc``.  Here is a skeleton:
+
+.. code-block:: ini
+
+
+   [webdav]
+   server = http://example.com
+   username = username
+   password = password
+
+You may obtain these parameters from our internal page explaining the `WebDAV
+configuration`_.  You shoul also set ``chmod 600`` to this file for obvious
+security reasons.
 
 .. include:: links.rst
