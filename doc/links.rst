@@ -19,3 +19,4 @@
 .. _zc.buildout: http://pypi.python.org/pypi/zc.buildout/
 .. _mr.developer: http://pypi.python.org/pypi/mr.developer/
 .. _conda channel: https://www.idiap.ch/software/bob/conda/
+.. _webdav configuration: https://gitlab.idiap.ch/bob/private/wikis/how-to-upload-resources
