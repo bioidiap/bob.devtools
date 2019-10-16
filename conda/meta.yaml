@@ -48,9 +48,7 @@ requirements:
     - jinja2
     - termcolor
     - psutil
-    # pin packaging temporarily until
-    # https://github.com/ContinuumIO/anaconda-issues/issues/11236 is fixed.
-    - packaging=19.0
+    - packaging >=19.2
 
 test:
   requires:
