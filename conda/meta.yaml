@@ -48,7 +48,6 @@ requirements:
     - jinja2
     - termcolor
     - psutil
-    - packaging >=19.2
 
 test:
   requires:
