@@ -1,4 +1,4 @@
-.. _bob.extension.development:
+.. _bob.devtools.development:
 
 =========================================
  Local development of |project| packages
