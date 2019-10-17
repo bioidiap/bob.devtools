@@ -6,7 +6,7 @@
 
 Very often, developers of |project| packages are confronted with the need to
 clone repositories locally and develop installation/build and runtime code.
-It is recommended to create isolated environments to develop new projects using conda_ and `zc.buildout`. Tools implemented in `bob.devtools` helps automate this process. In the following we talk about how to checkout and build one or several packages from
+It is recommended to create isolated environments to develop new projects using conda_ and zc.buildout_. Tools implemented in `bob.devtools` helps automate this process. In the following we talk about how to checkout and build one or several packages from
 their git_ source and build proper isolated environments to develop them. Then we will describe how to create a new bob package from scratch and develop existing bob packages along side it. 
 
 TLDR
@@ -35,12 +35,12 @@ locally:
 .. code-block:: sh
 
     $ conda activate bdt
-    $ bdt new -vv bob/bob.awesome-project author_name author_email
-    $ cd bob.awesome-project
+    $ bdt new -vv bob/bob.project.awesome author_name author_email
+    $ cd bob.project.awesome
 
 * Edit `buildout.cfg` file to include the packages you want to develop.
 
-.. code-block:: guess
+.. code-block:: ini
 
     [buildout]
     parts = scripts
@@ -51,7 +51,7 @@ locally:
 
     eggs = bob.extension
            bob.blitz
-           bob.awesome-project
+           bob.project.awesome
 
     extensions = bob.buildout
                  mr.developer
@@ -178,6 +178,7 @@ Before proceeding, you need to make sure that you already have a conda_ environm
    $ cd <package>
    $ conda activate bdt
    $ bdt create -vv dev
+   $ conda deactivate
    $ conda activate dev
 
 
@@ -259,7 +260,7 @@ You can see what is installed in your environment:
 
    $ conda list
 
-And you can install new necessary packages using conda:
+And you can install new packages using conda:
 
 .. code-block:: sh
 
@@ -284,10 +285,10 @@ or for a particular publication that depends on |project|.
 
 Developing multiple existing |project| packages simultaneously
 --------------------------------------------------------------
-It so happens that you want to develop several bob.packages against each other for your project. Let's assume you want to develop package A and B simultaneously. We assume that package A is dependent on B. First we checkout package A and build an isolated conda environment as explained in the previous section. Then edit `buildout.cfg` file (or `develop.cfg`) and add package B to it as following:
+It so happens that you want to develop several packages against each other for your project. Let's assume you want to develop package A and B simultaneously. We assume that package A is dependent on B. First we checkout package A and build an isolated conda environment as explained in the previous section. Then edit `buildout.cfg` file (or `develop.cfg`) and add package B to it as following:
 
 
-.. code-block:: guess
+.. code-block:: ini
 
     [buildout]
     parts = scripts
@@ -332,7 +333,7 @@ In this section we explain how to create a new bob package from scratch and star
 .. code-block:: sh
     
     $ conda activate bdt
-    $ bdt new -vv bob/bob.awesome-project author_name author_email
+    $ bdt new -vv bob/bob.project.awesome author_name author_email
 
 This command will create a new bob package named "awesome-project" that includes the correct anatomy of a package. Here we briefly explain the purpose of some of the parts:
 
@@ -363,12 +364,12 @@ For more information about the functionality of each file check :ref:`bob.devtoo
 
 In the root of your project there is a file `buildout.cfg` used by `buildout` to build your package locally. It should look like:
 
-.. code-block:: guess
+.. code-block:: ini
 
     [buildout]
     parts = scripts
     develop = .
-    eggs = bob.awesome-project
+    eggs = bob.project.awesome
     extensions = bob.buildout
     newest = false
     verbose = true
@@ -377,13 +378,12 @@ In the root of your project there is a file `buildout.cfg` used by `buildout` to
     recipe = bob.buildout:scripts
     dependent-scripts = true
 
-??? Do we need to add mr.developer and autoche-ckout in this section as well or buildout works fine? 
 
 Now you have all the necessary tools available and you can make a development environment using `bdt create` command, run `buildout` in it and start developing your package.
 
 .. code-block:: sh
     
-    $ cd bob.awesome-project
+    $ cd bob.project.awesome
     $ conda activate bdt
     $ bdt create --stable -vv awesome-project
     $ conda activate awesome-project
@@ -393,11 +393,11 @@ Now you have all the necessary tools available and you can make a development en
 Developing existing bob packages along with your new package
 ------------------------------------------------------------
 
-Let's assume you need to develop two packages, `bob.extension` and `bob.blitz`, as part of developing your new `bob.awesome-project` package. 
+Let's assume you need to develop two packages, `bob.extension` and `bob.blitz`, as part of developing your new `bob.project.awesome` package. 
 
 You need to add these packages to the `buildout.cfg` file in the newly created folder.
 
-.. code-block:: guess
+.. code-block:: ini
 
     [buildout]
     parts = scripts
@@ -408,7 +408,7 @@ You need to add these packages to the `buildout.cfg` file in the newly created f
 
     eggs = bob.extension
            bob.blitz
-           bob.awesome-project
+           bob.project.awesome
 
     extensions = bob.buildout
                  mr.developer
@@ -431,7 +431,7 @@ You need to add these packages to the `buildout.cfg` file in the newly created f
 
 When you build your new package the dependent packages (in this example `bob.extension` and `bob.blitz`) will be checked out on folder `src` in the root of your project.
 
-As usual, first create an isolated conda environment using `bdt create` command. Some of bob packages needs dependencies that might not be installed on your environment. You can find these dependencies by checking `conda/meta.yaml` of each package. Install the required packages and then run buildout as usual.
+As usual, first create an isolated conda environment using `bdt create` command. Some of bob packages need dependencies that might not be installed on your environment. You can find these dependencies by checking `conda/meta.yaml` of each package. Install the required packages and then run buildout as usual.
 
 .. code-block:: sh
     
@@ -439,9 +439,11 @@ As usual, first create an isolated conda environment using `bdt create` command.
 
 .. note::
 
-    sometimes you may need some of bob packages available in your local `bin` directory without necessarily developing them. In that case first install it on your conda environment using `conda install` command. Then add it to the `eggs` section in your `buildout.cfg` file and then run `buildout`.
+    Sometimes you may need some of bob packages available in your local `bin` directory without necessarily developing them. 
 
-    If you knew beforehand what are those packages that you need you can add them to `requirements/host` section of the `conda/meta.yaml` file and then create the conda environment using `bdt create` command which installs those packages automatically.
+    If you knew beforehand what are those packages, you can add them to "requirements/host" section of the `conda/meta.yaml` file and then create a conda environment using `bdt create`. Like this those packages will be installed automatically. Otherwise, if you already have your conda environment, install them using `conda install` command.
+    
+    When done, add those packages to the `eggs` section in your `buildout.cfg` file and then run `buildout`.
 
 
 .. _bob.devtools.buildout:
@@ -561,7 +563,7 @@ packages, which will be build in exactly the order that you specified. With
 this option, you can tell buildout particularly, in which directories it should
 look for some packages.
 
-.. code-block:: guess
+.. code-block:: ini
 
     [buildout]
     parts = scripts

@@ -16,7 +16,7 @@
 .. _python: http://www.python.org
 .. _pypi: http://pypi.python.org
 .. _setuptools: https://setuptools.readthedocs.io
-.. _zc.buildout: http://pypi.python.org/pypi/zc.buildout/
+.. _zc.buildout: http://www.buildout.org/
 .. _mr.developer: http://pypi.python.org/pypi/mr.developer/
 .. _conda channel: https://www.idiap.ch/software/bob/conda/
 .. _webdav configuration: https://gitlab.idiap.ch/bob/private/wikis/how-to-upload-resources
