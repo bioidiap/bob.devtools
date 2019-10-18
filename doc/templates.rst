@@ -137,6 +137,17 @@ recipe for that package.
 For more detailed instructions on how to achieve this, please see the 
 guidelines on `bob.template <https://gitlab.idiap.ch/bob/bob.admin/tree/master/templates>`_.
 
+
+.. _bob.devtools.buildout:
+
+Buildout.cfg in more details
+============================
+
+.. todo::
+
+  This section should include more information about different sections in a buildout.cfg file.
+
+
 .. _bob.devtools.anatomy:
 
 Anatomy of a new package

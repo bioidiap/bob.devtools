@@ -1,12 +1,13 @@
 .. _bob.devtools.development:
 
-=========================================
- Local development of |project| packages
-=========================================
+===============================
+ Local development of packages
+===============================
 
-Very often, developers of |project| packages are confronted with the need to
-clone repositories locally and develop installation/build and runtime code.
-It is recommended to create isolated environments to develop new projects using conda_ and zc.buildout_. Tools implemented in `bob.devtools` helps automate this process. In the following we talk about how to checkout and build one or several packages from
+Very often, developers are confronted with the need to
+clone package repositories locally and develop installation/build and runtime code.
+It is recommended to create isolated environments to develop new projects using conda_ and zc.buildout_. 
+Tools implemented in `bob.devtools` helps automate this process for |project| packages. In the following we talk about how to checkout and build one or several packages from
 their git_ source and build proper isolated environments to develop them. Then we will describe how to create a new bob package from scratch and develop existing bob packages along side it. 
 
 TLDR
@@ -146,36 +147,34 @@ Optionally:
 
 .. bob.devtools.local_development:
 
-Local development of existing Bob packages
-==========================================
+Local development of existing packages
+======================================
 To develop existing |project| packages you need to checkout their source code and create a proper development environment using `buildout`.
 
 
 Checking out |project| package sources
 --------------------------------------
 
-|project| packages are developed through gitlab_. In order to checkout a
+|project| packages are developed through gitlab_. Various packages exist
+in |project|'s gitlab_ instance. Here as an example we assume you want to install and build locally the `bob.blitz` pakcage. In order to checkout a
 package, just use git_:
 
 
 .. code-block:: sh
 
-   $ git clone https://gitlab.idiap.ch/bob/<package>
+   $ git clone https://gitlab.idiap.ch/bob/bob.blitz
 
-
-Where ``<package>`` is the package you want to develop. Various packages exist
-in |project|'s gitlab_ instance. 
 
 Create an isolated conda environment
 ------------------------------------
 
 Now that we have the package checked out we need an isolated environment with proper configuration to develop the package. `bob.devtools` provides a tool that automatically creates such environment. 
 
-Before proceeding, you need to make sure that you already have a conda_ environment that has `bob.devtools` installed in. Refer to :ref:`bob.devtools.install` for information. Here we assume that you have a conda environment named `bdt` with installed `bob.devtools`.
+Before proceeding, you need to make sure that you already have a conda_ environment that has `bob.devtools` installed in. Refer to :ref:`bob.devtools.install` for installation information. Here we assume that you have a conda environment named `bdt` with installed `bob.devtools`.
 
 .. code-block:: sh
 
-   $ cd <package>
+   $ cd bob.blitz
    $ conda activate bdt
    $ bdt create -vv dev
    $ conda deactivate
@@ -217,20 +216,39 @@ Running buildout
 ----------------
 
 The last step is to create a hooked-up environment so you can quickly test
-local changes to your package w/o necessarily creating a conda-package. This
-step is the easiest:
+local changes to your package w/o necessarily creating a conda-package. 
+zc.buildout_ takes care of it by modifying the load paths of scripts to find the correct
+version of your package sources from the local checkout. It by default uses a file named `buildout.cfg`, in the package directory. For our example package it looks like:
 
+.. code-block:: ini
+
+  ; vim: set fileencoding=utf-8 :
+  ; Mon 08 Aug 2016 14:33:54 CEST
+
+  [buildout]
+  parts = scripts
+  develop = .
+  eggs = bob.blitz
+  extensions = bob.buildout
+  newest = false
+  verbose = true
+
+  [scripts]
+  recipe = bob.buildout:scripts
+
+To find our more information about different section of this file, refer to :ref:`bob.devtools.buildout`.
+
+Now you just need to run buildout:
 
 .. code-block:: sh
 
-   $ cd <package> #if that is not the case
-   $ conda activate dev
+   $ cd bob.blitz #if that is not the case
+   $ conda activate dev #if that is not the case
    $ buildout
-   ...
 
-zc.buildout_ works by modifying the load paths of scripts to find the correct
-version of your package sources from the local checkout. After running,
-buildout creates a directory called ``bin`` on your local package checkout. Use
+
+
+After running, buildout creates a directory called ``bin`` on your local package checkout. Use
 the applications living there to develop your package. For example, if you need
 to run the test suite:
 
@@ -239,9 +257,16 @@ to run the test suite:
 
    $ ./bin/nosetests -sv
 
+or build the documentation:
+
+.. code-block:: sh
+
+    $./bin/sphinx-build -aEn doc sphinx  # make sure it finishes without warnings.
+    $ firefox sphinx/index.html  # view the docs.
+
 .. note::
 
-    `buildout` by default uses the file `buildout.cfg` but you can specify another file by using -c option. In fact in some of bob packages there is a file `develop.cfg` that is defined for the purpose of development. 
+    `buildout` by default uses the file `buildout.cfg` but you can specify another file by using -c option. In fact for developing packages especially it they need to be developed along with other packages, another file, namely `develop.cfg` is used like following: 
 
     .. code-block:: sh
 
