@@ -19,6 +19,8 @@ remote_max_retries: 50 #!final
 remote_read_timeout_secs: 180.0 #!final
 channels:
   - defaults
+conda_build: #!final
+  pkg_format: '2'
 """
 
 _SERVER = "http://www.idiap.ch"
