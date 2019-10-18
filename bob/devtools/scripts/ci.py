@@ -510,8 +510,8 @@ def test(ctx, dry_run):
 
     ctx.invoke(
         test,
-        package=glob.glob(base_path + "*.conda")) + \
-            glob.glob(base_path + "*.tar.bz2"))
+        package=glob.glob(base_path + "*.conda") + \
+                glob.glob(base_path + "*.tar.bz2"),
         condarc=condarc,
         config=variants_file,
         append_file=append_file,
