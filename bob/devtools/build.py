@@ -254,7 +254,7 @@ def exists_on_channel(channel_url, basename):
 
     if self_build_number in other_build_numbers:
         candidate = urls[other_build_numbers.index(self_build_number)]
-        pkg_type = '.conda' if basename.endswidth('.conda') else '.tar.bz2'
+        pkg_type = '.conda' if basename.endswith('.conda') else '.tar.bz2'
         if candidate.endswith(pkg_type):  #match
             return "".join(channel_url, candidate)
 
