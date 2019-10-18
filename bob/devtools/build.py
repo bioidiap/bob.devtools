@@ -88,8 +88,14 @@ def next_build_number(channel_url, basename):
     logger.debug("Downloading channel index from %s", channel_url)
     index = get_index(channel_urls=[channel_url], prepend=False)
 
-    # remove .tar.bz2 from name, then split from the end twice, on '-'
-    name, version, build = basename[:-8].rsplit("-", 2)
+    # remove .tar.bz2/.conda from name, then split from the end twice, on '-'
+    if basename.endswith('.tar.bz2'):
+        name, version, build = basename[:-8].rsplit("-", 2)
+    elif basename.endswith('.conda'):
+        name, version, build = basename[:-6].rsplit("-", 2)
+    else:
+        raise RuntimeError("Package name %s does not end in either " \
+                ".tar.bz2 or .conda" % (basename,))
 
     # remove the build number as we're looking for the next value
     # examples to be coped with:
@@ -214,16 +220,23 @@ def exists_on_channel(channel_url, basename):
         channel)
       basename: The basename of the tarball to search for
 
-    Returns: A complete package url, if the package already exists in the channel
-    or ``None`` otherwise.
+    Returns: A complete package url, if the package already exists in the
+    channel or ``None`` otherwise.
     """
 
     build_number, urls = next_build_number(channel_url, basename)
 
     def _get_build_number(name):
 
-        # remove .tar.bz2 from name, then split from the end twice, on '-'
-        name, version, build = name[:-8].rsplit("-", 2)
+        # remove .tar.bz2/.conda from name, then split from the end twice, on
+        # '-'
+        if name.endswith('.tar.bz2'):
+            name, version, build = name[:-8].rsplit("-", 2)
+        elif name.endswith('.conda'):
+            name, version, build = name[:-6].rsplit("-", 2)
+        else:
+            raise RuntimeError("Package name %s does not end in either " \
+                    ".tar.bz2 or .conda" % (name,))
 
         # remove the build number as we're looking for the next value
         # examples to be coped with:

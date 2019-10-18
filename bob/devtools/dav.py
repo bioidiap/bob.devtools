@@ -121,7 +121,7 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True, includes=None):
 
         if f.startswith("."):
             continue
-        if not f.endswith(".tar.bz2"):
+        if not (f.endswith(".conda") or f.endswith(".tar.bz2")):
             continue
 
         name, version, build_string = f[:-8].rsplit("-", 2)

@@ -216,6 +216,8 @@ def merge_conda_cache(cache, prefix, name):
     # move packages on cache/pkgs to pkgs_dir
     cached_pkgs_dir = os.path.join(cache, "pkgs")
     cached_packages = glob.glob(os.path.join(cached_pkgs_dir, "*.tar.bz2"))
+    cached_packages.extend(glob.glob(os.path.join(cached_pkgs_dir, "*.conda")))
+
     cached_packages = [
         k for k in cached_packages if not k.startswith(name + "-")
     ]

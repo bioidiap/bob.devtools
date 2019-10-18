@@ -46,6 +46,7 @@ stages:
   image: continuumio/conda-concourse-ci
   artifacts:
     paths:
+      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
 
@@ -55,6 +56,7 @@ stages:
     - macosx
   artifacts:
     paths:
+      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
 
 
@@ -92,6 +94,7 @@ build_linux_37:
     paths:
       - dist/*.zip
       - sphinx
+      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
     key: "build-py37"

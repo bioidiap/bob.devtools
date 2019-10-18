@@ -37,13 +37,13 @@ Examples:
   1. Tests conda package:
 
 \b
-     $ bdt test -vv /path/to/conda-package-v1.0.0.tar.bz2
+     $ bdt test -vv /path/to/conda-package-v1.0.0.conda
 
 
   2. Tests multiple conda packages, one after the other:
 
 \b
-     $ bdt test -vv /path/to/conda-package-v1.0.0.tar.bz2 /path/to/other-conda-package-v2.0.0.tar.bz2
+     $ bdt test -vv /path/to/conda-package-v1.0.0.conda /path/to/other-conda-package-v2.0.0.conda
 
 """
 )

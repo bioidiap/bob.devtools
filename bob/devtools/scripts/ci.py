@@ -80,10 +80,10 @@ def base_deploy(dry_run):
     # afterwards)
     for arch in ("linux-64", "osx-64", "noarch"):
         # finds conda dependencies and uploads what we can find
-        package_path = os.path.join(
-            os.environ["CONDA_ROOT"], "conda-bld", arch, "*.tar.bz2"
-        )
-        deploy_packages = glob.glob(package_path)
+        base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", arch)
+        conda_paths = os.path.join(base_path, "*.conda")
+        tarbz2_paths = os.path.join(base_path, "*.tar.bz2")
+        deploy_packages = glob.glob(conda_paths) + glob.glob(tarbz2_paths)
 
         for k in deploy_packages:
 
@@ -167,10 +167,11 @@ def deploy(latest, dry_run):
     # afterwards)
     for arch in ("linux-64", "osx-64", "noarch"):
         # finds conda packages and uploads what we can find
-        package_path = os.path.join(
-            os.environ["CONDA_ROOT"], "conda-bld", arch, name + "*.tar.bz2"
-        )
-        deploy_packages = glob.glob(package_path)
+        base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", arch)
+        conda_paths = os.path.join(base_path, "*.conda")
+        tarbz2_paths = os.path.join(base_path, "*.tar.bz2")
+        deploy_packages = glob.glob(conda_paths) + glob.glob(tarbz2_paths)
+
         for k in deploy_packages:
             deploy_conda_package(
                 k,
@@ -504,16 +505,13 @@ def test(ctx, dry_run):
 
     from .test import test
 
+    base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", "*",
+            os.environ["CI_PROJECT_NAME"])
+
     ctx.invoke(
         test,
-        package=glob.glob(
-            os.path.join(
-                os.environ["CONDA_ROOT"],
-                "conda-bld",
-                "*",
-                os.environ["CI_PROJECT_NAME"] + "*.tar.bz2",
-            )
-        ),
+        package=glob.glob(base_path + "*.conda")) + \
+            glob.glob(base_path + "*.tar.bz2"))
         condarc=condarc,
         config=variants_file,
         append_file=append_file,

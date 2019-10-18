@@ -43,6 +43,7 @@ build:
     expire_in: 1 week
     paths:
       - sphinx
+      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   tags:
     - docker
