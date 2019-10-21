@@ -48,6 +48,7 @@ requirements:
     - jinja2
     - termcolor
     - psutil
+    - tabulate
 
 test:
   requires:
@@ -101,6 +102,8 @@ test:
     - bdt dav rmtree --help
     - bdt dav clean-betas --help
     - bdt dav upload --help
+    - bdt gitlab process-pipelines --help
+    - bdt gitlab get-pipelines --help    
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 
