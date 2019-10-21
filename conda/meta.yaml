@@ -62,6 +62,7 @@ test:
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
     - bdt build --help
+    - bdt mirror --help
     - bdt rebuild --help
     - bdt test --help
     - bdt caupdate --help
