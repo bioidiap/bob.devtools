@@ -200,7 +200,7 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
                         repodata['packages'][p]['md5'])
             else:
                 expected_hash = repodata['packages.conda'][p].get('sha256',
-                        repodata['packages'][p]['md5'])
+                        repodata['packages.conda'][p]['md5'])
 
             # download package to file in our temporary directory
             url = channel_url + '/' + arch + '/' + p
