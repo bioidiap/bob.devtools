@@ -238,7 +238,7 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
                         logger.warning('Checksum of locally downloaded ' \
                                 ' version of %s does not match ' \
                                 '(actual:%r != %r:expected) - retrying ' \
-                                'after %d seconds', (url, actual_hash,
+                                'after %d seconds', url, actual_hash,
                                     expected_hash, wait_time)
                         os.unlink(temp_dest)
                         time.sleep(wait_time)
