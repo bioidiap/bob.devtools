@@ -67,6 +67,8 @@ setup(
           'jobs = bob.devtools.scripts.jobs:jobs',
           'visibility = bob.devtools.scripts.visibility:visibility',
           'getpath = bob.devtools.scripts.getpath:getpath',
+          'process-pipelines = bob.devtools.scripts.pipelines:process_pipelines',
+          'get-pipelines- = bob.devtools.scripts.pipelines:get_pipelines',          
           ],
 
         'bdt.ci.cli': [
