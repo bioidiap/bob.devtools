@@ -11,6 +11,8 @@ https://github.com/valassis-digital-media/conda-mirror
 import os
 import bz2
 import json
+import time
+import random
 import hashlib
 import fnmatch
 import tempfile
@@ -207,30 +209,49 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
             temp_dest = os.path.join(download_dir, p)
             logger.info('[download: %d/%d] %s -> %s', k, total, url, temp_dest)
 
-            if not dry_run:
-                logger.debug('[checking: %d/%d] %s', k, total, url)
-                r = requests.get(url, stream=True, allow_redirects=True)
-                logger.info('[download: %d/%d] %s -> %s (%s bytes)', k, total,
-                        url, temp_dest, r.headers['Content-length'])
-                open(temp_dest, 'wb').write(r.raw.read())
+            package_retries = 10
+            while package_retries:
 
-            # verify that checksum matches
-            if len(expected_hash) == 32:  #md5
-                logger.info('[verify: %d/%d] md5(%s) == %s?', k, total,
-                        temp_dest, expected_hash)
-            else:  #sha256
-                logger.info('[verify: %d/%d] sha256(%s) == %s?', k, total,
-                        temp_dest, expected_hash)
+                if not dry_run:
+                    logger.debug('[checking: %d/%d] %s', k, total, url)
+                    r = requests.get(url, stream=True, allow_redirects=True)
+                    logger.info('[download: %d/%d] %s -> %s (%s bytes)', k,
+                            total, url, temp_dest, r.headers['Content-length'])
+                    open(temp_dest, 'wb').write(r.raw.read())
 
-            if not dry_run:
+                # verify that checksum matches
                 if len(expected_hash) == 32:  #md5
-                    actual_hash = _md5sum(temp_dest)
+                    logger.info('[verify: %d/%d] md5(%s) == %s?', k, total,
+                            temp_dest, expected_hash)
                 else:  #sha256
-                    actual_hash = _sha256sum(temp_dest)
-                assert actual_hash == expected_hash, 'Checksum of locally' \
-                        ' downloaded version of %s does not match ' \
-                        '(actual:%r != %r:expected)' % (url, actual_hash,
-                                expected_hash)
+                    logger.info('[verify: %d/%d] sha256(%s) == %s?', k, total,
+                            temp_dest, expected_hash)
+
+                if not dry_run:
+                    if len(expected_hash) == 32:  #md5
+                        actual_hash = _md5sum(temp_dest)
+                    else:  #sha256
+                        actual_hash = _sha256sum(temp_dest)
+
+                    if actual_hash != expected_hash:
+                        wait_time = random.randint(10,61)
+                        logger.warning('Checksum of locally downloaded ' \
+                                ' version of %s does not match ' \
+                                '(actual:%r != %r:expected) - retrying ' \
+                                'after %d seconds', (url, actual_hash,
+                                    expected_hash, wait_time)
+                        os.unlink(temp_dest)
+                        time.sleep(wait_time)
+                        package_retries -= 1
+                        continue
+                    else:
+                        break
+
+            # final check, before we continue
+            assert actual_hash == expected_hash, 'Checksum of locally ' \
+                    'downloaded version of %s does not match ' \
+                    '(actual:%r != %r:expected)' % (url, actual_hash,
+                            expected_hash)
 
             # move
             local_dest = os.path.join(dest_dir, arch, p)
