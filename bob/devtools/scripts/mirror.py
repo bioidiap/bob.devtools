@@ -14,8 +14,10 @@ from ..mirror import (
         get_local_contents,
         load_glob_list,
         blacklist_filter,
+        whitelist_filter,
         download_packages,
         remove_packages,
+        copy_and_clean_patch,
         )
 from ..log import verbosity_option, get_logger, echo_info, echo_warning
 
@@ -52,6 +54,15 @@ Examples:
             "mirroring, one per line",
 )
 @click.option(
+    "-w",
+    "--whitelist",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True,
+        readable=True, resolve_path=True),
+    help="A file containing a list of globs to include at local " \
+            "mirroring, one per line.  This is considered *after* " \
+            "the blacklisting.  It is here just for testing purposes",
+)
+@click.option(
     "-m",
     "--check-md5/--no-check-md5",
     default=False,
@@ -72,15 +83,25 @@ Examples:
         readable=True, writable=True, resolve_path=True),
     help="A directory where to store temporary files",
 )
+@click.option(
+    "-p",
+    "--patch/--no-patch",
+    default=False,
+    help="If set, then consider we are mirroring the defaults channel "
+    "where a patch_instructions.json exists and must be downloaded and "
+    "prunned so the mirror works adequately",
+)
 @verbosity_option()
 @bdt.raise_on_error
 def mirror(
         channel_url,
         dest_dir,
         blacklist,
+        whitelist,
         check_md5,
         dry_run,
         tmpdir,
+        patch,
         ):
     """Mirrors a conda channel to a particular local destination
 
@@ -133,6 +154,10 @@ def mirror(
         to_download = blacklist_filter(remote_packages - local_packages,
                 globs_to_remove)
 
+        if whitelist is not None and os.path.exists(whitelist):
+            globs_to_consider = set(load_glob_list(whitelist))
+            to_download = whitelist_filter(to_download, globs_to_consider)
+
         # in the local packages, subset those that we no longer need, be it
         # because they have been removed from the remote repository, or because
         # we decided to blacklist them.
@@ -156,6 +181,16 @@ def mirror(
         else:
             echo_info("Mirror at %s/%s is up-to-date w.r.t. blacklist. " \
                     "No packages to be removed." % (dest_dir, arch))
+
+        if patch:
+            # download/cleanup patch instructions, otherwise conda installs may
+            # go crazy.  Do this before the indexing, that will use that file
+            # to do its magic.
+            patch_file = 'patch_instructions.json'
+            name = copy_and_clean_patch(channel_url, dest_dir, arch,
+                    patch_file)
+            echo_info("Cleaned copy of %s/%s/%s installed at %s" %
+                    (channel_url, arch, patch_file, name))
 
     # re-indexes the channel to produce a conda-compatible setup
     echo_info("Re-indexing %s..." % dest_dir)

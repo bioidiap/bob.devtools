@@ -48,8 +48,8 @@ def _download(url, target_directory):
     download_filename = os.path.join(target_directory, target_filename)
     with open(download_filename, 'w+b') as tf:
         ret = requests.get(url, stream=True)
-        logger.debug('Saving to %s (%s bytes)', download_filename,
-                ret.headers['Content-length'])
+        size = ret.headers.get('Content-length', '??')
+        logger.debug('Saving to %s (%s bytes)', download_filename, size)
         for data in ret.iter_content(chunk_size):
             tf.write(data)
         file_size = os.path.getsize(download_filename)
@@ -96,16 +96,17 @@ def get_json(channel, platform, name):
     url = channel + '/' + platform + '/' + name
     logger.debug('[checking] %s...', url)
     r = requests.get(url, allow_redirects=True, stream=True)
-    logger.info('[download] %s (%s bytes)...', url, r.headers['Content-length'])
+    size = r.headers.get('Content-length', '??')
+    logger.info('[download] %s (%s bytes)...', url, size)
 
     if name.endswith('.bz2'):
         # just in case transport encoding was applied
         r.raw.decode_content = True
         data = bz2.decompress(r.raw.read())
-    else:
-        data = r.read()
+        return json.loads(data)
 
-    return json.loads(data)
+    # else, just decodes the response
+    return r.json()
 
 
 def get_local_contents(path, arch):
@@ -139,6 +140,15 @@ def blacklist_filter(packages, globs):
     for k in globs:
         to_remove |= set(fnmatch.filter(packages, k))
     return packages - to_remove
+
+
+def whitelist_filter(packages, globs):
+    """Filters **in** the input package set with the glob list"""
+
+    to_keep = set()
+    for k in globs:
+        to_keep |= set(fnmatch.filter(packages, k))
+    return to_keep
 
 
 def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
@@ -215,8 +225,9 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
                 if not dry_run:
                     logger.debug('[checking: %d/%d] %s', k, total, url)
                     r = requests.get(url, stream=True, allow_redirects=True)
+                    size = r.headers.get('Content-length', '??')
                     logger.info('[download: %d/%d] %s -> %s (%s bytes)', k,
-                            total, url, temp_dest, r.headers['Content-length'])
+                            total, url, temp_dest, size)
                     open(temp_dest, 'wb').write(r.raw.read())
 
                 # verify that checksum matches
@@ -279,3 +290,46 @@ def remove_packages(packages, dest_dir, arch, dry_run):
         logger.info('[remove: %d/%d] %s', k, total, path)
         if not dry_run:
             os.unlink(path)
+
+
+def _cleanup_json(data, packages):
+    """Cleans-up the contents of conda JSON looking at existing packages"""
+
+    # only keys to clean-up here, othere keys remain unchanged
+    for key in ('packages', 'packages.conda'):
+        if key not in data: continue
+        data[key] = dict((k,v) for k,v in data[key].items() if k in packages)
+
+    return data
+
+
+def _save_json(data, dest_dir, arch, name):
+    """Saves contents of conda JSON"""
+
+    destfile = os.path.join(dest_dir, arch, name)
+    with open(destfile, 'w') as outfile:
+        json.dump(data, outfile, ensure_ascii=True, indent=2)
+    return destfile
+
+
+def copy_and_clean_json(url, dest_dir, arch, name):
+    """Copies and cleans conda JSON file"""
+
+    data = get_json(url, arch, name)
+    packages = get_local_contents(dest_dir, arch)
+    data = _cleanup_json(data, packages)
+    return _save_json(data, dest_dir, arch, name)
+
+
+def copy_and_clean_patch(url, dest_dir, arch, name):
+    """Copies and cleans conda JSON file"""
+
+    data = get_json(url, arch, name)
+    packages = get_local_contents(dest_dir, arch)
+    data = _cleanup_json(data, packages)
+
+    # cleanup specific patch_instructions.json fields
+    for key in ["remove", "revoke"]:
+        data[key] = [k for k in data[key] if k in packages]
+
+    return _save_json(data, dest_dir, arch, name)
