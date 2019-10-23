@@ -17,7 +17,7 @@ from ..mirror import (
         whitelist_filter,
         download_packages,
         remove_packages,
-        copy_and_clean_patch,
+        copy_and_clean_json,
         )
 from ..log import verbosity_option, get_logger, echo_info, echo_warning
 
@@ -187,8 +187,7 @@ def mirror(
             # go crazy.  Do this before the indexing, that will use that file
             # to do its magic.
             patch_file = 'patch_instructions.json'
-            name = copy_and_clean_patch(channel_url, dest_dir, arch,
-                    patch_file)
+            name = copy_and_clean_json(channel_url, dest_dir, arch, patch_file)
             echo_info("Cleaned copy of %s/%s/%s installed at %s" %
                     (channel_url, arch, patch_file, name))
 

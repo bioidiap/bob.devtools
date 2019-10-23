@@ -319,17 +319,3 @@ def copy_and_clean_json(url, dest_dir, arch, name):
     packages = get_local_contents(dest_dir, arch)
     data = _cleanup_json(data, packages)
     return _save_json(data, dest_dir, arch, name)
-
-
-def copy_and_clean_patch(url, dest_dir, arch, name):
-    """Copies and cleans conda JSON file"""
-
-    data = get_json(url, arch, name)
-    packages = get_local_contents(dest_dir, arch)
-    data = _cleanup_json(data, packages)
-
-    # cleanup specific patch_instructions.json fields
-    for key in ["remove", "revoke"]:
-        data[key] = [k for k in data[key] if k in packages]
-
-    return _save_json(data, dest_dir, arch, name)

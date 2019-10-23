@@ -13,6 +13,7 @@
    bob.devtools.changelog
    bob.devtools.bootstrap
    bob.devtools.build
+   bob.devtools.mirror
    bob.devtools.webdav3.client
 
 
