@@ -196,5 +196,5 @@ def mirror(
     if not dry_run:
         from conda_build.index import MAX_THREADS_DEFAULT
         conda_build.api.update_index([dest_dir], check_md5=check_md5,
-                progress=True, verbose=False, subdir=DEFAULT_SUBDIRS,
+                progress=False, verbose=False, subdir=DEFAULT_SUBDIRS,
                 threads=MAX_THREADS_DEFAULT)
