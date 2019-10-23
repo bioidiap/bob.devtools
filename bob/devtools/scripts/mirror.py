@@ -4,6 +4,7 @@
 
 import os
 import click
+import tempfile
 
 import conda_build.api
 
@@ -64,6 +65,13 @@ Examples:
     "(combine with the verbosity flags - e.g. ``-vvv``) to enable "
     "printing to help you understand what will be done",
 )
+@click.option(
+    "-t",
+    "--tmpdir",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False,
+        readable=True, writable=True, resolve_path=True),
+    help="A directory where to store temporary files",
+)
 @verbosity_option()
 @bdt.raise_on_error
 def mirror(
@@ -72,6 +80,7 @@ def mirror(
         blacklist,
         check_md5,
         dry_run,
+        tmpdir,
         ):
     """Mirrors a conda channel to a particular local destination
 
@@ -82,11 +91,16 @@ def mirror(
     available on the channel, and only downloading the missing files.
     """
 
+    # creates a self destructing temporary directory that will act as temporary
+    # directory for the rest of this program
+    tmpdir2 = tempfile.TemporaryDirectory(prefix='bdt-mirror-tmp', dir=tmpdir)
+    os.environ['TMPDIR'] = tmpdir2.name
+    logger.info('Setting $TMPDIR to %s', tmpdir2.name)
+
     # if we are in a dry-run mode, let's let it be known
     if dry_run:
         logger.warn("!!!! DRY RUN MODE !!!!")
         logger.warn("Nothing will be really mirrored")
-
 
     DEFAULT_SUBDIRS = ['noarch', 'linux-64', 'osx-64']
 
@@ -96,8 +110,7 @@ def mirror(
         logger.info("Creating conda channel at %s...", dest_dir)
         if not dry_run:
             conda_build.api.update_index([dest_dir], subdir=DEFAULT_SUBDIRS,
-                    progress=False)
-
+                    progress=False, verbose=False)
 
     for arch in DEFAULT_SUBDIRS:
 
@@ -147,5 +160,7 @@ def mirror(
     # re-indexes the channel to produce a conda-compatible setup
     echo_info("Re-indexing %s..." % dest_dir)
     if not dry_run:
+        from conda_build.index import MAX_THREADS_DEFAULT
         conda_build.api.update_index([dest_dir], check_md5=check_md5,
-                progress=True)
+                progress=True, verbose=False, subdir=DEFAULT_SUBDIRS,
+                threads=MAX_THREADS_DEFAULT)
