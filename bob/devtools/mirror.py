@@ -236,7 +236,7 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
                     if actual_hash != expected_hash:
                         wait_time = random.randint(10,61)
                         logger.warning('Checksum of locally downloaded ' \
-                                ' version of %s does not match ' \
+                                'version of %s does not match ' \
                                 '(actual:%r != %r:expected) - retrying ' \
                                 'after %d seconds', url, actual_hash,
                                     expected_hash, wait_time)
