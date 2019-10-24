@@ -18,6 +18,7 @@ from ..mirror import (
         download_packages,
         remove_packages,
         copy_and_clean_json,
+        checksum,
         )
 from ..log import verbosity_option, get_logger, echo_info, echo_warning
 
@@ -90,6 +91,15 @@ Examples:
     help="If set, then consider we are mirroring the defaults channel "
     "where a patch_instructions.json exists and must be downloaded and "
     "prunned so the mirror works adequately",
+)
+@click.option(
+    "-c",
+    "--checksum/--no-checksum",
+    default=False,
+    help="If set, then packages that are supposed to be kept locally "
+    "will be checksummed against the remote repository repodata.json "
+    "expections.  Errors will be reported and packages will be "
+    "removed from the local repository",
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -166,6 +176,14 @@ def mirror(
         to_delete_locally = (local_packages - to_keep) | disappeared_remotely
 
         # execute the transaction
+        if checksum:
+            # double-check if, among packages I should keep, everything looks
+            # already with respect to expected checksums from the remote repo
+            issues = checksum(remote_repodata, os.path.join(dest_dir, arch),
+                    to_keep)
+            remove_packages(issues, dest_dir, arch, dry_run)
+            to_download |= issues
+
         if to_download:
             download_packages(to_download, remote_repodata, channel_url, dest_dir,
                     arch, dry_run)

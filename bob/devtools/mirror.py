@@ -151,6 +151,30 @@ def whitelist_filter(packages, globs):
     return to_keep
 
 
+def _sha256sum(filename):
+    """Calculates and returns the sha-256 sum given a file name"""
+
+    h  = hashlib.sha256()
+    b  = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(filename, 'rb', buffering=0) as f:
+        for n in iter(lambda : f.readinto(mv), 0):
+            h.update(mv[:n])
+    return h.hexdigest()
+
+
+def _md5sum(filename):
+    """Calculates and returns the md5 sum given a file name"""
+
+    h  = hashlib.md5()
+    b  = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(filename, 'rb', buffering=0) as f:
+        for n in iter(lambda : f.readinto(mv), 0):
+            h.update(mv[:n])
+    return h.hexdigest()
+
+
 def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
     """Downloads remote packages to a download directory
 
@@ -176,26 +200,6 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
         flagging so we don't really do anything (set to ``True``).
 
     """
-
-    def _sha256sum(filename):
-        h  = hashlib.sha256()
-        b  = bytearray(128*1024)
-        mv = memoryview(b)
-        with open(filename, 'rb', buffering=0) as f:
-            for n in iter(lambda : f.readinto(mv), 0):
-                h.update(mv[:n])
-        return h.hexdigest()
-
-
-    def _md5sum(filename):
-        h  = hashlib.md5()
-        b  = bytearray(128*1024)
-        mv = memoryview(b)
-        with open(filename, 'rb', buffering=0) as f:
-            for n in iter(lambda : f.readinto(mv), 0):
-                h.update(mv[:n])
-        return h.hexdigest()
-
 
     # download files into temporary directory, that is removed by the end of
     # the procedure, or if something bad occurs
@@ -319,3 +323,57 @@ def copy_and_clean_json(url, dest_dir, arch, name):
     packages = get_local_contents(dest_dir, arch)
     data = _cleanup_json(data, packages)
     return _save_json(data, dest_dir, arch, name)
+
+
+def checksum(repodata, basepath, packages):
+    """Checksums packages on the local mirror and compare to remote repository
+
+    Parameters
+    ----------
+    repodata : dict
+        Data loaded from `repodata.json` on the remote repository
+    basepath : str
+        Path leading to the packages in the package list
+    packages : list
+        List of packages that are available locally, by name
+
+    Returns
+    -------
+    issues : list
+        List of matching errors
+    """
+
+    issues = []
+    total = len(packages)
+    for k, p in enumerate(packages):
+
+        path_to_package = os.path.join(basepath, p)
+
+        # checksum to verify
+        if p.endswith('.tar.bz2'):
+            expected_hash = repodata['packages'][p].get('sha256',
+                    repodata['packages'][p]['md5'])
+        else:
+            expected_hash = repodata['packages.conda'][p].get('sha256',
+                    repodata['packages.conda'][p]['md5'])
+
+        # verify that checksum matches
+        if len(expected_hash) == 32:  #md5
+            logger.debug('[verify: %d/%d] md5(%s) == %s?', k, total,
+                    path_to_package, expected_hash)
+        else:  #sha256
+            logger.debug('[verify: %d/%d] sha256(%s) == %s?', k, total,
+                    path_to_package, expected_hash)
+
+        if len(expected_hash) == 32:  #md5
+            actual_hash = _md5sum(path_to_package)
+        else:  #sha256
+            actual_hash = _sha256sum(path_to_package)
+
+        if actual_hash != expected_hash:
+            logger.warning('Checksum of %s does not match remote ' \
+                    'repository description (actual:%r != %r:expected)',
+                    path_to_package, actual_hash, expected_hash)
+            issues.append(p)
+
+    return issues
