@@ -325,15 +325,31 @@ def copy_and_clean_json(url, dest_dir, arch, name):
     return _save_json(data, dest_dir, arch, name)
 
 
-def checksum(repodata, basepath, packages):
+def copy_and_clean_patch(url, dest_dir, arch, name):
+    """Copies and cleans conda patch_instructions JSON file"""
+
+    data = get_json(url, arch, name)
+    packages = get_local_contents(dest_dir, arch)
+    data = _cleanup_json(data, packages)
+
+    # cleanup specific patch_instructions.json fields
+    for key in ["remove", "revoke"]:
+        data[key] = [k for k in data[key] if k in packages]
+
+    return _save_json(data, dest_dir, arch, name)
+
+
+def checksum_packages(repodata, dest_dir, arch, packages):
     """Checksums packages on the local mirror and compare to remote repository
 
     Parameters
     ----------
     repodata : dict
         Data loaded from `repodata.json` on the remote repository
-    basepath : str
-        Path leading to the packages in the package list
+    dest_dir : str
+        Path leading to local mirror
+    arch : str
+        Current architecture being considered (e.g. noarch, linux-64 or osx-64)
     packages : list
         List of packages that are available locally, by name
 
@@ -343,11 +359,11 @@ def checksum(repodata, basepath, packages):
         List of matching errors
     """
 
-    issues = []
+    issues = set()
     total = len(packages)
     for k, p in enumerate(packages):
 
-        path_to_package = os.path.join(basepath, p)
+        path_to_package = os.path.join(dest_dir, arch, p)
 
         # checksum to verify
         if p.endswith('.tar.bz2'):
@@ -374,6 +390,6 @@ def checksum(repodata, basepath, packages):
             logger.warning('Checksum of %s does not match remote ' \
                     'repository description (actual:%r != %r:expected)',
                     path_to_package, actual_hash, expected_hash)
-            issues.append(p)
+            issues.add(p)
 
     return issues

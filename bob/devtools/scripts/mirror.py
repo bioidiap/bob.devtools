@@ -17,8 +17,8 @@ from ..mirror import (
         whitelist_filter,
         download_packages,
         remove_packages,
-        copy_and_clean_json,
-        checksum,
+        copy_and_clean_patch,
+        checksum_packages,
         )
 from ..log import verbosity_option, get_logger, echo_info, echo_warning
 
@@ -180,8 +180,13 @@ def mirror(
         if checksum:
             # double-check if, among packages I should keep, everything looks
             # already with respect to expected checksums from the remote repo
-            issues = checksum(remote_repodata, os.path.join(dest_dir, arch),
+            issues = checksum_packages(remote_repodata, dest_dir, arch,
                     to_keep)
+            if issues:
+                echo_warning("Detected %d packages with checksum issues - " \
+                        "re-downloading after erasing..." % len(issues))
+            else:
+                echo_info("All local package checksums match expected values")
             remove_packages(issues, dest_dir, arch, dry_run)
             to_download |= issues
 
@@ -206,7 +211,8 @@ def mirror(
             # go crazy.  Do this before the indexing, that will use that file
             # to do its magic.
             patch_file = 'patch_instructions.json'
-            name = copy_and_clean_json(channel_url, dest_dir, arch, patch_file)
+            name = copy_and_clean_patch(channel_url, dest_dir, arch,
+                    patch_file)
             echo_info("Cleaned copy of %s/%s/%s installed at %s" %
                     (channel_url, arch, patch_file, name))
 
