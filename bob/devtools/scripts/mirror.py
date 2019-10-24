@@ -112,6 +112,7 @@ def mirror(
         dry_run,
         tmpdir,
         patch,
+        checksum,
         ):
     """Mirrors a conda channel to a particular local destination
 
