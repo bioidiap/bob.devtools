@@ -191,8 +191,8 @@ def mirror(
             to_download |= issues
 
         if to_download:
-            download_packages(to_download, remote_repodata, channel_url, dest_dir,
-                    arch, dry_run)
+            download_packages(to_download, remote_repodata, channel_url,
+                    dest_dir, arch, dry_run)
         else:
             echo_info("Mirror at %s/%s is up-to-date w.r.t. %s/%s. " \
                     "No packages to download." % (dest_dir, arch, channel_url,
@@ -212,7 +212,7 @@ def mirror(
             # to do its magic.
             patch_file = 'patch_instructions.json'
             name = copy_and_clean_patch(channel_url, dest_dir, arch,
-                    patch_file)
+                    patch_file, dry_run)
             echo_info("Cleaned copy of %s/%s/%s installed at %s" %
                     (channel_url, arch, patch_file, name))
 

@@ -307,25 +307,26 @@ def _cleanup_json(data, packages):
     return data
 
 
-def _save_json(data, dest_dir, arch, name):
+def _save_json(data, dest_dir, arch, name, dry_run):
     """Saves contents of conda JSON"""
 
     destfile = os.path.join(dest_dir, arch, name)
-    with open(destfile, 'w') as outfile:
-        json.dump(data, outfile, ensure_ascii=True, indent=2)
+    if not dry_run:
+        with open(destfile, 'w') as outfile:
+            json.dump(data, outfile, ensure_ascii=True, indent=2)
     return destfile
 
 
-def copy_and_clean_json(url, dest_dir, arch, name):
+def copy_and_clean_json(url, dest_dir, arch, name, dry_run):
     """Copies and cleans conda JSON file"""
 
     data = get_json(url, arch, name)
     packages = get_local_contents(dest_dir, arch)
     data = _cleanup_json(data, packages)
-    return _save_json(data, dest_dir, arch, name)
+    return _save_json(data, dest_dir, arch, name, dry_run)
 
 
-def copy_and_clean_patch(url, dest_dir, arch, name):
+def copy_and_clean_patch(url, dest_dir, arch, name, dry_run):
     """Copies and cleans conda patch_instructions JSON file"""
 
     data = get_json(url, arch, name)
@@ -336,7 +337,7 @@ def copy_and_clean_patch(url, dest_dir, arch, name):
     for key in ["remove", "revoke"]:
         data[key] = [k for k in data[key] if k in packages]
 
-    return _save_json(data, dest_dir, arch, name)
+    return _save_json(data, dest_dir, arch, name, dry_run)
 
 
 def checksum_packages(repodata, dest_dir, arch, packages):
