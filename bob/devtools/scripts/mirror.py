@@ -126,8 +126,9 @@ def mirror(
     # creates a self destructing temporary directory that will act as temporary
     # directory for the rest of this program
     tmpdir2 = tempfile.TemporaryDirectory(prefix='bdt-mirror-tmp', dir=tmpdir)
+    tempfile.tempdir = tmpdir2.name
     os.environ['TMPDIR'] = tmpdir2.name
-    logger.info('Setting $TMPDIR to %s', tmpdir2.name)
+    logger.info('Setting $TMPDIR and `tempfile.tempdir` to %s', tmpdir2.name)
 
     # if we are in a dry-run mode, let's let it be known
     if dry_run:
