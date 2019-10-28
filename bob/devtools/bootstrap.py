@@ -264,8 +264,6 @@ def ensure_miniconda_sh():
     installer.
     """
 
-    server = "repo.continuum.io"  # https
-
     # WARNING: if you update this version, remember to update hahes below
     path = "/miniconda/Miniconda3-4.7.12-%s-x86_64.sh"
     if platform.system() == "Darwin":
@@ -293,18 +291,20 @@ def ensure_miniconda_sh():
     # re-downloads installer
     import http.client
 
-    logger.info("Connecting to https://%s...", server)
-    conn = http.client.HTTPSConnection(server)
+    server = "www.idiap.ch"  # http
+
+    logger.info("Connecting to http://%s...", server)
+    conn = http.client.HTTPConnection(server)
     conn.request("GET", path)
     r1 = conn.getresponse()
 
     assert r1.status == 200, (
-        "Request for https://%s%s - returned status %d "
+        "Request for http://%s%s - returned status %d "
         "(%s)" % (server, path, r1.status, r1.reason)
     )
 
     dst = "miniconda.sh"
-    logger.info("(download) https://%s%s -> %s...", server, path, dst)
+    logger.info("(download) http://%s%s -> %s...", server, path, dst)
     with open(dst, "wb") as f:
         f.write(r1.read())
 
@@ -339,8 +339,8 @@ def install_miniconda(prefix, name):
 def get_channels(public, stable, server, intranet, group):
     """Returns the relevant conda channels to consider if building project.
 
-    The subset of channels to be returned depends on the visibility and stability
-    of the package being built.  Here are the rules:
+    The subset of channels to be returned depends on the visibility and
+    stability of the package being built.  Here are the rules:
 
     * public and stable: only returns the public stable channel(s)
     * public and not stable: returns both public stable and beta channels
@@ -360,9 +360,10 @@ def get_channels(public, stable, server, intranet, group):
       server: The base address of the server containing our conda channels
       intranet: Boolean indicating if we should add "private"/"public" prefixes
         on the conda paths
-      group: The group of packages (gitlab namespace) the package we're compiling
-        is part of.  Values should match URL namespaces currently available on
-        our internal webserver.  Currently, only "bob" or "beat" will work.
+      group: The group of packages (gitlab namespace) the package we're
+        compiling is part of.  Values should match URL namespaces currently
+        available on our internal webserver.  Currently, only "bob" or "beat"
+        will work.
 
 
     Returns: a list of channels that need to be considered.
