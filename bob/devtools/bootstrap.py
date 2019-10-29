@@ -265,6 +265,7 @@ def ensure_miniconda_sh():
     """
 
     # WARNING: if you update this version, remember to update hahes below
+    # AND our "mirror" in the internal webserver
     path = "/miniconda/Miniconda3-4.7.12-%s-x86_64.sh"
     if platform.system() == "Darwin":
         md5sum = "677f38d5ab7e1ce4fef134068e3bd76a"
