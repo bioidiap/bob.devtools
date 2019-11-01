@@ -56,6 +56,7 @@ setup(
           'dav = bob.devtools.scripts.dav:dav',
           'local = bob.devtools.scripts.local:local',
           'gitlab = bob.devtools.scripts.gitlab:gitlab',
+          'graph = bob.devtools.scripts.graph:graph'
           ],
 
         'bdt.gitlab.cli': [
