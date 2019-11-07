@@ -48,6 +48,7 @@ setup(
           'dumpsphinx = bob.devtools.scripts.dumpsphinx:dumpsphinx',
           'create = bob.devtools.scripts.create:create',
           'build = bob.devtools.scripts.build:build',
+          'mirror = bob.devtools.scripts.mirror:mirror',
           'rebuild = bob.devtools.scripts.rebuild:rebuild',
           'test = bob.devtools.scripts.test:test',
           'caupdate = bob.devtools.scripts.caupdate:caupdate',
@@ -66,6 +67,8 @@ setup(
           'jobs = bob.devtools.scripts.jobs:jobs',
           'visibility = bob.devtools.scripts.visibility:visibility',
           'getpath = bob.devtools.scripts.getpath:getpath',
+          'process-pipelines = bob.devtools.scripts.pipelines:process_pipelines',
+          'get-pipelines- = bob.devtools.scripts.pipelines:get_pipelines',          
           ],
 
         'bdt.ci.cli': [

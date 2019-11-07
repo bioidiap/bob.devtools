@@ -148,6 +148,7 @@ Buildout.cfg in more details
   This section should include more information about different sections in a buildout.cfg file.
 
 
+
 .. _bob.devtools.anatomy:
 
 Anatomy of a new package

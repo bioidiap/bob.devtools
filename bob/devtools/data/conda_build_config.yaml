@@ -51,12 +51,12 @@ zip_keys:
 
 # This version of bob-devel will be used at test time of packages:
 bob_devel:
-  - 2019.09.05
+  - 2019.10.17
 
 # This version of beat-devel will be used at test time of packages. Notice it
 # uses bob-devel and should have a version that is greater or equal its value
 beat_devel:
-  - 2019.09.11
+  - 2019.10.17
 
 # The build time only dependencies (build requirements).
 # Updating these to the latest version all the time is OK and a good idea.

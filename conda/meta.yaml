@@ -32,7 +32,7 @@ requirements:
     - click >=7
     - click-plugins
     - conda=4
-    - conda-build=3.16
+    - conda-build=3
     - conda-verify=3
     - certifi
     - docformatter
@@ -48,9 +48,7 @@ requirements:
     - jinja2
     - termcolor
     - psutil
-    # pin packaging temporarily until
-    # https://github.com/ContinuumIO/anaconda-issues/issues/11236 is fixed.
-    - packaging 19.0
+    - tabulate
 
 test:
   requires:
@@ -65,6 +63,7 @@ test:
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
     - bdt create --help
     - bdt build --help
+    - bdt mirror --help
     - bdt rebuild --help
     - bdt test --help
     - bdt caupdate --help
@@ -103,6 +102,8 @@ test:
     - bdt dav rmtree --help
     - bdt dav clean-betas --help
     - bdt dav upload --help
+    - bdt gitlab process-pipelines --help
+    - bdt gitlab get-pipelines --help    
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 

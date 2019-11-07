@@ -7,8 +7,7 @@
 Very often, developers are confronted with the need to
 clone package repositories locally and develop installation/build and runtime code.
 It is recommended to create isolated environments to develop new projects using conda_ and zc.buildout_. 
-Tools implemented in `bob.devtools` helps automate this process for |project| packages. In the following we talk about how to checkout and build one or several packages from
-their git_ source and build proper isolated environments to develop them. Then we will describe how to create a new bob package from scratch and develop existing bob packages along side it. 
+Tools implemented in `bob.devtools` helps automate this process for |project| packages. In the following we talk about how to checkout and build one or several packages from their git_ source and build proper isolated environments to develop them. Then we will describe how to create a new bob package from scratch and develop existing bob packages along side it. 
 
 TLDR
 ====
@@ -147,6 +146,7 @@ Optionally:
 
 .. bob.devtools.local_development:
 
+<<<<<<< HEAD
 Local development of existing packages
 ======================================
 To develop existing |project| packages you need to checkout their source code and create a proper development environment using `buildout`.
@@ -154,10 +154,8 @@ To develop existing |project| packages you need to checkout their source code an
 
 Checking out |project| package sources
 --------------------------------------
-
 |project| packages are developed through gitlab_. Various packages exist
-in |project|'s gitlab_ instance. Here as an example we assume you want to install and build locally the `bob.blitz` pakcage. In order to checkout a
-package, just use git_:
+in |project|'s gitlab_ instance. Here as an example we assume you want to install and build locally the `bob.blitz` pakcage. In order to checkout a package, just use git_:
 
 
 .. code-block:: sh
@@ -169,7 +167,6 @@ Create an isolated conda environment
 ------------------------------------
 
 Now that we have the package checked out we need an isolated environment with proper configuration to develop the package. `bob.devtools` provides a tool that automatically creates such environment. 
-
 Before proceeding, you need to make sure that you already have a conda_ environment that has `bob.devtools` installed in. Refer to :ref:`bob.devtools.install` for installation information. Here we assume that you have a conda environment named `bdt` with installed `bob.devtools`.
 
 .. code-block:: sh

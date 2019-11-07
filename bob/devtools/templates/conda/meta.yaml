@@ -25,6 +25,7 @@ requirements:
   host:
     - python {{ python }}
     - setuptools {{ setuptools }}
+    - bob.extension
     # place your other host dependencies here
   run:
     - python

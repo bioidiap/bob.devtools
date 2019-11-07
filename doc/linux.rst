@@ -218,46 +218,7 @@ Crontabs
 
    # crontab -l
    MAILTO=""
-   @reboot /root/docker-cleanup-service.sh
-   0 0 * * * /root/docker-cleanup.sh
-
-
-The `docker-cleanup-service.sh` is:
-
-.. code-block:: sh
-
-   #!/usr/bin/env sh
-
-   # Continuously running image to ensure minimal space is available
-
-   docker run -d \
-       -e LOW_FREE_SPACE=30G \
-       -e EXPECTED_FREE_SPACE=50G \
-       -e LOW_FREE_FILES_COUNT=2097152 \
-       -e EXPECTED_FREE_FILES_COUNT=4194304 \
-       -e DEFAULT_TTL=60m \
-       -e USE_DF=1 \
-       --restart always \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       --name=gitlab-runner-docker-cleanup \
-       quay.io/gitlab/gitlab-runner-docker-cleanup
-
-The `docker-cleanup.sh` is:
-
-.. code-block:: sh
-
-   #!/usr/bin/env sh
-
-   # Cleans-up docker stuff which is not being used
-
-   # Exited machines which are still dangling
-   #Caches are containers that we do not want to delete here
-   #echo "Cleaning exited machines..."
-   #docker rm -v $(docker ps -a -q -f status=exited)
-
-   # Unused image leafs
-   echo "Removing unused image leafs..."
-   docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+   0 12 * * SUN /usr/share/gitlab-runner/clear-docker-cache
 
 
 Conda and shared builds

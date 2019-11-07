@@ -46,6 +46,62 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def do_hack(project_dir):
+    """
+    This function is supposed to be for temporary usage.
+
+    It implements hacks for the issues: https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112
+    and https://github.com/conda/conda-build/issues/3767)
+
+    """
+
+    #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
+    import shutil
+
+    git_ignore_file = os.path.join(project_dir, ".gitignore")
+    if os.path.exists(git_ignore_file):
+        logger.warning('Removing ".gitignore" to overcome issues with ripgrep')
+        logger.warning(
+            "See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112"
+        )
+        os.unlink(git_ignore_file)
+    #### END OF HACK
+
+    #### HACK that avoids this issue: https://github.com/conda/conda-build/issues/3767
+    license_file = os.path.join(project_dir, "LICENSE")
+    if not os.path.exists(license_file):
+        license_file = os.path.join(project_dir, "LICENSE.AGPL")
+
+    recipe_dir = os.path.join(project_dir, "conda")
+    if os.path.exists(license_file) and os.path.exists(recipe_dir):
+        logger.warning(
+            "Copying LICENSE file to `./conda` dir to avoid issue with conda build (https://github.com/conda/conda-build/issues/3767)"
+        )
+        logger.warning(
+            "Replacing ../LICENSE to LICENSE (https://github.com/conda/conda-build/issues/3767)"
+        )
+        shutil.copyfile(
+            license_file,
+            os.path.join(recipe_dir, os.path.basename(license_file)),
+        )
+
+        # Checking COPYING file just in case
+        copying_file = os.path.join(project_dir, "COPYING")
+        if os.path.exists(copying_file):
+            shutil.copyfile(copying_file, os.path.join(recipe_dir, "COPYING"))
+
+        meta_file = os.path.join(recipe_dir, "meta.yaml")
+        recipe = open(meta_file).readlines()
+        recipe = [
+            l.replace("../COPYING", "COPYING")
+            .replace("../LICENSE", "LICENSE")
+            .replace("../LICENSE.AGPL", "LICENSE.AGPL")
+            for l in recipe
+        ]
+        open(meta_file, "wt").write("".join(recipe))
+    #### END OF HACK
+
+
 def set_environment(name, value, env=os.environ):
     """Function to setup the environment variable and print debug message.
 
@@ -208,44 +264,47 @@ def ensure_miniconda_sh():
     installer.
     """
 
-    server = "repo.continuum.io"  # https
-
     # WARNING: if you update this version, remember to update hahes below
-    path = "/miniconda/Miniconda3-4.6.14-%s-x86_64.sh"
+    path = "/miniconda/Miniconda3-4.7.12-%s-x86_64.sh"
     if platform.system() == "Darwin":
-        md5sum = 'ffa5f0eead5576fb26b7e6902f5eed09'
+        md5sum = "677f38d5ab7e1ce4fef134068e3bd76a"
         path = path % "MacOSX"
     else:
-        md5sum = '718259965f234088d785cad1fbd7de03'
+        md5sum = "0dba759b8ecfc8948f626fa18785e3d8"
         path = path % "Linux"
 
     if os.path.exists("miniconda.sh"):
         logger.info("(check) miniconda.sh md5sum (== %s?)", md5sum)
         import hashlib
+
         actual_md5 = hashlib.md5(open("miniconda.sh", "rb").read()).hexdigest()
         if actual_md5 == md5sum:
             logger.info("Re-using cached miniconda3 installer (hash matches)")
             return
         else:
-            logger.info("Erasing cached miniconda3 installer (%s does NOT " \
-                "match)", actual_md5)
+            logger.info(
+                "Erasing cached miniconda3 installer (%s does NOT " "match)",
+                actual_md5,
+            )
             os.unlink("miniconda.sh")
 
     # re-downloads installer
     import http.client
 
-    logger.info("Connecting to https://%s...", server)
-    conn = http.client.HTTPSConnection(server)
+    server = "www.idiap.ch"  # http
+
+    logger.info("Connecting to http://%s...", server)
+    conn = http.client.HTTPConnection(server)
     conn.request("GET", path)
     r1 = conn.getresponse()
 
     assert r1.status == 200, (
-        "Request for https://%s%s - returned status %d "
+        "Request for http://%s%s - returned status %d "
         "(%s)" % (server, path, r1.status, r1.reason)
     )
 
     dst = "miniconda.sh"
-    logger.info("(download) https://%s%s -> %s...", server, path, dst)
+    logger.info("(download) http://%s%s -> %s...", server, path, dst)
     with open(dst, "wb") as f:
         f.write(r1.read())
 
@@ -280,8 +339,8 @@ def install_miniconda(prefix, name):
 def get_channels(public, stable, server, intranet, group):
     """Returns the relevant conda channels to consider if building project.
 
-    The subset of channels to be returned depends on the visibility and stability
-    of the package being built.  Here are the rules:
+    The subset of channels to be returned depends on the visibility and
+    stability of the package being built.  Here are the rules:
 
     * public and stable: only returns the public stable channel(s)
     * public and not stable: returns both public stable and beta channels
@@ -301,9 +360,10 @@ def get_channels(public, stable, server, intranet, group):
       server: The base address of the server containing our conda channels
       intranet: Boolean indicating if we should add "private"/"public" prefixes
         on the conda paths
-      group: The group of packages (gitlab namespace) the package we're compiling
-        is part of.  Values should match URL namespaces currently available on
-        our internal webserver.  Currently, only "bob" or "beat" will work.
+      group: The group of packages (gitlab namespace) the package we're
+        compiling is part of.  Values should match URL namespaces currently
+        available on our internal webserver.  Currently, only "bob" or "beat"
+        will work.
 
 
     Returns: a list of channels that need to be considered.
@@ -431,6 +491,12 @@ if __name__ == "__main__":
 
     setup_logger(logger, args.verbose)
 
+    # Run conda-build hacks
+    # TODO: Remove this hack as soon as possible
+    do_hack(".")
+
+    condarc = os.path.join(args.conda_root, "condarc")
+
     install_miniconda(args.conda_root, args.name)
     conda_bin = os.path.join(args.conda_root, "bin", "conda")
 
@@ -442,13 +508,15 @@ if __name__ == "__main__":
         # http://www.idiap.ch/software/bob/defaults with so it is optimized for
         # a CI build.  Notice we consider this script is only executed in this
         # context.  The URL should NOT work outside of Idiap's network.
-        f.write(_BASE_CONDARC.replace(
-                'https://repo.anaconda.com/pkgs/main',
-                'http://www.idiap.ch/defaults',
-                ))
+        f.write(
+            _BASE_CONDARC.replace(
+                "https://repo.anaconda.com/pkgs/main",
+                "http://www.idiap.ch/defaults",
+            )
+        )
 
     conda_version = "4"
-    conda_build_version = "3.16"
+    conda_build_version = "3"
     conda_verify_version = "3"
 
     conda_verbosity = []

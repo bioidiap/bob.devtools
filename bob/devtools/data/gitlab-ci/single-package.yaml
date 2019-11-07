@@ -26,8 +26,6 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 # Build targets
@@ -109,8 +107,6 @@ build_linux_37:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
 
 
 .test_linux_template:
@@ -143,8 +139,6 @@ build_linux_37:
   cache:
     paths:
       - miniconda.sh
-      - ${CONDA_ROOT}/pkgs/*.tar.bz2
-      - ${CONDA_ROOT}/pkgs/urls.txt
   cache:
     key: "deploy"
 
