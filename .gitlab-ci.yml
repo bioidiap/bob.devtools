@@ -33,6 +33,8 @@ stages:
   image: continuumio/conda-concourse-ci
   artifacts:
     paths:
+      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
+      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
   cache:
@@ -45,6 +47,8 @@ stages:
     - macosx
   artifacts:
     paths:
+      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
+      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
   cache:
@@ -70,6 +74,8 @@ build_linux_37:
     paths:
       - dist/*.zip
       - sphinx
+      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
+      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
 

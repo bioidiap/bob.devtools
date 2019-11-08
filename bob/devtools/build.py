@@ -65,8 +65,8 @@ def should_skip_build(metadata_tuples):
 def next_build_number(channel_url, basename):
     """Calculates the next build number of a package given the channel.
 
-    This function returns the next build number (integer) for a package given its
-    resulting tarball base filename (can be obtained with
+    This function returns the next build number (integer) for a package given
+    its resulting tarball base filename (can be obtained with
     :py:func:`get_output_path`).
 
 
@@ -88,8 +88,14 @@ def next_build_number(channel_url, basename):
     logger.debug("Downloading channel index from %s", channel_url)
     index = get_index(channel_urls=[channel_url], prepend=False)
 
-    # remove .tar.bz2 from name, then split from the end twice, on '-'
-    name, version, build = basename[:-8].rsplit("-", 2)
+    # remove .tar.bz2/.conda from name, then split from the end twice, on '-'
+    if basename.endswith('.tar.bz2'):
+        name, version, build = basename[:-8].rsplit("-", 2)
+    elif basename.endswith('.conda'):
+        name, version, build = basename[:-6].rsplit("-", 2)
+    else:
+        raise RuntimeError("Package name %s does not end in either " \
+                ".tar.bz2 or .conda" % (basename,))
 
     # remove the build number as we're looking for the next value
     # examples to be coped with:
@@ -206,7 +212,8 @@ def get_parsed_recipe(metadata):
 def exists_on_channel(channel_url, basename):
     """Checks on the given channel if a package with the specs exist.
 
-    This procedure always ignores the package hash code, if one is set
+    This procedure always ignores the package hash code, if one is set.  It
+    differentiates between `.conda` and `.tar.bz2` packages.
 
     Args:
 
@@ -214,16 +221,23 @@ def exists_on_channel(channel_url, basename):
         channel)
       basename: The basename of the tarball to search for
 
-    Returns: A complete package url, if the package already exists in the channel
-    or ``None`` otherwise.
+    Returns: A complete package url, if the package already exists in the
+    channel or ``None`` otherwise.
     """
 
     build_number, urls = next_build_number(channel_url, basename)
 
     def _get_build_number(name):
 
-        # remove .tar.bz2 from name, then split from the end twice, on '-'
-        name, version, build = name[:-8].rsplit("-", 2)
+        # remove .tar.bz2/.conda from name, then split from the end twice, on
+        # '-'
+        if name.endswith('.conda'):
+            name, version, build = name[:-6].rsplit("-", 2)
+        elif name.endswith('.tar.bz2'):
+            name, version, build = name[:-8].rsplit("-", 2)
+        else:
+            raise RuntimeError("Package name %s does not end in either " \
+                    ".tar.bz2 or .conda" % (name,))
 
         # remove the build number as we're looking for the next value
         # examples to be coped with:
@@ -239,9 +253,10 @@ def exists_on_channel(channel_url, basename):
     other_build_numbers = [_get_build_number(os.path.basename(k)) for k in urls]
 
     if self_build_number in other_build_numbers:
-        return "".join(
-            (channel_url, urls[other_build_numbers.index(self_build_number)])
-        )
+        candidate = urls[other_build_numbers.index(self_build_number)]
+        pkg_type = '.conda' if basename.endswith('.conda') else '.tar.bz2'
+        if candidate.endswith(pkg_type):  #match
+            return "".join(channel_url, candidate)
 
 
 def remove_pins(deps):

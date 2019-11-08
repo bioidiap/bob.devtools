@@ -19,6 +19,8 @@ remote_max_retries: 50 #!final
 remote_read_timeout_secs: 180.0 #!final
 channels:
   - defaults
+conda_build: #!final
+  pkg_format: '2'
 """
 
 _SERVER = "http://www.idiap.ch"
@@ -216,6 +218,8 @@ def merge_conda_cache(cache, prefix, name):
     # move packages on cache/pkgs to pkgs_dir
     cached_pkgs_dir = os.path.join(cache, "pkgs")
     cached_packages = glob.glob(os.path.join(cached_pkgs_dir, "*.tar.bz2"))
+    cached_packages.extend(glob.glob(os.path.join(cached_pkgs_dir, "*.conda")))
+
     cached_packages = [
         k for k in cached_packages if not k.startswith(name + "-")
     ]
