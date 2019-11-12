@@ -147,12 +147,252 @@ Buildout.cfg in more details
 
   This section should include more information about different sections in a buildout.cfg file.
 
+Some notes on buildout
+======================
+
+To be able to develop a package, we first need to build and install it locally.
+While developing a package, you need to install your package in *development*
+mode so that you do not have to re-install your package after every change that
+you do in the source. zc.buildout_ allows you to exactly do that.
+
+.. note::
+    zc.buildout_ will create another local environment from your conda_
+    environment but unlike conda_ environments this environment is not isolated
+    rather it inherits from your conda_ environment. This means you can still
+    use the libraries that are installed in your conda_ environment.
+    zc.buildout_ also allows you to install PyPI_ packages into your
+    environment. You can use it to install some Python library if it is not
+    available using conda_. Keep in mind that to install a library you should
+    always prefer conda_ but to install your package from source in
+    *development* mode, you should use zc.buildout_.
+
+zc.buildout_ provides a ``buildout`` command. ``buildout`` takes as input a
+"recipe" that explains how to build a local working environment. The recipe, by
+default, is stored in a file called ``buildout.cfg``. 
+.. note::
+
+    Buildout by default looks for ``buildout.cfg`` in your current folder and
+    uses that configuration file. You can specify a different config file with
+    the ``-c`` option:
+
+    .. code:: sh
+
+        $ buildout -c develop.cfg
+
+
+.. important::
+    Once ``buildout`` runs, it creates several executable scripts in a local
+    ``bin`` folder. Each executable is programmed to use Python from the conda
+    environment, but also to consider (prioritarily) your package checkout.
+    This means that you need to use the scripts from the ``bin`` folder instead
+    of using its equivalence from your conda environment. For example, use
+    ``./bin/python`` instead of ``python``.
+
+``buildout`` will examine the ``setup.py`` file of packages using setuptools_
+and will ensure all build and run-time dependencies of packages are available
+either through the conda installation or it will install them locally without
+changing your conda environment.
+
+The configuration file is organized in several *sections*, which are indicated
+by ``[]``, where the default section ``[buildout]`` is always required. Some of
+the entries need attention.
+
+* The first entry are the ``eggs``. In there, you can list all python packages
+  that should be installed. These packages will then be available to be used in
+  your environment. Dependencies for those packages will be automatically
+  managed, **as long as you keep** ``bob.buildout`` **in your list of**
+  ``extensions``. At least, the current package needs to be in the ``eggs``
+  list.
+
+* The ``extensions`` list includes all extensions that are required in the
+  buildout process. By default, only ``bob.buildout`` is required, but more
+  extensions can be added (more on that later).
+
+* The next entry is the ``develop`` list. These packages will be installed
+  *development mode* from the specified folder.
+
+The remaining options define how the (dependent) packages are built. For
+example, the ``debug`` flag defined, how the *C++ code* in
+all the (dependent) packages is built. For more information refer to *C/C++ modules in your package* in `bob.extension <https://www.idiap.ch/software/bob/docs/bob/bob.extension/master/index.html>`_ documentation. The ``verbose`` options handles the
+verbosity of the build. When the ``newest`` flag is set to ``true``, buildout
+will install all packages in the latest versions, even if an older version is
+already available.
+
+.. note::
+
+    We normally set ``newest = False`` to avoid downloading already installed
+    dependencies. Also, it installs by default the latest stable version of the
+    package, unless ``prefer-final = False``, in which case the latest
+    available on PyPI, including betas, will be installed.
+
+
+.. warning::
+
+    Compiling packages in debug mode (``debug = true``) will make them very
+    slow. You should only use this option when you are developing and not for
+    running experiments or production.
+
+When the buildout command is invoked it will perform the following steps:
+
+1. It goes through the list of ``eggs``, searched for according packages and
+   installed them *locally*.
+2. It  populates the ``./bin`` directory with all the ``console_scripts`` that
+   you have specified in the ``setup.py``.
+
+.. important::
+
+    One thing to note in package development is that when you change the entry
+    points in ``setup.py`` of a package, you need to run ``buildout`` again.
+
+
+.. _bob.devtools.mr.developer:
+
+Using mr.developer
+==================
+
+One extension that may be useful is `mr.developer`_. It allows to develop
+*several packages* at the same time. This extension will allow
+buildout to automatically check out packages from git repositories, and places
+them into the ``./src`` directory. It can be simply set up by adding
+``mr.developer`` to the extensions section.
+
+In this case, the develop section should be augmented with the packages you
+would like to develop. There, you can list directories that contain Python
+packages, which will be build in exactly the order that you specified. With
+this option, you can tell buildout particularly, in which directories it should
+look for some packages.
+
+.. code-block:: ini
+
+    [buildout]
+    parts = scripts
+
+    extensions = bob.buildout
+                 mr.developer
+
+    newest = false
+    verbose = true
+    debug = false
+
+    auto-checkout = *
+
+    develop = src/bob.extension
+              src/bob.blitz
+
+    eggs = bob.extension
+           bob.blitz
+
+    [scripts]
+    recipe = bob.buildout:scripts
+    dependent-scripts = true
+
+    [sources]
+    bob.extension = git https://gitlab.idiap.ch/bob/bob.extension
+    bob.blitz = git https://gitlab.idiap.ch/bob/bob.blitz
+
+A new section called ``[sources]`` appears, where the package information for
+`mr.developer`_ is initialized. For more details, please read `its
+documentation <https://pypi.python.org/pypi/mr.developer>`_. mr.developer does
+not automatically place the packages into the ``develop`` list (and neither in
+the ``eggs``), so you have to do that yourself.
+
+With this augmented ``buildout.cfg``, the ``buildout`` command will perform the
+following steps:
+
+
+
+1.  It checks out the packages that you specified using ``mr.developer``.
+
+2.  It develops all packages in the ``develop`` section
+    (it links the source of the packages to your local environment).
+
+3.  It will go through the list of ``eggs`` and search for according packages
+    in the following order:
+
+    #. In one of the already developed directories.
+    #. In the python environment, e.g., packages installed with ``pip``.
+    #. Online, i.e. on PyPI_.
+
+4.  It will populate the ``./bin`` directory with all the ``console_scripts``
+    that you have specified in the ``setup.py``. In our example, this is
+    ``./bin/bob_new_version.py``.
+
+The order of packages that you list in ``eggs`` and ``develop`` are important
+and dependencies should be listed first. Especially, when you want to use a
+private package and which not available through `pypi`_. If you do not specify
+them in order, you might face with some errors like this::
+
+   Could not find index page for 'a.bob.package' (maybe misspelled?)
+
+If you see such errors, you may need to add the missing package to ``eggs`` and
+``develop`` and ``sources`` (**of course, respecting the order of
+dependencies**).
+
+
+Your local environment
+======================
+
+After buildout has finished, you should now be able to execute
+``./bin/python``. When using the newly generated ``./bin/python`` script, you
+can access all packages that you have developed, including your own package:
+
+.. code-block:: sh
+
+    $ ./bin/python
+
+.. code-block:: python
+
+    >>> import bob.blitz
+    >>> bob.blitz # should print from '.../awesome-project/src/bob.blitz/...'
+    <module 'bob.blitz' from 'awesome-project/src/bob.blitz/bob/blitz/__init__.py'>
+    >>> print(bob.blitz.get_config())
+    bob.blitz: 2.0.15b0 [api=0x0202] (awesome-project/src/bob.blitz)
+    * C/C++ dependencies:
+      - Blitz++: 0.10
+      - Boost: 1.61.0
+      - Compiler: {'version': '4.8.5', 'name': 'gcc'}
+      - NumPy: {'abi': '0x01000009', 'api': '0x0000000A'}
+      - Python: 2.7.13
+    * Python dependencies:
+      - bob.extension: 2.4.6b0 (awesome-project/src/bob.extension)
+      - numpy: 1.12.1 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
+      - setuptools: 36.4.0 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
+
+
+Everything is now setup for you to continue the development of the packages.
+Moreover, you can learn more about |project| packages and learn to create new
+ones in .
+
 
 
 .. _bob.devtools.anatomy:
 
 Anatomy of a new package
 ========================
+
+.. code-block:: text
+
+    bob.<awesome-project>
+    +-- bob
+      +-- __init__.py #namespace init for "bob"
+    +-- conda
+      +-- meta.yaml
+    +-- doc
+      +-- img
+      +-- conf.py
+      +-- index.rst
+      +-- links.rst
+    +-- .gitignore
+    +-- .gitlab-ci.yml
+    +-- buildout.cfg
+    +-- COPYING
+    +-- MANIFEST.IN
+    +-- README.rst
+    +-- requirements.txt
+    +-- setup.py
+    +-- version.txt
+
+
 
 There is a folder named `conda` that includes a file `meta.yaml`. As explained earlier this files includes the information used to prepare a proper conda environment.
 
@@ -161,6 +401,10 @@ The folder named `bob` which should only include a file `__init__.py` at this st
 The folder named `doc` includes the minimum necessary information for building package documentation. The file `conf.py` is used by sphinx to build the documentation.
 
 `.gitlab-ci.yml` includes the information about building packages on the ci. We will talk about it later.
+
+
+
+
 
 
 COPYING??? MANIFEST.IN???
