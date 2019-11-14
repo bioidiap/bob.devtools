@@ -62,27 +62,29 @@ def do_hack(project_dir):
 
     git_ignore_file = os.path.join(project_dir, ".gitignore")
     if os.path.exists(git_ignore_file):
-        logger.warning('Removing ".gitignore" to overcome issues with ripgrep')
         logger.warning(
-            "See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112"
+            "Removing .gitignore to avoid issue with ripgrep (see "
+            "https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112)"
         )
         os.unlink(git_ignore_file)
     #### END OF HACK
 
     #### HACK that avoids this issue:
     #### https://github.com/conda/conda-build/issues/3767
-    candidates = ['LICENSE', 'LICENSE.AGPL', 'COPYING']
+    candidates = ["LICENSE", "LICENSE.AGPL", "COPYING"]
     for k in candidates:
         license_file = os.path.join(project_dir, k)
-        if not os.path.exists(license_file): continue
+        if not os.path.exists(license_file):
+            continue
 
         recipe_dir = os.path.join(project_dir, "conda")
         if os.path.exists(recipe_dir):
             logger.warning(
                 "Copying %s file to conda-recipe dir to avoid issue "
-                "with conda build "
-                "(https://github.com/conda/conda-build/issues/3767)", k
-                )
+                "with conda-build "
+                "(see: https://github.com/conda/conda-build/issues/3767)",
+                k,
+            )
             shutil.copy(license_file, recipe_dir)
     #### END OF HACK
 
