@@ -69,6 +69,23 @@ def do_hack(project_dir):
         os.unlink(git_ignore_file)
     #### END OF HACK
 
+    #### HACK that avoids this issue:
+    #### https://github.com/conda/conda-build/issues/3767
+    candidates = ['LICENSE', 'LICENSE.AGPL', 'COPYING']
+    for k in candidates:
+        license_file = os.path.join(project_dir, k)
+        if not os.path.exists(license_file): continue
+
+        recipe_dir = os.path.join(project_dir, "conda")
+        if os.path.exists(recipe_dir):
+            logger.warning(
+                "Copying %s file to conda-recipe dir to avoid issue "
+                "with conda build "
+                "(https://github.com/conda/conda-build/issues/3767)", k
+                )
+            shutil.copy(license_file, recipe_dir)
+    #### END OF HACK
+
 
 def set_environment(name, value, env=os.environ):
     """Function to setup the environment variable and print debug message.
