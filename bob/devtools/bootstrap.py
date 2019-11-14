@@ -52,8 +52,8 @@ def do_hack(project_dir):
     """
     This function is supposed to be for temporary usage.
 
-    It implements hacks for the issues: https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112
-    and https://github.com/conda/conda-build/issues/3767)
+    It implements hacks for the issue:
+    https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112
 
     """
 
@@ -62,45 +62,11 @@ def do_hack(project_dir):
 
     git_ignore_file = os.path.join(project_dir, ".gitignore")
     if os.path.exists(git_ignore_file):
-        logger.warning('Removing ".gitignore" to overcome issues with ripgrep')
         logger.warning(
-            "See https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112"
+            "Removing .gitignore to avoid issue with ripgrep (see "
+            "https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112)"
         )
         os.unlink(git_ignore_file)
-    #### END OF HACK
-
-    #### HACK that avoids this issue: https://github.com/conda/conda-build/issues/3767
-    license_file = os.path.join(project_dir, "LICENSE")
-    if not os.path.exists(license_file):
-        license_file = os.path.join(project_dir, "LICENSE.AGPL")
-
-    recipe_dir = os.path.join(project_dir, "conda")
-    if os.path.exists(license_file) and os.path.exists(recipe_dir):
-        logger.warning(
-            "Copying LICENSE file to `./conda` dir to avoid issue with conda build (https://github.com/conda/conda-build/issues/3767)"
-        )
-        logger.warning(
-            "Replacing ../LICENSE to LICENSE (https://github.com/conda/conda-build/issues/3767)"
-        )
-        shutil.copyfile(
-            license_file,
-            os.path.join(recipe_dir, os.path.basename(license_file)),
-        )
-
-        # Checking COPYING file just in case
-        copying_file = os.path.join(project_dir, "COPYING")
-        if os.path.exists(copying_file):
-            shutil.copyfile(copying_file, os.path.join(recipe_dir, "COPYING"))
-
-        meta_file = os.path.join(recipe_dir, "meta.yaml")
-        recipe = open(meta_file).readlines()
-        recipe = [
-            l.replace("../COPYING", "COPYING")
-            .replace("../LICENSE", "LICENSE")
-            .replace("../LICENSE.AGPL", "LICENSE.AGPL")
-            for l in recipe
-        ]
-        open(meta_file, "wt").write("".join(recipe))
     #### END OF HACK
 
 
