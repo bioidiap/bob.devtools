@@ -56,4 +56,4 @@ about:
   home: https://www.idiap.ch/software/(( group ))/
   license: (% if license == 'gplv3' %)GNU General Public License v3 (GPLv3)(% else %)BSD 3-Clause(% endif %)
   license_family: (% if license == 'gplv3' %)GPL(% else %)BSD(% endif %)
-  license_file: (% if license == 'gplv3' %)../COPYING(% else %)../LICENSE(% endif %)
+  license_file: (% if license == 'gplv3' %)COPYING(% else %)LICENSE(% endif %)
