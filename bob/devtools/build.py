@@ -244,19 +244,22 @@ def exists_on_channel(channel_url, basename):
         # vlfeat-0.9.20-0 -> '0'
         # vlfeat-0.9.21-h18fa195_0 -> 'h18fa195_0'
         # tqdm-4.11.1-py36_0 -> 'py36_0'
+        # untokenize-0.1.1-py_0.conda -> 'py_0'
         # websocket-client-0.47.0-py27haf68d3b_0 -> 'py27haf68d3b_0'
         # websocket-client-0.47.0-py36haf68d3b_0 -> 'py36haf68d3b_0'
         s = build.rsplit("_", 1)
         return s[1] if len(s) == 2 else s[0]
 
     self_build_number = _get_build_number(basename)
-    other_build_numbers = [_get_build_number(os.path.basename(k)) for k in urls]
+    other_build_numbers = dict(
+            [(k, _get_build_number(os.path.basename(k))) for k in urls]
+            )
 
-    if self_build_number in other_build_numbers:
-        candidate = urls[other_build_numbers.index(self_build_number)]
+    if self_build_number in other_build_numbers.values():
         pkg_type = '.conda' if basename.endswith('.conda') else '.tar.bz2'
-        if candidate.endswith(pkg_type):  #match
-            return "".join((channel_url, candidate))
+        for k, v in other_build_numbers.items():
+            if k.endswith(pkg_type):  #match
+                return "".join((channel_url, k))
 
 
 def remove_pins(deps):
@@ -759,8 +762,8 @@ if __name__ == "__main__":
         condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
     # builds all dependencies in the 'deps' subdirectory - or at least checks
-    # these dependencies are already available; these dependencies go directly to
-    # the public channel once built
+    # these dependencies are already available; these dependencies go directly
+    # to the public channel once built
     recipes = load_order_file(os.path.join("deps", "order.txt"))
     for k, recipe in enumerate([os.path.join("deps", k) for k in recipes]):
 
