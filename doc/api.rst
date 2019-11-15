@@ -14,6 +14,8 @@
    bob.devtools.bootstrap
    bob.devtools.build
    bob.devtools.mirror
+   bob.devtools.deploy
+   bob.devtools.graph
    bob.devtools.webdav3.client
 
 
@@ -34,7 +36,11 @@ Detailed Information
 
 .. automodule:: bob.devtools.build
 
+.. automodule:: bob.devtools.mirror
+
 .. automodule:: bob.devtools.deploy
+
+.. automodule:: bob.devtools.graph
 
 
 WebDAV Python Client

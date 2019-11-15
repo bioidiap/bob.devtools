@@ -28,12 +28,18 @@ logger = get_logger(__name__)
     epilog="""
 Examples:
 
-  1. Draws the graph of a package
+  1. Calculates and draws the graph of a package:
 
-     $ bdt gitlab graph -vv bob/bob.learn.linear
+     $ bdt gitlab graph bob/bob.blitz
 
-  2.
+  2. Calculates and draws only the runtime dependencies of a package
 
+     $ bdt gitlab graph bob/bob.blitz --deptypes=run
+
+  3. Calculates run and test dependencies of package, but only draws a subset
+     defined by a regular expression
+
+     $ bdt gitlab graph beat/beat.editor --deptypes=run --deptypes=test --whitelist='^beat\.(editor|cmdline).*$'
 
 """
 )

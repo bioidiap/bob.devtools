@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Utilities for calculating package dependencies and drawing graphs"""
+
 import os
 import re
 import glob
@@ -179,8 +181,11 @@ def compute_adjencence_matrix(
             elif p.startswith("batl"):
                 return "/".join(("batl", p))
             else:
-                logger.warning("Do not know how to recurse to package %s "
-                        "(to which group does it belong?) - skipping...", p)
+                logger.warning(
+                    "Do not know how to recurse to package %s "
+                    "(to which group does it belong?) - skipping...",
+                    p,
+                )
                 return None
 
         all_recurse = set([_add_default_group(k) for k in all_recurse])
@@ -189,8 +194,9 @@ def compute_adjencence_matrix(
 
         # do not recurse for packages we already know
         all_recurse -= set(current.keys())
-        logger.info("Recursing over the following packages: %s",
-                ", ".join(all_recurse))
+        logger.info(
+            "Recursing over the following packages: %s", ", ".join(all_recurse)
+        )
 
         for dep in all_recurse:
             dep_adjmtx = compute_adjencence_matrix(
