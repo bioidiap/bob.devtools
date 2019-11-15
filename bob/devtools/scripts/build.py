@@ -20,7 +20,10 @@ from ..build import (
     get_docserver_setup,
     get_env_directory,
     get_output_path,
+    remove_conda_loggers,
 )
+remove_conda_loggers()
+
 from ..constants import (
     CONDA_BUILD_CONFIG,
     CONDA_RECIPE_APPEND,
@@ -182,7 +185,7 @@ def build(
     from bob.devtools.bootstrap import do_hack
     project_dir = os.path.dirname(recipe_dir[0])
     do_hack(project_dir)
-    
+
 
     # get potential channel upload and other auxiliary channels
     channels = get_channels(
@@ -235,7 +238,7 @@ def build(
     for d in recipe_dir:
 
         if not os.path.exists(d):
-            raise RuntimeError("The directory %s does not exist" % recipe_dir)
+            raise RuntimeError("The directory %s does not exist" % d)
 
         version_candidate = os.path.join(d, "..", "version.txt")
         if os.path.exists(version_candidate):

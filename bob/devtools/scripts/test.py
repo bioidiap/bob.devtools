@@ -15,7 +15,10 @@ from ..build import (
     make_conda_config,
     get_docserver_setup,
     get_env_directory,
+    remove_conda_loggers,
 )
+remove_conda_loggers()
+
 from ..constants import (
     CONDA_BUILD_CONFIG,
     CONDA_RECIPE_APPEND,
