@@ -56,7 +56,6 @@ setup(
           'dav = bob.devtools.scripts.dav:dav',
           'local = bob.devtools.scripts.local:local',
           'gitlab = bob.devtools.scripts.gitlab:gitlab',
-          'graph = bob.devtools.scripts.graph:graph'
           ],
 
         'bdt.gitlab.cli': [
@@ -69,7 +68,8 @@ setup(
           'visibility = bob.devtools.scripts.visibility:visibility',
           'getpath = bob.devtools.scripts.getpath:getpath',
           'process-pipelines = bob.devtools.scripts.pipelines:process_pipelines',
-          'get-pipelines- = bob.devtools.scripts.pipelines:get_pipelines',          
+          'get-pipelines- = bob.devtools.scripts.pipelines:get_pipelines',
+          'graph = bob.devtools.scripts.graph:graph'
           ],
 
         'bdt.ci.cli': [
