@@ -36,9 +36,11 @@ Examples:
 
      $ bdt gitlab graph bob/bob.blitz --deptypes=run
 
+\b
   3. Calculates run and test dependencies of package, but only draws a subset
      defined by a regular expression
 
+\b
      $ bdt gitlab graph beat/beat.editor --deptypes=run --deptypes=test --whitelist='^beat\.(editor|cmdline).*$'
 
 """
