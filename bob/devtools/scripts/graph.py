@@ -30,7 +30,9 @@ Examples:
 
   1. Draws the graph of a package
 
-     $ bdt gitlab graph bob/bob.bio.face
+     $ bdt gitlab graph -vv bob/bob.learn.linear
+
+  2.
 
 
 """
@@ -115,11 +117,22 @@ Examples:
     default="^(bob|beat|batl|gridtk)(\.)?(?!-).*$",
     help="package regular expression to preserve in the graph, "
     "use .* for keeping all packages, including non-maintained ones.  The "
-    "current expression accepts most of our packages, excluding bob/beat-devel")
+    "current expression accepts most of our packages, excluding "
+    "bob/beat-devel.  This flag only affects the graph generation - we still "
+    "recurse over all packages to calculate dependencies.")
+@click.option(
+    "-d",
+    "--deptypes",
+    show_default=True,
+    default=[],
+    multiple=True,
+    help="types of dependencies to consider.  Pass multiple times to include "
+    "more types.  Valid types are 'host', 'build', 'run' and 'test'.  An "
+    "empty set considers all dependencies to the graph")
 @verbosity_option()
 @bdt.raise_on_error
 def graph(package, python, condarc, config, append_file, server, private,
-        stable, ci, name, format, whitelist):
+        stable, ci, name, format, whitelist, deptypes):
     """
     Computes the dependency graph of a gitlab package (via its conda recipe)
     and outputs an dot file that can be used by graphviz to draw a direct
@@ -171,7 +184,8 @@ def graph(package, python, condarc, config, append_file, server, private,
     set_environment("BOB_DOCUMENTATION_SERVER", "/not/set")
 
     adj_matrix = compute_adjencence_matrix(gl, package, conda_config,
-            channels[0])
+            channels[0], deptypes=deptypes)
 
-    graph = generate_graph(adj_matrix, deptypes=[], whitelist=whitelist)
+    graph = generate_graph(adj_matrix, deptypes=deptypes, whitelist=whitelist)
     graph.render(name, format=format, cleanup=True)
+

@@ -16,13 +16,21 @@ from .build import (
     get_parsed_recipe,
     get_output_path,
 )
-from .log import get_logger
+from .log import get_logger, echo_info
+
 logger = get_logger(__name__)
 
 
-def compute_adjencence_matrix(gl, package, conda_config, main_channel,
-        recurse_regexp="^(bob|beat|batl|gridtk)(\.)?(?!-).*$", current={},
-        ref="master"):
+def compute_adjencence_matrix(
+    gl,
+    package,
+    conda_config,
+    main_channel,
+    recurse_regexp="^(bob|beat|batl|gridtk)(\.)?(?!-).*$",
+    current={},
+    ref="master",
+    deptypes=[],
+):
     """
     Given a target package, returns an adjacence matrix with its dependencies
     returned via the conda-build API
@@ -62,6 +70,11 @@ def compute_adjencence_matrix(gl, package, conda_config, main_channel,
     ref : str
         Name of the git reference (branch, tag or commit hash) to use
 
+    deptypes : list
+        A list of dependence types to preserve when building the graph.  If
+        empty, then preserve all.  You may set values "build", "host",
+        "run" and "test", in any combination
+
 
     Returns
     -------
@@ -75,24 +88,31 @@ def compute_adjencence_matrix(gl, package, conda_config, main_channel,
     """
 
     use_package = gl.projects.get(package)
+    deptypes = deptypes if deptypes else ["host", "build", "run", "test"]
 
-    logger.info('Resolving graph for %s@%s',
-            use_package.attributes["path_with_namespace"], ref)
+    if use_package.attributes["path_with_namespace"] in current:
+        return current
+
+    echo_info(
+        "Resolving graph for %s@%s"
+        % (use_package.attributes["path_with_namespace"], ref)
+    )
     with tempfile.TemporaryDirectory() as tmpdir:
 
-        logger.debug('Downloading archive for %s...', ref)
-        archive = use_package.repository_archive(ref=ref)  #in memory
+        logger.debug("Downloading archive for %s...", ref)
+        archive = use_package.repository_archive(ref=ref)  # in memory
         logger.debug("Archive has %d bytes", len(archive))
 
         with tarfile.open(fileobj=BytesIO(archive), mode="r:gz") as f:
             f.extractall(path=tmpdir)
 
         # use conda-build API to figure out all dependencies
-        recipe_dir = glob.glob(os.path.join(tmpdir, '*', 'conda'))[0]
-        logger.debug('Resolving conda recipe for package at %s...', recipe_dir)
+        recipe_dir = glob.glob(os.path.join(tmpdir, "*", "conda"))[0]
+        logger.debug("Resolving conda recipe for package at %s...", recipe_dir)
         if not os.path.exists(recipe_dir):
-            raise RuntimeError("The conda recipe directory %s does not " \
-                    "exist" % recipe_dir)
+            raise RuntimeError(
+                "The conda recipe directory %s does not " "exist" % recipe_dir
+            )
 
         version_candidate = os.path.join(recipe_dir, "..", "version.txt")
         if os.path.exists(version_candidate):
@@ -105,65 +125,94 @@ def compute_adjencence_matrix(gl, package, conda_config, main_channel,
         path = get_output_path(metadata, conda_config)
 
         # gets the next build number
-        build_number, _ = next_build_number(main_channel,
-                os.path.basename(path))
+        build_number, _ = next_build_number(
+            main_channel, os.path.basename(path)
+        )
 
         # at this point, all elements are parsed, I know the package version,
         # build number and all dependencies
+        # exclude stuff we are not interested in
 
         # host and build should have precise numbers to be used for building
         # this package.
-        host = rendered_recipe['requirements'].get('host', [])
-        build = rendered_recipe['requirements'].get('build', [])
+        if "host" not in deptypes:
+            host = []
+        else:
+            host = rendered_recipe["requirements"].get("host", [])
+
+        if "build" not in deptypes:
+            build = []
+        else:
+            build = rendered_recipe["requirements"].get("build", [])
 
         # run dependencies are more vague
-        run = rendered_recipe['requirements'].get('run', [])
+        if "run" not in deptypes:
+            run = []
+        else:
+            run = rendered_recipe["requirements"].get("run", [])
 
         # test dependencies even more vague
-        test = rendered_recipe.get('test', {}).get('requires', [])
+        if "test" not in deptypes:
+            test = []
+        else:
+            test = rendered_recipe.get("test", {}).get("requires", [])
 
         # for each of the above sections, recurse in figuring out dependencies,
         # if dependencies match a target set of globs
         recurse_compiled = re.compile(recurse_regexp)
+
         def _re_filter(l):
             return [k for k in l if recurse_compiled.match(k)]
-        host_recurse = set([z.split()[0] for z in _re_filter(host)])
-        build_recurse = set([z.split()[0] for z in _re_filter(build)])
-        run_recurse = set([z.split()[0] for z in _re_filter(run)])
-        test_recurse = set([z.split()[0] for z in _re_filter(test)])
 
-        # we do not separate host/build/run/test dependencies and assume they
-        # will all be of the same version in the end.  Otherwise, we would need
-        # to do this in a bit more careful way.
-        all_recurse = host_recurse | build_recurse | run_recurse | test_recurse
+        all_recurse = set()
+        all_recurse |= set([z.split()[0] for z in _re_filter(host)])
+        all_recurse |= set([z.split()[0] for z in _re_filter(build)])
+        all_recurse |= set([z.split()[0] for z in _re_filter(run)])
+        all_recurse |= set([z.split()[0] for z in _re_filter(test)])
 
         # complete the package group, which is not provided by conda-build
         def _add_default_group(p):
-            if p.startswith('bob') or p.startswith('gridtk'):
-                return '/'.join(('bob', p))
-            elif p.startswith('beat'):
-                return '/'.join(('beat', p))
-            elif p.startswith('batl'):
-                return '/'.join(('batl', p))
+            if p.startswith("bob") or p.startswith("gridtk"):
+                return "/".join(("bob", p))
+            elif p.startswith("beat"):
+                return "/".join(("beat", p))
+            elif p.startswith("batl"):
+                return "/".join(("batl", p))
             else:
-                raise RuntimeError('Do not know how to recurse to package %s' \
-                        % (p,))
+                logger.warning("Do not know how to recurse to package %s "
+                        "(to which group does it belong?) - skipping...", p)
+                return None
+
         all_recurse = set([_add_default_group(k) for k in all_recurse])
+        if None in all_recurse:
+            all_recurse.remove(None)
 
         # do not recurse for packages we already know
         all_recurse -= set(current.keys())
-        logger.debug("Recursing over the following packages: %s",
+        logger.info("Recursing over the following packages: %s",
                 ", ".join(all_recurse))
 
         for dep in all_recurse:
-            dep_adjmtx = compute_adjencence_matrix(gl, dep, conda_config,
-                    main_channel, recurse_regexp=recurse_regexp, ref=ref)
+            dep_adjmtx = compute_adjencence_matrix(
+                gl,
+                dep,
+                conda_config,
+                main_channel,
+                recurse_regexp=recurse_regexp,
+                ref=ref,
+                deptypes=deptypes,
+            )
             current.update(dep_adjmtx)
 
-        current[package] = dict(host=host, build=build, run=run, test=test,
-                version=rendered_recipe["package"]["version"],
-                name=rendered_recipe["package"]["name"],
-                build_string=os.path.basename(path).split('-')[-1].split('.')[0])
+        current[package] = dict(
+            host=host,
+            build=build,
+            run=run,
+            test=test,
+            version=rendered_recipe["package"]["version"],
+            name=rendered_recipe["package"]["name"],
+            build_string=os.path.basename(path).split("-")[-1].split(".")[0],
+        )
 
     return current
 
@@ -208,13 +257,21 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
     # generate nodes for all packages we want to track explicitly
     for package, values in adjacence_matrix.items():
         if not whitelist_compiled.match(values["name"]):
-            logger.debug("Skipping main package %s (did not match whitelist)",
-                    value["name"])
+            logger.debug(
+                "Skipping main package %s (did not match whitelist)",
+                values["name"],
+            )
             continue
-        name = values["name"] + "\n" + values["version"] + "\n" \
-                + values["build_string"]
-        nodes[values["name"]] = graph.node(values["name"], name, shape="box",
-                color="blue")
+        name = (
+            values["name"]
+            + "\n"
+            + values["version"]
+            + "\n"
+            + values["build_string"]
+        )
+        nodes[values["name"]] = graph.node(
+            values["name"], name, shape="box", color="blue"
+        )
 
     # generates nodes for all dependencies
     for package, values in adjacence_matrix.items():
@@ -231,17 +288,18 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
 
         for ref, parts in deps.items():
             if not whitelist_compiled.match(ref):
-                logger.debug("Skipping dependence %s (did not match whitelist)",
-                        ref)
+                logger.debug(
+                    "Skipping dependence %s (did not match whitelist)", ref
+                )
                 continue
 
             if not any([k == ref for k in nodes.keys()]):
                 # we do not have a node for that dependence, create it
-                name = str(ref)  #new string
+                name = str(ref)  # new string
                 if len(parts) >= 1:
-                    name += "\n" + parts[0]  #dep version
+                    name += "\n" + parts[0]  # dep version
                 if len(parts) >= 2:
-                    name += "\n" + parts[1]  #dep build
+                    name += "\n" + parts[1]  # dep build
                 nodes[ref] = graph.node(ref, name)
 
             # connects package -> dep
