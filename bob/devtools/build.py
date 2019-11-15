@@ -14,12 +14,23 @@ import platform
 import subprocess
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 import yaml
 import distutils.version
+
+
+def remove_conda_loggers():
+    """Cleans-up conda API logger handlers to avoid logging repetition"""
+
+    z = logging.getLogger()  #conda places their handlers inside root
+    if z.handlers:
+        handler = z.handlers[0]
+        z.removeHandler(handler)
+        logger.debug("Removed conda logger handler at %s", handler)
+
 import conda_build.api
+remove_conda_loggers()
 
 
 def comment_cleanup(lines):
@@ -83,6 +94,7 @@ def next_build_number(channel_url, basename):
     """
 
     from conda.exports import get_index
+    remove_conda_loggers()
 
     # get the channel index
     logger.debug("Downloading channel index from %s", channel_url)
@@ -164,6 +176,7 @@ def make_conda_config(config, python, append_file, condarc_options):
     """
 
     from conda_build.conda_interface import url_path
+    remove_conda_loggers()
 
     retval = conda_build.api.get_or_merge_config(
         None,

@@ -49,6 +49,7 @@ requirements:
     - termcolor
     - psutil
     - tabulate
+    - python-graphviz
 
 test:
   requires:
@@ -104,6 +105,7 @@ test:
     - bdt dav upload --help
     - bdt gitlab process-pipelines --help
     - bdt gitlab get-pipelines --help
+    - bdt gitlab graph --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
 
