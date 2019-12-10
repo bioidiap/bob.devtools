@@ -286,7 +286,7 @@ In this section we explain how to create a new bob package from scratch and star
     $ conda activate bdt
     $ bdt new -vv bob/bob.project.awesome author_name author_email
 
-This command will create a new bob package named "awesome-project" that includes the correct anatomy of a package. For more information about the functionality of each file check :ref:`bob.devtools.anatomy`.  
+This command will create a new bob package named "bob.project.awesome" that includes the correct anatomy of a package. For more information about the functionality of each file check :ref:`bob.devtools.anatomy`.  
 
 In the root of your project there is a file `buildout.cfg` used by `buildout` to build your package locally. It should look like:
 

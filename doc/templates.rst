@@ -6,9 +6,7 @@
  Additional Considerations
 ===========================
 
-These instructions describe how create new packages for either Bob_ or BEAT_
-and provides information on how to generate a complete, but empty package from
-scratch.
+These instructions describes some steps that needs to be noted after creating new packages for either Bob_ or BEAT_ to incorporate the package properly in the ecosystem.
 
 .. note::
 
@@ -25,7 +23,7 @@ scratch.
 
 
 Unit tests
-----------
+==========
 
 Writing unit tests is an important asset on code that needs to run in different platforms and a great way to make sure all is OK.
 Test units are run with nose_.
@@ -51,7 +49,7 @@ write test units for each function of your package ...
 
 
 Continuous integration (CI)
----------------------------
+===========================
 
 .. note::
 
@@ -113,7 +111,7 @@ You also need to enable the following options - through gitlab - on your project
 
 
 Python package namespace
-------------------------
+========================
 
 We like to make use of namespaces to define combined sets of functionality that go well together.
 Python package namespaces are `explained in details here <http://peak.telecommunity.com/DevCenter/setuptools#namespace-package>`_ together with implementation details.
@@ -125,7 +123,7 @@ the script is named ``bob_example_project_version.py``, reflecting the  namespac
 
 
 Distributing your work
-----------------------
+======================
 
 To distribute a package, we recommend you use PyPI_.
 `Python Packaging User Guide <https://packaging.python.org/>`_ contains details
@@ -134,21 +132,19 @@ Moreover, you can provide a conda_ package for your PyPI_ package for easier
 installation. In order to create a conda_ package, you need to create a conda_
 recipe for that package.
 
-For more detailed instructions on how to achieve this, please see the 
-guidelines on `bob.template <https://gitlab.idiap.ch/bob/bob.admin/tree/master/templates>`_.
+.. note::
+
+    For more detailed instructions on how to distribute your packages at Idiap, please see the 
+    guidelines on `Publishing Reproducible Papers at Idiap <https://gitlab.idiap.ch/bob/bob/wikis/Publishing-Reproducible-Papers-at-Idiap>`_.
 
 
 .. _bob.devtools.buildout:
 
-Buildout.cfg in more details
+buildout.cfg in more details
 ============================
+This section briefly explains the different entries in ``buildout.cfg`` file. For better understanding of buildout refer to its
+`documentation <http://www.buildout.org>`_ 
 
-.. todo::
-
-  This section should include more information about different sections in a buildout.cfg file.
-
-Some notes on buildout
-======================
 
 To be able to develop a package, we first need to build and install it locally.
 While developing a package, you need to install your package in *development*
@@ -169,15 +165,6 @@ you do in the source. zc.buildout_ allows you to exactly do that.
 zc.buildout_ provides a ``buildout`` command. ``buildout`` takes as input a
 "recipe" that explains how to build a local working environment. The recipe, by
 default, is stored in a file called ``buildout.cfg``. 
-.. note::
-
-    Buildout by default looks for ``buildout.cfg`` in your current folder and
-    uses that configuration file. You can specify a different config file with
-    the ``-c`` option:
-
-    .. code:: sh
-
-        $ buildout -c develop.cfg
 
 
 .. important::
@@ -206,7 +193,7 @@ the entries need attention.
 
 * The ``extensions`` list includes all extensions that are required in the
   buildout process. By default, only ``bob.buildout`` is required, but more
-  extensions can be added (more on that later).
+  extensions can be added.
 
 * The next entry is the ``develop`` list. These packages will be installed
   *development mode* from the specified folder.
@@ -248,7 +235,7 @@ When the buildout command is invoked it will perform the following steps:
 .. _bob.devtools.mr.developer:
 
 Using mr.developer
-==================
+------------------
 
 One extension that may be useful is `mr.developer`_. It allows to develop
 *several packages* at the same time. This extension will allow
@@ -328,90 +315,69 @@ If you see such errors, you may need to add the missing package to ``eggs`` and
 ``develop`` and ``sources`` (**of course, respecting the order of
 dependencies**).
 
-
-Your local environment
-======================
-
-After buildout has finished, you should now be able to execute
-``./bin/python``. When using the newly generated ``./bin/python`` script, you
-can access all packages that you have developed, including your own package:
-
-.. code-block:: sh
-
-    $ ./bin/python
-
-.. code-block:: python
-
-    >>> import bob.blitz
-    >>> bob.blitz # should print from '.../awesome-project/src/bob.blitz/...'
-    <module 'bob.blitz' from 'awesome-project/src/bob.blitz/bob/blitz/__init__.py'>
-    >>> print(bob.blitz.get_config())
-    bob.blitz: 2.0.15b0 [api=0x0202] (awesome-project/src/bob.blitz)
-    * C/C++ dependencies:
-      - Blitz++: 0.10
-      - Boost: 1.61.0
-      - Compiler: {'version': '4.8.5', 'name': 'gcc'}
-      - NumPy: {'abi': '0x01000009', 'api': '0x0000000A'}
-      - Python: 2.7.13
-    * Python dependencies:
-      - bob.extension: 2.4.6b0 (awesome-project/src/bob.extension)
-      - numpy: 1.12.1 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
-      - setuptools: 36.4.0 (miniconda/envs/bob3py27/lib/python2.7/site-packages)
-
-
-Everything is now setup for you to continue the development of the packages.
-Moreover, you can learn more about |project| packages and learn to create new
-ones in .
-
-
-
 .. _bob.devtools.anatomy:
 
 Anatomy of a new package
 ========================
+A typical package have the following structure:
+
 
 .. code-block:: text
 
-    bob.<awesome-project>
-    +-- bob
-      +-- __init__.py #namespace init for "bob"
+    .
+    +-- bob               # python package (a.k.a. "the code")
+    |   +-- project
+    |   |   +-- awesome   # your code will go into this folder
+    |   |   |   +-- __init__.py  # name space init for "awesome"
+    |   |   +-- __init__.py   # name space init for "project"
+    |   +-- __init__.py   # name space init for "bob"
     +-- conda
-      +-- meta.yaml
-    +-- doc
-      +-- img
-      +-- conf.py
-      +-- index.rst
-      +-- links.rst
-    +-- .gitignore
-    +-- .gitlab-ci.yml
-    +-- buildout.cfg
-    +-- COPYING
-    +-- MANIFEST.IN
-    +-- README.rst
-    +-- requirements.txt
-    +-- setup.py
-    +-- version.txt
+    |   +-- meta.yaml     # recipe for preparing the conda environment
+    +-- doc               # documentation directory
+    |   +-- img
+    |   +-- conf.py       # sphinx configuration
+    |   +-- index.rst     # documentation starting point for Sphinx
+    |   +-- links.rst
+    +-- .gitignore        # some settings for git
+    +-- .gitlab-ci.yml    # instruction for ci integration
+    +-- buildout.cfg      # buildout configuration
+    +-- COPYING           # license information
+    +-- MANIFEST.IN       # extras to be installed, besides the Python files
+    +-- README.rst        # a minimal description of the package, in reStructuredText format
+    +-- requirements.txt  # requirements of your package
+    +-- setup.py          # installation instruction for this particular package
+    +-- version.txt       # the (current) version of your package
 
 
-
-There is a folder named `conda` that includes a file `meta.yaml`. As explained earlier this files includes the information used to prepare a proper conda environment.
-
-The folder named `bob` which should only include a file `__init__.py` at this stage is where you will put all your new code and functionality in.
-
-The folder named `doc` includes the minimum necessary information for building package documentation. The file `conf.py` is used by sphinx to build the documentation.
-
-`.gitlab-ci.yml` includes the information about building packages on the ci. We will talk about it later.
+A quick overview of these files:
 
 
+bob: It is the directory that includes the source code and scripts for your package. The files should be organized in subdirectories that matches the name of your package.
 
+conda: It is the directory includes the recipe (``meta.yaml``) for preparing the base conda environment used for package development.
 
+doc: This is the directory including the minimum necessary information for building package documentation. The file `conf.py` is used by sphinx to build the documentation.
 
+.gitignore: This file includes some settings for git.
 
-COPYING??? MANIFEST.IN???
+.gitlab-ci.yml: It is the file including the information about building packages on the CI.
 
+buildout.cfg: This file contains the basic recipe to create a working environment for developing the package.
+
+COPYING: The file including the licensing information.
+
+MANIFEST.IN: This file contains the list of non python files and packages that are needed to be installed for your package.
+
+README.rst: It includes basic information about the package, in reStructuredText format.
+
+requirements.txt: This file contains the direct dependencies of the package.
+
+setup.py: This file contains the python packaging instructions. For detailed information refer to `setuptools`_.
+
+version.txt: The file shows the current version of the package.
 
 Continuous Integration and Deployment (CI)
-------------------------------------------
+==========================================
 
 If you'd like just to update CI instructions, copy the file ``.gitlab-ci.yml``
 from ``bob/devtools/templates/.gitlab-ci.yml`` **overriding** your existing
@@ -440,7 +406,7 @@ You also remember to enable the following options on your project:
 
 
 New unexisting dependencies
----------------------------
+===========================
 
 If your package depends on **third-party packages** (not Bob_ or BEAT_ existing
 resources) that are not in the CI, but exist on the conda ``defaults`` channel,
@@ -511,7 +477,7 @@ you should perform some extra steps:
 
 
 Conda recipe
-------------
+============
 
 The CI system is based on conda recipes to build the package.  The recipes are
 located in the ``conda/meta.yaml`` file of each package.  You can start
@@ -540,7 +506,7 @@ the steps below otherwise the template ``meta.yaml`` is not usable as it is.
 
 
 Entry-points in the ``build`` section
-=====================================
+-------------------------------------
 
 You need to check if your package has any ``console_scripts``. These are
 documented in ``setup.py`` of each package. You need to list the
@@ -584,7 +550,7 @@ recipe.
 
 
 Build and host dependencies
-===========================
+---------------------------
 
 This part of the recipe lists the packages that are required during build time
 (`information on conda package requirements here
@@ -642,7 +608,7 @@ recipes.  Here are some notes:
 
 
 Runtime dependencies
-====================
+--------------------
 
 In the ``requirements / run`` section of the conda recipe, you will list
 dependencies that are needed when a package is used (run-time) dependencies.
@@ -727,7 +693,7 @@ Here is a list of packages that we know that they have ``run_exports``:
 
 
 Testing entry-points
-====================
+--------------------
 
 If you listed some of your ``setup.py`` ``console_sripts`` in the ``build / entry_points`` section of the conda recipe, it is adviseable you test these.  For
 example, if you had the examples entry points above, you would test them like:
@@ -743,7 +709,7 @@ example, if you had the examples entry points above, you would test them like:
 
 
 Test-time dependencies
-======================
+----------------------
 
 You need to list the packages here that are required during **test-time only**.
 By default, add some packages.  Do not remove them.  The test-time dependencies
@@ -765,7 +731,7 @@ that is not committed to the project repository by mistake.
 
 
 Database packages and packages with extra data
-----------------------------------------------
+==============================================
 
 Sometimes databases or other packages require an extra download command after
 installation. If this extra data is downloaded from Idiap severs, you can
@@ -783,7 +749,7 @@ packages typically require this download command to be added in the
 
 
 Licensing
----------
+=========
 
 There are 2 possible cases for the majority of packages in our ecosystem:
 
@@ -800,7 +766,7 @@ More info about Idiap's `open-source policy here
 
 
 Headers
--------
+=======
 
 Sometimes people add headers with licensing terms to their files. You should
 inspect your library to make sure you don't have those. The Idiap TTO says this
@@ -821,14 +787,14 @@ go through all the headers.
 
 
 The ``setup.py`` file
----------------------
+=====================
 
 The ``setup.py`` should be changed to include eventual ``entry_points`` you
 also included in the ``conda/meta.yaml``.  We cannot guess these.
 
 
 Buildout
---------
+========
 
 The default buildout file ``buildout.cfg`` should buildout from the installed
 distribution (use ``bdt create`` for that purpose) and **avoid mr.developer
@@ -838,7 +804,7 @@ provided by this package takes care of this.
 
 
 The ``README.rst`` file
------------------------
+=======================
 
 You should make the README smaller and easier to maintain.  As of today, many
 packages contain outdated installation instructions or outdated links.  More
@@ -850,7 +816,7 @@ generation.  Make it short, a single phrase is the most common size.
 
 
 Sphinx documentation
---------------------
+====================
 
 Sphinx documentation configuration goes to a file named ``doc/conf.py``.  The
 file ``doc/index.rst`` is the root of the documentation for your package.
@@ -883,7 +849,7 @@ text files to be placed inside the ``doc/`` directory, alongside the ``conf.py``
 
 
 Project logo and branding
--------------------------
+=========================
 
 In the gitlab Settings / General page of your project, update the logo to use
 one of ours:
