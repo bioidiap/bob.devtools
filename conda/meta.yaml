@@ -31,9 +31,9 @@ requirements:
     - black >=19
     - click >=7
     - click-plugins
-    - conda=4
-    - conda-build=3
-    - conda-verify=3
+    - conda >=4.8
+    - conda-build >=3
+    - conda-verify >=3
     - certifi
     - docformatter
     - pytz
