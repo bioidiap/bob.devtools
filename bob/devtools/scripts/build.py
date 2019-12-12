@@ -22,6 +22,7 @@ from ..build import (
     get_output_path,
     remove_conda_loggers,
 )
+
 remove_conda_loggers()
 
 from ..constants import (
@@ -144,6 +145,14 @@ Examples:
     hidden=True,
     help="Use this flag to indicate the build will be running on the CI",
 )
+@click.option(
+    "-A",
+    "--nose-eval-attr",
+    envvar="NOSE_EVAL_ATTR",
+    default="",
+    help="Use this flag to avoid running certain tests during the build. "
+    "It forwards all settings to ``nosetests --eval-attr=<settings>``",
+)
 @verbosity_option()
 @bdt.raise_on_error
 def build(
@@ -159,6 +168,7 @@ def build(
     stable,
     dry_run,
     ci,
+    nose_eval_attr,
 ):
     """Builds package through conda-build with stock configuration.
 
@@ -183,9 +193,9 @@ def build(
     #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
     # TODO: Remove this hack as soon as possible
     from bob.devtools.bootstrap import do_hack
+
     project_dir = os.path.dirname(recipe_dir[0])
     do_hack(project_dir)
-
 
     # get potential channel upload and other auxiliary channels
     channels = get_channels(
@@ -232,6 +242,9 @@ def build(
         group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
+
+    # this is for testing and may limit which tests run
+    set_environ("NOSE_EVAL_ATTR", nose_eval_attr)
 
     arch = conda_arch()
 

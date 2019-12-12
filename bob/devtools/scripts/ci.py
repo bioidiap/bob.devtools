@@ -422,8 +422,7 @@ def base_build(order, group, python, dry_run):
         echo_normal("\n" + (80 * "="))
         pytext = "for python-%s " % pyver if pyver is not None else ""
         echo_normal(
-            'Building "%s" %s(%d/%d)'
-            % (recipe, pytext, k + 1, len(recipes))
+            'Building "%s" %s(%d/%d)' % (recipe, pytext, k + 1, len(recipes))
         )
         echo_normal((80 * "=") + "\n")
         if not os.path.exists(os.path.join(recipe, "meta.yaml")):
@@ -505,13 +504,17 @@ def test(ctx, dry_run):
 
     from .test import test
 
-    base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", "*",
-            os.environ["CI_PROJECT_NAME"])
+    base_path = os.path.join(
+        os.environ["CONDA_ROOT"],
+        "conda-bld",
+        "*",
+        os.environ["CI_PROJECT_NAME"],
+    )
 
     ctx.invoke(
         test,
-        package=glob.glob(base_path + "*.conda") + \
-                glob.glob(base_path + "*.tar.bz2"),
+        package=glob.glob(base_path + "*.conda")
+        + glob.glob(base_path + "*.tar.bz2"),
         condarc=condarc,
         config=variants_file,
         append_file=append_file,
@@ -521,6 +524,7 @@ def test(ctx, dry_run):
         stable="CI_COMMIT_TAG" in os.environ,
         dry_run=dry_run,
         ci=True,
+        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
     )
 
 
@@ -599,6 +603,7 @@ def build(ctx, dry_run, recipe_dir):
         stable="CI_COMMIT_TAG" in os.environ,
         dry_run=dry_run,
         ci=True,
+        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
     )
 
 
@@ -754,6 +759,7 @@ def nightlies(ctx, order, dry_run):
             stable=stable,
             dry_run=dry_run,
             ci=True,
+            nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
         )
 
         is_master = os.environ["CI_COMMIT_REF_NAME"] == "master"
@@ -944,7 +950,10 @@ def docs(ctx, requirement, dry_run):
             f.write(data)
 
     logger.info("Building documentation...")
-    ctx.invoke(build, dry_run=dry_run)
+    ctx.invoke(
+        build, dry_run=dry_run,
+        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
+    )
 
 
 @ci.command(
@@ -991,14 +1000,15 @@ def clean_betas(dry_run):
         logger.warn("Nothing is being executed on server.")
 
     import re
+
     if os.environ["CI_PROJECT_NAMESPACE"] == "beat":
-        includes = re.compile(r'^beat.*')
+        includes = re.compile(r"^beat.*")
     else:
-        includes = re.compile(r'^(bob|batl|gridtk).*')
+        includes = re.compile(r"^(bob|batl|gridtk).*")
 
     cleanup(
-            dry_run=dry_run,
-            username=os.environ["DOCUSER"],
-            password=os.environ["DOCPASS"],
-            includes=includes,
-            )
+        dry_run=dry_run,
+        username=os.environ["DOCUSER"],
+        password=os.environ["DOCPASS"],
+        includes=includes,
+    )

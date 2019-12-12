@@ -14,6 +14,7 @@ import platform
 import subprocess
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 import yaml
@@ -23,13 +24,15 @@ import distutils.version
 def remove_conda_loggers():
     """Cleans-up conda API logger handlers to avoid logging repetition"""
 
-    z = logging.getLogger()  #conda places their handlers inside root
+    z = logging.getLogger()  # conda places their handlers inside root
     if z.handlers:
         handler = z.handlers[0]
         z.removeHandler(handler)
         logger.debug("Removed conda logger handler at %s", handler)
 
+
 import conda_build.api
+
 remove_conda_loggers()
 
 
@@ -94,6 +97,7 @@ def next_build_number(channel_url, basename):
     """
 
     from conda.exports import get_index
+
     remove_conda_loggers()
 
     # get the channel index
@@ -101,13 +105,15 @@ def next_build_number(channel_url, basename):
     index = get_index(channel_urls=[channel_url], prepend=False)
 
     # remove .tar.bz2/.conda from name, then split from the end twice, on '-'
-    if basename.endswith('.tar.bz2'):
+    if basename.endswith(".tar.bz2"):
         name, version, build = basename[:-8].rsplit("-", 2)
-    elif basename.endswith('.conda'):
+    elif basename.endswith(".conda"):
         name, version, build = basename[:-6].rsplit("-", 2)
     else:
-        raise RuntimeError("Package name %s does not end in either " \
-                ".tar.bz2 or .conda" % (basename,))
+        raise RuntimeError(
+            "Package name %s does not end in either "
+            ".tar.bz2 or .conda" % (basename,)
+        )
 
     # remove the build number as we're looking for the next value
     # examples to be coped with:
@@ -176,6 +182,7 @@ def make_conda_config(config, python, append_file, condarc_options):
     """
 
     from conda_build.conda_interface import url_path
+
     remove_conda_loggers()
 
     retval = conda_build.api.get_or_merge_config(
@@ -244,13 +251,15 @@ def exists_on_channel(channel_url, basename):
 
         # remove .tar.bz2/.conda from name, then split from the end twice, on
         # '-'
-        if name.endswith('.conda'):
+        if name.endswith(".conda"):
             name, version, build = name[:-6].rsplit("-", 2)
-        elif name.endswith('.tar.bz2'):
+        elif name.endswith(".tar.bz2"):
             name, version, build = name[:-8].rsplit("-", 2)
         else:
-            raise RuntimeError("Package name %s does not end in either " \
-                    ".tar.bz2 or .conda" % (name,))
+            raise RuntimeError(
+                "Package name %s does not end in either "
+                ".tar.bz2 or .conda" % (name,)
+            )
 
         # remove the build number as we're looking for the next value
         # examples to be coped with:
@@ -265,13 +274,13 @@ def exists_on_channel(channel_url, basename):
 
     self_build_number = _get_build_number(basename)
     other_build_numbers = dict(
-            [(k, _get_build_number(os.path.basename(k))) for k in urls]
-            )
+        [(k, _get_build_number(os.path.basename(k))) for k in urls]
+    )
 
     if self_build_number in other_build_numbers.values():
-        pkg_type = '.conda' if basename.endswith('.conda') else '.tar.bz2'
+        pkg_type = ".conda" if basename.endswith(".conda") else ".tar.bz2"
         for k, v in other_build_numbers.items():
-            if k.endswith(pkg_type):  #match
+            if k.endswith(pkg_type):  # match
                 return "".join((channel_url, k))
 
 
@@ -737,6 +746,13 @@ if __name__ == "__main__":
         "two ``-vv`` to enable information messages and three ``-vvv`` "
         "to enable debug messages [default: %(default)s]",
     )
+    parser.add_argument(
+        "--nose-eval-attr",
+        "-A",
+        default="",
+        help="Use this flag to avoid running certain tests during the build.  "
+        "It forwards all settings to ``nosetests --eval-attr=<settings>``",
+    )
 
     args = parser.parse_args()
 
@@ -755,6 +771,7 @@ if __name__ == "__main__":
     bootstrap.set_environment("DOCSERVER", server)
     bootstrap.set_environment("LANG", "en_US.UTF-8")
     bootstrap.set_environment("LC_ALL", os.environ["LANG"])
+    bootstrap.set_environment("NOSE_EVAL_ATTR", args.nose_eval_attr)
 
     # get information about the version of the package being built
     version, is_prerelease = check_version(args.work_dir, args.tag)
