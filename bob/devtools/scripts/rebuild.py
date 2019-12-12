@@ -223,7 +223,7 @@ def rebuild(
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 
     # this is for testing and may limit which tests run
-    set_environ("NOSE_EVAL_ATTR", nose_eval_attr)
+    set_environment("NOSE_EVAL_ATTR", nose_eval_attr)
 
     arch = conda_arch()
 
