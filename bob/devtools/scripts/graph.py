@@ -191,6 +191,9 @@ def graph(package, python, condarc, config, append_file, server, private,
     set_environment("DOCSERVER", server)
     set_environment("BOB_DOCUMENTATION_SERVER", "/not/set")
 
+    # avoids conda-build complaints
+    set_environment("NOSE_EVAL_ATTR", "")
+
     adj_matrix = compute_adjencence_matrix(gl, package, conda_config,
             channels[0], deptypes=deptypes)
 

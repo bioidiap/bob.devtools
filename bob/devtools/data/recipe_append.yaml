@@ -1,4 +1,4 @@
 build:
   script_env:
     - DOCSERVER
-    - BOB_NOSE_SLOW
+    - NOSE_EVAL_ATTR

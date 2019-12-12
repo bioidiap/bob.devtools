@@ -196,6 +196,7 @@ def create(
 
     # set some environment variables before continuing
     set_environment("DOCSERVER", server, os.environ)
+    set_environment("NOSE_EVAL_ATTR", "", os.environ)
 
     logger.debug(
         'This package is considered part of group "%s" - tunning '

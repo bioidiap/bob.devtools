@@ -122,6 +122,14 @@ Examples:
     hidden=True,
     help="Use this flag to indicate the build will be running on the CI",
 )
+@click.option(
+    "-A",
+    "--nose-eval-attr",
+    envvar="NOSE_EVAL_ATTR",
+    default="",
+    help="Use this flag to avoid running certain tests during the build. "
+    "It forwards all settings to ``nosetests --eval-attr=<settings>``",
+)
 @verbosity_option()
 @bdt.raise_on_error
 def test(
@@ -135,6 +143,7 @@ def test(
     stable,
     dry_run,
     ci,
+    nose_eval_attr,
 ):
     """Tests (pre-built) package through conda-build with stock configuration.
 
@@ -193,6 +202,9 @@ def test(
         group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
+
+    # this is for testing and may limit which tests run
+    set_environ("NOSE_EVAL_ATTR", nose_eval_attr)
 
     arch = conda_arch()
     for p in package:
