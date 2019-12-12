@@ -486,9 +486,9 @@ if __name__ == "__main__":
             )
         )
 
-    conda_version = ">=4.8"
-    conda_build_version = ">=3"
-    conda_verify_version = ">=3"
+    conda_version = "4"
+    conda_build_version = "3"
+    conda_verify_version = "3"
 
     conda_verbosity = []
     # if args.verbose >= 2:
@@ -506,9 +506,9 @@ if __name__ == "__main__":
                 "-n",
                 "base",
                 "python",
-                "conda%s" % conda_version,
-                "conda-build%s" % conda_build_version,
-                "conda-verify%s" % conda_verify_version,
+                "conda=%s" % conda_version,
+                "conda-build=%s" % conda_build_version,
+                "conda-verify=%s" % conda_verify_version,
                 "twine",  # required for checking readme of python (zip) distro
             ]
         )
@@ -523,9 +523,9 @@ if __name__ == "__main__":
                 "-n",
                 "base",
                 "python",
-                "conda%s" % conda_version,
-                "conda-build%s" % conda_build_version,
-                "conda-verify%s" % conda_verify_version,
+                "conda=%s" % conda_version,
+                "conda-build=%s" % conda_build_version,
+                "conda-verify=%s" % conda_verify_version,
                 "twine",  # required for checking readme of python (zip) distro
             ]
         )
