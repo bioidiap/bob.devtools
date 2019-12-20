@@ -950,10 +950,7 @@ def docs(ctx, requirement, dry_run):
             f.write(data)
 
     logger.info("Building documentation...")
-    ctx.invoke(
-        build, dry_run=dry_run,
-        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
-    )
+    ctx.invoke(build, dry_run=dry_run)
 
 
 @ci.command(
