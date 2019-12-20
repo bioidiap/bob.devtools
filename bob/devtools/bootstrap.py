@@ -48,28 +48,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def do_hack(project_dir):
-    """
-    This function is supposed to be for temporary usage.
-
-    It implements hacks for the issue:
-    https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112
-
-    """
-
-    #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
-    import shutil
-
-    git_ignore_file = os.path.join(project_dir, ".gitignore")
-    if os.path.exists(git_ignore_file):
-        logger.warning(
-            "Removing .gitignore to avoid issue with ripgrep (see "
-            "https://gitlab.idiap.ch/bob/bob.devtools/merge_requests/112)"
-        )
-        os.unlink(git_ignore_file)
-    #### END OF HACK
-
-
 def set_environment(name, value, env=os.environ):
     """Function to setup the environment variable and print debug message.
 
@@ -461,10 +439,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     setup_logger(logger, args.verbose)
-
-    # Run conda-build hacks
-    # TODO: Remove this hack as soon as possible
-    do_hack(".")
 
     condarc = os.path.join(args.conda_root, "condarc")
 
