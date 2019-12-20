@@ -190,12 +190,7 @@ def build(
         group,
     )
 
-    #### HACK to avoid ripgrep ignoring bin/ directories in our checkouts
-    # TODO: Remove this hack as soon as possible
-    from bob.devtools.bootstrap import do_hack
-
     project_dir = os.path.dirname(recipe_dir[0])
-    do_hack(project_dir)
 
     # get potential channel upload and other auxiliary channels
     channels = get_channels(
