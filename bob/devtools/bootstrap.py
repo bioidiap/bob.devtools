@@ -535,12 +535,13 @@ if __name__ == "__main__":
             "--channel=%s" % k for k in channels
         ]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
-        run_cmdline(
-            [conda_bin, conda_cmd]
-            + conda_verbosity
-            + channels
-            + ["-n", args.envname, "bob.devtools"]
-        )
+        cmd = ([conda_bin, conda_cmd]
+               + conda_verbosity
+               + channels
+               + ["-n", args.envname, "bob.devtools"])
+        if conda_cmd == "install":
+            cmd += ["--update-specs"]
+        run_cmdline(cmd)
 
     # print conda information for debugging purposes
     run_cmdline([conda_bin, "info"] + conda_verbosity)
