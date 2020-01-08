@@ -546,6 +546,7 @@ if __name__ == "__main__":
                   "twine",  # required for checking readme of python (zip) distro
                   ])
         if conda_cmd == "install":
+            cmd.insert(2, "--update-specs")
             cmd.insert(2, "--update-deps")
         run_cmdline(cmd)
 
