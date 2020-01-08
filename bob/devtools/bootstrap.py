@@ -547,7 +547,6 @@ if __name__ == "__main__":
                   ])
         if conda_cmd == "install":
             cmd.insert(2, "--update-specs")
-            cmd.insert(2, "--update-deps")
         run_cmdline(cmd)
 
     # print conda information for debugging purposes
