@@ -538,15 +538,9 @@ if __name__ == "__main__":
         cmd = ([conda_bin, conda_cmd]
                + conda_verbosity
                + channels
-               + ["-n", args.envname,
-                  "bob.devtools",
-                  "conda=%s" % conda_version,
-                  "conda-build=%s" % conda_build_version,
-                  "conda-verify=%s" % conda_verify_version,
-                  "twine",  # required for checking readme of python (zip) distro
-                  ])
+               + ["-n", args.envname, "bob.devtools"])
         if conda_cmd == "install":
-            cmd.insert(2, "--update-specs")
+            cmd += ["--update-specs"]
         run_cmdline(cmd)
 
     # print conda information for debugging purposes
