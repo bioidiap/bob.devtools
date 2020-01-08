@@ -29,8 +29,8 @@ setup(
     author_email='{{ email }}',
 
     # there may be a maintainer apart from the author - you decide
-    #maintainer='?'
-    #maintainer_email='email@example.com'
+    #maintainer='?',
+    #maintainer_email='email@example.com',
 
     # you may add more keywords separating those by commas (a, b, c, ...)
     keywords = "{{ group }}",
