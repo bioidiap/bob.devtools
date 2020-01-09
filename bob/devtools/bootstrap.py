@@ -6,21 +6,22 @@
 
 
 _BASE_CONDARC = """\
-default_channels: #!final
-  - https://repo.anaconda.com/pkgs/main
 add_pip_as_python_dependency: false #!final
 always_yes: true #!final
-quiet: true #!final
-show_channel_urls: true #!final
 anaconda_upload: false #!final
-ssl_verify: false #!final
-remote_connect_timeout_secs: 120.0 #!final
-remote_max_retries: 50 #!final
-remote_read_timeout_secs: 180.0 #!final
+channel_priority: strict #!final
 channels:
   - defaults
 conda_build: #!final
   pkg_format: '2'
+default_channels: #!final
+  - https://repo.anaconda.com/pkgs/main
+quiet: true #!final
+remote_connect_timeout_secs: 120.0 #!final
+remote_max_retries: 50 #!final
+remote_read_timeout_secs: 180.0 #!final
+show_channel_urls: true #!final
+ssl_verify: false #!final
 """
 
 _SERVER = "http://www.idiap.ch"
@@ -125,8 +126,7 @@ def run_cmdline(cmd, env=None):
 
     if p.wait() != 0:
         raise RuntimeError(
-            "command `%s' exited with error state (%d)"
-            % (" ".join(cmd), p.returncode)
+            "command `%s' exited with error state (%d)" % (" ".join(cmd), p.returncode)
         )
 
     total = time.time() - start
@@ -164,9 +164,7 @@ def merge_conda_cache(cache, prefix, name):
     cached_packages = glob.glob(os.path.join(cached_pkgs_dir, "*.tar.bz2"))
     cached_packages.extend(glob.glob(os.path.join(cached_pkgs_dir, "*.conda")))
 
-    cached_packages = [
-        k for k in cached_packages if not k.startswith(name + "-")
-    ]
+    cached_packages = [k for k in cached_packages if not k.startswith(name + "-")]
     logger.info("Merging %d cached conda packages", len(cached_packages))
     for k in cached_packages:
         dst = os.path.join(pkgs_dir, os.path.basename(k))
@@ -184,9 +182,7 @@ def merge_conda_cache(cache, prefix, name):
             data = sorted(list(data))
     else:
         # use both cached and actual conda package caches
-        with open(pkgs_urls_txt, "rb") as f1, open(
-            cached_pkgs_urls_txt, "rb"
-        ) as f2:
+        with open(pkgs_urls_txt, "rb") as f1, open(cached_pkgs_urls_txt, "rb") as f2:
             data = set(f1.readlines() + f2.readlines())
             data = sorted(list(data))
 
@@ -247,9 +243,11 @@ def ensure_miniconda_sh():
     conn.request("GET", path)
     r1 = conn.getresponse()
 
-    assert r1.status == 200, (
-        "Request for http://%s%s - returned status %d "
-        "(%s)" % (server, path, r1.status, r1.reason)
+    assert r1.status == 200, "Request for http://%s%s - returned status %d " "(%s)" % (
+        server,
+        path,
+        r1.status,
+        r1.reason,
     )
 
     dst = "miniconda.sh"
@@ -321,8 +319,7 @@ def get_channels(public, stable, server, intranet, group):
     if (not public) and (not intranet):
         raise RuntimeError(
             "You cannot request for private channels and set"
-            " intranet=False (server=%s) - these are conflicting options"
-            % server
+            " intranet=False (server=%s) - these are conflicting options" % server
         )
 
     channels = []
@@ -416,8 +413,7 @@ if __name__ == "__main__":
         default=os.environ.get(
             "CONDA_ROOT", os.path.realpath(os.path.join(os.curdir, "miniconda"))
         ),
-        help="The location where we should install miniconda "
-        "[default: %(default)s]",
+        help="The location where we should install miniconda " "[default: %(default)s]",
     )
     parser.add_argument(
         "-t",
@@ -455,8 +451,7 @@ if __name__ == "__main__":
         # context.  The URL should NOT work outside of Idiap's network.
         f.write(
             _BASE_CONDARC.replace(
-                "https://repo.anaconda.com/pkgs/main",
-                "http://www.idiap.ch/defaults",
+                "https://repo.anaconda.com/pkgs/main", "http://www.idiap.ch/defaults",
             )
         )
 
@@ -531,14 +526,14 @@ if __name__ == "__main__":
             intranet=True,
             group="bob",
         ) + ["defaults"]
-        channels = ["--override-channels"] + [
-            "--channel=%s" % k for k in channels
-        ]
+        channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
-        cmd = ([conda_bin, conda_cmd]
-               + conda_verbosity
-               + channels
-               + ["-n", args.envname, "bob.devtools"])
+        cmd = (
+            [conda_bin, conda_cmd]
+            + conda_verbosity
+            + channels
+            + ["-n", args.envname, "bob.devtools"]
+        )
         if conda_cmd == "install":
             cmd += ["--update-specs"]
         run_cmdline(cmd)
