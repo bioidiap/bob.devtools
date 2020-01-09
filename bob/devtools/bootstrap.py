@@ -518,6 +518,9 @@ if __name__ == "__main__":
 
     elif args.command == "channel":
 
+        # update conda first
+        run_cmdline([conda_bin, "update", "conda"])
+
         # installs from channel
         channels = get_channels(
             public=True,
