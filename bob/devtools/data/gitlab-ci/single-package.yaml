@@ -20,6 +20,7 @@ stages:
 .bootstrap:
   before_script:
     - "[ -r /root/.condarc ] && rm -f /root/.condarc"
+    - "[ -d /root/.conda ] && rm -rf /root/.conda"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
