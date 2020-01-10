@@ -31,6 +31,9 @@ stages:
   tags:
     - docker
   image: continuumio/conda-concourse-ci
+  before_script:
+    - rm -f /root/.condarc
+    - rm -rf /root/.conda
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
@@ -94,6 +97,9 @@ build_macosx_37:
 # Deploy targets
 .deploy_template:
   stage: deploy
+  before_script:
+    - rm -f /root/.condarc
+    - rm -rf /root/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -136,6 +142,9 @@ pypi:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
+  before_script:
+    - rm -f /root/.condarc
+    - rm -rf /root/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh

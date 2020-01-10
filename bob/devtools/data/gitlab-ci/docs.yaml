@@ -17,7 +17,12 @@ stages:
 
 # All stages are prepared the same, with a base set of commands
 .bootstrap:
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
   before_script:
+    - rm -f /root/.condarc
+    - rm -rf /root/.conda
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -45,9 +50,6 @@ build:
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
-  tags:
-    - docker
-  image: continuumio/conda-concourse-ci
   cache:
     key: "build"
 
@@ -61,9 +63,6 @@ build:
     - bdt ci clean -vv
   dependencies:
     - build
-  tags:
-    - docker
-  image: continuumio/conda-concourse-ci
   cache:
     key: "deploy"
 

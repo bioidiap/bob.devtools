@@ -36,6 +36,9 @@ build_linux:
   extends: .build_template
   tags:
     - docker
+  before_script:
+    - rm -f /root/.condarc
+    - rm -rf /root/.conda
   image: continuumio/conda-concourse-ci
   cache:
     key: "linux-cache"
