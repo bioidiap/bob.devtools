@@ -147,7 +147,8 @@ def mirror(
 
     for arch in DEFAULT_SUBDIRS:
 
-        remote_repodata = get_json(channel_url, arch, 'repodata.json.bz2')
+        remote_repodata = get_json(channel_url, arch,
+                'repodata_from_packages.json.bz2')
         logger.info('%d packages available in remote index',
                 len(remote_repodata.get('packages', {})))
         local_packages = get_local_contents(dest_dir, arch)
