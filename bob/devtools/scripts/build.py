@@ -192,7 +192,14 @@ def build(
 
     project_dir = os.path.dirname(recipe_dir[0])
 
-    # get potential channel upload and other auxiliary channels
+    if condarc is not None:
+        logger.info("Loading CONDARC file from %s...", condarc)
+        with open(condarc, "rb") as f:
+            condarc_options = yaml.load(f, Loader=yaml.FullLoader)
+    else:
+        # use default
+        condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
+
     channels = get_channels(
         public=(not private),
         stable=stable,
@@ -201,20 +208,15 @@ def build(
         group=group,
     )
 
-    if condarc is not None:
-        logger.info("Loading CONDARC file from %s...", condarc)
-        with open(condarc, "rb") as f:
-            condarc_options = yaml.load(f, Loader=yaml.FullLoader)
-    else:
-        # use default and add channels
-        all_channels = []
-        all_channels += channels + ["defaults"]
-        condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
-        logger.info(
-            "Using the following channels during build:\n  - %s",
-            "\n  - ".join(all_channels),
-        )
-        condarc_options["channels"] = all_channels
+    if "channels" not in condarc_options:
+        condarc_options["channels"] = channels + ["defaults"]
+
+    logger.info(
+        "Using the following channels during (potential) build:\n  - %s",
+        "\n  - ".join(condarc_options["channels"]),
+    )
+
+    logger.info("Uploading resulting package to: %s", channels[0])
 
     # dump packages at base environment
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
@@ -279,8 +281,8 @@ def build(
         )
 
         if not dry_run:
-            # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to get it
-            # right
+            # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to
+            # get it right
             set_environment("BOB_BUILD_NUMBER", str(build_number))
             paths = conda_build.api.build(
                 d, config=conda_config, notest=no_test

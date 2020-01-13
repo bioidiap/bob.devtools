@@ -26,7 +26,7 @@ from ..constants import (
     MATPLOTLIB_RCDIR,
     BASE_CONDARC,
 )
-from ..bootstrap import set_environment, get_channels
+from ..bootstrap import set_environment
 
 from ..log import verbosity_option, get_logger
 
@@ -163,29 +163,33 @@ def test(
         group,
     )
 
-    # get potential channel upload and other auxiliary channels
-    channels = get_channels(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
-    )
-
     if condarc is not None:
         logger.info("Loading CONDARC file from %s...", condarc)
         with open(condarc, "rb") as f:
             condarc_options = yaml.load(f, Loader=yaml.FullLoader)
     else:
-        # use default and add channels
-        all_channels = []
-        all_channels += channels + ["defaults"]
+        # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
-        logger.info(
-            "Using the following channels during build:\n  - %s",
-            "\n  - ".join(all_channels),
+
+    if "channels" not in condarc_options:
+        from ..bootstrap import get_channels
+        channels = get_channels(
+            public=(not private),
+            stable=stable,
+            server=server,
+            intranet=ci,
+            group=group
         )
-        condarc_options["channels"] = all_channels
+        condarc_options["channels"] = channels + ["defaults"]
+
+    logger.info(
+        "Using the following channels during (potential) build:\n  - %s",
+        "\n  - ".join(condarc_options["channels"]),
+    )
+
+    # test packages from base environment
+    prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
+    condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
     conda_config = make_conda_config(config, None, append_file, condarc_options)
 
