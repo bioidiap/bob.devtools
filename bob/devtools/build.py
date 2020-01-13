@@ -602,17 +602,18 @@ def base_build(
     """
 
     # if you get to this point, tries to build the package
-    public_channels = bootstrap.get_channels(
-        public=True, stable=True, server=server, intranet=intranet, group=group
+    channels = bootstrap.get_channels(
+        public=True, stable=True, server=server, intranet=intranet,
+        group=group
     )
 
-    all_channels = public_channels + ["defaults"]
+    if "channels" not in condarc_options:
+        condarc_options["channels"] = channels + ["defaults"]
+
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",
-        "\n  - ".join(all_channels),
+        "\n  - ".join(condarc_options["channels"]),
     )
-    condarc_options["channels"] = all_channels
-
     logger.info("Merging conda configuration files...")
     if python_version not in ("noarch", None):
         conda_config = make_conda_config(
@@ -656,7 +657,7 @@ def base_build(
 
     path = get_output_path(metadata, conda_config)
 
-    url = exists_on_channel(public_channels[0], os.path.basename(path))
+    url = exists_on_channel(channels[0], os.path.basename(path))
     if url is not None:
         logger.info("Skipping build for %s as it exists (at %s)", path, url)
         return
@@ -811,10 +812,7 @@ if __name__ == "__main__":
             condarc_options,
         )
 
-    # notice this condarc typically will only contain the defaults channel - we
-    # need to boost this up with more channels to get it right for this package's
-    # build
-    public = args.visibility == "public"
+    public = (args.visibility == "public")
     channels = bootstrap.get_channels(
         public=public,
         stable=(not is_prerelease),
@@ -822,12 +820,14 @@ if __name__ == "__main__":
         intranet=(not args.internet),
         group=args.group,
     )
+
+    if "channels" not in condarc_options:
+        condarc_options["channels"] = channels + ["defaults"]
+
     logger.info(
         "Using the following channels during build:\n  - %s",
-        "\n  - ".join(channels + ["defaults"]),
+        "\n  - ".join(condarc_options["channels"]),
     )
-    condarc_options["channels"] = channels + ["defaults"]
-
     logger.info("Merging conda configuration files...")
     conda_config = make_conda_config(
         conda_build_config, args.python_version, recipe_append, condarc_options

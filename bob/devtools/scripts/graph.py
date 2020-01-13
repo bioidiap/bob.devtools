@@ -170,15 +170,16 @@ def graph(package, python, condarc, config, append_file, server, private,
         with open(condarc, "rb") as f:
             condarc_options = yaml.load(f, Loader=yaml.FullLoader)
     else:
-        # use default and add channels
-        all_channels = []
-        all_channels += channels + ["defaults"]
+        # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
-        logger.info(
-            "Using the following channels during build:\n  - %s",
-            "\n  - ".join(all_channels),
-        )
-        condarc_options["channels"] = all_channels
+
+    if "channels" not in condarc_options:
+        condarc_options["channels"] = channels + ["defaults"]
+
+    logger.info(
+        "Using the following channels during graph operation:\n  - %s",
+        "\n  - ".join(condarc_options["channels"]),
+    )
 
     conda_config = make_conda_config(
         config, python, append_file, condarc_options

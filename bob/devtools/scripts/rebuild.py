@@ -192,13 +192,18 @@ def rebuild(
         with open(condarc, "rb") as f:
             condarc_options = yaml.load(f, Loader=yaml.FullLoader)
     else:
-        # use default and add channels
+        # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
-        logger.info(
-            "Using the following channels during build:\n  - %s",
-            "\n  - ".join(channels + ["defaults"]),
-        )
+
+    if "channels" not in condarc_options:
         condarc_options["channels"] = channels + ["defaults"]
+
+    logger.info(
+        "Using the following channels during (potential) build:\n  - %s",
+        "\n  - ".join(condarc_options["channels"]),
+    )
+
+    logger.info("Uploading resulting package to: %s", channels[0])
 
     # dump packages at base environment
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
@@ -270,10 +275,10 @@ def rebuild(
             logger.info("Downloading %s -> %s", src, destpath)
             urllib.request.urlretrieve(src, destpath)
 
-            # conda_build may either raise an exception or return ``False`` in case
-            # the build fails, depending on the reason.  This bit of code tries to
-            # accomodate both code paths and decides if we should rebuild the package
-            # or not
+            # conda_build may either raise an exception or return ``False`` in
+            # case the build fails, depending on the reason.  This bit of code
+            # tries to accomodate both code paths and decides if we should
+            # rebuild the package or not
             logger.info("Testing %s", src)
             try:
                 result = conda_build.api.test(destpath, config=conda_config)

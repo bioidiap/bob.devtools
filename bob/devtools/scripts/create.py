@@ -16,7 +16,7 @@ from ..constants import (
     CONDA_RECIPE_APPEND,
     SERVER,
 )
-from ..bootstrap import set_environment, get_channels
+from ..bootstrap import set_environment
 
 from ..log import verbosity_option, get_logger, echo_normal
 
@@ -209,16 +209,25 @@ def create(
         with open(condarc, "rb") as f:
             condarc_options = yaml.load(f, Loader=yaml.FullLoader)
     else:
-        # use default and add channels
+        # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
+
+    if "channels" not in condarc_options:
+        from ..bootstrap import get_channels
         channels = get_channels(
             public=(not private),
             stable=stable,
             server=server,
-            intranet=private,
-            group=group,
+            intranet=ci,
+            group=group
         )
         condarc_options["channels"] = channels + ["defaults"]
+
+    logger.info(
+            "Using the following channels during environment creation:" \
+                    "\n  - %s",
+            "\n  - ".join(condarc_options["channels"]),
+            )
 
     conda_config = make_conda_config(
         config, python, append_file, condarc_options

@@ -10,8 +10,6 @@ add_pip_as_python_dependency: false #!final
 always_yes: true #!final
 anaconda_upload: false #!final
 channel_priority: strict #!final
-channels:
-  - defaults
 conda_build: #!final
   pkg_format: '2'
 default_channels: #!final
