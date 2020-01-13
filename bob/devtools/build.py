@@ -96,13 +96,15 @@ def next_build_number(channel_url, basename):
     (reversed) build-number.
     """
 
-    from conda.exports import get_index
+    from conda.exports import fetch_index
+    from conda.core.index import calculate_channel_urls
 
     remove_conda_loggers()
 
     # get the channel index
-    logger.debug("Downloading channel index from %s", channel_url)
-    index = get_index(channel_urls=[channel_url], prepend=False)
+    channel_urls = calculate_channel_urls([channel_url], prepend=False, use_local=False)
+    logger.debug("Downloading channel index from %s", channel_urls)
+    index = fetch_index(channel_urls=channel_urls)
 
     # remove .tar.bz2/.conda from name, then split from the end twice, on '-'
     if basename.endswith(".tar.bz2"):
