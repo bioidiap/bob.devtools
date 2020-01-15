@@ -218,7 +218,7 @@ def create(
             public=(not private),
             stable=stable,
             server=server,
-            intranet=ci,
+            intranet=private,
             group=group
         )
         condarc_options["channels"] = channels + ["defaults"]
