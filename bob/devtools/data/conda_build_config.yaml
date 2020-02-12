@@ -186,14 +186,6 @@ sphinxcontrib_programoutput:
   - 0.15
 sphinxcontrib_httpdomain:
   - 1.7.0
-nodejs:
-  - 8.9.3
-flask:
-  - 1.0.3
-flask_cors:
-  - 3.0.8
-flask_restful:
-  - 0.3.6
 psycopg2:
   - 2.7.6.1
 ncurses:
