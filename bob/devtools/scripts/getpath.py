@@ -6,7 +6,7 @@ import click
 
 from . import bdt
 from ..release import get_gitlab_instance, download_path
-
+from .common_options import ref_option
 from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
@@ -34,13 +34,7 @@ Examples:
 @click.argument("package")
 @click.argument("path")
 @click.argument("output", type=click.Path(exists=False), required=False)
-@click.option(
-    "-r",
-    "--ref",
-    default="master",
-    show_default=True,
-    help="Download path from the provided git reference (may be a branch, tag or commit hash)",
-)
+@ref_option()
 @verbosity_option()
 @bdt.raise_on_error
 def getpath(package, path, output, ref):
