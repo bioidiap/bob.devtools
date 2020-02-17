@@ -169,7 +169,10 @@ pypi:
   stage: pypi
   environment: pypi
   only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+    refs:
+      - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+    variables:
+      - $CI_PROJECT_VISIBILITY == "public"
   except:
     - branches
   script:
