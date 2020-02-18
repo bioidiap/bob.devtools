@@ -131,15 +131,17 @@ def changelog(target, changelog, group, mode, since):
     # Since tagging packages requires bob.devtools to be tagged first. Add that to the
     # list as well if bob.devtools has changed. Note that bob.devtools can release
     # itself.
+    bob_devtools = "bob/bob.devtools"
+
     def bdt_has_changes():
-        gitpkg = gl.projects.get("bob/bob.devtools")
+        gitpkg = gl.projects.get(bob_devtools)
         tag = get_last_tag(gitpkg)
         last_tag_date = parse_date(tag.commit["committed_date"])
         _, _, commits = get_changes_since(gitpkg, last_tag_date)
         return len(commits)
 
-    if bdt_has_changes():
-        packages.insert(0, "bob/bob.devtools")
+    if bob_devtools not in packages and bdt_has_changes():
+        packages.insert(0, bob_devtools)
 
     # iterates over the packages and dumps required information
     for package in packages:
