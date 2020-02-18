@@ -143,12 +143,6 @@ def release(changelog, group, package, resume, dry_run):
 
     gl = get_gitlab_instance()
 
-    # if we are releasing 'bob' metapackage, it's a simple thing, no GitLab
-    # API
-    if package == "bob":
-        release_bob(changelog)
-        return
-
     # traverse all packages in the changelog, edit older tags with updated
     # comments, tag them with a suggested version, then try to release, and
     # wait until done to proceed to the next package

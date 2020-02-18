@@ -69,67 +69,69 @@ To manually update the changelog, follow these guidelines:
 Releasing the Bob meta package
 ==============================
 
-.. todo:: These instructions may be outdated!!
-
 Here are the instructions to release Bob meta package:
 
 * Run:
 
   .. code-block:: sh
 
-     $ bdt gitlab getpath bob/bob.nightlies order.txt
-     $ bdt gitlab visibility order.txt
+     $ cd bob
+     $ bdt gitlab update-bob -vvv --stable
 
-* Put the list of public packages in ../../bob/requirements.txt
-* Run ``bdt gitlab changelog`` first:
+* The script above cannot identify linux only packages. After running the script,
+  **you need to manually tag linux only packages** in both ``conda/meta.yaml`` and
+  ``requirements.txt``. For example, in ``conda/meta.yaml``::
 
-  .. code-block:: sh
+  .. code-block:: yaml
 
-     $ bdt gitlab changelog ../../bob/requirements.txt bob_changelog.md
+    - bob.ip.binseg ==1.1.0  # [linux]
 
-* Put the beta of version of the intended release version in
-  ``../../bob/version.txt``
+  and, in ``requirements.txt``::
 
-  * For example do ``$ echo 5.0.0b0 > version.txt`` for bob 5.0.0 release.
-  * Commit only this change to master: ``$ git commit -m "prepare for bob 5 release" version.txt``
+    bob.ip.binseg ==1.1.0 ; sys_platform == 'linux'
 
-* Get the pinnings (``--bob-version`` needs to be changed):
-
-  .. code-block:: sh
-
-     $ bdt gitlab release -p bob -c bob_changelog.md --bob-version 5.0.0 -- TOKEN
-
-* Put the pinnings below in requirements.txt and meta.yaml (like ``bob.buildout
-  == 2.1.6``) and meta.yaml (like ``bob.buildout 2.1.6``)
-
-  * Make sure you add ``  # [linux]`` to Linux only packages.
-
-* Test the conda recipe:
+* Test the conda recipe of bob. You may want to cancel the
+  command below once it reaches the nosetests.:
 
   .. code-block:: sh
 
-     $ cd ../../bob
-     $ conda render -m ../bob.admin/gitlab/conda_build_config.yaml -c https://www.idiap.ch/software/bob/conda conda
+     $ bdt build -vv --stable
 
-* Update the badges and version.txt to point to this version of Bob.
-* Commit, push and tag a new version manually:
+* Commit the changes and push:
 
   .. code-block:: sh
 
-     $ git commit -am "Increased stable version to 4.0.0"
-     $ git tag v4.0.0
+     $ git commit -m "Pinning packages for the next release. [skip ci]" conda/meta.yaml requirements.txt
      $ git push
-     $ git push --tags
 
-* Put ``bob_changelog.md`` inside bob's tag description.
-* Cancel the pipeline for master and make sure that tag pipeline passes before
-  continuing.
-* Remove pinnings from bob's requirement.txt and meta.yaml and revert changes
-  that went in ``README.rst`` back to master version.
-* Commit and push the following (not verbatim):
+
+* Tag the package using the same changelog mechanism that you used to tag other
+  packages. Assuming the changelog has a ``* bob/bob`` entry:
 
   .. code-block:: sh
 
-     $ echo 4.0.1b0 > version.txt
-     $ git commit -am "Increased latest version to 4.0.1b0 [skip ci]"
+     $ bdt gitlab release -vvv CHANGELOG --package bob/bob
+
+* When the script says ``Waiting for the pipeline *** of "bob/bob" to finish``, cancel
+  it. You can check the progress online.
+
+* To revert the pins while in beta run::
+
+  .. code-block:: sh
+
+     $ git pull --rebase
+     $ bdt gitlab update-bob -vvv --beta
+
+* Like before, **tag the linux only packages manually**.
+
+* Commit and push the changes:
+
+  .. code-block:: sh
+
+     $ git commit -m "Remove package pins while in beta. [skip ci]" conda/meta.yaml requirements.txt
      $ git push
+
+You can see that if we could identify linux only packages automatically, the whole
+release process would have been only to run
+``bdt gitlab release -vvv CHANGELOG --package bob/bob``.
+Do you want to help fix that?
