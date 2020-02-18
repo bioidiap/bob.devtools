@@ -126,7 +126,8 @@ def changelog(target, changelog, group, mode, since):
 
     # Since tagging packages requires bob.devtools to be tagged first. Add that to the
     # list as well. Note that bob.devtools can release itself.
-    packages.insert(0, "bob/bob.devtools")
+    if len(packages) > 1:
+        packages.insert(0, "bob/bob.devtools")
 
     # iterates over the packages and dumps required information
     for package in packages:
