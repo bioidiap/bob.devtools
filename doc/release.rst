@@ -80,15 +80,15 @@ Here are the instructions to release Bob meta package:
 
 * The script above cannot identify linux only packages. After running the script,
   **you need to manually tag linux only packages** in both ``conda/meta.yaml`` and
-  ``requirements.txt``. For example, in ``conda/meta.yaml``::
+  ``requirements.txt``. For example, in ``conda/meta.yaml``:
 
   .. code-block:: yaml
 
-    - bob.ip.binseg ==1.1.0  # [linux]
+     - bob.ip.binseg ==1.1.0  # [linux]
 
   and, in ``requirements.txt``::
 
-    bob.ip.binseg ==1.1.0 ; sys_platform == 'linux'
+     bob.ip.binseg ==1.1.0 ; sys_platform == 'linux'
 
 * Test the conda recipe of bob. You may want to cancel the
   command below once it reaches the nosetests.:
@@ -115,7 +115,7 @@ Here are the instructions to release Bob meta package:
 * When the script says ``Waiting for the pipeline *** of "bob/bob" to finish``, you may
   cancel it and check the progress online.
 
-* To revert the pins while in beta run::
+* To revert the pins while in beta run:
 
   .. code-block:: sh
 
