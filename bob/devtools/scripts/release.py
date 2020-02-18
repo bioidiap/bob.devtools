@@ -22,28 +22,28 @@ Examples:
 
   1. Releases a single package:
 
-     $ bdt gitlab release --package=bob.package.xyz changelog.md
+     $ bdt gitlab release -vvv --package=bob/bob.package.xyz changelog.md
 
 
   2. If there is a single package in the ``changelog.md`` file, the flag
      ``--package`` is not required:
 
-     $ bdt gitlab release changelog.md
+     $ bdt gitlab release -vvv changelog.md
 
 
-  2. Releases the whole of bob using `changelog_since_last_release.md`:
+  2. Releases the whole of bob using `changelog.md`:
 
-     $ bdt gitlab release bob/devtools/data/changelog_since_last_release.md
+     $ bdt gitlab release -vvv changelog.md
 
 
   3. In case of errors, resume the release of the whole of Bob:
 
-     $ bdt gitlab release --resume bob/devtools/data/changelog_since_last_release.md
+     $ bdt gitlab release -vvv --resume --package=bob/bob.package.xyz changelog.md
 
 
   4. The option `-dry-run` can be used to let the script print what it would do instead of actually doing it:
 
-     $ bdt gitlab release --dry-run changelog_since_last_release.md
+     $ bdt gitlab release -vvv --dry-run changelog.md
 """
 )
 @click.argument("changelog", type=click.File("rt", lazy=False))
@@ -143,12 +143,6 @@ def release(changelog, group, package, resume, dry_run):
 
     gl = get_gitlab_instance()
 
-    # if we are releasing 'bob' metapackage, it's a simple thing, no GitLab
-    # API
-    if package == "bob":
-        release_bob(changelog)
-        return
-
     # traverse all packages in the changelog, edit older tags with updated
     # comments, tag them with a suggested version, then try to release, and
     # wait until done to proceed to the next package
@@ -162,9 +156,7 @@ def release(changelog, group, package, resume, dry_run):
     if package:
         # get the index where the package first appears in the list
         start_idx = [
-            i
-            for i, line in enumerate(changelogs)
-            if line[1:].strip() == package
+            i for i, line in enumerate(changelogs) if line[1:].strip() == package
         ]
 
         if not start_idx:
@@ -201,9 +193,7 @@ def release(changelog, group, package, resume, dry_run):
 
         # release the package with the found tag and its comments
         if use_package:
-            pipeline_id = release_package(
-                use_package, tag, tag_comments, dry_run
-            )
+            pipeline_id = release_package(use_package, tag, tag_comments, dry_run)
             # now, wait for the pipeline to finish, before we can release the
             # next package
             wait_for_pipeline_to_finish(use_package, pipeline_id, dry_run)

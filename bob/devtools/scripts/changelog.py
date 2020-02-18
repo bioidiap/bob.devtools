@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import datetime
-
 import click
 
 from . import bdt
-from ..changelog import get_last_tag_date, write_tags_with_commits
-from ..changelog import parse_date
-from ..release import get_gitlab_instance
-
 from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
@@ -22,41 +14,39 @@ Examples:
 
   1. Generates the changelog for a single package using merge requests:
 
-     $ bdt gitlab changelog group/package.xyz changelog.md
+     $ bdt gitlab changelog -vvv group/package.xyz changelog.md
 
 
   2. The same as above, but dumps the changelog to stdout instead of a file:
 
-     $ bdt gitlab changelog group/package.xyz
+     $ bdt gitlab changelog -vvv group/package.xyz
 
 
   3. Generates the changelog for a single package looking at commits
      (not merge requests):
 
-     $ bdt gitlab changelog --mode=commits group/package.xyz changelog.md
+     $ bdt gitlab changelog -vvv --mode=commits group/package.xyz changelog.md
 
 
   4. Generates the changelog for a single package looking at merge requests starting from a given date of January 1, 2016:
 
 \b
-     $ bdt gitlab changelog --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
+     $ bdt gitlab changelog -vvv --mode=mrs --since=2016-01-01 group/package.xyz changelog.md
 
 
-  5. Generates a complete list of changelogs for a list of packages (one per line:
+  5. Generates a complete list of changelogs for a list of packages (one per line):
 
 \b
      $ bdt gitlab getpath bob/bob.nightlies order.txt
      $ bdt gitlab lasttag bob/bob
      # copy and paste date to next command
-     $ bdt gitlab changelog --since="2018-07-17 10:23:40" order.txt changelog.md
+     $ bdt gitlab changelog -vvv --since="2018-07-17 10:23:40" order.txt changelog.md
 """
 )
 @click.argument("target")
 @click.argument(
     "changelog",
-    type=click.Path(
-        exists=False, dir_okay=False, file_okay=True, writable=True
-    ),
+    type=click.Path(exists=False, dir_okay=False, file_okay=True, writable=True),
     required=False,
 )
 @click.option(
@@ -102,10 +92,22 @@ def changelog(target, changelog, group, mode, since):
     an existing file containing a list of packages that will be iterated on.
 
     For each package, we will contact the Gitlab server and create a changelog
-                using merge-requests (default), tags or commits since a given date.  If a
-                starting date is not passed, we'll use the date of the last tagged value or
-                the date of the first commit, if no tags are available in the package.
+    using merge-requests (default), tags or commits since a given date.  If a
+    starting date is not passed, we'll use the date of the last tagged value or
+    the date of the first commit, if no tags are available in the package.
     """
+    import os
+    import sys
+    import datetime
+
+    from ..changelog import (
+        get_last_tag_date,
+        write_tags_with_commits,
+        parse_date,
+        get_changes_since,
+        get_last_tag,
+    )
+    from ..release import get_gitlab_instance
 
     gl = get_gitlab_instance()
 
@@ -119,14 +121,25 @@ def changelog(target, changelog, group, mode, since):
                 if k.strip() and not k.strip().startswith("#")
             ]
     else:
-        logger.info(
-            "Assuming %s is a package name (file does not exist)...", target
-        )
+        logger.info("Assuming %s is a package name (file does not exist)...", target)
         packages = [target]
 
     # if the user passed a date, convert it
     if since:
         since = parse_date(since)
+
+    # Since tagging packages requires bob.devtools to be tagged first. Add that to the
+    # list as well if bob.devtools has changed. Note that bob.devtools can release
+    # itself.
+    def bdt_has_changes():
+        gitpkg = gl.projects.get("bob/bob.devtools")
+        tag = get_last_tag(gitpkg)
+        last_tag_date = parse_date(tag.commit["committed_date"])
+        _, _, commits = get_changes_since(gitpkg, last_tag_date)
+        return len(commits)
+
+    if bdt_has_changes():
+        packages.insert(0, "bob/bob.devtools")
 
     # iterates over the packages and dumps required information
     for package in packages:
@@ -179,7 +192,5 @@ def changelog(target, changelog, group, mode, since):
             changelog_file = open(changelog, "at")
 
         # write_tags(f, use_package, last_release_date)
-        write_tags_with_commits(
-            changelog_file, use_package, last_release_date, mode
-        )
+        write_tags_with_commits(changelog_file, use_package, last_release_date, mode)
         changelog_file.flush()

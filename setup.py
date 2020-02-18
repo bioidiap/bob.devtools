@@ -69,7 +69,8 @@ setup(
           'getpath = bob.devtools.scripts.getpath:getpath',
           'process-pipelines = bob.devtools.scripts.pipelines:process_pipelines',
           'get-pipelines- = bob.devtools.scripts.pipelines:get_pipelines',
-          'graph = bob.devtools.scripts.graph:graph'
+          'graph = bob.devtools.scripts.graph:graph',
+          'update-bob = bob.devtools.scripts.update_bob:update_bob',
           ],
 
         'bdt.ci.cli': [
