@@ -43,7 +43,7 @@ def _sort_tags(tags, reverse):
 def get_file_from_gitlab(gitpkg, path, ref="master"):
     """Retrieves a file from a Gitlab repository, returns a (StringIO) file."""
 
-    return io.StringIO(gitpkg.files.get(file_path=path, ref=branch).decode())
+    return io.StringIO(gitpkg.files.get(file_path=path, ref=ref).decode())
 
 
 def get_last_tag(package):
@@ -229,18 +229,21 @@ def _write_mergerequests_range(f, pkg_name, mrs):
         f.write("\n")
 
 
-def write_tags_with_commits(f, gitpkg, since, mode):
-    """Writes all tags and commits of a given package to the output file.
+def get_changes_since(gitpkg, since):
+    """Gets the list of MRs, tags, and commits since the provided date
 
-    Args:
+    Parameters
+    ----------
+    gitpkg : object
+        A gitlab pakcage object
+    since : object
+        A parsed date
 
-        f: A :py:class:`File` ready to be written at
-        gitpkg: A pointer to the gitlab package object
-        since: Starting date (as a datetime object)
-        mode: One of mrs (merge-requests), commits or tags indicating how to
-              list entries in the changelog for this package
+    Returns
+    -------
+    tuple
+        mrs, tags, commits
     """
-
     # get tags since release and sort them
     tags = gitpkg.tags.list()
 
@@ -265,6 +268,21 @@ def write_tags_with_commits(f, gitpkg, since, mode):
             )
         )
     )
+    return mrs, tags, commits
+
+def write_tags_with_commits(f, gitpkg, since, mode):
+    """Writes all tags and commits of a given package to the output file.
+
+    Args:
+
+        f: A :py:class:`File` ready to be written at
+        gitpkg: A pointer to the gitlab package object
+        since: Starting date (as a datetime object)
+        mode: One of mrs (merge-requests), commits or tags indicating how to
+              list entries in the changelog for this package
+    """
+    mrs, tags, commits = get_changes_since(gitpkg, since)
+
     f.write("* %s\n" % (gitpkg.attributes["path_with_namespace"],))
 
     # go through tags and writes each with its message and corresponding

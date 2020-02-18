@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import datetime
-
 import click
 
 from . import bdt
-from ..changelog import get_last_tag_date, write_tags_with_commits
-from ..changelog import parse_date
-from ..release import get_gitlab_instance
-
 from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
@@ -104,6 +96,18 @@ def changelog(target, changelog, group, mode, since):
     starting date is not passed, we'll use the date of the last tagged value or
     the date of the first commit, if no tags are available in the package.
     """
+    import os
+    import sys
+    import datetime
+
+    from ..changelog import (
+        get_last_tag_date,
+        write_tags_with_commits,
+        parse_date,
+        get_changes_since,
+        get_last_tag,
+    )
+    from ..release import get_gitlab_instance
 
     gl = get_gitlab_instance()
 
@@ -125,8 +129,16 @@ def changelog(target, changelog, group, mode, since):
         since = parse_date(since)
 
     # Since tagging packages requires bob.devtools to be tagged first. Add that to the
-    # list as well. Note that bob.devtools can release itself.
-    if len(packages) > 1:
+    # list as well if bob.devtools has changed. Note that bob.devtools can release
+    # itself.
+    def bdt_has_changes():
+        gitpkg = gl.projects.get("bob/bob.devtools")
+        tag = get_last_tag(gitpkg)
+        last_tag_date = parse_date(tag.commit["committed_date"])
+        _, _, commits = get_changes_since(gitpkg, last_tag_date)
+        return len(commits)
+
+    if bdt_has_changes():
         packages.insert(0, "bob/bob.devtools")
 
     # iterates over the packages and dumps required information
