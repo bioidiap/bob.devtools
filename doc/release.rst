@@ -112,8 +112,8 @@ Here are the instructions to release Bob meta package:
 
      $ bdt gitlab release -vvv CHANGELOG --package bob/bob
 
-* When the script says ``Waiting for the pipeline *** of "bob/bob" to finish``, cancel
-  it. You can check the progress online.
+* When the script says ``Waiting for the pipeline *** of "bob/bob" to finish``, you may
+  cancel it and check the progress online.
 
 * To revert the pins while in beta run::
 
@@ -135,3 +135,11 @@ You can see that if we could identify linux only packages automatically, the who
 release process would have been only to run
 ``bdt gitlab release -vvv CHANGELOG --package bob/bob``.
 Do you want to help fix that?
+
+
+Releasing the docs meta package
+===============================
+
+Don't forget to release ``bob/docs`` after the bob release has successfully finished.
+To do so, go to https://gitlab.idiap.ch/bob/docs/-/tags and click on ``New tag``.
+Use the same version number you used for bob.
