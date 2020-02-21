@@ -158,7 +158,7 @@ def get_parsed_tag(gitpkg, tag):
     The latest tag is either patch, minor, major, or none
     """
 
-    m = re.search(r"(v\d+.\d+.\d+)", tag)
+    m = re.search(r"(v\d+\.\d+\.\d+)", tag)
     if m:
         return m.group(0)
     # tag = Version(tag)
@@ -190,7 +190,7 @@ def get_parsed_tag(gitpkg, tag):
 
         # check that it has expected format #.#.#
         # latest_tag_name = Version(latest_tag_name)
-        m = re.match(r"(\d.\d.\d)", latest_tag_name)
+        m = re.match(r"(\d+\.\d+\.\d+)", latest_tag_name)
         if not m:
             raise ValueError(
                 "The latest tag name {0} in package {1} has "
