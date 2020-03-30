@@ -120,8 +120,10 @@ build_macosx_38:
   dependencies:
     - build_linux_36
     - build_linux_37
+    - build_linux_38
     - build_macosx_36
     - build_macosx_37
+    - build_macosx_38
   tags:
     - docker
   cache:
