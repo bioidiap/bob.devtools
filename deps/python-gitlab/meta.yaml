@@ -1,5 +1,5 @@
 {% set name = "python-gitlab" %}
-{% set version = "1.15.0" %}
+{% set version = "2.1.2" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 45125a0ed4d0027d4317bdbd71ca02fc52b0ac160b9d2c3c5be131b4d19f867e
+  sha256: 71445d7444fe3354bf90a52d6249f91c9e572a8ef6c143afd9de25f50c92d499
 
 build:
   number: 0
@@ -20,9 +20,8 @@ requirements:
     - python
     - pip
   run:
-    - python
-    - requests
-    - six
+    - python >=3.6.0
+    - requests >=2.22.0
 
 test:
   imports:
