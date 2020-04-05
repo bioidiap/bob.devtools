@@ -96,7 +96,7 @@ libsvm:
 libtiff:
   - 4.1.0
 mkl:
-  - 2019.1
+  - 2019
 sox:
   - 14.4.2
 vlfeat:
