@@ -467,7 +467,7 @@ if __name__ == "__main__":
 
         # simple - just use the defaults channels when self building
         run_cmdline(
-            [conda_bin, "install"]
+            [conda_bin, "install", "--yes"]
             + conda_verbosity
             + [
                 "-n",
@@ -484,7 +484,7 @@ if __name__ == "__main__":
 
         # index the locally built packages
         run_cmdline(
-            [conda_bin, "install"]
+            [conda_bin, "install", "--yes"]
             + conda_verbosity
             + [
                 "-n",
@@ -508,7 +508,7 @@ if __name__ == "__main__":
         )
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         run_cmdline(
-            [conda_bin, conda_cmd]
+            [conda_bin, conda_cmd, "--yes"]
             + conda_verbosity
             + channels
             + ["-n", args.envname, "bob.devtools"]
@@ -517,7 +517,7 @@ if __name__ == "__main__":
     elif args.command == "channel":
 
         # update conda first
-        run_cmdline([conda_bin, "update", "conda"])
+        run_cmdline([conda_bin, "update", "--yes", "conda"])
 
         # installs from channel
         channels = get_channels(
@@ -530,7 +530,7 @@ if __name__ == "__main__":
         channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         cmd = (
-            [conda_bin, conda_cmd]
+            [conda_bin, conda_cmd, "--yes"]
             + conda_verbosity
             + channels
             + ["-n", args.envname, "bob.devtools"]
