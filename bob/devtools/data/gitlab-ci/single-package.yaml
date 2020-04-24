@@ -39,6 +39,8 @@ stages:
     - bdt ci clean -vv
   artifacts:
     expire_in: 1 week
+    reports:
+      cobertura: coverage.xml
 
 
 .build_linux_template:
