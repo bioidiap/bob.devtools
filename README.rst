@@ -1,6 +1,6 @@
 .. vim: set fileencoding=utf-8 :
 
-.. image:: https://img.shields.io/badge/docs-current-green.svg
+.. image:: https://img.shields.io/badge/docs-available-green.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/master/index.html
 .. image:: https://gitlab.idiap.ch/bob/bob.devtools/badges/master/pipeline.svg
    :target: https://gitlab.idiap.ch/bob/bob.devtools/commits/master
