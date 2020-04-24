@@ -534,6 +534,7 @@ def git_clean_build(runner, verbose):
     exclude_from_cleanup = [
         "miniconda.sh",  # the installer, cached
         "sphinx",  # build artifact -- documentation
+        "coverage.xml",  # build artifact -- coverage report
     ]
 
     # artifacts
