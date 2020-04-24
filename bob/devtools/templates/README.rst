@@ -4,7 +4,7 @@
    :target: https://www.idiap.ch/software/bob/docs/{{ package }}/stable/index.html
 .. image:: https://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/{{ package }}/master/index.html
-.. image:: https://gitlab.idiap.ch/{{ package }}/badges/master/build.svg
+.. image:: https://gitlab.idiap.ch/{{ package }}/badges/master/pipeline.svg
    :target: https://gitlab.idiap.ch/{{ package }}/commits/master
 .. image:: https://gitlab.idiap.ch/{{ package }}/badges/master/coverage.svg
    :target: https://www.idiap.ch/software/bob/docs/{{ package }}/master/coverage/index.html
