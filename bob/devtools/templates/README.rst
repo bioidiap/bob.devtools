@@ -7,7 +7,7 @@
 .. image:: https://gitlab.idiap.ch/{{ package }}/badges/master/build.svg
    :target: https://gitlab.idiap.ch/{{ package }}/commits/master
 .. image:: https://gitlab.idiap.ch/{{ package }}/badges/master/coverage.svg
-   :target: https://gitlab.idiap.ch/{{ package }}/commits/master
+   :target: https://www.idiap.ch/software/bob/docs/{{ package }}/master/coverage/index.html
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/{{ package }}
 .. image:: https://img.shields.io/pypi/v/{{ name }}.svg
