@@ -48,7 +48,7 @@ README_BADGES = [
     {
         "name": "Docs (current)",
         "link_url": "https://www.idiap.ch/software/{group}/docs/{group}/{name}/master/index.html",
-        "image_url": "https://img.shields.io/badge/docs-available-orage.svg",
+        "image_url": "https://img.shields.io/badge/docs-available-orange.svg",
     },
     {
         "name": "Pipeline (current)",
