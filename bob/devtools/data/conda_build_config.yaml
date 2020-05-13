@@ -114,6 +114,12 @@ cyvlfeat:
   - 0.5.1
 dask:
   - 2.13.0
+dask_jobqueue:
+  - 0.7.0
+dask_ml:
+  - 1.4.0
+distributed:
+  - 2.16.0
 dlib:
   - 19.7
 docopt:
@@ -170,6 +176,8 @@ torchvision:
   - 0.2.1
 tqdm:
   - 4.43.0
+xarray:
+  - 0.15.0
 zc_recipe_egg:
   - 2.0.7
 
