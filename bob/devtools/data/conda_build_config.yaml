@@ -112,6 +112,8 @@ click_plugins:
   - 1.1.1
 cyvlfeat:
   - 0.5.1
+dask:
+  - 2.13.0
 dlib:
   - 19.7
 docopt:
