@@ -67,6 +67,11 @@ build_linux_37:
   extends: .build_linux_template
   variables:
     PYTHON_VERSION: "3.7"
+
+build_linux_38:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
     - python3 ./bob/devtools/bootstrap.py -vv build
@@ -82,16 +87,21 @@ build_linux_37:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
 
+
 build_macosx_36:
   extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.6"
 
-
 build_macosx_37:
   extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.7"
+
+build_macosx_38:
+  extends: .build_macosx_template
+  variables:
+    PYTHON_VERSION: "3.8"
 
 
 # Deploy targets
@@ -110,8 +120,10 @@ build_macosx_37:
   dependencies:
     - build_linux_36
     - build_linux_37
+    - build_linux_38
     - build_macosx_36
     - build_macosx_37
+    - build_macosx_38
   tags:
     - docker
   cache:
@@ -154,8 +166,10 @@ pypi:
   dependencies:
     - build_linux_36
     - build_linux_37
+    - build_linux_38
     - build_macosx_36
     - build_macosx_37
+    - build_macosx_38
   tags:
     - docker
   cache:
