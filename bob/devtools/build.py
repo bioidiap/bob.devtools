@@ -533,6 +533,7 @@ def git_clean_build(runner, verbose):
     # glob wild card entries we'd like to keep
     exclude_from_cleanup = [
         "miniconda.sh",  # the installer, cached
+        "torch",  # eventual pytorch caches
         "sphinx",  # build artifact -- documentation
         "coverage.xml",  # build artifact -- coverage report
     ]
