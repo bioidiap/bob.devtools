@@ -345,13 +345,6 @@ Examples:
     help="Group of packages (gitlab namespace) this package belongs to",
 )
 @click.option(
-    "-p",
-    "--python",
-    multiple=True,
-    help='Versions of python in the format "x.y" we should build for.  Pass '
-    "various times this option to build for multiple python versions",
-)
-@click.option(
     "-d",
     "--dry-run/--no-dry-run",
     default=False,
@@ -361,7 +354,7 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def base_build(order, group, python, dry_run):
+def base_build(order, group, dry_run):
     """Builds base (dependence) packages.
 
     This command builds dependence packages (packages that are not
@@ -391,21 +384,13 @@ def base_build(order, group, python, dry_run):
 
     recipes = load_order_file(order)
 
-    import itertools
     from .. import bootstrap
     from ..build import base_build as _build
 
-    # combine all versions of python with recipes
-    if python:
-        recipes = list(itertools.product(python, recipes))
-    else:
-        recipes = list(itertools.product([None], recipes))
-
-    for k, (pyver, recipe) in enumerate(recipes):
+    for k, recipe in enumerate(recipes):
         echo_normal("\n" + (80 * "="))
-        pytext = "for python-%s " % pyver if pyver is not None else ""
         echo_normal(
-            'Building "%s" %s(%d/%d)' % (recipe, pytext, k + 1, len(recipes))
+            'Building "%s" (%d/%d)' % (recipe, k + 1, len(recipes))
         )
         echo_normal((80 * "=") + "\n")
         if not os.path.exists(os.path.join(recipe, "meta.yaml")):
@@ -425,7 +410,7 @@ def base_build(order, group, python, dry_run):
             group=group,
             recipe_dir=recipe,
             conda_build_config=variants_file,
-            python_version=pyver,
+            python_version=None,
             condarc_options=condarc_options,
         )
 
