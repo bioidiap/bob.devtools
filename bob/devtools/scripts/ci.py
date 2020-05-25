@@ -384,7 +384,6 @@ def base_build(order, group, dry_run):
 
     recipes = load_order_file(order)
 
-    import itertools
     from .. import bootstrap
     from ..build import base_build as _build
 
