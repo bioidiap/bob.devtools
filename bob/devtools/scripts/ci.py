@@ -410,7 +410,6 @@ def base_build(order, group, dry_run):
             group=group,
             recipe_dir=recipe,
             conda_build_config=variants_file,
-            python_version=None,
             condarc_options=condarc_options,
         )
 
