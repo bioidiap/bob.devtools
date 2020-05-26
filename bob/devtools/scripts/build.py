@@ -266,7 +266,7 @@ def build(
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
-        path = get_output_path(metadata, conda_config)
+        path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
         build_number, _ = next_build_number(channels[0], os.path.basename(path))

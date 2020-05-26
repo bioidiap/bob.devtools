@@ -14,11 +14,6 @@ stages:
 # Build targets
 .build_template:
   stage: build
-  script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
-    - python3 ./bob/devtools/build.py -vv
   artifacts:
     expire_in: 1 week
   cache:
@@ -26,53 +21,16 @@ stages:
       - miniconda.sh
 
 
-.build_linux_template:
+build_linux:
   extends: .build_template
+  variables:
+    BUILD_EGG: "true"
   tags:
     - docker
   image: continuumio/conda-concourse-ci
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
-  artifacts:
-    paths:
-      - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
-      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
-      - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
-      - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
-  cache:
-    key: "linux-cache"
-
-
-.build_macosx_template:
-  extends: .build_template
-  tags:
-    - macosx
-  artifacts:
-    paths:
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
-      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
-      - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
-  cache:
-    key: "macosx-cache"
-
-
-build_linux_36:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.6"
-
-build_linux_37:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.7"
-
-build_linux_38:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.8"
-    BUILD_EGG: "true"
   script:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -86,22 +44,27 @@ build_linux_38:
       - ${CONDA_ROOT}/conda-bld/noarch/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
+  cache:
+    key: "linux-cache"
 
 
-build_macosx_36:
-  extends: .build_macosx_template
-  variables:
-    PYTHON_VERSION: "3.6"
-
-build_macosx_37:
-  extends: .build_macosx_template
-  variables:
-    PYTHON_VERSION: "3.7"
-
-build_macosx_38:
-  extends: .build_macosx_template
-  variables:
-    PYTHON_VERSION: "3.8"
+build_macosx:
+  extends: .build_template
+  tags:
+    - macosx
+  script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - python3 ./bob/devtools/build.py -vv
+  artifacts:
+    paths:
+      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
+      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
+      - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
+      - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
+  cache:
+    key: "macosx-cache"
 
 
 # Deploy targets
@@ -118,12 +81,8 @@ build_macosx_38:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_36
-    - build_linux_37
-    - build_linux_38
-    - build_macosx_36
-    - build_macosx_37
-    - build_macosx_38
+    - build_linux
+    - build_macosx
   tags:
     - docker
   cache:
@@ -164,12 +123,8 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux_36
-    - build_linux_37
-    - build_linux_38
-    - build_macosx_36
-    - build_macosx_37
-    - build_macosx_38
+    - build_linux
+    - build_macosx
   tags:
     - docker
   cache:

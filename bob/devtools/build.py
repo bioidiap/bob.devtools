@@ -102,7 +102,9 @@ def next_build_number(channel_url, basename):
     remove_conda_loggers()
 
     # get the channel index
-    channel_urls = calculate_channel_urls([channel_url], prepend=False, use_local=False)
+    channel_urls = calculate_channel_urls(
+        [channel_url], prepend=False, use_local=False
+    )
     logger.debug("Downloading channel index from %s", channel_urls)
     index = fetch_index(channel_urls=channel_urls)
 
@@ -215,7 +217,7 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
     """Renders the recipe and returns the name of the output file."""
 
-    return conda_build.api.get_output_file_paths(metadata, config=config)[0]
+    return conda_build.api.get_output_file_paths(metadata, config=config)
 
 
 def get_rendered_metadata(recipe_dir, config):
@@ -565,7 +567,6 @@ def base_build(
     group,
     recipe_dir,
     conda_build_config,
-    python_version,
     condarc_options,
 ):
     """Builds a non-beat/non-bob software dependence that doesn't exist on
@@ -590,11 +591,6 @@ def base_build(
         our internal webserver.  Currently, only "bob" or "beat" will work.
       recipe_dir: The directory containing the recipe's ``meta.yaml`` file
       conda_build_config: Path to the ``conda_build_config.yaml`` file to use
-      python_version: String with the python version to build for, in the format
-        ``x.y`` (should be passed even if not building a python package).  It
-        can also be set to ``noarch``, or ``None``.  If set to ``None``, then we
-        don't assume there is a python-specific version being built.  If set to
-        ``noarch``, then it is a python package without a specific build.
       condarc_options: Pre-parsed condarc options loaded from the respective YAML
         file
 
@@ -607,8 +603,7 @@ def base_build(
 
     # if you get to this point, tries to build the package
     channels = bootstrap.get_channels(
-        public=True, stable=True, server=server, intranet=intranet,
-        group=group
+        public=True, stable=True, server=server, intranet=intranet, group=group
     )
 
     if "channels" not in condarc_options:
@@ -619,54 +614,40 @@ def base_build(
         "\n  - ".join(condarc_options["channels"]),
     )
     logger.info("Merging conda configuration files...")
-    if python_version not in ("noarch", None):
-        conda_config = make_conda_config(
-            conda_build_config, python_version, None, condarc_options
-        )
-    else:
-        conda_config = make_conda_config(
-            conda_build_config, None, None, condarc_options
-        )
+    conda_config = make_conda_config(
+        conda_build_config, None, None, condarc_options
+    )
 
     metadata = get_rendered_metadata(recipe_dir, conda_config)
-
-    # handles different cases as explained on the description of
-    # ``python_version``
-    py_ver = python_version.replace(".", "") if python_version else None
-    if py_ver == "noarch":
-        py_ver = ""
     arch = conda_arch()
 
     # checks we should actually build this recipe
     if should_skip_build(metadata):
-        if py_ver is None:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch
-            )
-        elif not py_ver:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" for (noarch) python '
-                "on %s",
-                recipe_dir,
-                arch,
-            )
-        else:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" for python-%s ' "on %s",
-                recipe_dir,
-                python_version,
-                arch,
-            )
+        logger.warn(
+            'Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch
+        )
         return
 
-    path = get_output_path(metadata, conda_config)
+    paths = get_output_path(metadata, conda_config)
+    urls = [exists_on_channel(channels[0], os.path.basename(k)) for k in paths]
 
-    url = exists_on_channel(channels[0], os.path.basename(path))
-    if url is not None:
-        logger.info("Skipping build for %s as it exists (at %s)", path, url)
+    if all(urls):
+        logger.info(
+            "Skipping build(s) for recipe at '%s' as packages with matching "
+            "characteristics exist (%s)",
+            recipe_dir,
+            ", ".join(urls),
+        )
         return
 
-    # if you get to this point, just builds the package
+    if any(urls):
+        raise RuntimeError(
+            "One or more packages for recipe at '%s' already exist (%s). "
+            "Change the package build number to trigger a build." % \
+            (recipe_dir, ", ".join(urls)),
+        )
+
+    # if you get to this point, just builds the package(s)
     logger.info("Building %s", path)
     return conda_build.api.build(recipe_dir, config=conda_config)
 
@@ -717,14 +698,6 @@ if __name__ == "__main__":
         "--work-dir",
         default=os.environ.get("CI_PROJECT_DIR", os.path.realpath(os.curdir)),
         help="The directory where the repo was cloned [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-p",
-        "--python-version",
-        default=os.environ.get(
-            "PYTHON_VERSION", "%d.%d" % sys.version_info[:2]
-        ),
-        help="The version of python to build for [default: %(default)s]",
     )
     parser.add_argument(
         "-T",
@@ -783,8 +756,9 @@ if __name__ == "__main__":
     bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
 
     # create the build configuration
-    conda_build_config = os.path.join(mydir, "data", "conda_build_config.yaml")
-    recipe_append = os.path.join(mydir, "data", "recipe_append.yaml")
+    conda_build_config = os.path.join(args.work_dir, "conda",
+            "conda_build_config.yaml")
+    recipe_append = os.path.join(args.work_dir, "data", "recipe_append.yaml")
 
     condarc = os.path.join(args.conda_root, "condarc")
     logger.info("Loading (this build's) CONDARC file from %s...", condarc)
@@ -812,11 +786,10 @@ if __name__ == "__main__":
             args.group,
             recipe,
             conda_build_config,
-            args.python_version,
             condarc_options,
         )
 
-    public = (args.visibility == "public")
+    public = args.visibility == "public"
     channels = bootstrap.get_channels(
         public=public,
         stable=(not is_prerelease),
@@ -834,36 +807,34 @@ if __name__ == "__main__":
     )
     logger.info("Merging conda configuration files...")
     conda_config = make_conda_config(
-        conda_build_config, args.python_version, recipe_append, condarc_options
+        conda_build_config, None, recipe_append, condarc_options
     )
 
     recipe_dir = os.path.join(args.work_dir, "conda")
     metadata = get_rendered_metadata(recipe_dir, conda_config)
-    path = get_output_path(metadata, conda_config)
+    paths = get_output_path(metadata, conda_config)
 
     # asserts we're building at the right location
-    assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
-        'Output path for build (%s) does not start with "%s" - this '
-        "typically means this build is running on a shared builder and "
-        "the file ~/.conda/environments.txt is polluted with other "
-        "environment paths.  To fix, empty that file and set its mode "
-        "to read-only for all."
-        % (path, os.path.join(args.conda_root, "conda-bld"))
-    )
+    for path in paths:
+        assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
+            'Output path for build (%s) does not start with "%s" - this '
+            "typically means this build is running on a shared builder and "
+            "the file ~/.conda/environments.txt is polluted with other "
+            "environment paths.  To fix, empty that file and set its mode "
+            "to read-only for all."
+            % (path, os.path.join(args.conda_root, "conda-bld"))
+        )
 
-    # retrieve the current build number for this build
-    build_number, _ = next_build_number(channels[0], os.path.basename(path))
+    # retrieve the current build number(s) for this build
+    build_numbers = [
+        next_build_number(channels[0], os.path.basename(k))[0] for k in paths
+    ]
+
+    # homogenize to the largest build number
+    build_number = max([int(k) for k in build_numbers])
 
     # runs the build using the conda-build API
     arch = conda_arch()
-    logger.info(
-        "Building %s-%s-py%s (build: %d) for %s",
-        args.name,
-        version,
-        args.python_version.replace(".", ""),
-        build_number,
-        arch,
-    )
 
     # notice we cannot build from the pre-parsed metadata because it has already
     # resolved the "wrong" build number.  We'll have to reparse after setting the
