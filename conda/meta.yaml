@@ -24,7 +24,6 @@ build:
 requirements:
   host:
     - python {{ python }}
-  build:
     - pip
   run:
     - python
