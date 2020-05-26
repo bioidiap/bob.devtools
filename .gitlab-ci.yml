@@ -14,11 +14,6 @@ stages:
 # Build targets
 .build_template:
   stage: build
-  script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
-    - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     expire_in: 1 week
   cache:
@@ -36,6 +31,11 @@ build_linux:
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
+  script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     paths:
       - dist/*.zip
@@ -52,6 +52,11 @@ build_macosx:
   extends: .build_template
   tags:
     - macosx
+  script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+    - python3 ./bob/devtools/build.py -vv
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
