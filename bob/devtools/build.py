@@ -215,7 +215,7 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
     """Renders the recipe and returns the name of the output file."""
 
-    return conda_build.api.get_output_file_paths(metadata, config=config)[0]
+    return conda_build.api.get_output_file_paths(metadata, config=config)
 
 
 def get_rendered_metadata(recipe_dir, config):
@@ -565,7 +565,6 @@ def base_build(
     group,
     recipe_dir,
     conda_build_config,
-    python_version,
     condarc_options,
 ):
     """Builds a non-beat/non-bob software dependence that doesn't exist on
@@ -590,11 +589,6 @@ def base_build(
         our internal webserver.  Currently, only "bob" or "beat" will work.
       recipe_dir: The directory containing the recipe's ``meta.yaml`` file
       conda_build_config: Path to the ``conda_build_config.yaml`` file to use
-      python_version: String with the python version to build for, in the format
-        ``x.y`` (should be passed even if not building a python package).  It
-        can also be set to ``noarch``, or ``None``.  If set to ``None``, then we
-        don't assume there is a python-specific version being built.  If set to
-        ``noarch``, then it is a python package without a specific build.
       condarc_options: Pre-parsed condarc options loaded from the respective YAML
         file
 
@@ -619,54 +613,33 @@ def base_build(
         "\n  - ".join(condarc_options["channels"]),
     )
     logger.info("Merging conda configuration files...")
-    if python_version not in ("noarch", None):
-        conda_config = make_conda_config(
-            conda_build_config, python_version, None, condarc_options
-        )
-    else:
-        conda_config = make_conda_config(
-            conda_build_config, None, None, condarc_options
-        )
+    conda_config = make_conda_config(
+        conda_build_config, None, None, condarc_options
+    )
 
     metadata = get_rendered_metadata(recipe_dir, conda_config)
-
-    # handles different cases as explained on the description of
-    # ``python_version``
-    py_ver = python_version.replace(".", "") if python_version else None
-    if py_ver == "noarch":
-        py_ver = ""
     arch = conda_arch()
 
     # checks we should actually build this recipe
     if should_skip_build(metadata):
-        if py_ver is None:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch
-            )
-        elif not py_ver:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" for (noarch) python '
-                "on %s",
-                recipe_dir,
-                arch,
-            )
-        else:
-            logger.warn(
-                'Skipping UNSUPPORTED build of "%s" for python-%s ' "on %s",
-                recipe_dir,
-                python_version,
-                arch,
-            )
+        logger.warn('Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch)
         return
 
-    path = get_output_path(metadata, conda_config)
+    paths = get_output_path(metadata, conda_config)
+    urls = [exists_on_channel(channels[0], os.path.basename(k)) for k in paths]
 
-    url = exists_on_channel(channels[0], os.path.basename(path))
-    if url is not None:
-        logger.info("Skipping build for %s as it exists (at %s)", path, url)
+    if all(urls):
+        logger.info("Skipping build for %s as packages with matching "
+                "characteristics exist (%s)", path, ', '.join(urls))
         return
 
-    # if you get to this point, just builds the package
+    if any(urls):
+        logger.error("One or more packages for %s already exist (%s). "
+                "Change the package build number to trigger a build.",
+                path, ', '.join(urls))
+        return
+
+    # if you get to this point, just builds the package(s)
     logger.info("Building %s", path)
     return conda_build.api.build(recipe_dir, config=conda_config)
 
@@ -839,7 +812,7 @@ if __name__ == "__main__":
 
     recipe_dir = os.path.join(args.work_dir, "conda")
     metadata = get_rendered_metadata(recipe_dir, conda_config)
-    path = get_output_path(metadata, conda_config)
+    path = get_output_path(metadata, conda_config)[0]
 
     # asserts we're building at the right location
     assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (

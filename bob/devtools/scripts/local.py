@@ -177,13 +177,6 @@ Examples:
     "printing to help you understand what will be done",
 )
 @click.option(
-    "-p",
-    "--python",
-    multiple=True,
-    help='Versions of python in the format "x.y" we should build for.  Pass '
-    "various times this option to build for multiple python versions",
-)
-@click.option(
     "-g",
     "--group",
     show_default=True,
@@ -196,7 +189,4 @@ Examples:
 def base_build(ctx, order, dry_run, python, group):
     """Run the CI build step locally."""
     set_up_environment_variables(python=python, name_space=group)
-
-    ctx.invoke(
-        ci.base_build, order=order, dry_run=dry_run, group=group, python=python
-    )
+    ctx.invoke(ci.base_build, order=order, dry_run=dry_run, group=group)

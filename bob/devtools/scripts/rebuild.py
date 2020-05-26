@@ -253,7 +253,7 @@ def rebuild(
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
-        path = get_output_path(metadata, conda_config)
+        path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
         build_number, existing = next_build_number(
