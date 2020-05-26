@@ -815,14 +815,15 @@ if __name__ == "__main__":
     paths = get_output_path(metadata, conda_config)
 
     # asserts we're building at the right location
-    assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
-        'Output path for build (%s) does not start with "%s" - this '
-        "typically means this build is running on a shared builder and "
-        "the file ~/.conda/environments.txt is polluted with other "
-        "environment paths.  To fix, empty that file and set its mode "
-        "to read-only for all."
-        % (path, os.path.join(args.conda_root, "conda-bld"))
-    )
+    for path in paths:
+        assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
+            'Output path for build (%s) does not start with "%s" - this '
+            "typically means this build is running on a shared builder and "
+            "the file ~/.conda/environments.txt is polluted with other "
+            "environment paths.  To fix, empty that file and set its mode "
+            "to read-only for all."
+            % (path, os.path.join(args.conda_root, "conda-bld"))
+        )
 
     # retrieve the current build number(s) for this build
     build_numbers = [
