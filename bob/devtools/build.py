@@ -102,7 +102,9 @@ def next_build_number(channel_url, basename):
     remove_conda_loggers()
 
     # get the channel index
-    channel_urls = calculate_channel_urls([channel_url], prepend=False, use_local=False)
+    channel_urls = calculate_channel_urls(
+        [channel_url], prepend=False, use_local=False
+    )
     logger.debug("Downloading channel index from %s", channel_urls)
     index = fetch_index(channel_urls=channel_urls)
 
@@ -601,8 +603,7 @@ def base_build(
 
     # if you get to this point, tries to build the package
     channels = bootstrap.get_channels(
-        public=True, stable=True, server=server, intranet=intranet,
-        group=group
+        public=True, stable=True, server=server, intranet=intranet, group=group
     )
 
     if "channels" not in condarc_options:
@@ -622,21 +623,30 @@ def base_build(
 
     # checks we should actually build this recipe
     if should_skip_build(metadata):
-        logger.warn('Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch)
+        logger.warn(
+            'Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch
+        )
         return
 
     paths = get_output_path(metadata, conda_config)
     urls = [exists_on_channel(channels[0], os.path.basename(k)) for k in paths]
 
     if all(urls):
-        logger.info("Skipping build for %s as packages with matching "
-                "characteristics exist (%s)", path, ', '.join(urls))
+        logger.info(
+            "Skipping build for %s as packages with matching "
+            "characteristics exist (%s)",
+            path,
+            ", ".join(urls),
+        )
         return
 
     if any(urls):
-        logger.error("One or more packages for %s already exist (%s). "
-                "Change the package build number to trigger a build.",
-                path, ', '.join(urls))
+        logger.error(
+            "One or more packages for %s already exist (%s). "
+            "Change the package build number to trigger a build.",
+            path,
+            ", ".join(urls),
+        )
         return
 
     # if you get to this point, just builds the package(s)
@@ -690,14 +700,6 @@ if __name__ == "__main__":
         "--work-dir",
         default=os.environ.get("CI_PROJECT_DIR", os.path.realpath(os.curdir)),
         help="The directory where the repo was cloned [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-p",
-        "--python-version",
-        default=os.environ.get(
-            "PYTHON_VERSION", "%d.%d" % sys.version_info[:2]
-        ),
-        help="The version of python to build for [default: %(default)s]",
     )
     parser.add_argument(
         "-T",
@@ -756,8 +758,9 @@ if __name__ == "__main__":
     bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
 
     # create the build configuration
-    conda_build_config = os.path.join(mydir, "data", "conda_build_config.yaml")
-    recipe_append = os.path.join(mydir, "data", "recipe_append.yaml")
+    conda_build_config = os.path.join(args.work_dir, "conda",
+            "conda_build_config.yaml")
+    recipe_append = os.path.join(args.work_dir, "data", "recipe_append.yaml")
 
     condarc = os.path.join(args.conda_root, "condarc")
     logger.info("Loading (this build's) CONDARC file from %s...", condarc)
@@ -785,11 +788,10 @@ if __name__ == "__main__":
             args.group,
             recipe,
             conda_build_config,
-            args.python_version,
             condarc_options,
         )
 
-    public = (args.visibility == "public")
+    public = args.visibility == "public"
     channels = bootstrap.get_channels(
         public=public,
         stable=(not is_prerelease),
@@ -807,12 +809,12 @@ if __name__ == "__main__":
     )
     logger.info("Merging conda configuration files...")
     conda_config = make_conda_config(
-        conda_build_config, args.python_version, recipe_append, condarc_options
+        conda_build_config, None, recipe_append, condarc_options
     )
 
     recipe_dir = os.path.join(args.work_dir, "conda")
     metadata = get_rendered_metadata(recipe_dir, conda_config)
-    path = get_output_path(metadata, conda_config)[0]
+    paths = get_output_path(metadata, conda_config)
 
     # asserts we're building at the right location
     assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
@@ -824,19 +826,16 @@ if __name__ == "__main__":
         % (path, os.path.join(args.conda_root, "conda-bld"))
     )
 
-    # retrieve the current build number for this build
-    build_number, _ = next_build_number(channels[0], os.path.basename(path))
+    # retrieve the current build number(s) for this build
+    build_numbers = [
+        next_build_number(channels[0], os.path.basename(k))[0] for k in paths
+    ]
+
+    # homogenize to the largest build number
+    build_number = max([int(k) for k in build_numbers])
 
     # runs the build using the conda-build API
     arch = conda_arch()
-    logger.info(
-        "Building %s-%s-py%s (build: %d) for %s",
-        args.name,
-        version,
-        args.python_version.replace(".", ""),
-        build_number,
-        arch,
-    )
 
     # notice we cannot build from the pre-parsed metadata because it has already
     # resolved the "wrong" build number.  We'll have to reparse after setting the
