@@ -12,7 +12,7 @@ build:
     - {{ pin_subpackage(name) }}
   script:
     - cd {{ environ.get('RECIPE_DIR') + '/..' }}
-    {% if environ.get('BUILD_EGG') and not path.exists('dist') %}
+    {% if environ.get('BUILD_EGG') and not os.path.exists('dist') %}
     - python setup.py sdist --formats=zip
     {% endif %}
     - {{ PYTHON }} -m pip install --no-deps --ignore-installed .
@@ -108,7 +108,7 @@ test:
     - bdt gitlab graph --help
     - bdt gitlab badges --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
-    {% if not path.exists('sphinx') %}
+    {% if not os.path.exists('sphinx') %}
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
     {% endif %}
 
