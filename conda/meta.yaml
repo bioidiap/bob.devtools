@@ -24,7 +24,8 @@ build:
 requirements:
   host:
     - python {{ python }}
-    - setuptools {{ setuptools }}
+  build:
+    - pip
   run:
     - python
     - setuptools
