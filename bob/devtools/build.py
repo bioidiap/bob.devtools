@@ -633,21 +633,19 @@ def base_build(
 
     if all(urls):
         logger.info(
-            "Skipping build for %s as packages with matching "
+            "Skipping build(s) for recipe at '%s' as packages with matching "
             "characteristics exist (%s)",
-            path,
+            recipe_dir,
             ", ".join(urls),
         )
         return
 
     if any(urls):
-        logger.error(
-            "One or more packages for %s already exist (%s). "
-            "Change the package build number to trigger a build.",
-            path,
-            ", ".join(urls),
+        raise RuntimeError(
+            "One or more packages for recipe at '%s' already exist (%s). "
+            "Change the package build number to trigger a build." % \
+            (recipe_dir, ", ".join(urls)),
         )
-        return
 
     # if you get to this point, just builds the package(s)
     logger.info("Building %s", path)
