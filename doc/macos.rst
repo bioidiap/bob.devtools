@@ -53,14 +53,24 @@ Building the reference setup
    - Disable "Put hard disks to sleep when possible"
    - Leave "Wake for network access" enabled
    - You may leave the display on sleep to 10 minutes
-2. Create a new user (without administrative priviledges) called ``gitlab``.
+2. To be able to send e-mails from the command-line (e.g., when completing
+   cronjobs), via the Idiap SMTP, you will need to modify the postfix
+   configuration:
+   - Edit the file ``/etc/postfix/main.cf`` to add a line stating ``relayhost =
+     [smtp.lab.idiap.ch]``  (all e-mails should be routed by this SMTP host)
+   - Edit the file ``/etc/postfix/generic`` to add a line stating
+     ``admin@hostname.lab.idiap.ch hostname@lab.idiap.ch`` (all e-mails leaving
+     the lab infrastruture need to have ``@lab.idiap.ch`` addresses)
+   - Run ``postmap /etc/postfix/generic`` as root (required to update the
+     internal postfix aliases)
+3. Create a new user (without administrative priviledges) called ``gitlab``.
    Choose a password to protect access to this user.  In "Login Options",
    select this user to auto-login, type its password to confirm
-3. Enable SSH access to the machine by going on ``System Preferences``,
+4. Enable SSH access to the machine by going on ``System Preferences``,
    ``Sharing`` and then selecting ``Remote Login``. Make sure only users on the
    ``Administrators`` group can access the machine.
-4. Create as many ``Administrator`` users as required to manage the machine
-5. Login as administrator of the machine (so, not on the `gitlab` account).  As
+5. Create as many ``Administrator`` users as required to manage the machine
+6. Login as administrator of the machine (so, not on the `gitlab` account).  As
    that user, run the ``admin-install.sh`` script (after copying this repo from
    https://gitlab.idiap.ch/bob/bob.devtools via a zip file download)::
 
@@ -73,7 +83,7 @@ Building the reference setup
    execute pieces of the script by hand if something fails.  In that case,
    please investigate why it fails and properly fix the scripts so the next
    install runs more smoothly.
-6. Check the maximum number of files that can be opened on a shell session
+7. Check the maximum number of files that can be opened on a shell session
    with the command ``launchctl limit maxfiles``.  If smaller than 4096, set
    the maximum number of open files to 4096 by creating the file
    ``/Library/LaunchDaemons/limit.maxfiles.plist`` with the following
@@ -112,7 +122,7 @@ Building the reference setup
    so they are slightly higher than that new limit with ``sudo sysctl -w
    kern.maxfilesperproc=10240`` and ``sudo sysctl -w kern.maxfiles=12288``
    respectively, for example.
-7. Enter as gitlab user and install/configure the `gitlab runner`_:
+8. Enter as gitlab user and install/configure the `gitlab runner`_:
 
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
@@ -136,12 +146,12 @@ Building the reference setup
         builds_dir = "/Users/gitlab/builds"  # set this or bugs occur
         cache_dir = "/Users/gitlab/caches"  # this is optional, but desirable
         shell = "bash"
-8. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
+9. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
    start at login.  In "Preferences > Filesystem Sharing", ensure that
    `/var/folders` is included in the list (that is the default location for
    temporary files in macOS).
-9. Reboot the machine. At this point, the gitlab user should be auto-logged and
-   the runner process should be executing.  Congratulations, you're done!
+10. Reboot the machine. At this point, the gitlab user should be auto-logged
+    and the runner process should be executing.  Congratulations, you're done!
 
 
 Running regular updates
@@ -152,9 +162,8 @@ updated regularly (once a week).  To do so, setup a cronjob like the following:
 
 .. code-block:: text
 
-   MAILTO=you@example.com
    SHELL=/bin/bash
-   00 12 * * 0 bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh)
+   00 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | /usr/bin/mail -s "Software update (hostname|cimacosx)" "you@example.com"
 
 
 .. include:: links.rst
