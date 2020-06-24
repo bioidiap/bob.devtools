@@ -56,6 +56,7 @@ Building the reference setup
 2. To be able to send e-mails from the command-line (e.g., when completing
    cronjobs), via the Idiap SMTP, you will need to modify the postfix
    configuration:
+
    - Edit the file ``/etc/postfix/main.cf`` to add a line stating ``relayhost =
      [smtp.lab.idiap.ch]``  (all e-mails should be routed by this SMTP host)
    - Edit the file ``/etc/postfix/generic`` to add a line stating
