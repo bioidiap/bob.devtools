@@ -648,7 +648,7 @@ def base_build(
         )
 
     # if you get to this point, just builds the package(s)
-    logger.info("Building %s", path)
+    logger.info("Building %s", recipe_dir)
     return conda_build.api.build(recipe_dir, config=conda_config)
 
 
