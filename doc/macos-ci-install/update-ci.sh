@@ -21,4 +21,3 @@ function pipupdate() {
 }
 
 pipupdate /usr/local/bin/pip3
-pipupdate /usr/local/bin/pip2
