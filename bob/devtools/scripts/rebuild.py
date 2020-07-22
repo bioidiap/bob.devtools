@@ -5,33 +5,29 @@ import os
 import sys
 import urllib.request
 
-import yaml
 import click
-import pkg_resources
 import conda_build.api
+import yaml
 
+from ..bootstrap import get_channels
+from ..bootstrap import set_environment
+from ..build import conda_arch
+from ..build import get_docserver_setup
+from ..build import get_env_directory
+from ..build import get_output_path
+from ..build import get_parsed_recipe
+from ..build import get_rendered_metadata
+from ..build import make_conda_config
+from ..build import next_build_number
+from ..build import should_skip_build
+from ..constants import BASE_CONDARC
+from ..constants import CONDA_BUILD_CONFIG
+from ..constants import CONDA_RECIPE_APPEND
+from ..constants import MATPLOTLIB_RCDIR
+from ..constants import SERVER
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-from ..build import (
-    next_build_number,
-    conda_arch,
-    should_skip_build,
-    get_rendered_metadata,
-    get_parsed_recipe,
-    make_conda_config,
-    get_docserver_setup,
-    get_env_directory,
-    get_output_path,
-)
-from ..constants import (
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    SERVER,
-    MATPLOTLIB_RCDIR,
-    BASE_CONDARC,
-)
-from ..bootstrap import set_environment, get_channels
-
-from ..log import verbosity_option, get_logger, echo_normal
 
 logger = get_logger(__name__)
 
@@ -65,9 +61,7 @@ Examples:
     help="Version of python to build the environment for",
 )
 @click.option(
-    "-r",
-    "--condarc",
-    help="Use custom conda configuration file instead of our own",
+    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -180,11 +174,7 @@ def rebuild(
 
     # get potential channel upload and other auxiliary channels
     channels = get_channels(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
+        public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
 
     if condarc is not None:
@@ -209,9 +199,7 @@ def rebuild(
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
     condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
-    conda_config = make_conda_config(
-        config, python, append_file, condarc_options
-    )
+    conda_config = make_conda_config(config, python, append_file, condarc_options)
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
 
@@ -219,11 +207,7 @@ def rebuild(
     # and derived documentation building via Sphinx)
     set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
+        public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 
@@ -247,24 +231,18 @@ def rebuild(
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
-            logger.info(
-                "Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch
-            )
+            logger.info("Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch)
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
         path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
-        build_number, existing = next_build_number(
-            channels[0], os.path.basename(path)
-        )
+        build_number, existing = next_build_number(channels[0], os.path.basename(path))
 
         should_build = True
 
-        if (
-            existing
-        ):  # other builds exist, get the latest and see if it still works
+        if existing:  # other builds exist, get the latest and see if it still works
 
             destpath = os.path.join(
                 condarc_options["croot"], arch, os.path.basename(existing[0])
@@ -285,7 +263,6 @@ def rebuild(
                 should_build = not result
             except Exception as error:
                 logger.exception(error)
-            except:
                 logger.error(
                     "conda_build.api.test() threw an unknown exception - "
                     "looks like bad programming, but not on our side this time..."
@@ -311,9 +288,7 @@ def rebuild(
                 # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to get it
                 # right
                 set_environment("BOB_BUILD_NUMBER", str(build_number))
-                paths = conda_build.api.build(
-                    d, config=conda_config, notest=False
-                )
+                paths = conda_build.api.build(d, config=conda_config, notest=False)
                 # if you get to this point, the package was successfully rebuilt
                 # set environment to signal caller we may dispose of it
                 os.environ["BDT_BUILD"] = ":".join(paths)

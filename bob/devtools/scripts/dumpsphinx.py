@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
-from sphinx.ext import intersphinx
-
 import click
 
-from . import bdt
+from sphinx.ext import intersphinx
 
-from ..log import verbosity_option, get_logger
+from ..log import get_logger
+from ..log import verbosity_option
+from . import bdt
 
 logger = get_logger(__name__)
 

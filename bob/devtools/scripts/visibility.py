@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
 import os
-import sys
 
 import click
 import gitlab
 
-from . import bdt
+from ..log import echo_normal
+from ..log import echo_warning
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger, echo_normal, echo_warning
+from . import bdt
 
 logger = get_logger(__name__)
 
@@ -83,11 +84,12 @@ def visibility(target, group):
                 use_package.id,
             )
             echo_normal(
-                "%s: %s"
-                % (package, use_package.attributes["visibility"].lower())
+                "%s: %s" % (package, use_package.attributes["visibility"].lower())
             )
-        except gitlab.GitlabGetError as e:
+        except gitlab.GitlabGetError:
             logger.warn(
-                "Gitlab access error - package %s does not exist?", package
+                "Gitlab access error - package %s does not exist?",
+                package,
+                exc_info=True,
             )
             echo_warning("%s: unknown" % (package,))

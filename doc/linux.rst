@@ -37,7 +37,7 @@ change ``/etc/default/grub`` to contain the line
 ``update-grub`` after such change.
 
 To install docker at Idiap, you also need to follow the security guidelines
-from Cédric at https://secure.idiap.ch/intranet/system/software/docker.  If you
+
 do not follow such guidelines, the machine will not be acessible from outside
 via the login gateway, as the default docker installation conflicts with
 Idiap's internal setup.  You may also find other network connectivity issues.

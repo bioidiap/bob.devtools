@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
+import datetime
 import os
 import shutil
-import datetime
 
 import click
 import jinja2
 import pkg_resources
 
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -112,11 +112,7 @@ def new(package, author, email, title, license, output_dir):
     #  Title
     # =======
     rst_title = (
-        ("=" * (2 + len(title)))
-        + "\n "
-        + title
-        + "\n"
-        + ("=" * (2 + len(title)))
+        ("=" * (2 + len(title))) + "\n " + title + "\n" + ("=" * (2 + len(title)))
     )
 
     # the jinja context defines the substitutions to be performed
@@ -137,9 +133,7 @@ def new(package, author, email, title, license, output_dir):
     # copy the whole template structure and de-templatize the needed files
     if output_dir is None:
         output_dir = os.path.join(os.path.realpath(os.curdir), name)
-    logger.info(
-        "Creating structure for %s at directory %s", package, output_dir
-    )
+    logger.info("Creating structure for %s at directory %s", package, output_dir)
 
     if os.path.exists(output_dir):
         raise IOError(
@@ -158,16 +152,19 @@ def new(package, author, email, title, license, output_dir):
 
     # other standard files
     simple = [
-        "requirements.txt",
-        "buildout.cfg",
-        "MANIFEST.in",
-        "setup.py",
+        ".flake8",
         ".gitignore",
-        "doc/index.rst",
-        "doc/conf.py",
-        "doc/links.rst",
         ".gitlab-ci.yml",
+        ".isort.cfg",
+        ".pre-commit-config.yaml",
+        "buildout.cfg",
+        "doc/conf.py",
+        "doc/index.rst",
+        "doc/links.rst",
+        "MANIFEST.in",
         "README.rst",
+        "requirements.txt",
+        "setup.py",
         "version.txt",
     ]
     for k in simple:
@@ -184,9 +181,7 @@ def new(package, author, email, title, license, output_dir):
         __name__, os.path.join("..", "templates")
     )
     logger.info("Creating base %s python module", group)
-    shutil.copytree(
-        os.path.join(template_dir, "pkg"), os.path.join(output_dir, group)
-    )
+    shutil.copytree(os.path.join(template_dir, "pkg"), os.path.join(output_dir, group))
 
     # copies specific images to the right spot
     copy_file(os.path.join("doc", "img", "%s-favicon.ico" % group), output_dir)
@@ -205,6 +200,4 @@ def new(package, author, email, title, license, output_dir):
         comment_start_string="(#",
         comment_end_string="#)",
     )
-    render_template(
-        conda_env, os.path.join("conda", "meta.yaml"), context, output_dir
-    )
+    render_template(conda_env, os.path.join("conda", "meta.yaml"), context, output_dir)

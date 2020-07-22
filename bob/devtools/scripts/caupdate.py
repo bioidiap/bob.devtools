@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import os
-
 import click
 
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 

@@ -4,21 +4,21 @@
 import os
 import sys
 
-import pkg_resources
 import click
 import yaml
 
-from . import bdt
-from ..build import parse_dependencies, conda_create, make_conda_config
-from ..constants import (
-    BASE_CONDARC,
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    SERVER,
-)
 from ..bootstrap import set_environment
-
-from ..log import verbosity_option, get_logger, echo_normal
+from ..build import conda_create
+from ..build import make_conda_config
+from ..build import parse_dependencies
+from ..constants import BASE_CONDARC
+from ..constants import CONDA_BUILD_CONFIG
+from ..constants import CONDA_RECIPE_APPEND
+from ..constants import SERVER
+from ..log import echo_normal
+from ..log import get_logger
+from ..log import verbosity_option
+from . import bdt
 
 logger = get_logger(__name__)
 
@@ -70,8 +70,7 @@ Examples:
     "--python",
     default=("%d.%d" % sys.version_info[:2]),
     show_default=True,
-    help="Version of python to build the "
-    "environment for [default: %(default)s]",
+    help="Version of python to build the " "environment for [default: %(default)s]",
 )
 @click.option(
     "-o",
@@ -82,9 +81,7 @@ Examples:
     show_default=True,
 )
 @click.option(
-    "-r",
-    "--condarc",
-    help="Use custom conda configuration file instead of our own",
+    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-l",
@@ -214,28 +211,24 @@ def create(
 
     if "channels" not in condarc_options:
         from ..bootstrap import get_channels
+
         channels = get_channels(
             public=(not private),
             stable=stable,
             server=server,
             intranet=private,
-            group=group
+            group=group,
         )
         condarc_options["channels"] = channels + ["defaults"]
 
     logger.info(
-            "Using the following channels during environment creation:" \
-                    "\n  - %s",
-            "\n  - ".join(condarc_options["channels"]),
-            )
-
-    conda_config = make_conda_config(
-        config, python, append_file, condarc_options
+        "Using the following channels during environment creation:" "\n  - %s",
+        "\n  - ".join(condarc_options["channels"]),
     )
+
+    conda_config = make_conda_config(config, python, append_file, condarc_options)
     deps = parse_dependencies(recipe_dir, conda_config)
     # when creating a local development environment, remove the always_yes option
     del condarc_options["always_yes"]
-    status = conda_create(
-        conda, name, overwrite, condarc_options, deps, dry_run, use_local
-    )
+    conda_create(conda, name, overwrite, condarc_options, deps, dry_run, use_local)
     echo_normal('Execute on your shell: "conda activate %s"' % name)

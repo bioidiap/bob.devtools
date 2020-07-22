@@ -11,7 +11,9 @@ install_requires=load_requirements('requirements.txt')
 {% else %}from setuptools import setup, dist
 dist.Distribution(dict(setup_requires=['bob.extension']))
 
-from bob.extension.utils import load_requirements, find_packages
+from bob.extension.utils import find_packages
+from bob.extension.utils import load_requirements
+
 install_requires = load_requirements()
 {% endif %}
 

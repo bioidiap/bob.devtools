@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
+import click
 import pkg_resources
 
-import click
 from click_plugins import with_plugins
 
 from . import bdt

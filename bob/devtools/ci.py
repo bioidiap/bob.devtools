@@ -4,11 +4,13 @@
 """Tools to help CI-based builds and artifact deployment."""
 
 
-import git
 import distutils.version
 
-from .log import get_logger, echo_info
+import git
+
 from .build import load_order_file
+from .log import echo_info
+from .log import get_logger
 
 logger = get_logger(__name__)
 
@@ -58,15 +60,11 @@ def is_stable(package, refname, tag, repodir):
 
     if tag is not None:
         logger.info('Project %s tag is "%s"', package, tag)
-        parsed_tag = distutils.version.LooseVersion(
-            tag[1:]
-        ).version  # remove 'v'
+        parsed_tag = distutils.version.LooseVersion(tag[1:]).version  # remove 'v'
         is_prerelease = any([isinstance(k, str) for k in parsed_tag])
 
         if is_prerelease:
-            logger.warn(
-                "Pre-release detected - not publishing to stable channels"
-            )
+            logger.warn("Pre-release detected - not publishing to stable channels")
             return False
 
         if is_master(refname, tag, repodir):
@@ -163,9 +161,7 @@ def select_build_file(basename, paths, branch):
         specific_basename = "%s-%s" % (basename, branch)
         for path in paths:
             path = os.path.realpath(path)
-            candidate = os.path.join(
-                path, "%s%s" % (specific_basename, extension)
-            )
+            candidate = os.path.join(path, "%s%s" % (specific_basename, extension))
             if os.path.exists(candidate):
                 return candidate
 
@@ -247,29 +243,34 @@ def cleanup(dry_run, username, password, includes):
 
         # go through all possible variants:
         archs = [
-                'linux-64',
-                'linux-32',
-                'linux-armv6l',
-                'linux-armv7l',
-                'linux-ppc64le',
-                'osx-64',
-                'osx-32',
-                'win-64',
-                'win-32',
-                'noarch',
-                ]
+            "linux-64",
+            "linux-32",
+            "linux-armv6l",
+            "linux-armv7l",
+            "linux-ppc64le",
+            "osx-64",
+            "osx-32",
+            "win-64",
+            "win-32",
+            "noarch",
+        ]
 
         path = server_info["conda"]
 
         for arch in archs:
 
-            arch_path = '/'.join((path, arch))
+            arch_path = "/".join((path, arch))
 
             if not (davclient.check(arch_path) and davclient.is_dir(arch_path)):
                 # it is normal if the directory does not exist
                 continue
 
             server_path = davclient.get_url(arch_path)
-            echo_info('Cleaning beta packages from %s' % server_path)
-            remove_old_beta_packages(client=davclient, path=arch_path,
-                    dry_run=dry_run, pyver=True, includes=includes)
+            echo_info("Cleaning beta packages from %s" % server_path)
+            remove_old_beta_packages(
+                client=davclient,
+                path=arch_path,
+                dry_run=dry_run,
+                pyver=True,
+                includes=includes,
+            )

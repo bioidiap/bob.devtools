@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import configparser
 import os
 import re
-import configparser
-import dateutil.parser
 
 from distutils.version import StrictVersion
 
-from .log import get_logger, echo_warning, echo_info, echo_normal
+import dateutil.parser
+
 from .deploy import _setup_webdav_client
+from .log import echo_normal
+from .log import echo_warning
+from .log import get_logger
 
 logger = get_logger(__name__)
 
@@ -141,14 +144,14 @@ def remove_old_beta_packages(client, path, dry_run, pyver=True, includes=None):
             if result is not None:
                 name += "/" + result.string[:4]
 
-        target = '/'.join((path, f))
+        target = "/".join((path, f))
         info = client.info(target)
 
         betas.setdefault(name, []).append(
             (
                 StrictVersion(version),
                 int(build),  # build number
-                dateutil.parser.parse(info['modified']).timestamp(),
+                dateutil.parser.parse(info["modified"]).timestamp(),
                 target,
             )
         )

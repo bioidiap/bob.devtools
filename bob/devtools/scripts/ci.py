@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 
-import os
-import re
 import glob
+import os
 import shutil
 
-import yaml
 import click
 import pkg_resources
+import yaml
+
 from click_plugins import with_plugins
 
+from ..build import comment_cleanup
+from ..build import load_order_file
+from ..ci import cleanup
+from ..ci import read_packages
+from ..ci import select_conda_build_config
+from ..ci import select_conda_recipe_append
+from ..ci import select_user_condarc
+from ..ci import uniq
+from ..constants import BASE_CONDARC
+from ..constants import SERVER
+from ..deploy import deploy_conda_package
+from ..deploy import deploy_documentation
+from ..log import echo_normal
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-from ..constants import SERVER, WEBDAV_PATHS, BASE_CONDARC
-from ..deploy import deploy_conda_package, deploy_documentation
-from ..build import comment_cleanup, load_order_file
-from ..ci import (
-    read_packages,
-    uniq,
-    select_conda_build_config,
-    select_conda_recipe_append,
-    select_user_condarc,
-    cleanup,
-)
-
-from ..log import verbosity_option, get_logger, echo_normal
 
 logger = get_logger(__name__)
 
@@ -237,9 +239,7 @@ def readme(package):
         failed = check([k])
 
         if failed:
-            raise RuntimeError(
-                "twine check (a.k.a. readme check) %s: FAILED" % k
-            )
+            raise RuntimeError("twine check (a.k.a. readme check) %s: FAILED" % k)
         else:
             logger.info("twine check (a.k.a. readme check) %s: OK", k)
 
@@ -378,9 +378,7 @@ def base_build(order, group, dry_run):
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
     # dump packages at conda_root
-    condarc_options["croot"] = os.path.join(
-        os.environ["CONDA_ROOT"], "conda-bld"
-    )
+    condarc_options["croot"] = os.path.join(os.environ["CONDA_ROOT"], "conda-bld")
 
     recipes = load_order_file(order)
 
@@ -389,17 +387,14 @@ def base_build(order, group, dry_run):
 
     for k, recipe in enumerate(recipes):
         echo_normal("\n" + (80 * "="))
-        echo_normal(
-            'Building "%s" (%d/%d)' % (recipe, k + 1, len(recipes))
-        )
+        echo_normal('Building "%s" (%d/%d)' % (recipe, k + 1, len(recipes)))
         echo_normal((80 * "=") + "\n")
         if not os.path.exists(os.path.join(recipe, "meta.yaml")):
             logger.info('Ignoring directory "%s" - no meta.yaml found' % recipe)
             continue
 
         variants_file = select_conda_build_config(
-            paths=[recipe, os.curdir],
-            branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build configuration file: %s", variants_file)
 
@@ -451,37 +446,30 @@ def test(ctx, dry_run):
     recipe_dir = os.path.join(os.path.realpath(os.curdir), "conda")
 
     condarc = select_user_condarc(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     if condarc is not None:
         logger.info("Condarc configuration file: %s", condarc)
 
     variants_file = select_conda_build_config(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build configuration file: %s", variants_file)
 
     append_file = select_conda_recipe_append(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build recipe-append file: %s", append_file)
 
     from .test import test
 
     base_path = os.path.join(
-        os.environ["CONDA_ROOT"],
-        "conda-bld",
-        "*",
-        os.environ["CI_PROJECT_NAME"],
+        os.environ["CONDA_ROOT"], "conda-bld", "*", os.environ["CI_PROJECT_NAME"],
     )
 
     ctx.invoke(
         test,
-        package=glob.glob(base_path + "*.conda")
-        + glob.glob(base_path + "*.tar.bz2"),
+        package=glob.glob(base_path + "*.conda") + glob.glob(base_path + "*.tar.bz2"),
         condarc=condarc,
         config=variants_file,
         append_file=append_file,
@@ -536,21 +524,18 @@ def build(ctx, dry_run, recipe_dir):
 
     # Use custom variants and append files if available on recipe-dir
     condarc = select_user_condarc(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     if condarc is not None:
         logger.info("Condarc configuration file: %s", condarc)
 
     variants_file = select_conda_build_config(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build configuration file: %s", variants_file)
 
     append_file = select_conda_recipe_append(
-        paths=[recipe_dir, os.curdir],
-        branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build recipe-append file: %s", append_file)
 
@@ -661,16 +646,12 @@ def nightlies(ctx, order, dry_run):
     for n, (package, branch) in enumerate(packages):
 
         echo_normal("\n" + (80 * "="))
-        echo_normal(
-            "Building %s@%s (%d/%d)" % (package, branch, n + 1, len(packages))
-        )
+        echo_normal("Building %s@%s (%d/%d)" % (package, branch, n + 1, len(packages)))
         echo_normal((80 * "=") + "\n")
 
         group, name = package.split("/", 1)
 
-        clone_to = os.path.join(
-            os.environ["CI_PROJECT_DIR"], "src", group, name
-        )
+        clone_to = os.path.join(os.environ["CI_PROJECT_DIR"], "src", group, name)
         dirname = os.path.dirname(clone_to)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -685,30 +666,25 @@ def nightlies(ctx, order, dry_run):
         )
 
         # determine package visibility
-        private = (
-            urlopen("https://gitlab.idiap.ch/%s" % package).getcode() != 200
-        )
+        private = urlopen("https://gitlab.idiap.ch/%s" % package).getcode() != 200
         stable = "STABLE" in os.environ
 
         # Use custom variants and append files if available on recipe-dir
         recipe_dir = os.path.join(clone_to, "conda")
 
         condarc = select_user_condarc(
-            paths=[recipe_dir, os.curdir],
-            branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         if condarc is not None:
             logger.info("Condarc configuration file: %s", condarc)
 
         variants_file = select_conda_build_config(
-            paths=[recipe_dir, os.curdir],
-            branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build configuration file: %s", variants_file)
 
         append_file = select_conda_recipe_append(
-            paths=[recipe_dir, os.curdir],
-            branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build recipe-append file: %s", append_file)
 
@@ -754,8 +730,7 @@ def nightlies(ctx, order, dry_run):
         local_docs = os.path.join(os.environ["CI_PROJECT_DIR"], "sphinx")
         if os.path.exists(local_docs):
             logger.debug(
-                "Sphinx output was generated during test/rebuild "
-                "of %s - Erasing...",
+                "Sphinx output was generated during test/rebuild " "of %s - Erasing...",
                 package,
             )
             shutil.rmtree(local_docs)
@@ -857,8 +832,7 @@ def docs(ctx, requirement, dry_run):
                     clone_to,
                 )
                 git.Repo.clone_from(
-                    "https://gitlab-ci-token:%s@gitlab.idiap.ch/%s"
-                    % (token, package),
+                    "https://gitlab-ci-token:%s@gitlab.idiap.ch/%s" % (token, package),
                     clone_to,
                     branch=branch,
                     depth=1,
@@ -884,9 +858,7 @@ def docs(ctx, requirement, dry_run):
                 with open(requirements_path) as f:
                     extra_intersphinx += comment_cleanup(f.readlines())
 
-            nitpick_path = os.path.join(
-                clone_to, "doc", "nitpick-exceptions.txt"
-            )
+            nitpick_path = os.path.join(clone_to, "doc", "nitpick-exceptions.txt")
             if os.path.exists(nitpick_path):
                 with open(nitpick_path) as f:
                     nitpick += comment_cleanup(f.readlines())
@@ -954,7 +926,7 @@ def clean_betas(dry_run):
     """
 
     is_master = os.environ["CI_COMMIT_REF_NAME"] == "master"
-    if not is_master and dry_run == False:
+    if not is_master and dry_run is False:
         logger.warn("Forcing dry-run mode - not in master branch")
         logger.warn("... considering this is **not** a periodic run!")
         dry_run = True

@@ -10,4 +10,3 @@ set -eox pipefail
 systemsetup -setusingnetworktime on
 systemsetup -settimezone Europe/Zurich
 systemsetup -setnetworktimeserver time.euro.apple.com.
-

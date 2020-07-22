@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import os
-
 import click
 
-from . import bdt
+from ..log import echo_info
+from ..log import echo_normal
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger, echo_normal, echo_info
+from . import bdt
 
 logger = get_logger(__name__)
 
@@ -44,7 +44,6 @@ def jobs(name, status):
 
     gl = get_gitlab_instance()
     gl.auth()
-    user_id = gl.user.attributes["id"]
 
     names = name or [
         "linux-desktop-shell",
@@ -57,25 +56,17 @@ def jobs(name, status):
 
     # search for the runner(s) to affect
     runners = [
-        k
-        for k in gl.runners.list(all=True)
-        if k.attributes["description"] in names
+        k for k in gl.runners.list(all=True) if k.attributes["description"] in names
     ]
 
     if not runners:
-        raise RuntimeError(
-            "Cannot find runner with description = %s" % "|".join(names)
-        )
+        raise RuntimeError("Cannot find runner with description = %s" % "|".join(names))
 
     for runner in runners:
         jobs = runner.jobs.list(all=True, status=status)
         echo_normal(
             "Runner %s (id=%d) -- %d running"
-            % (
-                runner.attributes["description"],
-                runner.attributes["id"],
-                len(jobs),
-            )
+            % (runner.attributes["description"], runner.attributes["id"], len(jobs),)
         )
         for k in jobs:
             echo_info(

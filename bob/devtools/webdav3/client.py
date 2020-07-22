@@ -4,17 +4,27 @@ import functools
 import os
 import shutil
 import threading
+
 from io import BytesIO
 from re import sub
 
 import lxml.etree as etree
 import requests
 
-from .connection import *
-from .exceptions import *
-from .urn import Urn
-
 from ..log import get_logger
+from .connection import ProxySettings
+from .connection import WebDAVSettings
+from .exceptions import ConnectionException
+from .exceptions import LocalResourceNotFound
+from .exceptions import MethodNotSupported
+from .exceptions import NoConnection
+from .exceptions import NotEnoughSpace
+from .exceptions import OptionNotValid
+from .exceptions import RemoteParentNotFound
+from .exceptions import RemoteResourceNotFound
+from .exceptions import ResourceTooBig
+from .exceptions import ResponseErrorCode
+from .urn import Urn
 
 logger = get_logger(__name__)
 
@@ -57,9 +67,7 @@ def get_options(option_type, from_options):
     _options = dict()
 
     for key in option_type.keys:
-        key_with_prefix = "{prefix}{key}".format(
-            prefix=option_type.prefix, key=key
-        )
+        key_with_prefix = "{prefix}{key}".format(prefix=option_type.prefix, key=key)
         if key not in from_options and key_with_prefix not in from_options:
             _options[key] = ""
         elif key in from_options:
@@ -243,12 +251,8 @@ class Client(object):
              `proxy_login`: login name for proxy server.
              `proxy_password`: password for proxy server.
         """
-        webdav_options = get_options(
-            option_type=WebDAVSettings, from_options=options
-        )
-        proxy_options = get_options(
-            option_type=ProxySettings, from_options=options
-        )
+        webdav_options = get_options(option_type=WebDAVSettings, from_options=options)
+        proxy_options = get_options(option_type=ProxySettings, from_options=options)
 
         self.webdav = WebDAVSettings(webdav_options)
         self.proxy = ProxySettings(proxy_options)
@@ -275,9 +279,7 @@ class Client(object):
             if not self.check(directory_urn.path()):
                 raise RemoteResourceNotFound(directory_urn.path())
 
-        response = self.execute_request(
-            action="list", path=directory_urn.quote()
-        )
+        response = self.execute_request(action="list", path=directory_urn.quote())
         urns = WebDavXmlUtils.parse_get_list_response(response.content)
 
         path = Urn.normalize_path(self.get_full_path(directory_urn))
@@ -332,9 +334,7 @@ class Client(object):
         if not self.check(directory_urn.parent()):
             raise RemoteParentNotFound(directory_urn.path())
 
-        response = self.execute_request(
-            action="mkdir", path=directory_urn.quote()
-        )
+        response = self.execute_request(action="mkdir", path=directory_urn.quote())
         return response.status_code in (200, 201)
 
     @wrap_connection_error
@@ -366,15 +366,11 @@ class Client(object):
         urn = Urn(remote_path)
         if self.is_dir(urn.path()):
             self.download_directory(
-                local_path=local_path,
-                remote_path=remote_path,
-                progress=progress,
+                local_path=local_path, remote_path=remote_path, progress=progress,
             )
         else:
             self.download_file(
-                local_path=local_path,
-                remote_path=remote_path,
-                progress=progress,
+                local_path=local_path, remote_path=remote_path, progress=progress,
             )
 
     def download_directory(self, remote_path, local_path, progress=None):
@@ -401,9 +397,7 @@ class Client(object):
             )
             _local_path = os.path.join(local_path, resource_name)
             self.download(
-                local_path=_local_path,
-                remote_path=_remote_path,
-                progress=progress,
+                local_path=_local_path, remote_path=_remote_path, progress=progress,
             )
 
     @wrap_connection_error
@@ -449,9 +443,12 @@ class Client(object):
         :param local_path: the path to save resource locally.
         :param callback: the callback which will be invoked when downloading is complete.
         """
-        target = lambda: self.download_sync(
-            local_path=local_path, remote_path=remote_path, callback=callback
-        )
+
+        def target():
+            return self.download_sync(
+                local_path=local_path, remote_path=remote_path, callback=callback
+            )
+
         threading.Thread(target=target).start()
 
     @wrap_connection_error
@@ -484,9 +481,7 @@ class Client(object):
         """
         if os.path.isdir(local_path):
             self.upload_directory(
-                local_path=local_path,
-                remote_path=remote_path,
-                progress=progress,
+                local_path=local_path, remote_path=remote_path, progress=progress,
             )
         else:
             self.upload_file(local_path=local_path, remote_path=remote_path)
@@ -521,9 +516,7 @@ class Client(object):
             )
             _local_path = os.path.join(local_path, resource_name)
             self.upload(
-                local_path=_local_path,
-                remote_path=_remote_path,
-                progress=progress,
+                local_path=_local_path, remote_path=_remote_path, progress=progress,
             )
 
     @wrap_connection_error
@@ -556,9 +549,7 @@ class Client(object):
                     path=local_path, size=file_size, max_size=self.large_size
                 )
 
-            self.execute_request(
-                action="upload", path=urn.quote(), data=local_file
-            )
+            self.execute_request(action="upload", path=urn.quote(), data=local_file)
 
     def upload_sync(self, remote_path, local_path, callback=None):
         """Uploads resource to remote path on WebDAV server synchronously. In
@@ -583,9 +574,12 @@ class Client(object):
         :param local_path: the path to local resource for uploading.
         :param callback: the callback which will be invoked when downloading is complete.
         """
-        target = lambda: self.upload_sync(
-            local_path=local_path, remote_path=remote_path, callback=callback
-        )
+
+        def target():
+            return self.upload_sync(
+                local_path=local_path, remote_path=remote_path, callback=callback
+            )
+
         threading.Thread(target=target).start()
 
     @wrap_connection_error
@@ -609,9 +603,7 @@ class Client(object):
             path=self.get_full_path(urn_to)
         )
         self.execute_request(
-            action="copy",
-            path=urn_from.quote(),
-            headers_ext=[header_destination],
+            action="copy", path=urn_from.quote(), headers_ext=[header_destination],
         )
 
     @wrap_connection_error
@@ -635,9 +627,7 @@ class Client(object):
         header_destination = "Destination: {path}".format(
             path=self.get_full_path(urn_to)
         )
-        header_overwrite = "Overwrite: {flag}".format(
-            flag="T" if overwrite else "F"
-        )
+        header_overwrite = "Overwrite: {flag}".format(flag="T" if overwrite else "F")
         self.execute_request(
             action="move",
             path=urn_from.quote(),
@@ -791,9 +781,7 @@ class Client(object):
             if os.path.isdir(local_path):
                 if not self.check(remote_path=remote_path):
                     self.mkdir(remote_path=remote_path)
-                self.push(
-                    remote_directory=remote_path, local_directory=local_path
-                )
+                self.push(remote_directory=remote_path, local_directory=local_path)
             else:
                 if local_resource_name in remote_resource_names:
                     continue
@@ -829,24 +817,16 @@ class Client(object):
             if self.is_dir(remote_urn.path()):
                 if not os.path.exists(local_path):
                     os.mkdir(local_path)
-                self.pull(
-                    remote_directory=remote_path, local_directory=local_path
-                )
+                self.pull(remote_directory=remote_path, local_directory=local_path)
             else:
                 if remote_resource_name in local_resource_names:
                     continue
-                self.download_file(
-                    remote_path=remote_path, local_path=local_path
-                )
+                self.download_file(remote_path=remote_path, local_path=local_path)
 
     def sync(self, remote_directory, local_directory):
 
-        self.pull(
-            remote_directory=remote_directory, local_directory=local_directory
-        )
-        self.push(
-            remote_directory=remote_directory, local_directory=local_directory
-        )
+        self.pull(remote_directory=remote_directory, local_directory=local_directory)
+        self.push(remote_directory=remote_directory, local_directory=local_directory)
 
 
 class Resource(object):
@@ -880,9 +860,7 @@ class Resource(object):
 
     def copy(self, remote_path):
         urn = Urn(remote_path)
-        self.client.copy(
-            remote_path_from=self.urn.path(), remote_path_to=remote_path
-        )
+        self.client.copy(remote_path_from=self.urn.path(), remote_path_to=remote_path)
         return Resource(self.client, urn)
 
     def info(self, params=None):
@@ -908,9 +886,7 @@ class Resource(object):
 
     def read_async(self, local_path, callback=None):
         return self.client.upload_async(
-            local_path=local_path,
-            remote_path=self.urn.path(),
-            callback=callback,
+            local_path=local_path, remote_path=self.urn.path(), callback=callback,
         )
 
     def write_to(self, buff):
@@ -923,9 +899,7 @@ class Resource(object):
 
     def write_async(self, local_path, callback=None):
         return self.client.download_async(
-            local_path=local_path,
-            remote_path=self.urn.path(),
-            callback=callback,
+            local_path=local_path, remote_path=self.urn.path(), callback=callback,
         )
 
     def publish(self):
@@ -936,9 +910,7 @@ class Resource(object):
 
     @property
     def property(self, option):
-        return self.client.get_property(
-            remote_path=self.urn.path(), option=option
-        )
+        return self.client.get_property(remote_path=self.urn.path(), option=option)
 
     @property.setter
     def property(self, option, value):

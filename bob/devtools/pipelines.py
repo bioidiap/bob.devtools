@@ -3,9 +3,11 @@
 
 """Pipeline utilities"""
 
-from tabulate import tabulate
 import re
+
 from datetime import datetime
+
+from tabulate import tabulate
 
 
 def process_log(log):
@@ -16,26 +18,25 @@ def process_log(log):
     current_package = None
     logs = dict()
     dates = []
-    for l in log:
+    for ll in log:
 
         # Check which package are we
-        if len(re.findall("Building bob/[a-z]*", l)) > 0:
+        if len(re.findall("Building bob/[a-z]*", ll)) > 0:
             logs[current_package] = dates
             dates = []
 
-            pattern = re.findall("Building bob/[a-z]*", l)[0]
-            current_package = l[9:-1]
+            current_package = ll[9:-1]
             continue
 
         # Checking the date
         date = re.findall(
-            "[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}", l
+            "[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}", ll
         )
         if len(date) > 0:
             # logs[date[0]]=current_package
             dates.append(date[0])
 
-    ## Last log
+    # Last log
     if len(dates) > 0:
         logs[current_package] = dates
 

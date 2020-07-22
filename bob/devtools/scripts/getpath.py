@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import os
-
 import click
 
+from ..log import get_logger
+from ..log import verbosity_option
+from ..release import download_path
+from ..release import get_gitlab_instance
 from . import bdt
-from ..release import get_gitlab_instance, download_path
 from .common_options import ref_option
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 

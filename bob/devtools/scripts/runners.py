@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import os
-
 import click
 
-from . import bdt
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger
+from . import bdt
 
 logger = get_logger(__name__)
 
@@ -51,7 +49,6 @@ def runners(target, cmd, name, dry_run):
 
     gl = get_gitlab_instance()
     gl.auth()
-    user_id = gl.user.attributes["id"]
 
     if "/" in target:  # it is a specific project
         packages = [gl.projects.get(target)]
@@ -68,26 +65,20 @@ def runners(target, cmd, name, dry_run):
             "Found gitlab group %s (id=%d)", group.attributes["path"], group.id
         )
         logger.warn(
-            "Retrieving all projects (with details) from group "
-            "%s (id=%d)...",
+            "Retrieving all projects (with details) from group " "%s (id=%d)...",
             group.attributes["path"],
             group.id,
         )
         packages = [
-            gl.projects.get(k.id)
-            for k in group.projects.list(all=True, simple=True)
+            gl.projects.get(k.id) for k in group.projects.list(all=True, simple=True)
         ]
         logger.info(
-            "Found %d projects under group %s",
-            len(packages),
-            group.attributes["path"],
+            "Found %d projects under group %s", len(packages), group.attributes["path"],
         )
 
     # search for the runner to affect
     the_runner = [
-        k
-        for k in gl.runners.list(all=True)
-        if k.attributes["description"] == name
+        k for k in gl.runners.list(all=True) if k.attributes["description"] == name
     ]
     if not the_runner:
         raise RuntimeError("Cannot find runner with description = %s", name)
@@ -100,21 +91,19 @@ def runners(target, cmd, name, dry_run):
 
     for k in packages:
         logger.info(
-            "Processing project %s (id=%d)",
-            k.attributes["path_with_namespace"],
-            k.id,
+            "Processing project %s (id=%d)", k.attributes["path_with_namespace"], k.id,
         )
 
         if cmd == "enable":
 
             # checks if runner is not enabled first
             enabled = False
-            for l in k.runners.list(all=True):
-                if l.id == the_runner.id:  # it is there already
+            for ll in k.runners.list(all=True):
+                if ll.id == the_runner.id:  # it is there already
                     logger.warn(
                         "Runner %s (id=%d) is already enabled for project %s",
-                        l.attributes["description"],
-                        l.id,
+                        ll.attributes["description"],
+                        ll.id,
                         k.attributes["path_with_namespace"],
                     )
                     enabled = True
@@ -134,12 +123,12 @@ def runners(target, cmd, name, dry_run):
 
             # checks if runner is not already disabled first
             disabled = True
-            for l in k.runners.list(all=True):
-                if l.id == the_runner.id:  # it is there already
+            for ll in k.runners.list(all=True):
+                if ll.id == the_runner.id:  # it is there already
                     logger.debug(
                         "Runner %s (id=%d) is enabled for project %s",
-                        l.attributes["description"],
-                        l.id,
+                        ll.attributes["description"],
+                        ll.id,
                         k.attributes["path_with_namespace"],
                     )
                     disabled = False

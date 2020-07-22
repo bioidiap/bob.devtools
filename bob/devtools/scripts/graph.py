@@ -3,24 +3,24 @@
 
 import sys
 
-import yaml
 import click
-from click_plugins import with_plugins
+import yaml
 
-from . import bdt
-from ..constants import (
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    SERVER,
-    MATPLOTLIB_RCDIR,
-    BASE_CONDARC,
-)
+from ..bootstrap import get_channels
+from ..bootstrap import set_environment
 from ..build import make_conda_config
-from ..bootstrap import set_environment, get_channels
+from ..constants import BASE_CONDARC
+from ..constants import CONDA_BUILD_CONFIG
+from ..constants import CONDA_RECIPE_APPEND
+from ..constants import MATPLOTLIB_RCDIR
+from ..constants import SERVER
+from ..graph import compute_adjencence_matrix
+from ..graph import generate_graph
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-from ..graph import compute_adjencence_matrix, generate_graph
+from . import bdt
 
-from ..log import verbosity_option, get_logger, echo_info
 logger = get_logger(__name__)
 
 
@@ -41,7 +41,7 @@ Examples:
      defined by a regular expression
 
 \b
-     $ bdt gitlab graph beat/beat.editor --deptypes=run --deptypes=test --whitelist='^beat\.(editor|cmdline).*$'
+     $ bdt gitlab graph beat/beat.editor --deptypes=run --deptypes=test --whitelist='^beat\\.(editor|cmdline).*$'
 
 """
 )
@@ -54,9 +54,7 @@ Examples:
     help="Version of python to build the environment for",
 )
 @click.option(
-    "-r",
-    "--condarc",
-    help="Use custom conda configuration file instead of our own",
+    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -105,11 +103,7 @@ Examples:
     help="Use this flag to indicate the graph will be running on the CI",
 )
 @click.option(
-    "-n",
-    "--name",
-    show_default=True,
-    default="graph",
-    help="set the graph name",
+    "-n", "--name", show_default=True, default="graph", help="set the graph name",
 )
 @click.option(
     "-f",
@@ -122,12 +116,13 @@ Examples:
     "-w",
     "--whitelist",
     show_default=True,
-    default="^(bob|beat|batl|gridtk)(\.)?(?!-).*$",
+    default="^(bob|beat|batl|gridtk)(\\.)?(?!-).*$",
     help="package regular expression to preserve in the graph, "
     "use .* for keeping all packages, including non-maintained ones.  The "
     "current expression accepts most of our packages, excluding "
     "bob/beat-devel.  This flag only affects the graph generation - we still "
-    "recurse over all packages to calculate dependencies.")
+    "recurse over all packages to calculate dependencies.",
+)
 @click.option(
     "-d",
     "--deptypes",
@@ -136,11 +131,25 @@ Examples:
     multiple=True,
     help="types of dependencies to consider.  Pass multiple times to include "
     "more types.  Valid types are 'host', 'build', 'run' and 'test'.  An "
-    "empty set considers all dependencies to the graph")
+    "empty set considers all dependencies to the graph",
+)
 @verbosity_option()
 @bdt.raise_on_error
-def graph(package, python, condarc, config, append_file, server, private,
-        stable, ci, name, format, whitelist, deptypes):
+def graph(
+    package,
+    python,
+    condarc,
+    config,
+    append_file,
+    server,
+    private,
+    stable,
+    ci,
+    name,
+    format,
+    whitelist,
+    deptypes,
+):
     """
     Computes the dependency graph of a gitlab package (via its conda recipe)
     and outputs an dot file that can be used by graphviz to draw a direct
@@ -152,7 +161,7 @@ def graph(package, python, condarc, config, append_file, server, private,
     if "/" not in package:
         raise RuntimeError('PACKAGE should be specified as "group/name"')
 
-    package_group, package_name = package.split('/', 1)
+    package_group, package_name = package.split("/", 1)
 
     gl = get_gitlab_instance()
 
@@ -181,9 +190,7 @@ def graph(package, python, condarc, config, append_file, server, private,
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    conda_config = make_conda_config(
-        config, python, append_file, condarc_options
-    )
+    conda_config = make_conda_config(config, python, append_file, condarc_options)
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
 
@@ -195,9 +202,9 @@ def graph(package, python, condarc, config, append_file, server, private,
     # avoids conda-build complaints
     set_environment("NOSE_EVAL_ATTR", "")
 
-    adj_matrix = compute_adjencence_matrix(gl, package, conda_config,
-            channels[0], deptypes=deptypes)
+    adj_matrix = compute_adjencence_matrix(
+        gl, package, conda_config, channels[0], deptypes=deptypes
+    )
 
     graph = generate_graph(adj_matrix, deptypes=deptypes, whitelist=whitelist)
     graph.render(name, format=format, cleanup=True)
-

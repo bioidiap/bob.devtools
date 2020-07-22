@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 
 import click
 import pkg_resources
+
 from click_plugins import with_plugins
 
+from ..dav import remove_old_beta_packages
+from ..dav import setup_webdav_client
+from ..log import echo_info
+from ..log import echo_normal
+from ..log import echo_warning
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-
-from ..dav import setup_webdav_client, remove_old_beta_packages
-from ..log import verbosity_option, get_logger, echo_normal, echo_info, \
-    echo_warning
 
 logger = get_logger(__name__)
 
@@ -61,9 +64,7 @@ Examples:
     help="If set, print details about each listed file",
 )
 @click.argument(
-    "path",
-    default="/",
-    required=False,
+    "path", default="/", required=False,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -71,15 +72,16 @@ def list(private, long_format, path):
     """List the contents of a given WebDAV directory.
     """
 
-    if not path.startswith('/'): path = '/' + path
+    if not path.startswith("/"):
+        path = "/" + path
     cl = setup_webdav_client(private)
     contents = cl.list(path)
     remote_path = cl.get_url(path)
-    echo_info('ls %s' % (remote_path,))
+    echo_info("ls %s" % (remote_path,))
     for k in contents:
         if long_format:
-            info = cl.info('/'.join((path, k)))
-            echo_normal('%-20s  %-10s  %s' % (info['created'], info['size'], k))
+            info = cl.info("/".join((path, k)))
+            echo_normal("%-20s  %-10s  %s" % (info["created"], info["size"], k))
         else:
             echo_normal(k)
 
@@ -101,8 +103,7 @@ Examples:
     help="If set, use the 'private' area instead of the public one",
 )
 @click.argument(
-    "path",
-    required=True,
+    "path", required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -112,18 +113,19 @@ def makedirs(private, path):
     Gracefully exists if the directory is already there.
     """
 
-    if not path.startswith('/'): path = '/' + path
+    if not path.startswith("/"):
+        path = "/" + path
     cl = setup_webdav_client(private)
     remote_path = cl.get_url(path)
 
     if cl.check(path):
-        echo_warning('directory %s already exists' % (remote_path,))
+        echo_warning("directory %s already exists" % (remote_path,))
 
-    rpath = ''
-    for k in path.split('/'):
-        rpath = '/'.join((rpath, k)) if rpath else k
+    rpath = ""
+    for k in path.split("/"):
+        rpath = "/".join((rpath, k)) if rpath else k
         if not cl.check(rpath):
-            echo_info('mkdir %s' % (rpath,))
+            echo_info("mkdir %s" % (rpath,))
             cl.mkdir(rpath)
 
 
@@ -161,8 +163,7 @@ Examples:
     help="If this flag is set, then execute the removal",
 )
 @click.argument(
-    "path",
-    required=True,
+    "path", required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -176,15 +177,16 @@ def rmtree(private, execute, path):
         echo_warning("!!!! DRY RUN MODE !!!!")
         echo_warning("Nothing is being executed on server.  Use -x to execute.")
 
-    if not path.startswith('/'): path = '/' + path
+    if not path.startswith("/"):
+        path = "/" + path
     cl = setup_webdav_client(private)
     remote_path = cl.get_url(path)
 
     if not cl.check(path):
-        echo_warning('resource %s does not exist' % (remote_path,))
+        echo_warning("resource %s does not exist" % (remote_path,))
         return
 
-    echo_info('rm -rf %s' % (remote_path,))
+    echo_info("rm -rf %s" % (remote_path,))
     if execute:
         cl.clean(path)
 
@@ -223,8 +225,7 @@ Examples:
     nargs=-1,
 )
 @click.argument(
-    "remote",
-    required=True,
+    "remote", required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -246,29 +247,29 @@ def upload(private, execute, local, remote):
         echo_warning("!!!! DRY RUN MODE !!!!")
         echo_warning("Nothing is being executed on server.  Use -x to execute.")
 
-    if not remote.startswith('/'): remote = '/' + remote
+    if not remote.startswith("/"):
+        remote = "/" + remote
     cl = setup_webdav_client(private)
 
     if not cl.check(remote):
-      echo_warning('base remote directory for upload %s does not exist' %
-          (remote,))
-      return 1
+        echo_warning("base remote directory for upload %s does not exist" % (remote,))
+        return 1
 
     for k in local:
         actual_remote = remote + os.path.basename(k)
         remote_path = cl.get_url(actual_remote)
 
         if cl.check(actual_remote):
-            echo_warning('resource %s already exists' % (remote_path,))
-            echo_warning('remove it first before uploading a new copy')
+            echo_warning("resource %s already exists" % (remote_path,))
+            echo_warning("remove it first before uploading a new copy")
             continue
 
         if os.path.isdir(k):
-            echo_info('cp -r %s %s' % (k, remote_path))
+            echo_info("cp -r %s %s" % (k, remote_path))
             if execute:
                 cl.upload_directory(local_path=k, remote_path=actual_remote)
         else:
-            echo_info('cp %s %s' % (k, remote_path))
+            echo_info("cp %s %s" % (k, remote_path))
             if execute:
                 cl.upload_file(local_path=k, remote_path=actual_remote)
 
@@ -305,8 +306,7 @@ Examples:
     help="If this flag is set, then execute the removal",
 )
 @click.argument(
-    "path",
-    required=True,
+    "path", required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -320,37 +320,39 @@ def clean_betas(private, execute, path):
         echo_warning("!!!! DRY RUN MODE !!!!")
         echo_warning("Nothing is being executed on server.  Use -x to execute.")
 
-    if not path.startswith('/'): path = '/' + path
+    if not path.startswith("/"):
+        path = "/" + path
     cl = setup_webdav_client(private)
     remote_path = cl.get_url(path)
 
     if not cl.is_dir(path):
-        echo_warning('Path %s is not a directory - ignoring...', remote_path)
+        echo_warning("Path %s is not a directory - ignoring...", remote_path)
         return
 
     # go through all possible variants:
     archs = [
-            'linux-64',
-            'linux-32',
-            'linux-armv6l',
-            'linux-armv7l',
-            'linux-ppc64le',
-            'osx-64',
-            'osx-32',
-            'win-64',
-            'win-32',
-            'noarch',
-            ]
+        "linux-64",
+        "linux-32",
+        "linux-armv6l",
+        "linux-armv7l",
+        "linux-ppc64le",
+        "osx-64",
+        "osx-32",
+        "win-64",
+        "win-32",
+        "noarch",
+    ]
 
     for arch in archs:
 
-        arch_path = '/'.join((path, arch))
+        arch_path = "/".join((path, arch))
 
         if not (cl.check(arch_path) and cl.is_dir(arch_path)):
             # it is normal if the directory does not exist
             continue
 
         server_path = cl.get_url(arch_path)
-        echo_info('Cleaning beta packages from %s' % server_path)
-        remove_old_beta_packages(client=cl, path=arch_path,
-                dry_run=(not execute), pyver=True)
+        echo_info("Cleaning beta packages from %s" % server_path)
+        remove_old_beta_packages(
+            client=cl, path=arch_path, dry_run=(not execute), pyver=True
+        )

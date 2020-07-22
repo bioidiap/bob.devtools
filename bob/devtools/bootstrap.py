@@ -4,6 +4,14 @@
 
 """Bootstraps a new miniconda installation and prepares it for development."""
 
+import glob
+import logging
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import time
 
 _BASE_CONDARC = """\
 add_pip_as_python_dependency: false #!final
@@ -33,16 +41,6 @@ _INTERVALS = (
 )
 """Time intervals that make up human readable time slots"""
 
-
-import os
-import sys
-import glob
-import time
-import shutil
-import platform
-import subprocess
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +169,6 @@ def merge_conda_cache(cache, prefix, name):
 
     # merge urls.txt files
     logger.info("Merging urls.txt files from cache...")
-    urls = []
     cached_pkgs_urls_txt = os.path.join(cached_pkgs_dir, "urls.txt")
 
     if not os.path.exists(cached_pkgs_urls_txt):

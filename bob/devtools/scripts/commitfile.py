@@ -4,14 +4,12 @@ import os
 
 import click
 
+from ..log import get_logger
+from ..log import verbosity_option
+from ..release import get_gitlab_instance
+from ..release import update_files_at_master
+from ..release import update_files_with_mr
 from . import bdt
-from ..release import (
-    get_gitlab_instance,
-    update_files_with_mr,
-    update_files_at_master,
-)
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -39,13 +37,9 @@ Examples:
 """
 )
 @click.argument("package")
-@click.argument(
-    "file", type=click.Path(file_okay=True, dir_okay=False, exists=True)
-)
+@click.argument("file", type=click.Path(file_okay=True, dir_okay=False, exists=True))
 @click.option("-m", "--message", help="Message to set for this commit")
-@click.option(
-    "-p", "--path", help="Which path to replace on the remote package"
-)
+@click.option("-p", "--path", help="Which path to replace on the remote package")
 @click.option(
     "-b",
     "--branch",

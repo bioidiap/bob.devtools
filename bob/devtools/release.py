@@ -5,15 +5,16 @@
 
 import os
 import re
-import time
 import shutil
+import time
+
+from distutils.version import StrictVersion
+
 import gitlab
 
 from .log import get_logger
 
 logger = get_logger(__name__)
-
-from distutils.version import StrictVersion
 
 
 def download_path(package, path, output=None, ref="master"):
@@ -101,22 +102,14 @@ def _update_readme(readme, version):
     for line in readme.splitlines():
         if BRANCH_RE.search(line) is not None:
             if "gitlab" in line:  # gitlab links
-                replacement = (
-                    "/v%s" % version if version is not None else "/master"
-                )
+                replacement = "/v%s" % version if version is not None else "/master"
                 line = BRANCH_RE.sub(replacement, line)
-            if ("software/bob" in line) or (
-                "software/beat" in line
-            ):  # our doc server
+            if ("software/bob" in line) or ("software/beat" in line):  # our doc server
                 if "master" not in line:  # don't replace 'latest' pointer
-                    replacement = (
-                        "/v%s" % version if version is not None else "/stable"
-                    )
+                    replacement = "/v%s" % version if version is not None else "/stable"
                     line = BRANCH_RE.sub(replacement, line)
         if DOC_IMAGE.search(line) is not None:
-            replacement = (
-                "-v%s-" % version if version is not None else "-stable-"
-            )
+            replacement = "-v%s-" % version if version is not None else "-stable-"
             line = DOC_IMAGE.sub(replacement, line)
         new_readme.append(line)
     return "\n".join(new_readme) + "\n"
@@ -195,8 +188,7 @@ def get_parsed_tag(gitpkg, tag):
             raise ValueError(
                 "The latest tag name {0} in package {1} has "
                 "unknown format".format(
-                    "v" + latest_tag_name,
-                    gitpkg.attributes["path_with_namespace"],
+                    "v" + latest_tag_name, gitpkg.attributes["path_with_namespace"],
                 )
             )
 
@@ -243,9 +235,7 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
     logger.info(tag_name)
     tag = gitpkg.tags.get(tag_name)
     tag_comments = "\n".join(tag_comments_list)
-    logger.info(
-        "Found tag %s, updating its comments with:\n%s", tag.name, tag_comments
-    )
+    logger.info("Found tag %s, updating its comments with:\n%s", tag.name, tag_comments)
     if not dry_run:
         tag.set_release_description(tag_comments)
     return tag
@@ -322,12 +312,8 @@ def update_files_with_mr(
                 logger.info("Merging !%d immediately - CI was skipped", mr.iid)
                 mr.merge()
             else:
-                logger.info(
-                    "Auto-merging !%d only if pipeline succeeds", mr.iid
-                )
-                time.sleep(
-                    0.5
-                )  # to avoid the MR to be merged automatically - bug?
+                logger.info("Auto-merging !%d only if pipeline succeeds", mr.iid)
+                time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
                 mr.merge(merge_when_pipeline_succeeds=True)
 
 
@@ -458,9 +444,7 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
         raise ValueError(
             "Pipeline {0} of project {1} exited with "
             'undesired status "{2}". Release is not possible.'.format(
-                pipeline_id,
-                gitpkg.attributes["path_with_namespace"],
-                pipeline.status,
+                pipeline_id, gitpkg.attributes["path_with_namespace"], pipeline.status,
             )
         )
 
@@ -598,35 +582,3 @@ def parse_and_process_package_changelog(gl, gitpkg, package_changelog, dry_run):
 
     # return the last tag and comments for release
     return cur_tag, cur_tag_comments
-
-
-def release_bob(changelog_file):
-    """Process the changelog and releases the ``bob`` metapackage."""
-
-    logger.info(
-        'Read the section "Releasing the Bob meta package" '
-        "on the documentation"
-    )
-
-    # get the list of bob's dependencies.
-    # Get their latest tags (since bob's last release) and the tag's changelog
-    saw_a_new_package = True
-    latest_tag = None
-    latest_pkg = None
-    for line in changelog_file:
-        # if saw_a_new_package:
-        if line.startswith("*"):
-            pkg = line[2:].strip()
-            saw_a_new_package = True
-            logger.info("%s == %s", latest_pkg, latest_tag)
-            latest_pkg = pkg
-            latest_tag = None
-            continue
-        if line.startswith("  *"):
-            latest_tag = line.split()[1][1:]
-        saw_a_new_package = False
-    logger.info("%s == %s", latest_pkg, latest_tag)
-    readme = open("../../bob/README.rst").read()
-    readme = _update_readme(readme, bob_version)
-    open("../../bob/README.rst", "wt").write(readme)
-    open("../../bob/version.txt", "wt").write(bob_version)

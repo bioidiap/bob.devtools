@@ -3,10 +3,9 @@
 
 import click
 
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-from .common_options import ref_option
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -70,7 +69,6 @@ def update_bob(stable):
             for pkg in public_packages
         ]
         public_packages = [f"{pkg} =={tag}" for pkg, tag in zip(public_packages, tags)]
-
 
     # modify conda/meta.yaml and requirements.txt in bob/bob
     logger.info("Updating conda/meta.yaml")
