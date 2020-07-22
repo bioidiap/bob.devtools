@@ -24,6 +24,8 @@ repos:
       - id: check-added-large-files
       - id: flake8
         exclude: bob/devtools/templates/setup.py
+      - id: check-yaml
+        exclude: ./*/meta.yaml
   - repo: local
     hooks:
       - id: sphinx-build
