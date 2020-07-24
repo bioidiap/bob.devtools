@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-import os
-
 import click
 import gitlab
 
-from . import bdt
-from ..changelog import get_last_tag, parse_date
+from ..changelog import get_last_tag
+from ..changelog import parse_date
+from ..log import echo_normal
+from ..log import echo_warning
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger, echo_normal, echo_warning
+from . import bdt
 
 logger = get_logger(__name__)
 
@@ -52,9 +53,10 @@ def lasttag(package):
         tag = get_last_tag(use_package)
         date = parse_date(tag.commit["committed_date"])
         echo_normal(
-            "%s: %s (%s)"
-            % (package, tag.name, date.strftime("%Y-%m-%d %H:%M:%S"))
+            "%s: %s (%s)" % (package, tag.name, date.strftime("%Y-%m-%d %H:%M:%S"))
         )
-    except gitlab.GitlabGetError as e:
-        logger.warn("Gitlab access error - package %s does not exist?", package)
+    except gitlab.GitlabGetError:
+        logger.warn(
+            "Gitlab access error - package %s does not exist?", package, exc_info=True
+        )
         echo_warning("%s: unknown" % (package,))

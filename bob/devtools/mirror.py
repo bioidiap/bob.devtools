@@ -2,26 +2,26 @@
 # vim: set fileencoding=utf-8 :
 
 
-'''Mirroring functionality for conda channels
+"""Mirroring functionality for conda channels
 
 Some constructs are bluntly copied from
 https://github.com/valassis-digital-media/conda-mirror
-'''
+"""
 
-import os
 import bz2
-import json
-import time
-import random
-import hashlib
 import fnmatch
+import hashlib
+import json
+import os
+import random
 import tempfile
+import time
 
 import requests
 
 from .log import get_logger
-logger = get_logger(__name__)
 
+logger = get_logger(__name__)
 
 
 def _download(url, target_directory):
@@ -44,12 +44,12 @@ def _download(url, target_directory):
     chunk_size = 1024  # 1KB chunks
     logger.info("Download %s -> %s", url, target_directory)
     # create a temporary file
-    target_filename = url.split('/')[-1]
+    target_filename = url.split("/")[-1]
     download_filename = os.path.join(target_directory, target_filename)
-    with open(download_filename, 'w+b') as tf:
+    with open(download_filename, "w+b") as tf:
         ret = requests.get(url, stream=True)
-        size = ret.headers.get('Content-length', '??')
-        logger.debug('Saving to %s (%s bytes)', download_filename, size)
+        size = ret.headers.get("Content-length", "??")
+        logger.debug("Saving to %s (%s bytes)", download_filename, size)
         for data in ret.iter_content(chunk_size):
             tf.write(data)
         file_size = os.path.getsize(download_filename)
@@ -70,8 +70,7 @@ def _list_conda_packages(local_dir):
         List of conda packages in `local_dir`
     """
     contents = os.listdir(local_dir)
-    return fnmatch.filter(contents, "*.conda") + \
-            fnmatch.filter(contents, "*.tar.bz2")
+    return fnmatch.filter(contents, "*.conda") + fnmatch.filter(contents, "*.tar.bz2")
 
 
 def get_json(channel, platform, name):
@@ -93,13 +92,13 @@ def get_json(channel, platform, name):
         contents of repodata.json
     """
 
-    url = channel + '/' + platform + '/' + name
-    logger.debug('[checking] %s...', url)
+    url = channel + "/" + platform + "/" + name
+    logger.debug("[checking] %s...", url)
     r = requests.get(url, allow_redirects=True, stream=True)
-    size = r.headers.get('Content-length', '??')
-    logger.info('[download] %s (%s bytes)...', url, size)
+    size = r.headers.get("Content-length", "??")
+    logger.info("[download] %s (%s bytes)...", url, size)
 
-    if name.endswith('.bz2'):
+    if name.endswith(".bz2"):
         # just in case transport encoding was applied
         r.raw.decode_content = True
         data = bz2.decompress(r.raw.read())
@@ -117,10 +116,11 @@ def get_local_contents(path, arch):
         return set()
 
     # path exists, lists currently available packages
-    logger.info('Listing package contents of %s...', path_arch)
+    logger.info("Listing package contents of %s...", path_arch)
     contents = os.listdir(path_arch)
-    return set(fnmatch.filter(contents, '*.tar.bz2') +
-            fnmatch.filter(contents, '*.conda'))
+    return set(
+        fnmatch.filter(contents, "*.tar.bz2") + fnmatch.filter(contents, "*.conda")
+    )
 
 
 def load_glob_list(path):
@@ -154,11 +154,11 @@ def whitelist_filter(packages, globs):
 def _sha256sum(filename):
     """Calculates and returns the sha-256 sum given a file name"""
 
-    h  = hashlib.sha256()
-    b  = bytearray(128*1024)
+    h = hashlib.sha256()
+    b = bytearray(128 * 1024)
     mv = memoryview(b)
-    with open(filename, 'rb', buffering=0) as f:
-        for n in iter(lambda : f.readinto(mv), 0):
+    with open(filename, "rb", buffering=0) as f:
+        for n in iter(lambda: f.readinto(mv), 0):
             h.update(mv[:n])
     return h.hexdigest()
 
@@ -166,11 +166,11 @@ def _sha256sum(filename):
 def _md5sum(filename):
     """Calculates and returns the md5 sum given a file name"""
 
-    h  = hashlib.md5()
-    b  = bytearray(128*1024)
+    h = hashlib.md5()
+    b = bytearray(128 * 1024)
     mv = memoryview(b)
-    with open(filename, 'rb', buffering=0) as f:
-        for n in iter(lambda : f.readinto(mv), 0):
+    with open(filename, "rb", buffering=0) as f:
+        for n in iter(lambda: f.readinto(mv), 0):
             h.update(mv[:n])
     return h.hexdigest()
 
@@ -208,53 +208,76 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
         total = len(packages)
         for k, p in enumerate(packages):
 
-            k+=1 #adjust to produce correct order on printouts
+            k += 1  # adjust to produce correct order on printouts
 
             # checksum to verify
-            if p.endswith('.tar.bz2'):
-                expected_hash = repodata['packages'][p].get('sha256',
-                        repodata['packages'][p]['md5'])
+            if p.endswith(".tar.bz2"):
+                expected_hash = repodata["packages"][p].get(
+                    "sha256", repodata["packages"][p]["md5"]
+                )
             else:
-                expected_hash = repodata['packages.conda'][p].get('sha256',
-                        repodata['packages.conda'][p]['md5'])
+                expected_hash = repodata["packages.conda"][p].get(
+                    "sha256", repodata["packages.conda"][p]["md5"]
+                )
 
             # download package to file in our temporary directory
-            url = channel_url + '/' + arch + '/' + p
+            url = channel_url + "/" + arch + "/" + p
             temp_dest = os.path.join(download_dir, p)
-            logger.info('[download: %d/%d] %s -> %s', k, total, url, temp_dest)
+            logger.info("[download: %d/%d] %s -> %s", k, total, url, temp_dest)
 
             package_retries = 10
             while package_retries:
 
                 if not dry_run:
-                    logger.debug('[checking: %d/%d] %s', k, total, url)
+                    logger.debug("[checking: %d/%d] %s", k, total, url)
                     r = requests.get(url, stream=True, allow_redirects=True)
-                    size = r.headers.get('Content-length', '??')
-                    logger.info('[download: %d/%d] %s -> %s (%s bytes)', k,
-                            total, url, temp_dest, size)
-                    open(temp_dest, 'wb').write(r.raw.read())
+                    size = r.headers.get("Content-length", "??")
+                    logger.info(
+                        "[download: %d/%d] %s -> %s (%s bytes)",
+                        k,
+                        total,
+                        url,
+                        temp_dest,
+                        size,
+                    )
+                    open(temp_dest, "wb").write(r.raw.read())
 
                 # verify that checksum matches
-                if len(expected_hash) == 32:  #md5
-                    logger.info('[verify: %d/%d] md5(%s) == %s?', k, total,
-                            temp_dest, expected_hash)
-                else:  #sha256
-                    logger.info('[verify: %d/%d] sha256(%s) == %s?', k, total,
-                            temp_dest, expected_hash)
+                if len(expected_hash) == 32:  # md5
+                    logger.info(
+                        "[verify: %d/%d] md5(%s) == %s?",
+                        k,
+                        total,
+                        temp_dest,
+                        expected_hash,
+                    )
+                else:  # sha256
+                    logger.info(
+                        "[verify: %d/%d] sha256(%s) == %s?",
+                        k,
+                        total,
+                        temp_dest,
+                        expected_hash,
+                    )
 
                 if not dry_run:
-                    if len(expected_hash) == 32:  #md5
+                    if len(expected_hash) == 32:  # md5
                         actual_hash = _md5sum(temp_dest)
-                    else:  #sha256
+                    else:  # sha256
                         actual_hash = _sha256sum(temp_dest)
 
                     if actual_hash != expected_hash:
-                        wait_time = random.randint(10,61)
-                        logger.warning('Checksum of locally downloaded ' \
-                                'version of %s does not match ' \
-                                '(actual:%r != %r:expected) - retrying ' \
-                                'after %d seconds', url, actual_hash,
-                                    expected_hash, wait_time)
+                        wait_time = random.randint(10, 61)
+                        logger.warning(
+                            "Checksum of locally downloaded "
+                            "version of %s does not match "
+                            "(actual:%r != %r:expected) - retrying "
+                            "after %d seconds",
+                            url,
+                            actual_hash,
+                            expected_hash,
+                            wait_time,
+                        )
                         os.unlink(temp_dest)
                         time.sleep(wait_time)
                         package_retries -= 1
@@ -263,20 +286,20 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
                         break
 
             # final check, before we continue
-            assert actual_hash == expected_hash, 'Checksum of locally ' \
-                    'downloaded version of %s does not match ' \
-                    '(actual:%r != %r:expected)' % (url, actual_hash,
-                            expected_hash)
+            assert actual_hash == expected_hash, (
+                "Checksum of locally "
+                "downloaded version of %s does not match "
+                "(actual:%r != %r:expected)" % (url, actual_hash, expected_hash)
+            )
 
             # move
             local_dest = os.path.join(dest_dir, arch, p)
-            logger.info('[move: %d/%d] %s -> %s', k, total, temp_dest,
-                    local_dest)
+            logger.info("[move: %d/%d] %s -> %s", k, total, temp_dest, local_dest)
 
             # check local directory is available before moving
             dirname = os.path.dirname(local_dest)
             if not os.path.exists(dirname):
-                logger.info('[mkdir] %s', dirname)
+                logger.info("[mkdir] %s", dirname)
                 if not dry_run:
                     os.makedirs(dirname)
 
@@ -289,9 +312,9 @@ def remove_packages(packages, dest_dir, arch, dry_run):
 
     total = len(packages)
     for k, p in enumerate(packages):
-        k+=1 #adjust to produce correct order on printouts
+        k += 1  # adjust to produce correct order on printouts
         path = os.path.join(dest_dir, arch, p)
-        logger.info('[remove: %d/%d] %s', k, total, path)
+        logger.info("[remove: %d/%d] %s", k, total, path)
         if not dry_run:
             os.unlink(path)
 
@@ -300,9 +323,10 @@ def _cleanup_json(data, packages):
     """Cleans-up the contents of conda JSON looking at existing packages"""
 
     # only keys to clean-up here, othere keys remain unchanged
-    for key in ('packages', 'packages.conda'):
-        if key not in data: continue
-        data[key] = dict((k,v) for k,v in data[key].items() if k in packages)
+    for key in ("packages", "packages.conda"):
+        if key not in data:
+            continue
+        data[key] = dict((k, v) for k, v in data[key].items() if k in packages)
 
     return data
 
@@ -312,7 +336,7 @@ def _save_json(data, dest_dir, arch, name, dry_run):
 
     destfile = os.path.join(dest_dir, arch, name)
     if not dry_run:
-        with open(destfile, 'w') as outfile:
+        with open(destfile, "w") as outfile:
             json.dump(data, outfile, ensure_ascii=True, indent=2)
     return destfile
 
@@ -367,30 +391,46 @@ def checksum_packages(repodata, dest_dir, arch, packages):
         path_to_package = os.path.join(dest_dir, arch, p)
 
         # checksum to verify
-        if p.endswith('.tar.bz2'):
-            expected_hash = repodata['packages'][p].get('sha256',
-                    repodata['packages'][p]['md5'])
+        if p.endswith(".tar.bz2"):
+            expected_hash = repodata["packages"][p].get(
+                "sha256", repodata["packages"][p]["md5"]
+            )
         else:
-            expected_hash = repodata['packages.conda'][p].get('sha256',
-                    repodata['packages.conda'][p]['md5'])
+            expected_hash = repodata["packages.conda"][p].get(
+                "sha256", repodata["packages.conda"][p]["md5"]
+            )
 
         # verify that checksum matches
-        if len(expected_hash) == 32:  #md5
-            logger.debug('[verify: %d/%d] md5(%s) == %s?', k, total,
-                    path_to_package, expected_hash)
-        else:  #sha256
-            logger.debug('[verify: %d/%d] sha256(%s) == %s?', k, total,
-                    path_to_package, expected_hash)
+        if len(expected_hash) == 32:  # md5
+            logger.debug(
+                "[verify: %d/%d] md5(%s) == %s?",
+                k,
+                total,
+                path_to_package,
+                expected_hash,
+            )
+        else:  # sha256
+            logger.debug(
+                "[verify: %d/%d] sha256(%s) == %s?",
+                k,
+                total,
+                path_to_package,
+                expected_hash,
+            )
 
-        if len(expected_hash) == 32:  #md5
+        if len(expected_hash) == 32:  # md5
             actual_hash = _md5sum(path_to_package)
-        else:  #sha256
+        else:  # sha256
             actual_hash = _sha256sum(path_to_package)
 
         if actual_hash != expected_hash:
-            logger.warning('Checksum of %s does not match remote ' \
-                    'repository description (actual:%r != %r:expected)',
-                    path_to_package, actual_hash, expected_hash)
+            logger.warning(
+                "Checksum of %s does not match remote "
+                "repository description (actual:%r != %r:expected)",
+                path_to_package,
+                actual_hash,
+                expected_hash,
+            )
             issues.add(p)
 
     return issues

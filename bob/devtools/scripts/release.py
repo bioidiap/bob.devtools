@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 
 
-import os
-
 import click
 
-from . import bdt
-from ..release import release_bob, parse_and_process_package_changelog
-from ..release import release_package, wait_for_pipeline_to_finish
+from ..log import get_logger
+from ..log import verbosity_option
 from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger
+from ..release import parse_and_process_package_changelog
+from ..release import release_package
+from ..release import wait_for_pipeline_to_finish
+from . import bdt
 
 logger = get_logger(__name__)
 

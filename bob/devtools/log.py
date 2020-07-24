@@ -3,12 +3,12 @@
 
 """Logging utilities."""
 
-import sys
 import logging
+import os
+import sys
 
 import click
 import termcolor
-
 
 # get the default root logger of Bob
 _logger = logging.getLogger("bob")
@@ -127,9 +127,7 @@ def echo_warning(text):
 
 
 # helper functions to instantiate and set-up logging
-def setup(
-    logger_name, format="%(levelname)s:%(name)s@%(asctime)s: %(message)s"
-):
+def setup(logger_name, format="%(levelname)s:%(name)s@%(asctime)s: %(message)s"):
     """This function returns a logger object that is set up to perform logging
     using Bob loggers.
 

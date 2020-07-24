@@ -4,37 +4,33 @@
 import os
 import sys
 
-import yaml
 import click
-import pkg_resources
 import conda_build.api
+import yaml
 
+from ..bootstrap import get_channels
+from ..bootstrap import set_environment
+from ..build import conda_arch
+from ..build import get_docserver_setup
+from ..build import get_env_directory
+from ..build import get_output_path
+from ..build import get_parsed_recipe
+from ..build import get_rendered_metadata
+from ..build import make_conda_config
+from ..build import next_build_number
+from ..build import remove_conda_loggers
+from ..build import should_skip_build
+from ..constants import BASE_CONDARC
+from ..constants import CONDA_BUILD_CONFIG
+from ..constants import CONDA_RECIPE_APPEND
+from ..constants import MATPLOTLIB_RCDIR
+from ..constants import SERVER
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-from ..build import (
-    next_build_number,
-    conda_arch,
-    should_skip_build,
-    get_rendered_metadata,
-    get_parsed_recipe,
-    make_conda_config,
-    get_docserver_setup,
-    get_env_directory,
-    get_output_path,
-    remove_conda_loggers,
-)
 
 remove_conda_loggers()
 
-from ..constants import (
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    SERVER,
-    MATPLOTLIB_RCDIR,
-    BASE_CONDARC,
-)
-from ..bootstrap import set_environment, get_channels
-
-from ..log import verbosity_option, get_logger, echo_info
 
 logger = get_logger(__name__)
 
@@ -74,9 +70,7 @@ Examples:
     help="Version of python to build the environment for",
 )
 @click.option(
-    "-r",
-    "--condarc",
-    help="Use custom conda configuration file instead of our own",
+    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -87,10 +81,7 @@ Examples:
     help="overwrites the path leading to " "variant configuration file to use",
 )
 @click.option(
-    "-n",
-    "--no-test",
-    is_flag=True,
-    help="Do not test the package, only builds it",
+    "-n", "--no-test", is_flag=True, help="Do not test the package, only builds it",
 )
 @click.option(
     "-a",
@@ -190,8 +181,6 @@ def build(
         group,
     )
 
-    project_dir = os.path.dirname(recipe_dir[0])
-
     if condarc is not None:
         logger.info("Loading CONDARC file from %s...", condarc)
         with open(condarc, "rb") as f:
@@ -201,11 +190,7 @@ def build(
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
     channels = get_channels(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
+        public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
 
     if "channels" not in condarc_options:
@@ -222,9 +207,7 @@ def build(
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
     condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
-    conda_config = make_conda_config(
-        config, python, append_file, condarc_options
-    )
+    conda_config = make_conda_config(config, python, append_file, condarc_options)
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
 
@@ -232,11 +215,7 @@ def build(
     # and derived documentation building via Sphinx)
     set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
+        public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 
@@ -260,9 +239,7 @@ def build(
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
-            logger.info(
-                "Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch
-            )
+            logger.info("Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch)
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
@@ -284,9 +261,7 @@ def build(
             # set $BOB_BUILD_NUMBER and force conda_build to reparse recipe to
             # get it right
             set_environment("BOB_BUILD_NUMBER", str(build_number))
-            paths = conda_build.api.build(
-                d, config=conda_config, notest=no_test
-            )
+            paths = conda_build.api.build(d, config=conda_config, notest=no_test)
             # if you get to this point, the package was successfully rebuilt
             # set environment to signal caller we may dispose of it
             os.environ["BDT_BUILD"] = ":".join(paths)

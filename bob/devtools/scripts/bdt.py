@@ -4,9 +4,10 @@
 """Main entry point for bdt."""
 
 import os
-import pkg_resources
 
 import click
+import pkg_resources
+
 from click_plugins import with_plugins
 
 from ..log import setup
@@ -59,8 +60,7 @@ if "LC_ALL" not in os.environ:
 
 @with_plugins(pkg_resources.iter_entry_points("bdt.cli"))
 @click.group(
-    cls=AliasedGroup,
-    context_settings=dict(help_option_names=["-?", "-h", "--help"]),
+    cls=AliasedGroup, context_settings=dict(help_option_names=["-?", "-h", "--help"]),
 )
 def main():
     """Bob Development Tools - see available commands below"""

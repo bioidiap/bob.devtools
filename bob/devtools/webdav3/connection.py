@@ -1,6 +1,6 @@
 from os.path import exists
 
-from .exceptions import *
+from .exceptions import OptionNotValid
 from .urn import Urn
 
 
@@ -60,24 +60,16 @@ class WebDAVSettings(ConnectionSettings):
     def is_valid(self):
 
         if not self.hostname:
-            raise OptionNotValid(
-                name="hostname", value=self.hostname, ns=self.ns
-            )
+            raise OptionNotValid(name="hostname", value=self.hostname, ns=self.ns)
 
         if self.cert_path and not exists(self.cert_path):
-            raise OptionNotValid(
-                name="cert_path", value=self.cert_path, ns=self.ns
-            )
+            raise OptionNotValid(name="cert_path", value=self.cert_path, ns=self.ns)
 
         if self.key_path and not exists(self.key_path):
-            raise OptionNotValid(
-                name="key_path", value=self.key_path, ns=self.ns
-            )
+            raise OptionNotValid(name="key_path", value=self.key_path, ns=self.ns)
 
         if self.key_path and not self.cert_path:
-            raise OptionNotValid(
-                name="cert_path", value=self.cert_path, ns=self.ns
-            )
+            raise OptionNotValid(name="cert_path", value=self.cert_path, ns=self.ns)
 
         if self.password and not self.login:
             raise OptionNotValid(name="login", value=self.login, ns=self.ns)
@@ -111,6 +103,4 @@ class ProxySettings(ConnectionSettings):
 
         if self.login or self.password:
             if not self.hostname:
-                raise OptionNotValid(
-                    name="hostname", value=self.hostname, ns=self.ns
-                )
+                raise OptionNotValid(name="hostname", value=self.hostname, ns=self.ns)

@@ -4,10 +4,10 @@
 """Constants used for building and more."""
 
 import os
+
 import pkg_resources
 
 from . import bootstrap
-
 from .log import get_logger
 
 logger = get_logger(__name__)
@@ -112,9 +112,7 @@ CACERT_URL = "https://curl.haxx.se/ca/cacert.pem"
 """Location of the most up-to-date CA certificate bundle"""
 
 
-CACERT = pkg_resources.resource_filename(
-    __name__, os.path.join("data", "cacert.pem")
-)
+CACERT = pkg_resources.resource_filename(__name__, os.path.join("data", "cacert.pem"))
 """We keep a copy of the CA certificates we trust here
 
    To update this file use: ``curl --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem``

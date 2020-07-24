@@ -2,33 +2,28 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 
-import yaml
 import click
-import pkg_resources
 import conda_build.api
+import yaml
 
+from ..bootstrap import set_environment
+from ..build import conda_arch
+from ..build import get_docserver_setup
+from ..build import get_env_directory
+from ..build import make_conda_config
+from ..build import remove_conda_loggers
+from ..constants import BASE_CONDARC
+from ..constants import CONDA_BUILD_CONFIG
+from ..constants import CONDA_RECIPE_APPEND
+from ..constants import MATPLOTLIB_RCDIR
+from ..constants import SERVER
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
-from ..build import (
-    conda_arch,
-    make_conda_config,
-    get_docserver_setup,
-    get_env_directory,
-    remove_conda_loggers,
-)
+
 remove_conda_loggers()
 
-from ..constants import (
-    CONDA_BUILD_CONFIG,
-    CONDA_RECIPE_APPEND,
-    SERVER,
-    MATPLOTLIB_RCDIR,
-    BASE_CONDARC,
-)
-from ..bootstrap import set_environment
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -57,9 +52,7 @@ Examples:
     nargs=-1,
 )
 @click.option(
-    "-r",
-    "--condarc",
-    help="Use custom conda configuration file instead of our own",
+    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -173,12 +166,9 @@ def test(
 
     if "channels" not in condarc_options:
         from ..bootstrap import get_channels
+
         channels = get_channels(
-            public=(not private),
-            stable=stable,
-            server=server,
-            intranet=ci,
-            group=group
+            public=(not private), stable=stable, server=server, intranet=ci, group=group
         )
         condarc_options["channels"] = channels + ["defaults"]
 
@@ -199,11 +189,7 @@ def test(
     # and derived documentation building via Sphinx)
     set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
-        public=(not private),
-        stable=stable,
-        server=server,
-        intranet=ci,
-        group=group,
+        public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 

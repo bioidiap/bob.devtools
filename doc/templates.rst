@@ -134,7 +134,7 @@ recipe for that package.
 
 .. note::
 
-    For more detailed instructions on how to distribute your packages at Idiap, please see the 
+    For more detailed instructions on how to distribute your packages at Idiap, please see the
     guidelines on `Publishing Reproducible Papers at Idiap <https://gitlab.idiap.ch/bob/bob/wikis/Publishing-Reproducible-Papers-at-Idiap>`_.
 
 
@@ -143,7 +143,7 @@ recipe for that package.
 buildout.cfg in more details
 ============================
 This section briefly explains the different entries in ``buildout.cfg`` file. For better understanding of buildout refer to its
-`documentation <http://www.buildout.org>`_ 
+`documentation <http://www.buildout.org>`_
 
 
 To be able to develop a package, we first need to build and install it locally.
@@ -164,7 +164,7 @@ you do in the source. zc.buildout_ allows you to exactly do that.
 
 zc.buildout_ provides a ``buildout`` command. ``buildout`` takes as input a
 "recipe" that explains how to build a local working environment. The recipe, by
-default, is stored in a file called ``buildout.cfg``. 
+default, is stored in a file called ``buildout.cfg``.
 
 
 .. important::

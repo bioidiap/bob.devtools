@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
-import os
 
 import click
 import gitlab
 
+from ..log import echo_warning
+from ..log import get_logger
+from ..log import verbosity_option
+from ..release import get_gitlab_instance
+from ..release import update_files_at_master
 from . import bdt
-from ..release import get_gitlab_instance, update_files_at_master
-
-from ..log import verbosity_option, get_logger, echo_normal, echo_warning
 
 logger = get_logger(__name__)
 
@@ -75,10 +76,10 @@ def _update_readme(content, info):
 
     new_badges_text = []
     for badge in README_BADGES:
-        data = dict((k, v.format(**info)) for (k,v) in badge.items())
+        data = dict((k, v.format(**info)) for (k, v) in badge.items())
         new_badges_text.append(".. image:: {image_url}".format(**data))
         new_badges_text.append("   :target: {link_url}".format(**data))
-    new_badges_text = '\n'.join(new_badges_text) + '\n'
+    new_badges_text = "\n".join(new_badges_text) + "\n"
     # matches only 3 or more occurences of ..image::/:target: occurences
     expression = r"(\.\.\s*image.+\n\s+:target:\s*.+\b\n){3,}"
     return re.sub(expression, new_badges_text, content)
@@ -138,19 +139,19 @@ def badges(package, dry_run):
                 badge.id,
                 badge.link_url,
             )
-            if not dry_run: badge.delete()
+            if not dry_run:
+                badge.delete()
 
         # creates all stock badges, preserve positions
         info = dict(zip(("group", "name"), package.split("/", 1)))
         for position, badge in enumerate(PROJECT_BADGES):
-            data = dict([(k,v.format(**info)) for (k,v) in badge.items()])
+            data = dict([(k, v.format(**info)) for (k, v) in badge.items()])
             data["position"] = position
             logger.info(
-                "Creating badge '%s' => '%s'",
-                data["name"],
-                data["link_url"],
+                "Creating badge '%s' => '%s'", data["name"], data["link_url"],
             )
-            if not dry_run: use_package.badges.create(data)
+            if not dry_run:
+                use_package.badges.create(data)
 
         # download and edit README to setup badges
         readme_file = use_package.files.get(file_path="README.rst", ref="master")
@@ -158,10 +159,16 @@ def badges(package, dry_run):
         readme_content = _update_readme(readme_content, info)
         # commit and push changes
         logger.info("Changing README.rst badges...")
-        update_files_at_master(use_package, {"README.rst": readme_content},
-            "Updated badges section [ci skip]", dry_run)
+        update_files_at_master(
+            use_package,
+            {"README.rst": readme_content},
+            "Updated badges section [ci skip]",
+            dry_run,
+        )
         logger.info("All done.")
 
-    except gitlab.GitlabGetError as e:
-        logger.warn("Gitlab access error - package %s does not exist?", package)
+    except gitlab.GitlabGetError:
+        logger.warn(
+            "Gitlab access error - package %s does not exist?", package, exc_info=True
+        )
         echo_warning("%s: unknown" % (package,))

@@ -14,19 +14,15 @@ class Urn(object):
     def __init__(self, path, directory=False):
 
         self._path = quote(path)
-        expressions = "/\.+/", "/+"
+        expressions = r"/\.+/", "/+"
         for expression in expressions:
             self._path = sub(expression, Urn.separate, self._path)
 
         if not self._path.startswith(Urn.separate):
-            self._path = "{begin}{end}".format(
-                begin=Urn.separate, end=self._path
-            )
+            self._path = "{begin}{end}".format(begin=Urn.separate, end=self._path)
 
         if directory and not self._path.endswith(Urn.separate):
-            self._path = "{begin}{end}".format(
-                begin=self._path, end=Urn.separate
-            )
+            self._path = "{begin}{end}".format(begin=self._path, end=Urn.separate)
 
     def __str__(self):
         return self.path()
@@ -40,11 +36,7 @@ class Urn(object):
     def filename(self):
 
         path_split = self._path.split(Urn.separate)
-        name = (
-            path_split[-2] + Urn.separate
-            if path_split[-1] == ""
-            else path_split[-1]
-        )
+        name = path_split[-2] + Urn.separate if path_split[-1] == "" else path_split[-1]
         return unquote(name)
 
     def parent(self):
@@ -71,11 +63,7 @@ class Urn(object):
     @staticmethod
     def normalize_path(path):
         result = sub("/{2,}", "/", path)
-        return (
-            result
-            if len(result) < 1 or result[-1] != Urn.separate
-            else result[:-1]
-        )
+        return result if len(result) < 1 or result[-1] != Urn.separate else result[:-1]
 
     @staticmethod
     def compare_path(path_a, href):

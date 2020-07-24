@@ -3,22 +3,21 @@
 
 """Utilities for calculating package dependencies and drawing graphs"""
 
+import glob
 import os
 import re
-import glob
-import fnmatch
-import tempfile
 import tarfile
+import tempfile
+
 from io import BytesIO
 
 from .bootstrap import set_environment
-from .build import (
-    next_build_number,
-    get_rendered_metadata,
-    get_parsed_recipe,
-    get_output_path,
-)
-from .log import get_logger, echo_info
+from .build import get_output_path
+from .build import get_parsed_recipe
+from .build import get_rendered_metadata
+from .build import next_build_number
+from .log import echo_info
+from .log import get_logger
 
 logger = get_logger(__name__)
 
@@ -28,7 +27,7 @@ def compute_adjencence_matrix(
     package,
     conda_config,
     main_channel,
-    recurse_regexp="^(bob|beat|batl|gridtk)(\.)?(?!-).*$",
+    recurse_regexp=r"^(bob|beat|batl|gridtk)(\.)?(?!-).*$",
     current={},
     ref="master",
     deptypes=[],
@@ -127,9 +126,7 @@ def compute_adjencence_matrix(
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
-        build_number, _ = next_build_number(
-            main_channel, os.path.basename(path)
-        )
+        build_number, _ = next_build_number(main_channel, os.path.basename(path))
 
         # at this point, all elements are parsed, I know the package version,
         # build number and all dependencies
@@ -163,8 +160,8 @@ def compute_adjencence_matrix(
         # if dependencies match a target set of globs
         recurse_compiled = re.compile(recurse_regexp)
 
-        def _re_filter(l):
-            return [k for k in l if recurse_compiled.match(k)]
+        def _re_filter(ll):
+            return [k for k in ll if recurse_compiled.match(k)]
 
         all_recurse = set()
         all_recurse |= set([z.split()[0] for z in _re_filter(host)])
@@ -194,9 +191,7 @@ def compute_adjencence_matrix(
 
         # do not recurse for packages we already know
         all_recurse -= set(current.keys())
-        logger.info(
-            "Recursing over the following packages: %s", ", ".join(all_recurse)
-        )
+        logger.info("Recursing over the following packages: %s", ", ".join(all_recurse))
 
         for dep in all_recurse:
             dep_adjmtx = compute_adjencence_matrix(
@@ -264,17 +259,10 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
     for package, values in adjacence_matrix.items():
         if not whitelist_compiled.match(values["name"]):
             logger.debug(
-                "Skipping main package %s (did not match whitelist)",
-                values["name"],
+                "Skipping main package %s (did not match whitelist)", values["name"],
             )
             continue
-        name = (
-            values["name"]
-            + "\n"
-            + values["version"]
-            + "\n"
-            + values["build_string"]
-        )
+        name = values["name"] + "\n" + values["version"] + "\n" + values["build_string"]
         nodes[values["name"]] = graph.node(
             values["name"], name, shape="box", color="blue"
         )
@@ -294,9 +282,7 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
 
         for ref, parts in deps.items():
             if not whitelist_compiled.match(ref):
-                logger.debug(
-                    "Skipping dependence %s (did not match whitelist)", ref
-                )
+                logger.debug("Skipping dependence %s (did not match whitelist)", ref)
                 continue
 
             if not any([k == ref for k in nodes.keys()]):

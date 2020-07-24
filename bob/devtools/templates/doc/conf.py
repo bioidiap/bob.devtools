@@ -2,7 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
+
 import pkg_resources
+import sphinx_rtd_theme
+
+# For inter-documentation mapping:
+from bob.extension.utils import link_documentation
+from bob.extension.utils import load_requirements
 
 # -- General configuration -----------------------------------------------------
 
@@ -23,7 +30,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
-    #'matplotlib.sphinxext.plot_directive'
+    # 'matplotlib.sphinxext.plot_directive',
 ]
 
 # Be picky about warnings
@@ -69,7 +76,6 @@ master_doc = "index"
 
 # General information about the project.
 project = "{{ name }}"
-import time
 
 copyright = "%s, Idiap Research Institute" % time.strftime("%Y")
 
@@ -126,9 +132,6 @@ owner = ["Idiap Research Institute"]
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-import sphinx_rtd_theme
 
 html_theme = "sphinx_rtd_theme"
 
@@ -223,14 +226,10 @@ autodoc_member_order = "bysource"
 autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
 
 
-# For inter-documentation mapping:
-from bob.extension.utils import link_documentation, load_requirements
-
 sphinx_requirements = "extra-intersphinx.txt"
 if os.path.exists(sphinx_requirements):
     intersphinx_mapping = link_documentation(
-        additional_packages=["python", "numpy"]
-        + load_requirements(sphinx_requirements)
+        additional_packages=["python", "numpy"] + load_requirements(sphinx_requirements)
     )
 else:
     intersphinx_mapping = link_documentation()

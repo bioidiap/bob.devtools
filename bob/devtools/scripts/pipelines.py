@@ -1,18 +1,21 @@
 #!/usr/bin/env python
 
-import os
+import urllib
 
 import click
 import gitlab
-import urllib
 
-from . import bdt
-from ..release import get_gitlab_instance
-
-from ..log import verbosity_option, get_logger, echo_normal, echo_warning
-from ..pipelines import process_log
-logger = get_logger(__name__)
 from tabulate import tabulate
+
+from ..log import echo_warning
+from ..log import get_logger
+from ..log import verbosity_option
+from ..pipelines import process_log
+from ..release import get_gitlab_instance
+from . import bdt
+
+logger = get_logger(__name__)
+
 
 @click.command(
     epilog="""
@@ -30,7 +33,7 @@ Examples:
 )
 @click.argument("package")
 @click.argument("pipeline")
-@click.option('--job-id', default=None, help='A job id from a pipeline')
+@click.option("--job-id", default=None, help="A job id from a pipeline")
 @verbosity_option()
 @bdt.raise_on_error
 def process_pipelines(package, pipeline, job_id):
@@ -46,24 +49,31 @@ def process_pipelines(package, pipeline, job_id):
         project = gl.projects.get(package)
         pipeline = project.pipelines.get(pipeline)
 
-        jobs = [j for j in pipeline.jobs.list()]        
+        jobs = [j for j in pipeline.jobs.list()]
         if job_id is not None:
-            jobs = [j for j in jobs if int(j.attributes["id"])==int(job_id)]
+            jobs = [j for j in jobs if int(j.attributes["id"]) == int(job_id)]
 
+        if len(jobs) == 0:
+            print(
+                "Job %s not found in the pipeline %s. Use `bdt gitlab get-pipelines` to search "
+                % (job_id, pipeline.attributes["id"])
+            )
 
-        if(len(jobs) == 0 ):
-            print("Job %s not found in the pipeline %s. Use `bdt gitlab get-pipelines` to search " % (job_id, pipeline.attributes["id"]))
-                         
         # Reading log
         try:
             for j in jobs:
-                print("Pipeline %s, Job %s" % (pipeline.attributes["id"], int(j.attributes["id"])))
-                web_url = j.attributes["web_url"] + "/raw"                
+                print(
+                    "Pipeline %s, Job %s"
+                    % (pipeline.attributes["id"], int(j.attributes["id"]))
+                )
+                web_url = j.attributes["web_url"] + "/raw"
                 log = str(urllib.request.urlopen(web_url).read()).split("\\n")
                 process_log(log)
-        except urllib.error.HTTPError as e:
+        except urllib.error.HTTPError:
             logger.warn(
-                "Gitlab access error - Log %s can't be found" % web_url, package
+                "Gitlab access error - Log %s can't be found" % web_url,
+                package,
+                exc_info=True,
             )
             echo_warning("%s: unknown" % (package,))
 
@@ -74,8 +84,10 @@ def process_pipelines(package, pipeline, job_id):
         )
 
         pass
-    except gitlab.GitlabGetError as e:
-        logger.warn("Gitlab access error - package %s does not exist?", package)
+    except gitlab.GitlabGetError:
+        logger.warn(
+            "Gitlab access error - package %s does not exist?", package, exc_info=True
+        )
         echo_warning("%s: unknown" % (package,))
 
 
@@ -125,6 +137,8 @@ def get_pipelines(package):
         print("Jobs from project %s" % package)
         print(tabulate(description))
 
-    except gitlab.GitlabGetError as e:
-        logger.warn("Gitlab access error - package %s does not exist?", package)
+    except gitlab.GitlabGetError:
+        logger.warn(
+            "Gitlab access error - package %s does not exist?", package, exc_info=True
+        )
         echo_warning("%s: unknown" % (package,))

@@ -3,16 +3,16 @@
 import os
 import sys
 
-import gitlab
-
 import click
+import gitlab
 import pkg_resources
+
 from click_plugins import with_plugins
 
+from ..log import get_logger
+from ..log import verbosity_option
 from . import bdt
 from . import ci
-
-from ..log import verbosity_option, get_logger
 
 logger = get_logger(__name__)
 
@@ -22,9 +22,7 @@ def set_up_environment_variables(
 ):
     """This function sets up the proper environment variables when user wants
     to run the commands usually run on ci locally."""
-    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config(
-        "idiap"
-    ).private_token
+    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config("idiap").private_token
     os.environ["CI_PROJECT_DIR"] = project_dir
     os.environ["CI_PROJECT_NAMESPACE"] = name_space
     os.environ["CI_PROJECT_VISIBILITY"] = project_visibility
