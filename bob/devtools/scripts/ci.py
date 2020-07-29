@@ -104,6 +104,9 @@ def base_deploy(dry_run):
                 dry_run=dry_run,
             )
 
+            logger.info("Removing %s after successful deployment", k)
+            os.unlink(k)
+
 
 @ci.command(
     epilog="""

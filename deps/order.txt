@@ -1,3 +1,4 @@
+repodata-patches
 python-gitlab
 untokenize
 docformatter

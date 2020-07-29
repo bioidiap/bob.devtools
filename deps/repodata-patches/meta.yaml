@@ -1,0 +1,47 @@
+{% set version = datetime.datetime.utcnow().strftime('%Y%m%d.%H.%M.%S') %}
+
+package:
+  name: repodata-patches
+  version: {{ version }}
+
+source:
+  path: .
+
+build:
+  noarch: generic
+  number: 0
+  script:
+    - python gen_patch_json.py
+
+requirements:
+  build:
+    - python 3.*
+    - packaging
+    - requests
+    - tqdm
+
+test:
+  files:
+    - test_gen_patch_json.py
+    - gen_patch_json.py
+    - get_license_family.py
+  requires:
+    - python 3.*
+    - packaging
+    - requests
+    - tqdm
+    - pytest
+  commands:
+    {% for subdir in ("noarch", "linux-64", "osx-64") %}
+    - test -e $PREFIX/{{ subdir }}/patch_instructions.json
+    {% endfor %}
+    - pytest -vv test_gen_patch_json.py
+
+about:
+  summary: generate tweaks to index metadata, hosted separately from anaconda.org index
+  home: https://github.com/conda-forge/conda-forge-repodata-patches-feedstock
+  license: CC-PDDC
+
+extra:
+  recipe-maintainers:
+    - amohammadi
