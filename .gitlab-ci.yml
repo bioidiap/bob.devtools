@@ -60,9 +60,7 @@ build_macosx:
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
-      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
-      - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
   cache:
     key: "macosx-cache"
 
