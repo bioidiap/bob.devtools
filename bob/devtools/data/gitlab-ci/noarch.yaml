@@ -1,0 +1,161 @@
+# This YAML file contains descriptions for the CI of most of our Bob/BEAT/BATL
+# packages - do **not** modify it unless you know what you're doing (and up
+# to!)
+
+# Definition of global variables (all stages)
+variables:
+  PYTHONUNBUFFERED: "1"
+  CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+  BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
+  TORCH_HOME: "${CI_PROJECT_DIR}/torch"
+
+
+# Definition of our build pipeline order
+stages:
+  - build
+  - deploy
+  - pypi
+
+
+# All stages are prepared the same, with a base set of commands
+.bootstrap:
+  before_script:
+    - "[ -r /root/.condarc ] && rm -f /root/.condarc"
+    - "[ -d /root/.conda ] && rm -rf /root/.conda"
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py -vv channel base
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+  cache:
+    paths:
+      - miniconda.sh
+      - torch
+
+
+# Build targets
+.build_template:
+  extends: .bootstrap
+  stage: build
+  script:
+    - bdt ci build -vv
+    - bdt ci clean -vv
+  artifacts:
+    expire_in: 1 week
+    reports:
+      cobertura: coverage.xml
+
+
+build_linux:
+  extends: .build_template
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
+  variables:
+    PYTHON_VERSION: "3.7"
+    BUILD_EGG: "true"
+  script:
+    - bdt ci build -vv
+    - bdt ci readme -vv dist/*.zip
+    - bdt ci clean -vv
+  cache:
+    key: "build"
+  artifacts:
+    paths:
+      - dist/*.zip
+      - sphinx
+      - ${CONDA_ROOT}/conda-bld/noarch/*.conda
+      - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
+
+
+build_macosx:
+  variables:
+    PYTHON_VERSION: "3.7"
+  cache:
+    key: "build"
+  extends: .build_template
+  tags:
+    - macosx
+
+
+# Test targets (not normally used)
+.test_template:
+  extends: .bootstrap
+  stage: test
+  script:
+    - bdt ci test -vv
+    - bdt ci clean -vv
+  cache:
+    paths:
+      - miniconda.sh
+      - torch
+
+
+.test_linux_template:
+  extends: .test_template
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
+
+
+.test_macosx_template:
+  extends: .test_template
+  tags:
+    - macosx
+
+
+# Deploy targets
+.deploy_template:
+  extends: .bootstrap
+  stage: deploy
+  script:
+    - bdt ci deploy -vv
+    - bdt ci clean -vv
+  dependencies:
+    - build_linux
+    - build_macosx
+  tags:
+    - docker
+  cache:
+    paths:
+      - miniconda.sh
+  cache:
+    key: "deploy"
+
+
+deploy_beta:
+  extends: .deploy_template
+  environment: beta
+  only:
+    - master
+
+
+deploy_stable:
+  extends: .deploy_template
+  environment: stable
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+  except:
+    - branches
+
+
+pypi:
+  extends: .bootstrap
+  stage: pypi
+  environment: pypi
+  only:
+    refs:
+      - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+    variables:
+      - $CI_PROJECT_VISIBILITY == "public"
+  except:
+    - branches
+  script:
+    - bdt ci pypi -vv dist/*.zip
+    - bdt ci clean -vv
+  dependencies:
+    - build_linux
+    - build_macosx
+  tags:
+    - docker
+  cache:
+    key: "pypi"
