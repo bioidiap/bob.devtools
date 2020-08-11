@@ -24,9 +24,24 @@ SUBDIRS = (
     "osx-64",
 )
 
-REMOVALS = {"osx-64": {}, "linux-64": {}, "noarch": {}}
+REMOVALS = {
+    "osx-64": {},
+    "linux-64": {
+        "kaldi-1!5.5.164-h93a79c4_1.conda",
+        "kaldi-1!5.5.164-h13f0c7c_0.conda",
+        "kaldi-1!5.5.164-h13f0c7c_0.tar.bz2",
+        "kaldi-2017.03.13-h6bb2d05_3.tar.bz2",
+        "kaldi-r7271.1a4dbf6-h6bb2d05_2.tar.bz2",
+        "kaldi-r7271.1a4dbf6-0.tar.bz2",
+    },
+    "noarch": {},
+}
 
 OPERATORS = ["==", ">=", "<=", ">", "<", "!="]
+
+
+def _add_removals(instructions, currvals):
+    instructions["remove"].extend(tuple(set(currvals)))
 
 
 def _gen_patch_instructions(index, new_index, packages_key):
@@ -80,6 +95,7 @@ def gen_new_index_and_patch_instructions(repodata):
     for i, packages_key in enumerate(["packages", "packages.conda"]):
         new_index = _gen_new_index(repodata, packages_key)
         inst = _gen_patch_instructions(repodata[packages_key], new_index, packages_key)
+        _add_removals(inst, REMOVALS[repodata["info"]["subdir"]])
         if i == 0:
             instructions.update(inst)
         else:

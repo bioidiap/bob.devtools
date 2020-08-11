@@ -20,7 +20,7 @@ CACHE_DIR = os.environ.get(
 def show_record_diffs(subdir, ref_repodata, new_repodata):
     for packages_key in ("packages", "packages.conda"):
         for name, ref_pkg in ref_repodata[packages_key].items():
-            new_pkg = new_repodata[packages_key][name]
+            new_pkg = new_repodata[packages_key].get(name, {})
             # license_family gets added for new packages, ignore it in the diff
             ref_pkg.pop("license_family", None)
             new_pkg.pop("license_family", None)
