@@ -289,8 +289,8 @@ def get_channels(public, stable, server, intranet, group):
     * not public and stable: returns both public and private stable channels
     * not public and not stable: returns all channels
 
-    Beta channels have priority over stable channels, if returned.  Private
-    channels have priority over public channles, if turned.
+    Beta channels have priority over stable channels, if returned.  Public
+    channels have priority over private channles, if turned.
 
 
     Args:
@@ -319,17 +319,18 @@ def get_channels(public, stable, server, intranet, group):
 
     channels = []
 
+    # do not use '/public' urls for public channels
+    prefix = "/software/" + group
+    if not stable:
+        channels += [server + prefix + "/conda/label/beta"]  # allowed betas
+
+    channels += [server + prefix + "/conda"]
+
     if not public:
         prefix = "/private"
         if not stable:  # allowed private channels
             channels += [server + prefix + "/conda/label/beta"]  # allowed betas
         channels += [server + prefix + "/conda"]
-
-    # do not use '/public' versions here
-    prefix = "/software/" + group
-    if not stable:
-        channels += [server + prefix + "/conda/label/beta"]  # allowed betas
-    channels += [server + prefix + "/conda"]
 
     return channels
 
