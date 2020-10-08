@@ -611,10 +611,11 @@ def base_build(
         return
 
     if any(urls):
+        use_urls = [k for k in urls if k]
         raise RuntimeError(
             "One or more packages for recipe at '%s' already exist (%s). "
             "Change the package build number to trigger a build."
-            % (recipe_dir, ", ".join(urls)),
+            % (recipe_dir, ", ".join(use_urls)),
         )
 
     # if you get to this point, just builds the package(s)
