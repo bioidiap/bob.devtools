@@ -17,12 +17,24 @@ from . import ci
 logger = get_logger(__name__)
 
 
-def set_up_environment_variables(
-    python, name_space, project_dir=".", project_visibility="public"
-):
+def set_up_environment_variables(python, name_space, project_dir):
     """This function sets up the proper environment variables when user wants
     to run the commands usually run on ci locally."""
-    os.environ["CI_JOB_TOKEN"] = gitlab.Gitlab.from_config("idiap").private_token
+    project_dir = os.path.abspath(project_dir)
+    project_name = os.path.basename(project_dir)
+    gl = gitlab.Gitlab.from_config("idiap")
+    package_name = f"{name_space}/{project_name}"
+    logger.info("Inferred this package name: %s", package_name)
+    try:
+        use_package = gl.projects.get(package_name)
+    except Exception:
+        print(
+            f"Could not find {package_name} on Gitlab! "
+            "Did you specify the correct group?"
+        )
+        raise
+    project_visibility = use_package.attributes["visibility"]
+    os.environ["CI_JOB_TOKEN"] = gl.private_token
     os.environ["CI_PROJECT_DIR"] = project_dir
     os.environ["CI_PROJECT_NAMESPACE"] = name_space
     os.environ["CI_PROJECT_VISIBILITY"] = project_visibility
@@ -97,7 +109,9 @@ def docs(ctx, requirement, dry_run, python, group):
 
       \b
     """
-    set_up_environment_variables(python=python, name_space=group)
+    set_up_environment_variables(
+        python=python, name_space=group, project_dir=os.path.dirname(requirement)
+    )
 
     ctx.invoke(ci.docs, requirement=requirement, dry_run=dry_run)
 
@@ -145,7 +159,9 @@ Examples:
 @click.pass_context
 def build(ctx, dry_run, recipe_dir, python, group):
     """Run the CI build step locally."""
-    set_up_environment_variables(python=python, name_space=group)
+    set_up_environment_variables(
+        python=python, name_space=group, project_dir=os.path.join(recipe_dir, "..")
+    )
 
     ctx.invoke(ci.build, dry_run=dry_run, recipe_dir=recipe_dir)
 
@@ -186,5 +202,7 @@ Examples:
 @click.pass_context
 def base_build(ctx, order, dry_run, python, group):
     """Run the CI build step locally."""
-    set_up_environment_variables(python=python, name_space=group)
+    set_up_environment_variables(
+        python=python, name_space=group, project_dir=os.path.dirname(order)
+    )
     ctx.invoke(ci.base_build, order=order, dry_run=dry_run, group=group)

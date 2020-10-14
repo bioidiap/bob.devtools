@@ -576,7 +576,7 @@ def base_build(
     """
 
     # if you get to this point, tries to build the package
-    channels = bootstrap.get_channels(
+    channels, upload_channel = bootstrap.get_channels(
         public=True, stable=True, server=server, intranet=intranet, group=group
     )
 
@@ -599,7 +599,7 @@ def base_build(
         return
 
     paths = get_output_path(metadata, conda_config)
-    urls = [exists_on_channel(channels[0], os.path.basename(k)) for k in paths]
+    urls = [exists_on_channel(upload_channel, os.path.basename(k)) for k in paths]
 
     if all(urls):
         logger.info(
@@ -757,7 +757,7 @@ if __name__ == "__main__":
         )
 
     public = args.visibility == "public"
-    channels = bootstrap.get_channels(
+    channels, upload_channel = bootstrap.get_channels(
         public=public,
         stable=(not is_prerelease),
         server=server,
@@ -793,7 +793,7 @@ if __name__ == "__main__":
 
     # retrieve the current build number(s) for this build
     build_numbers = [
-        next_build_number(channels[0], os.path.basename(k))[0] for k in paths
+        next_build_number(upload_channel, os.path.basename(k))[0] for k in paths
     ]
 
     # homogenize to the largest build number

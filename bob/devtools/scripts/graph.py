@@ -166,7 +166,7 @@ def graph(
     gl = get_gitlab_instance()
 
     # get potential channel upload and other auxiliary channels
-    channels = get_channels(
+    channels, upload_channel = get_channels(
         public=(not private),
         stable=stable,
         server=server,
@@ -203,7 +203,7 @@ def graph(
     set_environment("NOSE_EVAL_ATTR", "")
 
     adj_matrix = compute_adjencence_matrix(
-        gl, package, conda_config, channels[0], deptypes=deptypes
+        gl, package, conda_config, upload_channel, deptypes=deptypes
     )
 
     graph = generate_graph(adj_matrix, deptypes=deptypes, whitelist=whitelist)

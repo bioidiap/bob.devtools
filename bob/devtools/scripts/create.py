@@ -212,7 +212,7 @@ def create(
     if "channels" not in condarc_options:
         from ..bootstrap import get_channels
 
-        channels = get_channels(
+        channels, _ = get_channels(
             public=(not private),
             stable=stable,
             server=server,
