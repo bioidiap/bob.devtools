@@ -203,7 +203,7 @@ def ensure_miniconda_sh():
     installer.
     """
 
-    # WARNING: if you update this version, remember to update hahes below
+    # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
     path = "/miniconda/Miniconda3-py37_4.8.2-%s-x86_64.sh"
     if platform.system() == "Darwin":
@@ -513,9 +513,6 @@ if __name__ == "__main__":
         )
 
     elif args.command == "channel":
-
-        # update conda first
-        run_cmdline([conda_bin, "update", "--yes", "conda"])
 
         # installs from channel
         channels = get_channels(
