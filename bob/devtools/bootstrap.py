@@ -318,21 +318,30 @@ def get_channels(public, stable, server, intranet, group):
         )
 
     channels = []
+    channels_dict = {}
 
     # do not use '/public' urls for public channels
     prefix = "/software/" + group
     if not stable:
         channels += [server + prefix + "/conda/label/beta"]  # allowed betas
+        channels_dict["public/beta"] = channels[-1]
 
     channels += [server + prefix + "/conda"]
+    channels_dict["public/stable"] = channels[-1]
 
     if not public:
         prefix = "/private"
         if not stable:  # allowed private channels
             channels += [server + prefix + "/conda/label/beta"]  # allowed betas
+            channels_dict["private/beta"] = channels[-1]
         channels += [server + prefix + "/conda"]
+        channels_dict["private/stable"] = channels[-1]
 
-    return channels
+    upload_channel = channels_dict[
+        f"{'public' if public else 'private'}/{'stable' if stable else 'beta'}"
+    ]
+
+    return channels, upload_channel
 
 
 def setup_logger(logger, level):
@@ -447,7 +456,8 @@ if __name__ == "__main__":
         # context.  The URL should NOT work outside of Idiap's network.
         f.write(
             _BASE_CONDARC.replace(
-                "https://repo.anaconda.com/pkgs/main", "http://www.idiap.ch/defaults",
+                "https://repo.anaconda.com/pkgs/main",
+                "http://www.idiap.ch/defaults",
             )
         )
 
@@ -496,7 +506,7 @@ if __name__ == "__main__":
         )
         conda_bld_path = os.path.join(args.conda_root, "conda-bld")
         run_cmdline([conda_bin, "index", conda_bld_path])
-        channels = get_channels(
+        channels, _ = get_channels(
             public=True, stable=True, server=_SERVER, intranet=True, group="bob"
         ) + ["defaults"]
         channels = (
@@ -515,13 +525,16 @@ if __name__ == "__main__":
     elif args.command == "channel":
 
         # installs from channel
-        channels = get_channels(
-            public=True,
-            stable=(args.tag is not None),
-            server=_SERVER,
-            intranet=True,
-            group="bob",
-        ) + ["defaults"]
+        channels, _ = (
+            get_channels(
+                public=True,
+                stable=(args.tag is not None),
+                server=_SERVER,
+                intranet=True,
+                group="bob",
+            )
+            + ["defaults"]
+        )
         channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         cmd = (

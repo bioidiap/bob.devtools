@@ -173,7 +173,7 @@ def rebuild(
     )
 
     # get potential channel upload and other auxiliary channels
-    channels = get_channels(
+    channels, upload_channel = get_channels(
         public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
 
@@ -193,7 +193,7 @@ def rebuild(
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    logger.info("Uploading resulting package to: %s", channels[0])
+    logger.info("Uploading resulting package to: %s", upload_channel)
 
     # dump packages at base environment
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
@@ -238,7 +238,7 @@ def rebuild(
         path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
-        build_number, existing = next_build_number(channels[0], os.path.basename(path))
+        build_number, existing = next_build_number(upload_channel, os.path.basename(path))
 
         should_build = True
 
@@ -249,7 +249,7 @@ def rebuild(
             )
             if not os.path.exists(os.path.dirname(destpath)):
                 os.makedirs(os.path.dirname(destpath))
-            src = channels[0] + existing[0]
+            src = upload_channel + existing[0]
             logger.info("Downloading %s -> %s", src, destpath)
             urllib.request.urlretrieve(src, destpath)
 

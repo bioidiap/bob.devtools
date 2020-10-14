@@ -189,7 +189,7 @@ def build(
         # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
-    channels = get_channels(
+    channels, upload_channel = get_channels(
         public=(not private), stable=stable, server=server, intranet=ci, group=group,
     )
 
@@ -201,7 +201,7 @@ def build(
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    logger.info("Uploading resulting package to: %s", channels[0])
+    logger.info("Uploading resulting package to: %s", upload_channel)
 
     # dump packages at base environment
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
@@ -246,7 +246,7 @@ def build(
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
-        build_number, _ = next_build_number(channels[0], os.path.basename(path))
+        build_number, _ = next_build_number(upload_channel, os.path.basename(path))
 
         logger.info(
             "Building %s-%s-py%s (build: %d) for %s",
