@@ -18,12 +18,12 @@ logger = get_logger(__name__)
 PROJECT_BADGES = [
     {
         "name": "Docs (stable)",
-        "link_url": "https://www.idiap.ch/software/{group}/docs/%{{project_path}}/stable/index.html",
+        "link_url": "{idiap_server}/docs/%{{project_path}}/stable/index.html",
         "image_url": "https://img.shields.io/badge/docs-stable-yellow.svg",
     },
     {
         "name": "Docs (latest)",
-        "link_url": "https://www.idiap.ch/software/{group}/docs/%{{project_path}}/%{{default_branch}}/index.html",
+        "link_url": "{idiap_server}/docs/%{{project_path}}/%{{default_branch}}/index.html",
         "image_url": "https://img.shields.io/badge/docs-latest-orange.svg",
     },
     {
@@ -47,9 +47,14 @@ PROJECT_BADGES = [
 # These show on the README and will be visible in PyPI
 README_BADGES = [
     {
-        "name": "Docs (current)",
-        "link_url": "https://www.idiap.ch/software/{group}/docs/{group}/{name}/master/index.html",
-        "image_url": "https://img.shields.io/badge/docs-available-orange.svg",
+        "name": "Docs (stable)",
+        "link_url": "{idiap_server}/docs/{group}/{name}/stable/index.html",
+        "image_url": "https://img.shields.io/badge/docs-stable-yellow.svg",
+    },
+    {
+        "name": "Docs (latest)",
+        "link_url": "{idiap_server}/docs/{group}/{name}/master/index.html",
+        "image_url": "https://img.shields.io/badge/docs-latest-orange.svg",
     },
     {
         "name": "Pipeline (current)",
@@ -100,6 +105,11 @@ Examples:
 )
 @click.argument("package")
 @click.option(
+    "--update-readme/--no-update-readme",
+    default=True,
+    help="Whether to update badges in the readme or not.",
+)
+@click.option(
     "-d",
     "--dry-run/--no-dry-run",
     default=False,
@@ -107,9 +117,14 @@ Examples:
     "(combine with the verbosity flags - e.g. ``-vvv``) to enable "
     "printing to help you understand what will be done",
 )
+@click.option(
+    "-s",
+    "--server",
+    help="The documentation server. Default value is https://www.idiap.ch/software/{group}",
+)
 @verbosity_option()
 @bdt.raise_on_error
-def badges(package, dry_run):
+def badges(package, update_readme, dry_run, server):
     """Creates stock badges for a project repository"""
 
     # if we are in a dry-run mode, let's let it be known
@@ -144,27 +159,33 @@ def badges(package, dry_run):
 
         # creates all stock badges, preserve positions
         info = dict(zip(("group", "name"), package.split("/", 1)))
+        if not server:
+            server = f"https://www.idiap.ch/software/{group}"
+        info["idiap_server"] = server[:-1] if server.endswith("/") else server
         for position, badge in enumerate(PROJECT_BADGES):
             data = dict([(k, v.format(**info)) for (k, v) in badge.items()])
             data["position"] = position
             logger.info(
-                "Creating badge '%s' => '%s'", data["name"], data["link_url"],
+                "Creating badge '%s' => '%s'",
+                data["name"],
+                data["link_url"],
             )
             if not dry_run:
                 use_package.badges.create(data)
 
         # download and edit README to setup badges
-        readme_file = use_package.files.get(file_path="README.rst", ref="master")
-        readme_content = readme_file.decode().decode()
-        readme_content = _update_readme(readme_content, info)
-        # commit and push changes
-        logger.info("Changing README.rst badges...")
-        update_files_at_master(
-            use_package,
-            {"README.rst": readme_content},
-            "Updated badges section [ci skip]",
-            dry_run,
-        )
+        if update_readme:
+            readme_file = use_package.files.get(file_path="README.rst", ref="master")
+            readme_content = readme_file.decode().decode()
+            readme_content = _update_readme(readme_content, info)
+            # commit and push changes
+            logger.info("Changing README.rst badges...")
+            update_files_at_master(
+                use_package,
+                {"README.rst": readme_content},
+                "Updated badges section [ci skip]",
+                dry_run,
+            )
         logger.info("All done.")
 
     except gitlab.GitlabGetError:
