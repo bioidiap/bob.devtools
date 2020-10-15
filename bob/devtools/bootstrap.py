@@ -525,16 +525,15 @@ if __name__ == "__main__":
     elif args.command == "channel":
 
         # installs from channel
-        channels, _ = (
-            get_channels(
-                public=True,
-                stable=(args.tag is not None),
-                server=_SERVER,
-                intranet=True,
-                group="bob",
-            )
-            + ("defaults",)
+        channels, _ = get_channels(
+            public=True,
+            stable=(args.tag is not None),
+            server=_SERVER,
+            intranet=True,
+            group="bob",
         )
+
+        channels += ["defaults"]
         channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         cmd = (
