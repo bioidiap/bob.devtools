@@ -508,7 +508,8 @@ if __name__ == "__main__":
         run_cmdline([conda_bin, "index", conda_bld_path])
         channels, _ = get_channels(
             public=True, stable=True, server=_SERVER, intranet=True, group="bob"
-        ) + ["defaults"]
+        )
+        channels += ["defaults"]
         channels = (
             ["--override-channels"]
             + ["--channel=" + conda_bld_path]
