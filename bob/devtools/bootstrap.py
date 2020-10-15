@@ -533,7 +533,7 @@ if __name__ == "__main__":
                 intranet=True,
                 group="bob",
             )
-            + ["defaults"]
+            + ("defaults",)
         )
         channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
