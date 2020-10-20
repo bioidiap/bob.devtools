@@ -338,7 +338,9 @@ def get_channels(public, stable, server, intranet, group):
         channels_dict["private/stable"] = channels[-1]
 
     upload_channel = channels_dict[
-        f"{'public' if public else 'private'}/{'stable' if stable else 'beta'}"
+        "{}/{}".format(
+            "public" if public else "private", "stable" if stable else "beta"
+        )
     ]
 
     return channels, upload_channel
