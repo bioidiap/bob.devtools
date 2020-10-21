@@ -163,8 +163,15 @@ updated regularly (once a week).  To do so, setup a cronjob like the following:
 
 .. code-block:: text
 
+   MAILTO=""
    SHELL=/bin/bash
-   00 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | /usr/bin/mail -s "Software update (hostname|cimacosx)" "you@example.com"
+   00 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | mailx -s "Software update (hostname|cimacosx)" your.email@example.com
 
+.. note::
+
+   Use the program ``mailx`` instead of ``mail`` that works correctly through
+   the SMTP gateway (DMARC sign-off).  Disable cron e-mailing using
+   ``MAILTO=""`` as instructed above.  See more details in this thread:
+   https://secure.idiap.ch/bugzilla5/show_bug.cgi?id=17529
 
 .. include:: links.rst
