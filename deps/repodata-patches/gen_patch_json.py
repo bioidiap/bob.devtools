@@ -25,7 +25,19 @@ SUBDIRS = (
 )
 
 REMOVALS = {
-    "osx-64": {},
+    "osx-64": {
+        "openh264-1.7.0-h18e5fc6_2.conda",
+        "openh264-1.7.0-h89e8454_1.tar.bz2",
+        "ffmpeg-2.8.10-0.tar.bz2",
+        "ffmpeg-2.8.10-1.tar.bz2",
+        "ffmpeg-2.8.10-2.tar.bz2",
+        "ffmpeg-2.8.10-3.tar.bz2",
+        "ffmpeg-2.8.10-4.tar.bz2",
+        "ffmpeg-3.4-h3b64a03_1.tar.bz2",
+        "ffmpeg-4.0-h18e5fc6_2.conda",
+        "ffmpeg-4.0-h2047f9e_1.tar.bz2",
+        "ffmpeg-4.0-he86247c_0.tar.bz2",
+    },
     "linux-64": {
         "kaldi-1!5.5.164-h93a79c4_1.conda",
         "kaldi-1!5.5.164-h13f0c7c_0.conda",
@@ -33,6 +45,17 @@ REMOVALS = {
         "kaldi-2017.03.13-h6bb2d05_3.tar.bz2",
         "kaldi-r7271.1a4dbf6-h6bb2d05_2.tar.bz2",
         "kaldi-r7271.1a4dbf6-0.tar.bz2",
+        "openh264-1.7.0-hc521636_1.tar.bz2",
+        "openh264-1.7.0-hf6c5f75_2.conda",
+        "ffmpeg-2.8.10-0.tar.bz2",
+        "ffmpeg-2.8.10-1.tar.bz2",
+        "ffmpeg-2.8.10-2.tar.bz2",
+        "ffmpeg-2.8.10-3.tar.bz2",
+        "ffmpeg-2.8.10-4.tar.bz2",
+        "ffmpeg-3.4-hdec9c9a_1.tar.bz2",
+        "ffmpeg-4.0-hadceb68_1.tar.bz2",
+        "ffmpeg-4.0-hdb0e523_0.tar.bz2",
+        "ffmpeg-4.0-hf6c5f75_2.conda",
     },
     "noarch": {},
 }

@@ -1,4 +1,3 @@
-from gen_patch_json import REMOVALS
 from gen_patch_json import _gen_patch_instructions
 
 
@@ -25,5 +24,3 @@ def test_gen_patch_instructions():
         "a": {"depends": ["c", "d", "e"], "features": None},
         "c": {"addthis": "yes"},
     }
-
-    assert set(REMOVALS["osx-64"]) <= set(inst["remove"])
