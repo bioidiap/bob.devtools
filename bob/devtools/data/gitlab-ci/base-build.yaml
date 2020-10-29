@@ -26,9 +26,6 @@ stages:
     - bdt ci base-build -vv python.txt
     - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
     - bdt ci clean -vv
-  cache:
-    paths:
-      - miniconda.sh
 
 
 build_linux:

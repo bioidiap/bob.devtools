@@ -28,7 +28,6 @@ stages:
     - conda activate base
   cache:
     paths:
-      - miniconda.sh
       - torch
 
 
@@ -86,7 +85,6 @@ build_macosx:
     - bdt ci clean -vv
   cache:
     paths:
-      - miniconda.sh
       - torch
 
 
@@ -115,9 +113,6 @@ build_macosx:
     - build_macosx
   tags:
     - docker
-  cache:
-    paths:
-      - miniconda.sh
   cache:
     key: "deploy"
 

@@ -26,7 +26,6 @@ stages:
     - conda activate base
   cache:
     paths:
-      - miniconda.sh
       - torch
 
 
