@@ -37,6 +37,10 @@ REMOVALS = {
         "ffmpeg-4.0-h18e5fc6_2.conda",
         "ffmpeg-4.0-h2047f9e_1.tar.bz2",
         "ffmpeg-4.0-he86247c_0.tar.bz2",
+        "x264-20131217-0.tar.bz2",
+        "x264-20131217-1.tar.bz2",
+        "x264-20131217-2.tar.bz2",
+        "x264-20131217-3.tar.bz2",
     },
     "linux-64": {
         "kaldi-1!5.5.164-h93a79c4_1.conda",
@@ -56,6 +60,10 @@ REMOVALS = {
         "ffmpeg-4.0-hadceb68_1.tar.bz2",
         "ffmpeg-4.0-hdb0e523_0.tar.bz2",
         "ffmpeg-4.0-hf6c5f75_2.conda",
+        "x264-20131217-0.tar.bz2",
+        "x264-20131217-1.tar.bz2",
+        "x264-20131217-2.tar.bz2",
+        "x264-20131217-3.tar.bz2",
     },
     "noarch": {},
 }
