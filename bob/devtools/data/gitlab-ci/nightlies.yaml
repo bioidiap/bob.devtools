@@ -84,7 +84,7 @@ build_macosx_37:
   stage: cleanup
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: centos:7
   script:
     - bdt ci clean-betas -vv
   cache:

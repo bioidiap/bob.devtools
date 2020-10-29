@@ -48,7 +48,7 @@ build_linux:
   extends: .build_template
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: centos:7
   variables:
     PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
@@ -92,7 +92,7 @@ build_macosx:
   extends: .test_template
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: centos:7
 
 
 .test_macosx_template:

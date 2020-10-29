@@ -35,7 +35,7 @@ build_linux:
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
-  image: continuumio/conda-concourse-ci
+  image: centos:7
   cache:
     key: "linux-cache"
 
