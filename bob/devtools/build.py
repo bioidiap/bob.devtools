@@ -60,6 +60,8 @@ def conda_arch():
 
     if platform.machine().lower() == "x86_64":
         r += "-64"
+    elif platform.machine().lower() == "aarch64":
+        r += "-aarch64"
     else:
         raise RuntimeError('Unsupported machine type "%s"' % platform.machine())
 
