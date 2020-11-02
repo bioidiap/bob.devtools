@@ -35,7 +35,7 @@ build_linux:
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
-  image: centos:7
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   cache:
     key: "linux-cache"
 

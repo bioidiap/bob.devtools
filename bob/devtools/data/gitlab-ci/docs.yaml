@@ -20,7 +20,7 @@ stages:
 .bootstrap:
   tags:
     - docker
-  image: centos:7
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda

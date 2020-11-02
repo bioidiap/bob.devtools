@@ -84,7 +84,7 @@ build_macosx_37:
   stage: cleanup
   tags:
     - docker
-  image: centos:7
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   script:
     - bdt ci clean-betas -vv
   cache:
