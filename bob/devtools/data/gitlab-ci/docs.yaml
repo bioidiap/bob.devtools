@@ -20,7 +20,7 @@ stages:
 .bootstrap:
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
@@ -30,7 +30,6 @@ stages:
     - conda activate base
   cache:
     paths:
-      - miniconda.sh
       - torch
 
 

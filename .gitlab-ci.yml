@@ -27,7 +27,7 @@ build_linux:
     BUILD_EGG: "true"
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda

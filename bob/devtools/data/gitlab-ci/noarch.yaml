@@ -48,7 +48,7 @@ build_linux:
   extends: .build_template
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   variables:
     PYTHON_VERSION: "3.7"
     BUILD_EGG: "true"
@@ -92,7 +92,7 @@ build_macosx:
   extends: .test_template
   tags:
     - docker
-  image: continuumio/conda-concourse-ci
+  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
 
 
 .test_macosx_template:
