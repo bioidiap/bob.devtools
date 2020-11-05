@@ -132,7 +132,7 @@ vlfeat:
 # The dependencies that are needed for runtime only (run requirements). These versions
 # **should** match the versions inside bob-devel recipe. In fact, you can copy the
 # bob-devel pins here and remove the ones that are already in the "build" requirements,
-# above (like numpy, boost). You should also replace dashes with underlines.
+# above (like numpy, boost). You should also replace dots and dashes with underlines.
 click:
   - 7.1.2
 click_plugins:
@@ -213,7 +213,7 @@ tqdm:
   - 4.50.2
 xarray:
   - 0.16.1
-zc.buildout:
+zc_buildout:
   - 2.13.3
-zc.recipe.egg:
+zc_recipe_egg:
   - 2.0.7
