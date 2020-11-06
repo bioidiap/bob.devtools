@@ -291,6 +291,9 @@ def parse_dependencies(recipe_dir, config):
         + recipe["requirements"].get("run", [])
         + recipe.get("test", {}).get("requires", [])
         + ["bob.buildout", "mr.developer", "ipdb"]
+        # Also add anaconda compilers to make sure source installed packages are
+        # compiled properly
+        + ["clangxx_osx-64" if platform.system() == "Darwin" else "gxx_linux-64"]
     )
     # by last, packages required for local dev
 
