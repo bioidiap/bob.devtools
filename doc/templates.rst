@@ -573,9 +573,10 @@ recipes.  Here are some notes:
          - {{ compiler('cxx') }}
          - pkg-config {{ pkg_config }}
          - cmake {{ cmake }}
+         - make {{ make }}
 
-  The pkg-config and cmake lines are optional. If the package uses them, you
-  need to include these as well.
+  The pkg-config, cmake, and make lines are optional. If the package uses them,
+  you need to include these as well.
 
 * List all the packages that are in ``requirements.txt`` in the
   ``requirements / host`` section, adding a new line per dependence.  For
@@ -600,7 +601,11 @@ recipes.  Here are some notes:
   You need to add a jinja variable like `{{ dependence }}` in front of the
   dependencies that we **do not** develop.  The jinja variable name should not
   contain ``.`` or ``-``; replace those with ``_``.  Bob_ and BEAT_ packages
-  (and gridtk) should be listed as is.
+  (and gridtk) should be listed as is. These jinja variables are defined inside
+  bob/bob.devtools> in ``bob/devtools/data/conda_build_config.yaml`` and the
+  version numbers are defined in bob/conda> in ``conda/bob-devel/meta.yaml``.
+  So, you will need to modify these two files before you can use a new package
+  in your Bob package.
 
 * Unlike ``pip``, ``conda`` is **not** limited to Python programs. If the
   package depends on some non-python package (like ``boost``), you need to list
@@ -620,7 +625,7 @@ feature here
 which makes this slightly complicated.  In summary, you put all the run-time
 dependencies in the ``requirements / run`` section **unless** this dependency
 was listed in the host section **and** the dependency has a ``run_exports`` set
-on their own recipe (what a mess!).  The problem is that you cannot easily find
+on their own recipe.  The problem is that you cannot easily find
 which packages actually do have ``run_exports`` unless you look at their conda
 recipe.  Usually, all the C/C++ libraries like ``jpeg``, ``hdf5`` have
 ``run_exports`` (with exceptions - ``boost``, for instance,  does not have
@@ -631,17 +636,18 @@ inside the ``requirements / run`` section of ``bob/bob.measure``:
 
    run:
      - setuptools
-     - matplotlib
+     - {{ pin_compatible('matplotlib') }}
      - boost
      - {{ pin_compatible('numpy') }}
-     - docopt
+     - {{ pin_compatible('docopt') }}
 
 The ``pin_compatible`` jinja function is `explained in here
 <https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#pin-downstream>`_.
-You need to use it on ``numpy`` if and only if you use ``numpy`` in C level.
-Otherwise, just list numpy normally. We do not know of any other package
-besides numpy used in C level that needs to use the ``pin_compatible`` jinja
-function.
+You need to use it on all packages (except python and setuptools) that do not
+have run_exports. The ``boost`` package is special, you just list it and it's
+pinned automatically using our conda build config file in
+``bob/devtools/data/conda_build_config.yaml``. This is the only exception on our
+side which was inherited from the defaults channel.
 
 Here is a list of packages that we know that they have ``run_exports``:
 
@@ -663,7 +669,6 @@ Here is a list of packages that we know that they have ``run_exports``:
    - jpeg
    - kaldi
    - libblitz
-   - libboost
    - libffi
    - libmatio
    - libogg
