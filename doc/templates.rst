@@ -637,13 +637,17 @@ inside the ``requirements / run`` section of ``bob/bob.measure``:
    run:
      - setuptools
      - {{ pin_compatible('matplotlib') }}
-     - {{ pin_compatible('boost') }}
+     - boost
      - {{ pin_compatible('numpy') }}
      - {{ pin_compatible('docopt') }}
 
 The ``pin_compatible`` jinja function is `explained in here
 <https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#pin-downstream>`_.
-You need to use it on all packages (except python and setuptools) that do not have run_exports.
+You need to use it on all packages (except python and setuptools) that do not
+have run_exports. The ``boost`` package is special, you just list it and it's
+pinned automatically using our conda build config file in
+``bob/devtools/data/conda_build_config.yaml``. This is the only exception on our
+side which was inherited from the defaults channel.
 
 Here is a list of packages that we know that they have ``run_exports``:
 
@@ -665,7 +669,6 @@ Here is a list of packages that we know that they have ``run_exports``:
    - jpeg
    - kaldi
    - libblitz
-   - libboost
    - libffi
    - libmatio
    - libogg
