@@ -33,9 +33,6 @@ stages:
 .build_template:
   extends: .bootstrap
   stage: build
-  variables:
-    CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
-    PYTHONUNBUFFERED: 1
   script:
     - bdt ci nightlies -vv order.txt
     - bdt ci clean -vv
