@@ -121,9 +121,9 @@ libsvm:
 libtiff:
   - 4.1.0
 mkl:
-  - 2019
+  - 2020.2
 numpy:
-  - 1.16.6
+  - 1.17.4
 pybind11:
   - 2.4.3
 sox:
