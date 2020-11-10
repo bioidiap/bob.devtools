@@ -221,11 +221,11 @@ rst_epilog = """
 # Default processing flags for sphinx
 autoclass_content = "class"
 autodoc_member_order = "bysource"
-autodoc_default_flags = [
-    "members",
-    "undoc-members",
-    "show-inheritance",
-]
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 
 # Adds simplejson, pyzmq links
 # intersphinx_mapping['http://simplejson.readthedocs.io/en/stable/'] = None
