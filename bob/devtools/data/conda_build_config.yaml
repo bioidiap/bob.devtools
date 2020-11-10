@@ -202,6 +202,8 @@ setuptools:
   - 50.3.0
 simplejson:
   - 3.17.2
+six:
+  - 1
 sphinx:
   - 3.2.1
 sphinx_rtd_theme:
