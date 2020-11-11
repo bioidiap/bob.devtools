@@ -68,6 +68,7 @@ setup(
             "get-pipelines = bob.devtools.scripts.pipelines:get_pipelines",
             "graph = bob.devtools.scripts.graph:graph",
             "update-bob = bob.devtools.scripts.update_bob:update_bob",
+            "alt-nightlies = bob.devtools.scripts.alternative_nightlies:alt_nightlies",
         ],
         "bdt.ci.cli": [
             "base-build = bob.devtools.scripts.ci:base_build",
