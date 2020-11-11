@@ -109,6 +109,7 @@ test:
     - bdt gitlab badges --help
     - bdt sphinx --help
     - bdt sphinx migrate-autodoc-flags --help
+    - bdt gitlab alt-nightlies --help
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     {% if not os.path.exists('sphinx') %}
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi

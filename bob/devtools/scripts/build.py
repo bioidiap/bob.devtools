@@ -243,6 +243,9 @@ def build(
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
+        logger.debug("Printing rendered recipe")
+        logger.debug("\n" + yaml.dump(rendered_recipe))
+        logger.debug("Finished printing rendered recipe")
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
