@@ -52,6 +52,7 @@ setup(
             "dav = bob.devtools.scripts.dav:dav",
             "local = bob.devtools.scripts.local:local",
             "gitlab = bob.devtools.scripts.gitlab:gitlab",
+            "sphinx = bob.devtools.scripts.sphinx:sphinx",
         ],
         "bdt.gitlab.cli": [
             "badges = bob.devtools.scripts.badges:badges",
