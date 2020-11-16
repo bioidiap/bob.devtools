@@ -3,9 +3,9 @@
 
 """Logging utilities."""
 
-import logging
 import os
 import sys
+import logging
 
 import click
 import termcolor

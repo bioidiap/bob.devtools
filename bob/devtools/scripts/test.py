@@ -12,7 +12,7 @@ from ..build import conda_arch
 from ..build import get_docserver_setup
 from ..build import get_env_directory
 from ..build import make_conda_config
-from ..build import remove_conda_loggers
+from ..build import root_logger_protection
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
@@ -21,9 +21,6 @@ from ..constants import SERVER
 from ..log import get_logger
 from ..log import verbosity_option
 from . import bdt
-
-remove_conda_loggers()
-
 
 logger = get_logger(__name__)
 
@@ -202,4 +199,5 @@ def test(
     for p in package:
         logger.info("Testing %s at %s", p, arch)
         if not dry_run:
-            conda_build.api.test(p, config=conda_config)
+            with root_logger_protection():
+                conda_build.api.test(p, config=conda_config)

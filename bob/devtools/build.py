@@ -4,33 +4,36 @@
 """Tools for self-building and other utilities."""
 
 
-import distutils.version
-import glob
-import json
-import logging
 import os
-import platform
 import re
-import subprocess
 import sys
+import json
+import glob
+import copy
+import logging
+import platform
+import subprocess
+import contextlib
+import distutils.version
 
-import conda_build.api
 import yaml
+import conda_build.api
 
 logger = logging.getLogger(__name__)
 
 
-def remove_conda_loggers():
-    """Cleans-up conda API logger handlers to avoid logging repetition"""
+@contextlib.contextmanager
+def root_logger_protection():
+    """Protects the root logger against spurious (conda) manipulation"""
 
-    z = logging.getLogger()  # conda places their handlers inside root
-    if z.handlers:
-        handler = z.handlers[0]
-        z.removeHandler(handler)
-        logger.debug("Removed conda logger handler at %s", handler)
+    root_logger = logging.getLogger()
+    level = root_logger.level
+    handlers = copy.copy(root_logger.handlers)
 
+    yield
 
-remove_conda_loggers()
+    root_logger.setLevel(level)
+    root_logger.handlers = handlers
 
 
 def comment_cleanup(lines):
@@ -98,10 +101,10 @@ def next_build_number(channel_url, basename):
     from conda.exports import fetch_index
     from conda.core.index import calculate_channel_urls
 
-    remove_conda_loggers()
-
     # get the channel index
-    channel_urls = calculate_channel_urls([channel_url], prepend=False, use_local=False)
+    channel_urls = calculate_channel_urls(
+        [channel_url], prepend=False, use_local=False
+    )
     logger.debug("Downloading channel index from %s", channel_urls)
     index = fetch_index(channel_urls=channel_urls)
 
@@ -112,7 +115,8 @@ def next_build_number(channel_url, basename):
         name, version, build = basename[:-6].rsplit("-", 2)
     else:
         raise RuntimeError(
-            "Package name %s does not end in either " ".tar.bz2 or .conda" % (basename,)
+            "Package name %s does not end in either "
+            ".tar.bz2 or .conda" % (basename,)
         )
 
     # remove the build number as we're looking for the next value
@@ -148,7 +152,11 @@ def next_build_number(channel_url, basename):
         ):  # match!
             url = index[dist].url
             logger.debug(
-                "Found match at %s for %s-%s-%s", url, name, version, build_variant,
+                "Found match at %s for %s-%s-%s",
+                url,
+                name,
+                version,
+                build_variant,
             )
             build_number = max(build_number, dist.build_number + 1)
             urls[index[dist].timestamp] = url.replace(channel_url, "")
@@ -177,17 +185,16 @@ def make_conda_config(config, python, append_file, condarc_options):
     conda-build API's ``get_or_merge_config()`` function.
     """
 
-    from conda_build.conda_interface import url_path
+    with root_logger_protection():
+        from conda_build.conda_interface import url_path
 
-    remove_conda_loggers()
-
-    retval = conda_build.api.get_or_merge_config(
-        None,
-        variant_config_files=config,
-        python=python,
-        append_sections_file=append_file,
-        **condarc_options,
-    )
+        retval = conda_build.api.get_or_merge_config(
+            None,
+            variant_config_files=config,
+            python=python,
+            append_sections_file=append_file,
+            **condarc_options,
+        )
 
     retval.channel_urls = []
 
@@ -197,8 +204,11 @@ def make_conda_config(config, python, append_file, condarc_options):
         #    appropriate platform-specific subdir (e.g. win-64)
         if os.path.isdir(url):
             if not os.path.isabs(url):
-                url = os.path.normpath(os.path.abspath(os.path.join(os.getcwd(), url)))
-            url = url_path(url)
+                url = os.path.normpath(
+                    os.path.abspath(os.path.join(os.getcwd(), url))
+                )
+            with root_logger_protection():
+                url = url_path(url)
         retval.channel_urls.append(url)
 
     return retval
@@ -207,19 +217,22 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
     """Renders the recipe and returns the name of the output file."""
 
-    return conda_build.api.get_output_file_paths(metadata, config=config)
+    with root_logger_protection():
+        return conda_build.api.get_output_file_paths(metadata, config=config)
 
 
 def get_rendered_metadata(recipe_dir, config):
     """Renders the recipe and returns the interpreted YAML file."""
 
-    return conda_build.api.render(recipe_dir, config=config)
+    with root_logger_protection():
+        return conda_build.api.render(recipe_dir, config=config)
 
 
 def get_parsed_recipe(metadata):
     """Renders the recipe and returns the interpreted YAML file."""
 
-    output = conda_build.api.output_yaml(metadata[0][0])
+    with root_logger_protection():
+        output = conda_build.api.output_yaml(metadata[0][0])
     return yaml.load(output, Loader=yaml.FullLoader)
 
 
@@ -251,7 +264,8 @@ def exists_on_channel(channel_url, basename):
             name, version, build = name[:-8].rsplit("-", 2)
         else:
             raise RuntimeError(
-                "Package name %s does not end in either " ".tar.bz2 or .conda" % (name,)
+                "Package name %s does not end in either "
+                ".tar.bz2 or .conda" % (name,)
             )
 
         # remove the build number as we're looking for the next value
@@ -290,11 +304,15 @@ def parse_dependencies(recipe_dir, config):
         + remove_pins(recipe["requirements"].get("host", []))
         + recipe["requirements"].get("run", [])
         + recipe.get("test", {}).get("requires", [])
-        + ["bob.buildout"]  #required for basic bootstrap of most recipes
-        + ["ipython"]  #for ipdb
+        + ["bob.buildout"]  # required for basic bootstrap of most recipes
+        + ["ipython"]  # for ipdb
         # Also add anaconda compilers to make sure source installed packages are
         # compiled properly
-        + ["clangxx_osx-64" if platform.system() == "Darwin" else "gxx_linux-64"]
+        + [
+            "clangxx_osx-64"
+            if platform.system() == "Darwin"
+            else "gxx_linux-64"
+        ]
     )
     # by last, packages required for local dev
 
@@ -429,7 +447,8 @@ def get_docserver_setup(public, stable, server, intranet, group):
     if (not public) and (not intranet):
         raise RuntimeError(
             "You cannot request for private channels and set"
-            " intranet=False (server=%s) - these are conflicting options" % server
+            " intranet=False (server=%s) - these are conflicting options"
+            % server
         )
 
     entries = []
@@ -453,7 +472,9 @@ def get_docserver_setup(public, stable, server, intranet, group):
                 server + prefix + "/docs/" + group + "/%(name)s/stable/",
             ]
         else:
-            entries += [server + prefix + "/docs/" + group + "/%(name)s/master/"]
+            entries += [
+                server + prefix + "/docs/" + group + "/%(name)s/master/"
+            ]
 
     return "|".join(entries)
 
@@ -490,7 +511,8 @@ def check_version(workdir, envtag):
                 '"version.txt" indicates version is a '
                 'pre-release (v%s) - but environment provided tag "%s", '
                 "which indicates this is a **stable** build. "
-                "Have you created the tag using ``bdt release``?" % (version, envtag)
+                "Have you created the tag using ``bdt release``?"
+                % (version, envtag)
             )
     else:  # it is a stable build
         if envtag is None:
@@ -543,11 +565,20 @@ def git_clean_build(runner, verbose):
     if not verbose:
         flags += "q"
 
-    runner(["git", "clean", flags] + ["--exclude=%s" % k for k in exclude_from_cleanup])
+    runner(
+        ["git", "clean", flags]
+        + ["--exclude=%s" % k for k in exclude_from_cleanup]
+    )
 
 
 def base_build(
-    bootstrap, server, intranet, group, recipe_dir, conda_build_config, condarc_options,
+    bootstrap,
+    server,
+    intranet,
+    group,
+    recipe_dir,
+    conda_build_config,
+    condarc_options,
 ):
     """Builds a non-beat/non-bob software dependence that doesn't exist on
     defaults.
@@ -594,18 +625,24 @@ def base_build(
         "\n  - ".join(condarc_options["channels"]),
     )
     logger.info("Merging conda configuration files...")
-    conda_config = make_conda_config(conda_build_config, None, None, condarc_options)
+    conda_config = make_conda_config(
+        conda_build_config, None, None, condarc_options
+    )
 
     metadata = get_rendered_metadata(recipe_dir, conda_config)
     arch = conda_arch()
 
     # checks we should actually build this recipe
     if should_skip_build(metadata):
-        logger.warn('Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch)
+        logger.warn(
+            'Skipping UNSUPPORTED build of "%s" on %s', recipe_dir, arch
+        )
         return
 
     paths = get_output_path(metadata, conda_config)
-    urls = [exists_on_channel(upload_channel, os.path.basename(k)) for k in paths]
+    urls = [
+        exists_on_channel(upload_channel, os.path.basename(k)) for k in paths
+    ]
 
     if all(urls):
         logger.info(
@@ -626,14 +663,17 @@ def base_build(
 
     # if you get to this point, just builds the package(s)
     logger.info("Building %s", recipe_dir)
-    return conda_build.api.build(recipe_dir, config=conda_config)
+    with root_logger_protection():
+        return conda_build.api.build(recipe_dir, config=conda_config)
 
 
 if __name__ == "__main__":
 
     import argparse
 
-    parser = argparse.ArgumentParser(description="Builds bob.devtools on the CI")
+    parser = argparse.ArgumentParser(
+        description="Builds bob.devtools on the CI"
+    )
     parser.add_argument(
         "-g",
         "--group",
@@ -652,7 +692,8 @@ if __name__ == "__main__":
         default=os.environ.get(
             "CONDA_ROOT", os.path.realpath(os.path.join(os.curdir, "miniconda"))
         ),
-        help="The location where we should install miniconda " "[default: %(default)s]",
+        help="The location where we should install miniconda "
+        "[default: %(default)s]",
     )
     parser.add_argument(
         "-V",
@@ -732,7 +773,9 @@ if __name__ == "__main__":
     bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
 
     # create the build configuration
-    conda_build_config = os.path.join(args.work_dir, "conda", "conda_build_config.yaml")
+    conda_build_config = os.path.join(
+        args.work_dir, "conda", "conda_build_config.yaml"
+    )
     recipe_append = os.path.join(args.work_dir, "data", "recipe_append.yaml")
 
     condarc = os.path.join(args.conda_root, "condarc")
@@ -796,7 +839,8 @@ if __name__ == "__main__":
             "typically means this build is running on a shared builder and "
             "the file ~/.conda/environments.txt is polluted with other "
             "environment paths.  To fix, empty that file and set its mode "
-            "to read-only for all." % (path, os.path.join(args.conda_root, "conda-bld"))
+            "to read-only for all."
+            % (path, os.path.join(args.conda_root, "conda-bld"))
         )
 
     # retrieve the current build number(s) for this build
@@ -814,7 +858,8 @@ if __name__ == "__main__":
     # resolved the "wrong" build number.  We'll have to reparse after setting the
     # environment variable BOB_BUILD_NUMBER.
     bootstrap.set_environment("BOB_BUILD_NUMBER", str(build_number))
-    conda_build.api.build(recipe_dir, config=conda_config)
+    with root_logger_protection():
+        conda_build.api.build(recipe_dir, config=conda_config)
 
     # checks if long_description of python package renders fine
     if args.twine_check:

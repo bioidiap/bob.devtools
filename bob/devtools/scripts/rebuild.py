@@ -20,6 +20,7 @@ from ..build import get_rendered_metadata
 from ..build import make_conda_config
 from ..build import next_build_number
 from ..build import should_skip_build
+from ..build import root_logger_protection
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
@@ -237,6 +238,7 @@ def rebuild(
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
+
         path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
@@ -261,7 +263,8 @@ def rebuild(
             # rebuild the package or not
             logger.info("Testing %s", src)
             try:
-                result = conda_build.api.test(destpath, config=conda_config)
+                with root_logger_protection():
+                    result = conda_build.api.test(destpath, config=conda_config)
                 should_build = not result
             except Exception as error:
                 logger.exception(error)
