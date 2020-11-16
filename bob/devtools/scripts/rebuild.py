@@ -230,16 +230,14 @@ def rebuild(
             set_environment("BOB_PACKAGE_VERSION", version)
 
         # pre-renders the recipe - figures out the destination
-        with root_logger_protection():
-            metadata = get_rendered_metadata(d, conda_config)
+        metadata = get_rendered_metadata(d, conda_config)
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
             logger.info("Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch)
             continue
 
-        with root_logger_protection():
-            rendered_recipe = get_parsed_recipe(metadata)
+        rendered_recipe = get_parsed_recipe(metadata)
 
         path = get_output_path(metadata, conda_config)[0]
 

@@ -3,13 +3,13 @@
 
 import os
 import sys
-import subprocess
 
 import click
 import yaml
 
 from ..config import read_config
 from ..bootstrap import set_environment
+from ..bootstrap import run_cmdline
 from ..build import conda_create
 from ..build import make_conda_config
 from ..build import parse_dependencies
@@ -20,7 +20,6 @@ from ..constants import SERVER
 from ..log import echo_normal
 from ..log import get_logger
 from ..log import verbosity_option
-from ..log import root_logger_protection
 from . import bdt
 
 logger = get_logger(__name__)
@@ -269,16 +268,14 @@ def create(
     conda_config = make_conda_config(
         config, python, append_file, condarc_options
     )
-    with root_logger_protection():
-        deps = parse_dependencies(recipe_dir, conda_config)
-        # when creating a local development environment, remove the always_yes
-        # option
+    deps = parse_dependencies(recipe_dir, conda_config)
+    # when creating a local development environment, remove the always_yes
+    # option
 
     del condarc_options["always_yes"]
-    with root_logger_protection():
-        conda_create(
-            conda, name, overwrite, condarc_options, deps, dry_run, use_local
-        )
+    conda_create(
+        conda, name, overwrite, condarc_options, deps, dry_run, use_local
+    )
 
     # part 2: pip-install everything listed in pip-extras
     # mix-in stuff from ~/.bdtrc and command-line
@@ -292,7 +289,7 @@ def create(
     cmd = [conda, "run", "--live-stream", "--name", name, "pip", "install"]
     cmd += pip_extras
     if not dry_run:
-        subprocess.run(cmd, check=True, bufsize=1)
+        run_cmdline(cmd)
     else:
         logger.info(f"Command: {' '.join(cmd)}")
 

@@ -17,20 +17,9 @@ import sys
 import conda_build.api
 import yaml
 
+from .log import root_logger_protection
+
 logger = logging.getLogger(__name__)
-
-
-def remove_conda_loggers():
-    """Cleans-up conda API logger handlers to avoid logging repetition"""
-
-    z = logging.getLogger()  # conda places their handlers inside root
-    if z.handlers:
-        handler = z.handlers[0]
-        z.removeHandler(handler)
-        logger.debug("Removed conda logger handler at %s", handler)
-
-
-remove_conda_loggers()
 
 
 def comment_cleanup(lines):
@@ -97,8 +86,6 @@ def next_build_number(channel_url, basename):
 
     from conda.exports import fetch_index
     from conda.core.index import calculate_channel_urls
-
-    remove_conda_loggers()
 
     # get the channel index
     channel_urls = calculate_channel_urls([channel_url], prepend=False, use_local=False)
@@ -177,17 +164,15 @@ def make_conda_config(config, python, append_file, condarc_options):
     conda-build API's ``get_or_merge_config()`` function.
     """
 
-    from conda_build.conda_interface import url_path
-
-    remove_conda_loggers()
-
-    retval = conda_build.api.get_or_merge_config(
-        None,
-        variant_config_files=config,
-        python=python,
-        append_sections_file=append_file,
-        **condarc_options,
-    )
+    with root_logger_protection():
+        from conda_build.conda_interface import url_path
+        retval = conda_build.api.get_or_merge_config(
+            None,
+            variant_config_files=config,
+            python=python,
+            append_sections_file=append_file,
+            **condarc_options,
+        )
 
     retval.channel_urls = []
 
@@ -198,7 +183,8 @@ def make_conda_config(config, python, append_file, condarc_options):
         if os.path.isdir(url):
             if not os.path.isabs(url):
                 url = os.path.normpath(os.path.abspath(os.path.join(os.getcwd(), url)))
-            url = url_path(url)
+            with root_logger_protection():
+                url = url_path(url)
         retval.channel_urls.append(url)
 
     return retval
@@ -207,19 +193,22 @@ def make_conda_config(config, python, append_file, condarc_options):
 def get_output_path(metadata, config):
     """Renders the recipe and returns the name of the output file."""
 
-    return conda_build.api.get_output_file_paths(metadata, config=config)
+    with root_logger_protection():
+        return conda_build.api.get_output_file_paths(metadata, config=config)
 
 
 def get_rendered_metadata(recipe_dir, config):
     """Renders the recipe and returns the interpreted YAML file."""
 
-    return conda_build.api.render(recipe_dir, config=config)
+    with root_logger_protection():
+        return conda_build.api.render(recipe_dir, config=config)
 
 
 def get_parsed_recipe(metadata):
     """Renders the recipe and returns the interpreted YAML file."""
 
-    output = conda_build.api.output_yaml(metadata[0][0])
+    with root_logger_protection():
+        output = conda_build.api.output_yaml(metadata[0][0])
     return yaml.load(output, Loader=yaml.FullLoader)
 
 
@@ -626,7 +615,8 @@ def base_build(
 
     # if you get to this point, just builds the package(s)
     logger.info("Building %s", recipe_dir)
-    return conda_build.api.build(recipe_dir, config=conda_config)
+    with root_logger_protection():
+        return conda_build.api.build(recipe_dir, config=conda_config)
 
 
 if __name__ == "__main__":
@@ -814,7 +804,8 @@ if __name__ == "__main__":
     # resolved the "wrong" build number.  We'll have to reparse after setting the
     # environment variable BOB_BUILD_NUMBER.
     bootstrap.set_environment("BOB_BUILD_NUMBER", str(build_number))
-    conda_build.api.build(recipe_dir, config=conda_config)
+    with root_logger_protection():
+        conda_build.api.build(recipe_dir, config=conda_config)
 
     # checks if long_description of python package renders fine
     if args.twine_check:

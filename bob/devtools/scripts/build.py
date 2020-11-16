@@ -18,7 +18,6 @@ from ..build import get_parsed_recipe
 from ..build import get_rendered_metadata
 from ..build import make_conda_config
 from ..build import next_build_number
-from ..build import remove_conda_loggers
 from ..build import should_skip_build
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
@@ -29,9 +28,6 @@ from ..log import get_logger
 from ..log import verbosity_option
 from ..log import root_logger_protection
 from . import bdt
-
-remove_conda_loggers()
-
 
 logger = get_logger(__name__)
 
@@ -253,8 +249,7 @@ def build(
             set_environment("BOB_PACKAGE_VERSION", version)
 
         # pre-renders the recipe - figures out the destination
-        with root_logger_protection():
-            metadata = get_rendered_metadata(d, conda_config)
+        metadata = get_rendered_metadata(d, conda_config)
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
@@ -263,8 +258,7 @@ def build(
             )
             continue
 
-        with root_logger_protection():
-            rendered_recipe = get_parsed_recipe(metadata)
+        rendered_recipe = get_parsed_recipe(metadata)
 
         logger.debug("Printing rendered recipe")
         logger.debug("\n" + yaml.dump(rendered_recipe))
