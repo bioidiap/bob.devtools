@@ -117,11 +117,12 @@ Examples:
 )
 @click.option(
     "-A",
-    "--nose-eval-attr",
-    envvar="NOSE_EVAL_ATTR",
+    "--test-mark-expr",
+    envvar="TEST_MARK_EXPR",
     default="",
-    help="Use this flag to avoid running certain tests during the build. "
-    "It forwards all settings to ``nosetests --eval-attr=<settings>``",
+    help="Use this flag to avoid running certain tests during the build.  "
+    "It forwards all settings to ``nosetests`` via --eval-attr=<settings>``"
+    " and ``pytest`` via -m=<settings>.",
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -136,7 +137,7 @@ def test(
     stable,
     dry_run,
     ci,
-    nose_eval_attr,
+    test_mark_expr,
 ):
     """Tests (pre-built) package through conda-build with stock configuration.
 
@@ -194,7 +195,8 @@ def test(
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 
     # this is for testing and may limit which tests run
-    set_environment("NOSE_EVAL_ATTR", nose_eval_attr)
+    set_environment("NOSE_EVAL_ATTR", test_mark_expr)
+    set_environment("PYTEST_ADDOPTS", f"-m '{test_mark_expr}'")
 
     arch = conda_arch()
     for p in package:

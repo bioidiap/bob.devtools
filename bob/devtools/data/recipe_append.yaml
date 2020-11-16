@@ -2,3 +2,4 @@ build:
   script_env:
     - DOCSERVER
     - NOSE_EVAL_ATTR
+    - PYTEST_ADDOPTS

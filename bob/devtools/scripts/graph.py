@@ -201,6 +201,7 @@ def graph(
 
     # avoids conda-build complaints
     set_environment("NOSE_EVAL_ATTR", "")
+    set_environment("PYTEST_ADDOPTS", "")
 
     adj_matrix = compute_adjencence_matrix(
         gl, package, conda_config, upload_channel, deptypes=deptypes

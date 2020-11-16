@@ -699,11 +699,12 @@ if __name__ == "__main__":
         "to enable debug messages [default: %(default)s]",
     )
     parser.add_argument(
-        "--nose-eval-attr",
+        "--test-mark-expr",
         "-A",
         default="",
         help="Use this flag to avoid running certain tests during the build.  "
-        "It forwards all settings to ``nosetests --eval-attr=<settings>``",
+        "It forwards all settings to ``nosetests`` via --eval-attr=<settings>``"
+        " and ``pytest`` via -m=<settings>.",
     )
 
     args = parser.parse_args()
@@ -723,7 +724,8 @@ if __name__ == "__main__":
     bootstrap.set_environment("DOCSERVER", server)
     bootstrap.set_environment("LANG", "en_US.UTF-8")
     bootstrap.set_environment("LC_ALL", os.environ["LANG"])
-    bootstrap.set_environment("NOSE_EVAL_ATTR", args.nose_eval_attr)
+    bootstrap.set_environment("NOSE_EVAL_ATTR", args.test_mark_expr)
+    bootstrap.set_environment("PYTEST_ADDOPTS", f"-m '{args.test_mark_expr}'")
 
     # get information about the version of the package being built
     version, is_prerelease = check_version(args.work_dir, args.tag)
