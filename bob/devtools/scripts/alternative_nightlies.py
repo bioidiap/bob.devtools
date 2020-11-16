@@ -14,7 +14,7 @@ Examples:
 
   2. Provide a list of key value pairs of arguments to be used as variables in the CI
 
-     $ bdt gitlab alt-nightlies -vv order.txt TEST_MARK_EXPR "not slow"
+     $ bdt gitlab alt-nightlies -vv order.txt NOSE_EVAL_ATTR "not slow"
 """
 )
 @click.argument(
