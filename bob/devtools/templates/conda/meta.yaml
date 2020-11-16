@@ -36,7 +36,9 @@ test:
   imports:
     - {{ name }}
   commands:
-    - nosetests --with-coverage --cover-package={{ name }} --cover-erase --cover-html-dir={{ project_dir }}/sphinx/coverage --cover-xml-file={{ project_dir }}/coverage.xml -sv {{ name }}
+    # runs tests for package only, report only what is in the package
+    # creates html and xml reports and place them in specific directories
+    - pytest --verbose --cov {{ name }} --cov-report term-missing --cov-report html:{{ project_dir }}/sphinx/coverage --cov-report xml:{{ project_dir }}/coverage.xml --pyargs {{ name }}
     - sphinx-build -aEW {{ project_dir }}/doc {{ project_dir }}/sphinx
     - sphinx-build -aEb doctest {{ project_dir }}/doc sphinx
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
@@ -44,7 +46,8 @@ test:
   requires:
     - bob-devel {{ bob_devel }}.*(% if group == 'beat' %)
     - beat-devel {{ beat_devel }}.*(% endif %)
-    - nose
+    - pytest
+    - pytest-cov
     - coverage
     - sphinx
     - sphinx_rtd_theme
