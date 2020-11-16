@@ -20,6 +20,7 @@ from ..build import get_rendered_metadata
 from ..build import make_conda_config
 from ..build import next_build_number
 from ..build import should_skip_build
+from ..build import root_logger_protection
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
@@ -27,7 +28,6 @@ from ..constants import MATPLOTLIB_RCDIR
 from ..constants import SERVER
 from ..log import get_logger
 from ..log import verbosity_option
-from ..log import root_logger_protection
 from . import bdt
 
 logger = get_logger(__name__)

@@ -6,7 +6,6 @@
 import os
 import sys
 import logging
-import contextlib
 
 import click
 import termcolor
@@ -244,19 +243,3 @@ def verbosity_option(**kwargs):
         )(f)
 
     return custom_verbosity_option
-
-
-@contextlib.contextmanager
-def root_logger_protection():
-    """Protects the root logger against spurious (conda) manipulation"""
-
-    import copy
-
-    root_logger = logging.getLogger()
-    level = root_logger.level
-    handlers = copy.copy(root_logger.handlers)
-
-    yield
-
-    root_logger.setLevel(level)
-    root_logger.handlers = handlers
