@@ -279,6 +279,9 @@ def create(
 
     cmd = [conda, "run", "--live-stream", "--name", name, "pip", "install"]
     cmd += pip_extras
-    subprocess.run(cmd, check=True, bufsize=1)
+    if not dry_run:
+        subprocess.run(cmd, check=True, bufsize=1)
+    else:
+        logger.info(f"Command: {' '.join(cmd)}")
 
     echo_normal(f">>> Execute on your shell: \"conda activate {name}\"")
