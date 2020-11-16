@@ -34,6 +34,7 @@ installed, you can use these tools within the created environment like this:
    (bdt) $ bdt --help
 
 
+.. _bob.devtools.install.setup:
 
 Setup
 =====
@@ -74,7 +75,21 @@ that server inside the file ``~/.bdtrc``.  Here is a skeleton:
    password = password
 
 You may obtain these parameters from our internal page explaining the `WebDAV
-configuration`_.  You shoul also set ``chmod 600`` to this file for obvious
-security reasons.
+configuration`_.  For security reasons, you should also set ``chmod 600`` to
+this file.
+
+To increment your development environments created with ``bdt create`` using
+pip-installable packages, create a section named ``create`` in the file
+``~/.bdtrc`` with the following contents, e.g.:
+
+.. code-block:: ini
+
+   [create]
+   pip_extras = ipdb
+                mr.developer
+
+Then, by default, ``bdt create`` will automatically pip install ``ipdb`` and
+``mr.developer`` at environment creation time.  You may reset this list to your
+liking.
 
 .. include:: links.rst

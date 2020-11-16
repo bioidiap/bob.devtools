@@ -25,8 +25,10 @@ logger = get_logger(__name__)
 def dav():
     """Commands for reading/listing/renaming/copying content to a WebDAV server
 
-    Commands defined here may require a username and a password to operate
-    properly.
+    Commands defined here require a server, username and a password to operate
+    properly.  These values will be asked to you everytime you use a subcommand
+    in this group.  To avoid repetitive asking, create a configuration file as
+    indicated in the :doc:`bob.devtools.install.setup` subsection of the manual.
     """
     pass
 
