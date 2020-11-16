@@ -3,10 +3,12 @@
 
 import os
 import sys
+import subprocess
 
 import click
 import yaml
 
+from ..config import read_config
 from ..bootstrap import set_environment
 from ..build import conda_create
 from ..build import make_conda_config
@@ -21,6 +23,14 @@ from ..log import verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)
+
+
+def _uniq(seq):
+    """Fast order preserving uniq() function for Python lists"""
+
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 @click.command(
@@ -55,8 +65,23 @@ Examples:
   enable debug printing.  Equivalent conda commands you can execute on the
   shell will be printed:
 
-
      $ bdt create -vvv --dry-run myenv
+
+
+  5. You can use the option `--pip-extras` to force the installation of extra
+  Python packages that are useful in your development environment.  By default
+  we do not install anything, but you may configure this via this flag, or
+  through the configuration file option `create/pip_extras` to do so, as
+  explained in our Setup subsection of the Installation manual.  To use this
+  flag on the command-line, specify one pip-installable package each time:
+
+     $ bdt create -vvv --pip-extras=ipdb --pip-extras=mr.developer myenv
+
+     Using this option **adds** to what is available in the configuration file.
+     So, if your configuration file already contains ``ipdb`` and you wish to
+     install ``mr.developer`` as a plus, then just specify
+     ``--pip-extras=mr.developer``.
+
 """
 )
 @click.argument("name")
@@ -143,6 +168,15 @@ Examples:
     "(combine with the verbosity flags - e.g. ``-vvv``) to enable "
     "printing to help you understand what will be done",
 )
+@click.option(
+    "-x",
+    "--pip-extras",
+    multiple=True,
+    default=[],
+    help="Using pip, installs this additional list of dependencies to "
+    "created environments.  Pip installation happens after the base conda "
+    "install (defaults, if any, are listed in ~/.bdtrc)",
+)
 @verbosity_option()
 @bdt.raise_on_error
 def create(
@@ -159,6 +193,7 @@ def create(
     private,
     stable,
     dry_run,
+    pip_extras,
 ):
     """Creates a development environment for a recipe.
 
@@ -231,4 +266,18 @@ def create(
     # when creating a local development environment, remove the always_yes option
     del condarc_options["always_yes"]
     conda_create(conda, name, overwrite, condarc_options, deps, dry_run, use_local)
-    echo_normal('Execute on your shell: "conda activate %s"' % name)
+
+    # part 2: pip-install everything listed in pip-extras
+    # mix-in stuff from ~/.bdtrc and command-line
+    config = read_config()
+    pip_extras_config = []
+    if "create" in config:
+        pip_extras_config = config["create"].get("pip_extras", "").split()
+    pip_extras = _uniq(pip_extras_config + list(pip_extras))
+    logger.info("Pip-installing: %s", pip_extras)
+
+    cmd = [conda, "run", "--live-stream", "--name", name, "pip", "install"]
+    cmd += pip_extras
+    subprocess.run(cmd, check=True, bufsize=1)
+
+    echo_normal(f">>> Execute on your shell: \"conda activate {name}\"")
