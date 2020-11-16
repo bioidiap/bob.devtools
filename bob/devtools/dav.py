@@ -10,6 +10,7 @@ from distutils.version import StrictVersion
 import dateutil.parser
 
 from .deploy import _setup_webdav_client
+from .config import read_config
 from .log import echo_normal
 from .log import echo_warning
 from .log import get_logger
@@ -21,41 +22,31 @@ def _get_config():
     """Returns a dictionary with server parameters, or ask them to the user"""
 
     # tries to figure if we can authenticate using a configuration file
-    cfgs = ["~/.bdtrc"]
-    cfgs = [os.path.expanduser(k) for k in cfgs]
-    for k in cfgs:
-        if os.path.exists(k):
-            data = configparser.ConfigParser()
-            data.read(k)
-            if (
-                "webdav" not in data
-                or "server" not in data["webdav"]
+    data = read_config()
+
+    # this does some sort of validation for the "webdav" data...
+    if "webdav" in data:
+        if ("server" not in data["webdav"]
                 or "username" not in data["webdav"]
                 or "password" not in data["webdav"]
-            ):
-                assert KeyError, (
-                    "The file %s should contain a single "
-                    '"webdav" section with 3 variables defined inside: '
-                    '"server", "username", "password".' % (k,)
-                )
-            return data["webdav"]
+                ):
+            raise KeyError(
+                f"If the configuration file {k} contains a \"webdav\" " \
+                f"section, it should contain 3 variables defined inside: " \
+                f'"server", "username", "password".'
+            )
+    else:
+        # ask the user for the information, in case nothing available
+        logger.warn("Requesting server information for webDAV operation. " \
+                "(To create a configuration file, and avoid these, follow " \
+                "the Setup subsection at our Installation manual.)")
+        webdav_data = dict()
+        webdav_data["server"] = input("The base address of the server: ")
+        webdav_data["username"] = input("Username: ")
+        webdav_data["password"] = input("Password: ")
+        data["webdav"] = webdav_data
 
-    # ask the user for the information, cache credentials for future use
-    retval = dict()
-    retval["server"] = input("The base address of the server: ")
-    retval["username"] = input("Username: ")
-    retval["password"] = input("Password: ")
-
-    # record file for the user
-    data = configparser.ConfigParser()
-    data["webdav"] = retval
-    with open(cfgs[0], "w") as f:
-        logger.warn('Recorded "%s" configuration file for next queries')
-        data.write(f)
-    os.chmod(cfgs[0], 0o600)
-    logger.warn('Changed mode of "%s" to be read-only to you')
-
-    return retval
+    return data["webdav"]
 
 
 def setup_webdav_client(private):
