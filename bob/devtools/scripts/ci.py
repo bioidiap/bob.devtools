@@ -482,7 +482,7 @@ def test(ctx, dry_run):
         stable="CI_COMMIT_TAG" in os.environ,
         dry_run=dry_run,
         ci=True,
-        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
+        test_mark_expr=os.environ.get("TEST_MARK_EXPR", ""),
     )
 
 
@@ -558,7 +558,7 @@ def build(ctx, dry_run, recipe_dir):
         stable="CI_COMMIT_TAG" in os.environ,
         dry_run=dry_run,
         ci=True,
-        nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
+        test_mark_expr=os.environ.get("TEST_MARK_EXPR", ""),
     )
 
 
@@ -705,7 +705,7 @@ def nightlies(ctx, order, dry_run):
             stable=stable,
             dry_run=dry_run,
             ci=True,
-            nose_eval_attr=os.environ.get("NOSE_EVAL_ATTR", ""),
+            test_mark_expr=os.environ.get("TEST_MARK_EXPR", ""),
         )
 
         is_master = os.environ["CI_COMMIT_REF_NAME"] == "master"
