@@ -27,6 +27,7 @@ from ..constants import MATPLOTLIB_RCDIR
 from ..constants import SERVER
 from ..log import get_logger
 from ..log import verbosity_option
+from ..log import root_logger_protection
 from . import bdt
 
 logger = get_logger(__name__)
@@ -229,14 +230,17 @@ def rebuild(
             set_environment("BOB_PACKAGE_VERSION", version)
 
         # pre-renders the recipe - figures out the destination
-        metadata = get_rendered_metadata(d, conda_config)
+        with root_logger_protection():
+            metadata = get_rendered_metadata(d, conda_config)
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
             logger.info("Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch)
             continue
 
-        rendered_recipe = get_parsed_recipe(metadata)
+        with root_logger_protection():
+            rendered_recipe = get_parsed_recipe(metadata)
+
         path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
@@ -261,7 +265,8 @@ def rebuild(
             # rebuild the package or not
             logger.info("Testing %s", src)
             try:
-                result = conda_build.api.test(destpath, config=conda_config)
+                with root_logger_protection():
+                    result = conda_build.api.test(destpath, config=conda_config)
                 should_build = not result
             except Exception as error:
                 logger.exception(error)

@@ -20,6 +20,7 @@ from ..constants import SERVER
 from ..log import echo_normal
 from ..log import get_logger
 from ..log import verbosity_option
+from ..log import root_logger_protection
 from . import bdt
 
 logger = get_logger(__name__)
@@ -95,7 +96,8 @@ Examples:
     "--python",
     default=("%d.%d" % sys.version_info[:2]),
     show_default=True,
-    help="Version of python to build the " "environment for [default: %(default)s]",
+    help="Version of python to build the "
+    "environment for [default: %(default)s]",
 )
 @click.option(
     "-o",
@@ -106,7 +108,9 @@ Examples:
     show_default=True,
 )
 @click.option(
-    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
+    "-r",
+    "--condarc",
+    help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-l",
@@ -262,11 +266,19 @@ def create(
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    conda_config = make_conda_config(config, python, append_file, condarc_options)
-    deps = parse_dependencies(recipe_dir, conda_config)
-    # when creating a local development environment, remove the always_yes option
+    conda_config = make_conda_config(
+        config, python, append_file, condarc_options
+    )
+    with root_logger_protection():
+        deps = parse_dependencies(recipe_dir, conda_config)
+        # when creating a local development environment, remove the always_yes
+        # option
+
     del condarc_options["always_yes"]
-    conda_create(conda, name, overwrite, condarc_options, deps, dry_run, use_local)
+    with root_logger_protection():
+        conda_create(
+            conda, name, overwrite, condarc_options, deps, dry_run, use_local
+        )
 
     # part 2: pip-install everything listed in pip-extras
     # mix-in stuff from ~/.bdtrc and command-line
@@ -284,4 +296,4 @@ def create(
     else:
         logger.info(f"Command: {' '.join(cmd)}")
 
-    echo_normal(f">>> Execute on your shell: \"conda activate {name}\"")
+    echo_normal(f'>>> Execute on your shell: "conda activate {name}"')

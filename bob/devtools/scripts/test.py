@@ -20,6 +20,7 @@ from ..constants import MATPLOTLIB_RCDIR
 from ..constants import SERVER
 from ..log import get_logger
 from ..log import verbosity_option
+from ..log import root_logger_protection
 from . import bdt
 
 remove_conda_loggers()
@@ -202,4 +203,5 @@ def test(
     for p in package:
         logger.info("Testing %s at %s", p, arch)
         if not dry_run:
-            conda_build.api.test(p, config=conda_config)
+            with root_logger_protection():
+                conda_build.api.test(p, config=conda_config)
