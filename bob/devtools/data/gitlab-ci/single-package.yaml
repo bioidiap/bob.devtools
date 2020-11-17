@@ -66,26 +66,12 @@ stages:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
 
 
-build_macosx_36:
-  extends: .build_macosx_template
-  variables:
-    PYTHON_VERSION: "3.6"
-  cache:
-    key: "build-py36"
-
 build_macosx_37:
   extends: .build_macosx_template
   variables:
     PYTHON_VERSION: "3.7"
   cache:
     key: "build-py37"
-
-build_linux_36:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.6"
-  cache:
-    key: "build-py36"
 
 build_linux_37:
   extends: .build_linux_template

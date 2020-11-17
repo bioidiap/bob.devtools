@@ -55,7 +55,6 @@ pin_run_as_build:
 
 ## the dependencies that we build against multiple versions
 python:
-  - 3.6
   - 3.7
   - 3.8
 
