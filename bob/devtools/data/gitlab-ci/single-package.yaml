@@ -126,8 +126,6 @@ build_linux_37:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_36
-    - build_macosx_36
     - build_linux_37
     - build_macosx_37
   tags:
@@ -167,8 +165,6 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux_36
-    - build_macosx_36
     - build_linux_37
     - build_macosx_37
   tags:
