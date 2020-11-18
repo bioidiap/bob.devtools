@@ -118,10 +118,11 @@ def _gen_new_index(repodata, packages_key):
             if parse_version(record["version"]) <= parse_version("4.1.0"):
                 record["depends"].append("numpy <1.18")
 
-        # somehow conda cannot resolve pytorch cpu without the cpuonly package
-        # we only ship cpu-only pytorch packages
+        # pytorch 1.7.0 0 packages need this extra dependencies to run
         if record_name == "pytorch":
-            record["depends"].append("cpuonly")
+            if record["version"] == "1.7.0" and record["build_number"] == 0:
+                record["depends"].append("dataclasses >=0.8")
+                record["depends"].append("future >=0.18.2")
 
     return index
 
