@@ -220,7 +220,7 @@ sqlalchemy:
 tabulate:
   - 0.8.7
 tensorflow:
-  - 2.2.0
+  - 2.3.0
 termcolor:
   - 1.1.0
 torchvision:
