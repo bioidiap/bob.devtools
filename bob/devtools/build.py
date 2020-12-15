@@ -304,6 +304,7 @@ def parse_dependencies(recipe_dir, config):
         + remove_pins(recipe["requirements"].get("host", []))
         + recipe["requirements"].get("run", [])
         + recipe.get("test", {}).get("requires", [])
+        + ["pip"]  # required for installing further packages
         + ["bob.buildout"]  # required for basic bootstrap of most recipes
         + ["ipython"]  # for ipdb
         # Also add anaconda compilers to make sure source installed packages are
