@@ -68,7 +68,8 @@ Building the reference setup
    Choose a password to protect access to this user.  In "Login Options",
    select this user to auto-login, type its password to confirm
 4. Enable SSH access to the machine by going on ``System Preferences``,
-   ``Sharing`` and then selecting ``Remote Login``. Make sure only users on the
+   ``Sharing`` and then selecting ``Remote Login`` (for ssh) and ``Screen
+   Sharing`` (for remote desktop connections). Make sure only users on the
    ``Administrators`` group can access the machine.
 5. Create as many ``Administrator`` users as required to manage the machine
 6. Login as administrator of the machine (so, not on the `gitlab` account).  As
