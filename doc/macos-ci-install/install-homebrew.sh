@@ -17,6 +17,6 @@ if [ ! -x ${brew} ]; then
     brew=/opt/homebrew/bin/brew
 fi
 
-${brew} install curl git coreutils zsh zsh-completions zsh-syntax-highlighting highlight neovim tmux htop python@3 pygments
+${brew} install curl git coreutils highlight neovim tmux htop python@3 pygments
 ${brew} link --force curl #keg-only recipe
 ${brew} install --cask mactex
