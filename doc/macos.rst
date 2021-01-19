@@ -124,7 +124,8 @@ Building the reference setup
    so they are slightly higher than that new limit with ``sudo sysctl -w
    kern.maxfilesperproc=10240`` and ``sudo sysctl -w kern.maxfiles=12288``
    respectively, for example.
-8. Enter as gitlab user and install/configure the `gitlab runner`_:
+8. Install oh-my-zsh_ for both the admin and gitlab users.  Set ZSH theme "ys".
+9. Enter as gitlab user and install/configure the `gitlab runner`_:
 
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
@@ -148,11 +149,11 @@ Building the reference setup
         builds_dir = "/Users/gitlab/builds"  # set this or bugs occur
         cache_dir = "/Users/gitlab/caches"  # this is optional, but desirable
         shell = "bash"
-9. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
-   start at login.  In "Preferences > Filesystem Sharing", ensure that
-   `/var/folders` is included in the list (that is the default location for
-   temporary files in macOS).
-10. Reboot the machine. At this point, the gitlab user should be auto-logged
+10. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
+    start at login.  In "Preferences > Filesystem Sharing", ensure that
+    `/var/folders` is included in the list (that is the default location for
+    temporary files in macOS).
+11. Reboot the machine. At this point, the gitlab user should be auto-logged
     and the runner process should be executing.  Congratulations, you're done!
 
 
@@ -165,8 +166,14 @@ updated regularly (once a week).  To do so, setup a cronjob like the following:
 .. code-block:: text
 
    MAILTO=""
-   SHELL=/bin/bash
-   00 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | mailx -s "Software update (hostname|cimacosx)" your.email@example.com
+   00 12 * * 0 /bin/bash /Users/admin/cron.sh
+
+
+Inside the file ``/Users/admin/cron.sh``, put the following contents:
+
+.. code-block:: sh
+
+   /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | mailx -s "Software update (hostname|cimacosx)" your.email@idiap.ch
 
 .. note::
 

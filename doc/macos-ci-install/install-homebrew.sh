@@ -11,13 +11,12 @@ if [[ $EUID == 0 ]]; then
   exec su ${1} -c "$(which bash) ${0}"
 fi
 
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" </dev/null
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew=/usr/local/bin/brew
+if [ ! -x ${brew} ]; then
+    brew=/opt/homebrew/bin/brew
+fi
 
-${brew} install curl git coreutils bash bash-completion highlight neovim tmux htop python@3
+${brew} install curl git coreutils zsh zsh-completions zsh-syntax-highlighting highlight neovim tmux htop python@3 pygments
 ${brew} link --force curl #keg-only recipe
-${brew} cask install mactex
-
-# LaTeX slides/beamer dependencies
-pip=/usr/local/bin/pip3
-${pip} install pygments
+${brew} install --cask mactex
