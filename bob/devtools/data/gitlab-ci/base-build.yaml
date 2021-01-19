@@ -40,9 +40,10 @@ build_linux:
     key: "linux-cache"
 
 
-build_macosx:
+build_macos_intel:
   extends: .build_template
   tags:
-    - macosx
+    - macos
+    - intel
   cache:
-    key: "macosx-cache"
+    key: "macos-intel-cache"
