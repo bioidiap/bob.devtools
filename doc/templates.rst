@@ -96,7 +96,7 @@ You also need to enable the following options - through gitlab - on your project
    the "Deploy Keys" for our builders (all `conda-*` related servers) are
    enabled
 3. Visit the "Runners" section of your package settings and enable all conda
-   runners, for linux and macosx variants
+   runners, for linux and macos (intel or arm) variants
 4. Go into the "Variables" section of your package setup and **add common
    variables** corresponding to the usernames and passwords for uploading
    wheels and documentation tar balls to our (web DAV) server, as well as PyPI
@@ -399,7 +399,7 @@ You also remember to enable the following options on your project:
 
 1. In the project "Settings" page, make sure builds are enabled
 2. Visit the "Runners" section of your package settings and enable all runners
-   with the `docker` and `macosx` tags.
+   with the `docker` and `macos` tags.
 3. Setup the coverage regular expression under "CI/CD pipelines" to have the
    value `^TOTAL.*\s+(\d+\%)$`, which is adequate for figuring out the output
    of `coverage report`

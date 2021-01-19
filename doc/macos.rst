@@ -173,7 +173,7 @@ Inside the file ``/Users/admin/cron.sh``, put the following contents:
 
 .. code-block:: sh
 
-   /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | mailx -s "Software update (hostname|cimacosx)" your.email@idiap.ch
+   /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh) 2>&1 | mailx -s "Software update (hostname|cimacos)" your.email@idiap.ch
 
 .. note::
 

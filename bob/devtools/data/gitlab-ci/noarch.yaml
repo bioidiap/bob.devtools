@@ -66,14 +66,15 @@ build_linux:
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
 
 
-build_macosx:
+build_macos_intel:
   variables:
     PYTHON_VERSION: "3.7"
   cache:
     key: "build"
   extends: .build_template
   tags:
-    - macosx
+    - macos
+    - intel
 
 
 # Test targets (not normally used)
@@ -95,10 +96,11 @@ build_macosx:
   image: docker.idiap.ch/bob/docker-images/c3i-linux-64
 
 
-.test_macosx_template:
+.test_macos_intel_template:
   extends: .test_template
   tags:
-    - macosx
+    - macos
+    - intel
 
 
 # Deploy targets
@@ -110,7 +112,7 @@ build_macosx:
     - bdt ci clean -vv
   dependencies:
     - build_linux
-    - build_macosx
+    - build_macos_intel
   tags:
     - docker
   cache:
@@ -149,7 +151,7 @@ pypi:
     - bdt ci clean -vv
   dependencies:
     - build_linux
-    - build_macosx
+    - build_macos_intel
   tags:
     - docker
   cache:
