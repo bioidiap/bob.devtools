@@ -77,6 +77,7 @@ Building the reference setup
    https://gitlab.idiap.ch/bob/bob.devtools via a zip file download)::
 
      $ cd
+     $ curl -o bob.devtools-master.zip https://gitlab.idiap.ch/bob/bob.devtools/-/archive/master/bob.devtools-master.zip
      $ unzip ~/Downloads/bob.devtools-master.zip
      $ cd bob.devtools-master/doc/macos-ci-install
      $ sudo ./admin-install.sh 10.9 gitlab
@@ -125,17 +126,43 @@ Building the reference setup
    kern.maxfilesperproc=10240`` and ``sudo sysctl -w kern.maxfiles=12288``
    respectively, for example.
 8. Install oh-my-zsh_ for both the admin and gitlab users.  Set ZSH theme "ys".
+   Add the following bits to ``.zshrc`` to ensure completions work::
+
+   # Enables homebrew auto-completions for zsh (add: right at the top!)
+   if type brew &>/dev/null; then
+       FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+       ZSH_DISABLE_COMPFIX="true"
+   fi
+
+   ...
+
+   # plugins (add: just before sourcing oh-my-zsh)
+   plugins=()
+   plugins+=(docker)
+   plugins+=(git)
+   plugins+=(gitfast)
+   plugins+=(python)
+   plugins+=(themes)
+   plugins+=(z)
+   plugins+=(zsh-syntax-highlighting)
+   plugins+=(history-substring-search)
 9. Enter as gitlab user and install/configure the `gitlab runner`_:
 
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
 
-     $ gitlab-runner stop
-     $ vi .gitlab-runner/config.toml
-     $ gitlab-runner start
+     $ brew services start gitlab-runner
+     # the command above is bogus - it will use the "admin" user home dir
+     # you need to reconfigure it to fix this
+     $ /bin/launchctl stop /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
+     $ /bin/launchctl unload /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
+     $ vim /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
+     # change all occurences of "admin" with "gitlab"
+     $ /bin/launchctl load /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
+     $ /bin/launchctl start /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
+     # n.b.: re-executing "brew services start gitlab-runner" will reset the file above
 
-   Once that is set, your runner configuration should look like this (remove
-   comments if gitlab does not like them)::
+   Once that is set, your runner configuration (``~/.gitlab-runner/config.toml``) should look like this (remove comments if gitlab does not like them)::
 
       concurrent = 8  # set this to the number of cores available
       check_interval = 10  # do **not** leave this to zero
