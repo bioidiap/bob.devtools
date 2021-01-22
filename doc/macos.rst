@@ -128,24 +128,24 @@ Building the reference setup
 8. Install oh-my-zsh_ for both the admin and gitlab users.  Set ZSH theme "ys".
    Add the following bits to ``.zshrc`` to ensure completions work::
 
-   # Enables homebrew auto-completions for zsh (add: right at the top!)
-   if type brew &>/dev/null; then
-       FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-       ZSH_DISABLE_COMPFIX="true"
-   fi
+     # Enables homebrew auto-completions for zsh (add: right at the top!)
+     if type brew &>/dev/null; then
+         FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+         ZSH_DISABLE_COMPFIX="true"
+     fi
 
-   ...
+     ...
 
-   # plugins (add: just before sourcing oh-my-zsh)
-   plugins=()
-   plugins+=(docker)
-   plugins+=(git)
-   plugins+=(gitfast)
-   plugins+=(python)
-   plugins+=(themes)
-   plugins+=(z)
-   plugins+=(zsh-syntax-highlighting)
-   plugins+=(history-substring-search)
+     # plugins (add: just before sourcing oh-my-zsh)
+     plugins=()
+     plugins+=(docker)
+     plugins+=(git)
+     plugins+=(gitfast)
+     plugins+=(python)
+     plugins+=(themes)
+     plugins+=(z)
+     plugins+=(zsh-syntax-highlighting)
+     plugins+=(history-substring-search)
 9. Enter as gitlab user and install/configure the `gitlab runner`_:
 
    Configure the runner for `shell executor`_, with local caching.  As
