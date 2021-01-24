@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import click
 from click_plugins import with_plugins
 import pkg_resources
@@ -33,7 +34,74 @@ def _get_runner_from_description(gl, descr):
     return the_runner
 
 
-@with_plugins(pkg_resources.iter_entry_points("bdt.gitlab.cli"))
+def _get_project(gl, name):
+
+    retval = gl.projects.get(name)
+    logger.debug(
+        "Found gitlab project %s (id=%d)",
+        retval.attributes["path_with_namespace"],
+        retval.id,
+    )
+    return retval
+
+
+def _get_projects_from_group(gl, name):
+
+    group = gl.groups.get(name)
+    logger.debug(
+        "Found gitlab group %s (id=%d)",
+        group.attributes["path"],
+        group.id,
+    )
+    projects = group.projects.list(all=True, simple=True)
+    logger.info(
+        "Retrieving details for %d projects in group %s (id=%d). "
+        "This may take a while...",
+        len(projects),
+        group.attributes["path"],
+        group.id,
+    )
+    packages = []
+    for k, proj in enumerate(projects):
+        packages.append(_get_project(gl, proj.id))
+        logger.debug("Got data from project %d/%d", k + 1, len(projects))
+    return packages
+
+
+def _get_projects_from_runner(gl, runner):
+
+    the_runner = gl.runners.get(runner.id)
+    logger.info(
+        "Retrieving details for %d projects using runner %s (id=%d). "
+        "This may take a while...",
+        len(the_runner.projects),
+        the_runner.description,
+        the_runner.id,
+    )
+    packages = []
+    for k, proj in enumerate(the_runner.projects):
+        packages.append(_get_project(gl, proj["id"]))
+        logger.debug(
+            "Got data from project %d/%d", k + 1, len(the_runner.projects)
+        )
+    return packages
+
+
+def _get_projects_from_file(gl, filename):
+
+    packages = []
+    with open(filename, "rt") as f:
+        lines = [k.strip() for k in f.readlines()]
+        lines = [k for k in lines if k and not k.startswith("#")]
+        logger.info("Loaded %d entries from file %s", len(lines), filename)
+        for k, proj in enumerate(lines):
+            packages.append(_get_project(gl, proj))
+            logger.debug(
+                "Got data from project %d/%d", k + 1, len(lines)
+            )
+    return packages
+
+
 @click.group(cls=bdt.AliasedGroup)
 def runners():
     """Commands for handling runners."""
@@ -44,19 +112,19 @@ def runners():
     epilog="""
 Examples:
 
-  1. Enables the runner with description "linux-srv01" on all projects inside group "beat":
+  1. Enables the runner with description "linux-srv01" on all projects inside groups "beat" and "bob":
 
-     $ bdt gitlab runners enable -vv beat linux-srv01
+     $ bdt gitlab runners enable -vv linux-srv01 beat bob
 
 
   2. Enables the runner with description "linux-srv02" on a specific project:
 
-     $ bdt gitlab runners enable -vv bob/bob.extension linux-srv02
+     $ bdt gitlab runners enable -vv linux-srv02 bob/bob.extension
 
 """
 )
-@click.argument("target")
 @click.argument("name")
+@click.argument("targets", nargs=-1, required=True)
 @click.option(
     "-d",
     "--dry-run/--no-dry-run",
@@ -67,72 +135,76 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def enable(target, name, dry_run):
-    """Enables runners on whole gitlab groups or single projects."""
+def enable(name, targets, dry_run):
+    """Enables runners on whole gitlab groups or single projects.
+
+    You may provide project names (like "group/project"), whole groups, and
+    files containing list of projects to enable at certain runner at.
+    """
 
     gl = get_gitlab_instance()
     gl.auth()
 
     the_runner = _get_runner_from_description(gl, name)
 
-    if "/" in target:  # it is a specific project
-        packages = [gl.projects.get(target)]
-        logger.debug(
-            "Found gitlab project %s (id=%d)",
-            packages[0].attributes["path_with_namespace"],
-            packages[0].id,
-        )
+    packages = []
+    for target in targets:
 
-    else:  # it is a group - get all projects
-        logger.warn("Retrieving group by name - may take long...")
-        group = gl.groups.get(target)
-        logger.debug(
-            "Found gitlab group %s (id=%d)", group.attributes["path"], group.id
-        )
-        logger.warn(
-            "Retrieving all projects (with details) from group "
-            "%s (id=%d)...",
-            group.attributes["path"],
-            group.id,
-        )
-        packages = [
-            gl.projects.get(k.id)
-            for k in group.projects.list(all=True, simple=True)
-        ]
-        logger.info(
-            "Found %d projects under group %s",
-            len(packages),
-            group.attributes["path"],
-        )
+        if "/" in target:  # it is a specific project
+            packages.append(_get_project(gl, target))
+
+        elif os.path.exists(target):  # it is a file with project names
+            packages += _get_projects_from_file(gl, target)
+
+        else:  # it is a group - get all projects
+            packages += _get_projects_from_group(gl, target)
 
     for k in packages:
-        logger.info(
-            "Processing project %s (id=%d)",
-            k.attributes["path_with_namespace"],
-            k.id,
-        )
 
-        # checks if runner is not enabled first
-        enabled = False
-        for ll in k.runners.list(all=True):
-            if ll.id == the_runner.id:  # it is there already
-                logger.warn(
-                    "Runner %s (id=%d) is already enabled for project %s",
-                    ll.attributes["description"],
-                    ll.id,
-                    k.attributes["path_with_namespace"],
-                )
-                enabled = True
-                break
+        try:
 
-        if not enabled:  # enable it
-            if not dry_run:
-                k.runners.create({"runner_id": the_runner.id})
             logger.info(
-                "Enabled runner %s (id=%d) for project %s",
-                the_runner.attributes["description"],
-                the_runner.id,
+                "Processing project %s (id=%d)",
                 k.attributes["path_with_namespace"],
+                k.id,
+            )
+
+            # checks if runner is not enabled first
+            enabled = False
+            for ll in k.runners.list(all=True):
+                if ll.id == the_runner.id:  # it is there already
+                    logger.warn(
+                        "Runner %s (id=%d) is already enabled for project %s",
+                        ll.attributes["description"],
+                        ll.id,
+                        k.attributes["path_with_namespace"],
+                    )
+                    enabled = True
+                    break
+
+            if not enabled:  # enable it
+                if not dry_run:
+                    k.runners.create({"runner_id": the_runner.id})
+                    logger.info(
+                        "Enabled runner %s (id=%d) for project %s",
+                        the_runner.attributes["description"],
+                        the_runner.id,
+                        k.attributes["path_with_namespace"],
+                    )
+                else:
+                    logger.info(
+                        "Would enable runner %s (id=%d) for project %s",
+                        the_runner.attributes["description"],
+                        the_runner.id,
+                        k.attributes["path_with_namespace"],
+                    )
+
+        except Exception as e:
+            logger.error(
+                "Ignoring project %s (id=%d): %s",
+                k.attributes["path_with_namespace"],
+                k.id,
+                str(e),
             )
 
 
@@ -140,20 +212,27 @@ def enable(target, name, dry_run):
     epilog="""
 Examples:
 
-  1. Disables the runner with description "macmini" for all active projects in group "bob":
+  1. Disables the runner with description "macmini" in project bob/bob and bob/conda:
 
-     $ bdt gitlab runners disable -vv bob macmini
+\b
+     $ bdt gitlab runners disable -vv macmini bob/bob bob/conda
 
 
-  2. Disables the runner with description "macmini" on all projects it is associated to:
+  1. Disables the runner with description "macmini" for all projects in group bob:
 
-     $ bdt gitlab runners disable -vv __all__ macmini
+\b
+     $ bdt gitlab runners disable -vv macmini bob
 
+
+  2. Disables the runner with description "macpro" on all projects it is associated to.  Notice this command effectively deletes the runner from the gitlab instance:
+
+\b
+     $ bdt gitlab runners disable -vv pro
 
 """
 )
-@click.argument("target")
 @click.argument("name")
+@click.argument("targets", nargs=-1, required=False)
 @click.option(
     "-d",
     "--dry-run/--no-dry-run",
@@ -164,83 +243,79 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def disable(target, name, dry_run):
-    """Disables runners on whole gitlab groups or single projects."""
+def disable(name, targets, dry_run):
+    """Disables runners on whole gitlab groups or single projects.
+
+    You may provide project names (like "group/project"), whole groups, files
+    containing list of projects to load or omit the last argument, in which
+    case all projects using this runner will be affected.
+    """
 
     gl = get_gitlab_instance()
     gl.auth()
 
     the_runner = _get_runner_from_description(gl, name)
 
-    if "/" in target:  # it is a specific project
-        packages = [gl.projects.get(target)]
-        logger.debug(
-            "Found gitlab project %s (id=%d)",
-            packages[0].attributes["path_with_namespace"],
-            packages[0].id,
-        )
+    packages = []
+    for target in targets:
+        if "/" in target:  # it is a specific project
+            packages.append(_get_project(gl, target))
 
-    elif target != "__all__":  # it is a group - get all projects
-        logger.warn("Retrieving group by name - may take long...")
-        group = gl.groups.get(target)
-        logger.debug(
-            "Found gitlab group %s (id=%d)", group.attributes["path"], group.id
-        )
-        logger.warn(
-            "Retrieving all projects (with details) from group "
-            "%s (id=%d)...",
-            group.attributes["path"],
-            group.id,
-        )
-        packages = [
-            gl.projects.get(k.id)
-            for k in group.projects.list(all=True, simple=True)
-        ]
-        logger.info(
-            "Found %d projects under group %s",
-            len(packages),
-            group.attributes["path"],
-        )
+        elif os.path.exists(target):  # it is a file with project names
+            packages += _get_projects_from_file(gl, target)
 
-    else:  # disables from everywhere
-        logger.warn("Retrieving all runner associated projects...")
-        # gets extended version of object
-        the_runner = gl.runners.get(the_runner.id)
-        packages = [gl.projects.get(k['id']) for k in the_runner.projects]
-        logger.info(
-            "Found %d projects using runner %s",
-            len(packages),
-            the_runner.description,
-        )
+        elif isinstance(target, str) and target:  # it is a group
+            packages += _get_projects_from_group(gl, target)
+
+    if not targets:
+        logger.info("Retrieving all runner associated projects...")
+        packages += _get_projects_from_runner(gl, the_runner)
 
     for k in packages:
-        logger.info(
-            "Processing project %s (id=%d)",
-            k.attributes["path_with_namespace"],
-            k.id,
-        )
+        try:
 
-        # checks if runner is not already disabled first
-        disabled = True
-        for ll in k.runners.list(all=True):
-            if ll.id == the_runner.id:  # it is there already
-                logger.debug(
-                    "Runner %s (id=%d) is enabled for project %s",
-                    ll.attributes["description"],
-                    ll.id,
-                    k.attributes["path_with_namespace"],
-                )
-                disabled = False
-                break
-
-        if not disabled:  # enable it
-            if not dry_run:
-                k.runners.delete(the_runner.id)
             logger.info(
-                "Disabled runner %s (id=%d) for project %s",
-                the_runner.attributes["description"],
-                the_runner.id,
+                "Processing project %s (id=%d)",
                 k.attributes["path_with_namespace"],
+                k.id,
+            )
+
+            # checks if runner is not already disabled first
+            disabled = True
+            for ll in k.runners.list(all=True):
+                if ll.id == the_runner.id:  # it is there already
+                    logger.debug(
+                        "Runner %s (id=%d) is enabled for project %s",
+                        ll.attributes["description"],
+                        ll.id,
+                        k.attributes["path_with_namespace"],
+                    )
+                    disabled = False
+                    break
+
+            if not disabled:  # disable it
+                if not dry_run:
+                    k.runners.delete(the_runner.id)
+                    logger.info(
+                        "Disabled runner %s (id=%d) for project %s",
+                        the_runner.attributes["description"],
+                        the_runner.id,
+                        k.attributes["path_with_namespace"],
+                    )
+                else:
+                    logger.info(
+                        "Would disable runner %s (id=%d) for project %s",
+                        the_runner.attributes["description"],
+                        the_runner.id,
+                        k.attributes["path_with_namespace"],
+                    )
+
+        except Exception as e:
+            logger.error(
+                "Ignoring project %s (id=%d): %s",
+                k.attributes["path_with_namespace"],
+                k.id,
+                str(e),
             )
 
 
