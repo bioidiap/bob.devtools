@@ -176,11 +176,16 @@ Building the reference setup
         builds_dir = "/Users/gitlab/builds"  # set this or bugs occur
         cache_dir = "/Users/gitlab/caches"  # this is optional, but desirable
         shell = "bash"
-10. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
+10. So conda works properly on a shared builder, as the ``gitlab`` user, make
+    sure to create an empty, read-only file named
+    ``~/.conda/environments.txt``.  Failure to create this file and make it
+    read-only to the gitlab user, will create a concurrence issue on the shared
+    builder, w.r.t. to conda.
+11. While at the gitlab user, install `Docker for Mac`_.  Ensure to set it up to
     start at login.  In "Preferences > Filesystem Sharing", ensure that
     `/var/folders` is included in the list (that is the default location for
     temporary files in macOS).
-11. Reboot the machine. At this point, the gitlab user should be auto-logged
+12. Reboot the machine. At this point, the gitlab user should be auto-logged
     and the runner process should be executing.  Congratulations, you're done!
 
 
