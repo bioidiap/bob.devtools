@@ -3,8 +3,10 @@
 # Update CI installation
 echo "Updating homebrew..."
 brew=/usr/local/bin/brew
+pip=/usr/local/bin/pip3
 if [ ! -x ${brew} ]; then
     brew=/opt/homebrew/bin/brew
+    pip=/opt/homebrew/bin/pip3
 fi
 ${brew} update
 ${brew} upgrade
@@ -23,8 +25,4 @@ function pipupdate() {
   ${1} list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 ${1} install -U;
 }
 
-pip=/usr/local/bin/pip3
-if [ ! -x ${pip} ]; then
-    brew=/opt/homebrew/bin/pip3
-fi
 pipupdate ${pip}
