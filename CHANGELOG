@@ -1,4 +1,0 @@
-* bob/bob.devtools
-  * patch
-     - bob/bob.devtools!144 Fixes pypi stage to skip deployment if current package is private: Closes bob/bob.devtools#50
-     - bob/bob.devtools!145 Improve the release scripts: Fixes bob/bob.devtools#49 bob/bob.devtools#29
