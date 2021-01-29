@@ -299,8 +299,12 @@ def parse_dependencies(recipe_dir, config):
 
     metadata = get_rendered_metadata(recipe_dir, config)
     recipe = get_parsed_recipe(metadata)
+    build_requirements = remove_pins(recipe["requirements"].get("build", []))
+    # causes conflicts on macOS
+    if "llvm-tools" in build_requirements:
+        build_requirements.remove("llvm-tools")
     return (
-        remove_pins(recipe["requirements"].get("build", []))
+        build_requirements
         + remove_pins(recipe["requirements"].get("host", []))
         + recipe["requirements"].get("run", [])
         + recipe.get("test", {}).get("requires", [])
