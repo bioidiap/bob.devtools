@@ -74,10 +74,24 @@ build_macos_intel_37:
   cache:
     key: "build-py37"
 
+build_macos_intel_38:
+  extends: .build_macos_intel_template
+  variables:
+    PYTHON_VERSION: "3.8"
+  cache:
+    key: "build-py38"
+
 build_linux_37:
   extends: .build_linux_template
   variables:
     PYTHON_VERSION: "3.7"
+  cache:
+    key: "build-py37"
+
+build_linux_38:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
     - bdt ci build -vv
@@ -90,7 +104,7 @@ build_linux_37:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
-    key: "build-py37"
+    key: "build-py38"
 
 
 # Test targets (not normally used)
@@ -128,7 +142,9 @@ build_linux_37:
     - bdt ci clean -vv
   dependencies:
     - build_linux_37
+    - build_linux_38
     - build_macos_intel_37
+    - build_macos_intel_38
   tags:
     - docker
   cache:
@@ -167,7 +183,9 @@ pypi:
     - bdt ci clean -vv
   dependencies:
     - build_linux_37
+    - build_linux_38
     - build_macos_intel_37
+    - build_macos_intel_38
   tags:
     - docker
   cache:

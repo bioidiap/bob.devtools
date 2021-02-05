@@ -50,7 +50,7 @@ build_linux:
     - docker
   image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   variables:
-    PYTHON_VERSION: "3.7"
+    PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
     - bdt ci build -vv
@@ -68,7 +68,7 @@ build_linux:
 
 build_macos_intel:
   variables:
-    PYTHON_VERSION: "3.7"
+    PYTHON_VERSION: "3.8"
   cache:
     key: "build"
   extends: .build_template

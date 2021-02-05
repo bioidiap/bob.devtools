@@ -39,7 +39,7 @@ build:
   stage: build
   variables:
     GITLAB_CHECKOUT_STRATEGY: "https://gitlab-ci-token:${CI_BUILD_TOKEN}@gitlab.idiap.ch/"
-    PYTHON_VERSION: "3.7"
+    PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
     - yum -y install dejavu-sans-fonts
