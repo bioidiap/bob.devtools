@@ -191,6 +191,13 @@ Examples:
     "printing to help you understand what will be done",
 )
 @click.option(
+    "-p",
+    "--python",
+    default=("%d.%d" % sys.version_info[:2]),
+    show_default=True,
+    help="Version of python to build the environment for",
+)
+@click.option(
     "-g",
     "--group",
     show_default=True,
