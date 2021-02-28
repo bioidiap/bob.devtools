@@ -46,12 +46,11 @@ def jobs(name, status):
     gl.auth()
 
     names = name or [
-        "linux-desktop-shell",
-        "linux-desktop-docker",
-        "linux-server-shell",
-        "linux-server-docker",
+        "linux-shell",
+        "linux-docker",
         "macpro",
         "macmini",
+        "macm1",
     ]
 
     # search for the runner(s) to affect
