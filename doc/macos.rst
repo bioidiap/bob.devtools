@@ -151,16 +151,7 @@ Building the reference setup
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
 
-     $ brew services start gitlab-runner
-     # the command above is bogus - it will use the "admin" user home dir
-     # you need to reconfigure it to fix this
-     $ /bin/launchctl stop /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
-     $ /bin/launchctl unload /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
-     $ vim /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
-     # change all occurences of "admin" with "gitlab"
-     $ /bin/launchctl load /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
-     $ /bin/launchctl start /Users/gitlab/Library/LaunchAgents/homebrew.mxcl.gitlab-runner.plist
-     # n.b.: re-executing "brew services start gitlab-runner" will reset the file above
+     $ /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/reconfig-gitlab-runner.sh)
 
    Once that is set, your runner configuration (``~/.gitlab-runner/config.toml``) should look like this (remove comments if gitlab does not like them)::
 
