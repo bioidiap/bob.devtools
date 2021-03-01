@@ -151,6 +151,9 @@ Building the reference setup
    Configure the runner for `shell executor`_, with local caching.  As
    ``gitlab`` user, execute on the command-line::
 
+     # notice that running `brew services gitlab-runner start or restart` will
+     # break the configuration of the service once more.  Execute the following
+     # to correct for it:
      $ /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/reconfig-gitlab-runner.sh)
 
    Once that is set, your runner configuration (``~/.gitlab-runner/config.toml``) should look like this (remove comments if gitlab does not like them)::
