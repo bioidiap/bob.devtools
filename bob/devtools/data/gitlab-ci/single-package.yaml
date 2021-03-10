@@ -130,7 +130,8 @@ build_linux_38:
 .test_macos_intel_template:
   extends: .test_template
   tags:
-    - macos_intel
+    - macos
+    - intel
 
 
 # Deploy targets
