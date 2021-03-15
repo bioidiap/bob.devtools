@@ -8,6 +8,7 @@ import pkg_resources
 
 from click_plugins import with_plugins
 
+from ..dav import augment_path_with_hash
 from ..dav import remove_old_beta_packages
 from ..dav import setup_webdav_client
 from ..log import echo_info
@@ -66,13 +67,14 @@ Examples:
     help="If set, print details about each listed file",
 )
 @click.argument(
-    "path", default="/", required=False,
+    "path",
+    default="/",
+    required=False,
 )
 @verbosity_option()
 @bdt.raise_on_error
 def list(private, long_format, path):
-    """List the contents of a given WebDAV directory.
-    """
+    """List the contents of a given WebDAV directory."""
 
     if not path.startswith("/"):
         path = "/" + path
@@ -105,7 +107,8 @@ Examples:
     help="If set, use the 'private' area instead of the public one",
 )
 @click.argument(
-    "path", required=True,
+    "path",
+    required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -165,7 +168,8 @@ Examples:
     help="If this flag is set, then execute the removal",
 )
 @click.argument(
-    "path", required=True,
+    "path",
+    required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -199,12 +203,12 @@ Examples:
 
   1. Uploads a single file to a specific location:
 
-     $ bdt dav -vv copy local/file remote
+     $ bdt dav upload -vv --checksum local/file remote
 
 
   2. Uploads various resources at once:
 
-     $ bdt dav -vv copy local/file1 local/dir local/file2 remote
+     $ bdt dav upload -vv --checksum local/file1 local/dir local/file2 remote
 
 """
 )
@@ -220,6 +224,12 @@ Examples:
     default=False,
     help="If this flag is set, then execute the removal",
 )
+@click.option(
+    "-c",
+    "--checksum/--no-checksum",
+    default=False,
+    help="If set, will augment the filename(s) on the server with 8 first characters of their sha256 checksum.",
+)
 @click.argument(
     "local",
     required=True,
@@ -227,11 +237,12 @@ Examples:
     nargs=-1,
 )
 @click.argument(
-    "remote", required=True,
+    "remote",
+    required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
-def upload(private, execute, local, remote):
+def upload(private, execute, checksum, local, remote):
     """Uploads a local resource (file or directory) to a remote destination
 
     If the local resource is a directory, it is uploaded recursively.  If the
@@ -258,7 +269,10 @@ def upload(private, execute, local, remote):
         return 1
 
     for k in local:
-        actual_remote = remote + os.path.basename(k)
+        path_with_hash = k
+        if checksum:
+            path_with_hash = augment_path_with_hash(k)
+        actual_remote = remote + os.path.basename(path_with_hash)
         remote_path = cl.get_url(actual_remote)
 
         if cl.check(actual_remote):
@@ -308,7 +322,8 @@ Examples:
     help="If this flag is set, then execute the removal",
 )
 @click.argument(
-    "path", required=True,
+    "path",
+    required=True,
 )
 @verbosity_option()
 @bdt.raise_on_error
