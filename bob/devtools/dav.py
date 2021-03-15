@@ -57,7 +57,7 @@ def _get_config():
 def compute_sha256(path):
     sha256_hash = hashlib.sha256()
     with open(path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
+        for byte_block in iter(lambda: f.read(65535), b""):
             sha256_hash.update(byte_block)
     file_hash = sha256_hash.hexdigest()
     return file_hash
