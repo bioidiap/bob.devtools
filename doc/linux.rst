@@ -36,11 +36,11 @@ change ``/etc/default/grub`` to contain the line
 ``GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"``. Then, re-run
 ``update-grub`` after such change.
 
-To install docker at Idiap, you also need to follow the security guidelines
+To install docker at Idiap, you also need to follow the security guidelines.
 
-do not follow such guidelines, the machine will not be acessible from outside
-via the login gateway, as the default docker installation conflicts with
-Idiap's internal setup.  You may also find other network connectivity issues.
+If you do not follow these guidelines, the machine will not be accessible from
+outside via the login gateway, as the default docker installation conflicts with
+Idiap's internal setup. You may also find other network connectivity issues.
 
 Also, you want to place ``/var/lib/docker`` on a **fast** disk.  Normally, we
 have a scratch partition for this.  Follow the instructions at
@@ -149,6 +149,15 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
       $ chown gitlab-runner:gitlab-runner /scratch/cache
 
 
+Once the configuration is done, add the gitlab-runner user to the docker group
+so it can do tasks related to Docker (images pulling, python client call,
+etc.)::
+
+.. code-block:: sh
+
+    $ usermod -a -G docker gitlab-runner
+
+
 Access to Idiap's docker registry
 =================================
 
@@ -236,6 +245,11 @@ Extra packages
 List of extra packages to ensure are installed on the shell environment:
 
 * rsync
+* libgl1
+
+libgl1 is required to run the beat/beat.editor> tests. While the offscreen
+plugin is used and therefor no X11 server is required, the libraries still needs
+the OpenGL symbols.
 
 
 Locale
