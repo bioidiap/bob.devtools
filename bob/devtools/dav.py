@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import configparser
+import hashlib
 import os
+import pathlib
 import re
 
 from distutils.version import StrictVersion
 
 import dateutil.parser
 
-from .deploy import _setup_webdav_client
 from .config import read_config
+from .deploy import _setup_webdav_client
 from .log import echo_normal
 from .log import echo_warning
 from .log import get_logger
@@ -26,20 +28,23 @@ def _get_config():
 
     # this does some sort of validation for the "webdav" data...
     if "webdav" in data:
-        if ("server" not in data["webdav"]
-                or "username" not in data["webdav"]
-                or "password" not in data["webdav"]
-                ):
+        if (
+            "server" not in data["webdav"]
+            or "username" not in data["webdav"]
+            or "password" not in data["webdav"]
+        ):
             raise KeyError(
-                f"If the configuration file {k} contains a \"webdav\" " \
-                f"section, it should contain 3 variables defined inside: " \
+                f'If the configuration file {k} contains a "webdav" '
+                f"section, it should contain 3 variables defined inside: "
                 f'"server", "username", "password".'
             )
     else:
         # ask the user for the information, in case nothing available
-        logger.warn("Requesting server information for webDAV operation. " \
-                "(To create a configuration file, and avoid these, follow " \
-                "the Setup subsection at our Installation manual.)")
+        logger.warn(
+            "Requesting server information for webDAV operation. "
+            "(To create a configuration file, and avoid these, follow "
+            "the Setup subsection at our Installation manual.)"
+        )
         webdav_data = dict()
         webdav_data["server"] = input("The base address of the server: ")
         webdav_data["username"] = input("Username: ")
@@ -47,6 +52,33 @@ def _get_config():
         data["webdav"] = webdav_data
 
     return data["webdav"]
+
+
+def compute_sha256(path):
+    sha256_hash = hashlib.sha256()
+    with open(path, "rb") as f:
+        for byte_block in iter(lambda: f.read(65535), b""):
+            sha256_hash.update(byte_block)
+    file_hash = sha256_hash.hexdigest()
+    return file_hash
+
+
+def augment_path_with_hash(path):
+    """Adds the first 8 digits of sha256sum of a file to its name.
+
+    Example::
+
+        augment_path_with_hash('/datasets/pad-face-replay-attack.tar.gz')
+        '/datasets/pad-face-replay-attack-a8e31cc3.tar.gz'
+    """
+    path = pathlib.Path(path)
+    if not path.is_file():
+        raise ValueError(f"Can only augment path to files with a hash. Got: {path}")
+    file_hash = compute_sha256(path)[:8]
+    suffix = "".join(path.suffixes)
+    base_name = str(path.name)[: -len(suffix) or None]
+    new_path = path.parent / f"{base_name}-{file_hash}{suffix}"
+    return str(new_path)
 
 
 def setup_webdav_client(private):
