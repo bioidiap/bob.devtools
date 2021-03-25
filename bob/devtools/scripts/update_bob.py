@@ -23,11 +23,13 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def update_bob(stable):
-    """Updates the Bob meta package with new packages.
-    """
+    """Updates the Bob meta package with new packages."""
     import tempfile
+
     from ..ci import read_packages
-    from ..release import get_gitlab_instance, download_path, get_latest_tag_name
+    from ..release import download_path
+    from ..release import get_gitlab_instance
+    from ..release import get_latest_tag_name
 
     gl = get_gitlab_instance()
 

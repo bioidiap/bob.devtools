@@ -4,8 +4,8 @@
 """Reads and treats configuration files"""
 
 
-import os
 import configparser
+import os
 
 
 def read_config():

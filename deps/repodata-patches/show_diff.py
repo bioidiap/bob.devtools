@@ -7,7 +7,6 @@ import os
 import urllib
 
 from conda_build.index import _apply_instructions
-
 from gen_patch_json import BASE_URL
 from gen_patch_json import SUBDIRS
 from gen_patch_json import gen_new_index_and_patch_instructions

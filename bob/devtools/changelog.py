@@ -32,7 +32,9 @@ def _sort_tags(tags, reverse):
     """Sorts gitlab tag objects using their ``committed_date`` attribute."""
 
     return sorted(
-        tags, key=lambda x: parse_date(x.commit["committed_date"]), reverse=reverse,
+        tags,
+        key=lambda x: parse_date(x.commit["committed_date"]),
+        reverse=reverse,
     )
 
 
@@ -253,7 +255,10 @@ def get_changes_since(gitpkg, since):
     mrs = list(
         reversed(
             gitpkg.mergerequests.list(
-                state="merged", updated_after=since, order_by="updated_at", all=True,
+                state="merged",
+                updated_after=since,
+                order_by="updated_at",
+                all=True,
             )
         )
     )

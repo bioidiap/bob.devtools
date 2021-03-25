@@ -51,6 +51,7 @@ requirements:
     - psutil
     - tabulate
     - python-graphviz
+    - pip
 
 test:
   requires:
@@ -98,6 +99,8 @@ test:
     - bdt ci nightlies --help
     - bdt ci docs --help
     - bdt ci clean-betas --help
+    - bdt ci check --help
+    - bdt ci check -vv --dir {{ environ.get('RECIPE_DIR') + '/..' }}
     - bdt dav --help
     - bdt dav list --help
     - bdt dav makedirs --help

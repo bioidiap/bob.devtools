@@ -1,5 +1,7 @@
 try:
-    from urllib.parse import unquote, quote, urlsplit
+    from urllib.parse import quote
+    from urllib.parse import unquote
+    from urllib.parse import urlsplit
 except ImportError:
     from urllib import unquote, quote
     from urlparse import urlsplit

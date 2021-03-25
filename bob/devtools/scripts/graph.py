@@ -54,7 +54,9 @@ Examples:
     help="Version of python to build the environment for",
 )
 @click.option(
-    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
+    "-r",
+    "--condarc",
+    help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -103,7 +105,11 @@ Examples:
     help="Use this flag to indicate the graph will be running on the CI",
 )
 @click.option(
-    "-n", "--name", show_default=True, default="graph", help="set the graph name",
+    "-n",
+    "--name",
+    show_default=True,
+    default="graph",
+    help="set the graph name",
 )
 @click.option(
     "-f",

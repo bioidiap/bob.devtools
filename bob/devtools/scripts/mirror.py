@@ -38,7 +38,8 @@ Examples:
     """
 )
 @click.argument(
-    "channel-url", required=True,
+    "channel-url",
+    required=True,
 )
 @click.argument(
     "dest-dir",

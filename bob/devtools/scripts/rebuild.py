@@ -19,8 +19,8 @@ from ..build import get_parsed_recipe
 from ..build import get_rendered_metadata
 from ..build import make_conda_config
 from ..build import next_build_number
-from ..build import should_skip_build
 from ..build import root_logger_protection
+from ..build import should_skip_build
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
@@ -62,7 +62,9 @@ Examples:
     help="Version of python to build the environment for",
 )
 @click.option(
-    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
+    "-r",
+    "--condarc",
+    help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -176,7 +178,11 @@ def rebuild(
 
     # get potential channel upload and other auxiliary channels
     channels, upload_channel = get_channels(
-        public=(not private), stable=stable, server=server, intranet=ci, group=group,
+        public=(not private),
+        stable=stable,
+        server=server,
+        intranet=ci,
+        group=group,
     )
 
     if condarc is not None:
@@ -209,7 +215,11 @@ def rebuild(
     # and derived documentation building via Sphinx)
     set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
-        public=(not private), stable=stable, server=server, intranet=ci, group=group,
+        public=(not private),
+        stable=stable,
+        server=server,
+        intranet=ci,
+        group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 
@@ -242,7 +252,9 @@ def rebuild(
         path = get_output_path(metadata, conda_config)[0]
 
         # Get the latest build number
-        build_number, existing = next_build_number(upload_channel, os.path.basename(path))
+        build_number, existing = next_build_number(
+            upload_channel, os.path.basename(path)
+        )
 
         should_build = True
 

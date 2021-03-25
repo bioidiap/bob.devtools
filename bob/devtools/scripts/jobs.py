@@ -65,7 +65,11 @@ def jobs(name, status):
         jobs = runner.jobs.list(all=True, status=status)
         echo_normal(
             "Runner %s (id=%d) -- %d running"
-            % (runner.attributes["description"], runner.attributes["id"], len(jobs),)
+            % (
+                runner.attributes["description"],
+                runner.attributes["id"],
+                len(jobs),
+            )
         )
         for k in jobs:
             echo_info(

@@ -259,7 +259,8 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
     for package, values in adjacence_matrix.items():
         if not whitelist_compiled.match(values["name"]):
             logger.debug(
-                "Skipping main package %s (did not match whitelist)", values["name"],
+                "Skipping main package %s (did not match whitelist)",
+                values["name"],
             )
             continue
         name = values["name"] + "\n" + values["version"] + "\n" + values["build_string"]

@@ -35,9 +35,10 @@ def download_path(package, path, output=None, ref="master"):
         directory
       ref: the name of the git reference (branch, tag or commit hash) to use
     """
-    from io import BytesIO
     import tarfile
     import tempfile
+
+    from io import BytesIO
 
     output = output or os.path.realpath(os.curdir)
 
@@ -188,7 +189,8 @@ def get_parsed_tag(gitpkg, tag):
             raise ValueError(
                 "The latest tag name {0} in package {1} has "
                 "unknown format".format(
-                    "v" + latest_tag_name, gitpkg.attributes["path_with_namespace"],
+                    "v" + latest_tag_name,
+                    gitpkg.attributes["path_with_namespace"],
                 )
             )
 
@@ -444,7 +446,9 @@ def wait_for_pipeline_to_finish(gitpkg, pipeline_id, dry_run=False):
         raise ValueError(
             "Pipeline {0} of project {1} exited with "
             'undesired status "{2}". Release is not possible.'.format(
-                pipeline_id, gitpkg.attributes["path_with_namespace"], pipeline.status,
+                pipeline_id,
+                gitpkg.attributes["path_with_namespace"],
+                pipeline.status,
             )
         )
 

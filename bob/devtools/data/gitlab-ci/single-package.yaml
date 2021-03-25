@@ -37,6 +37,7 @@ stages:
   extends: .bootstrap
   stage: build
   script:
+    - bdt ci check -vv
     - bdt ci build -vv
     - bdt ci clean -vv
   artifacts:
