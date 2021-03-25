@@ -51,7 +51,6 @@ requirements:
     - psutil
     - tabulate
     - python-graphviz
-    - pre-commit
 
 test:
   requires:
