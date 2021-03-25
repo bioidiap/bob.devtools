@@ -1013,3 +1013,11 @@ def check(root):
             "pyproject.toml file not found in the root folder of the package. "
             "See https://gitlab.idiap.ch/bob/bob/-/wikis/ci-checks#pyprojecttoml"
         )
+
+    # if there is a pre-commit file, run the tests
+    path = os.path.join(root, ".pre-commit-config.yaml")
+    if os.path.isfile(path):
+        from ..bootstrap import run_cmdline
+
+        run_cmdline(["pip", "install", "pre-commit"])
+        run_cmdline(["pre-commit", "run", "--all-files"])
