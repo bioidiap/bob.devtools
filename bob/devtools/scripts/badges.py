@@ -160,7 +160,7 @@ def badges(package, update_readme, dry_run, server):
         # creates all stock badges, preserve positions
         info = dict(zip(("group", "name"), package.split("/", 1)))
         if not server:
-            server = f"https://www.idiap.ch/software/{group}"
+            server = f"https://www.idiap.ch/software/{info['group']}"
         info["idiap_server"] = server[:-1] if server.endswith("/") else server
         for position, badge in enumerate(PROJECT_BADGES):
             data = dict([(k, v.format(**info)) for (k, v) in badge.items()])

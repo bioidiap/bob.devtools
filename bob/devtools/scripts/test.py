@@ -49,7 +49,9 @@ Examples:
     nargs=-1,
 )
 @click.option(
-    "-r", "--condarc", help="Use custom conda configuration file instead of our own",
+    "-r",
+    "--condarc",
+    help="Use custom conda configuration file instead of our own",
 )
 @click.option(
     "-m",
@@ -187,7 +189,11 @@ def test(
     # and derived documentation building via Sphinx)
     set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
-        public=(not private), stable=stable, server=server, intranet=ci, group=group,
+        public=(not private),
+        stable=stable,
+        server=server,
+        intranet=ci,
+        group=group,
     )
     set_environment("BOB_DOCUMENTATION_SERVER", doc_urls)
 

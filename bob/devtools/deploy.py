@@ -84,7 +84,16 @@ def deploy_conda_package(
 
 
 def deploy_documentation(
-    path, package, stable, latest, public, branch, tag, username, password, dry_run,
+    path,
+    package,
+    stable,
+    latest,
+    public,
+    branch,
+    tag,
+    username,
+    password,
+    dry_run,
 ):
     """Deploys sphinx documentation to the appropriate webdav locations.
 

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import os
-import click
-from click_plugins import with_plugins
-import pkg_resources
 
+import click
+
+from ..log import echo_normal
 from ..log import get_logger
 from ..log import verbosity_option
-from ..log import echo_normal
 from ..release import get_gitlab_instance
 from . import bdt
 
@@ -18,9 +17,7 @@ def _get_runner_from_description(gl, descr):
 
     # search for the runner to affect
     the_runner = [
-        k
-        for k in gl.runners.list(all=True)
-        if k.attributes["description"] == descr
+        k for k in gl.runners.list(all=True) if k.attributes["description"] == descr
     ]
     if not the_runner:
         raise RuntimeError("Cannot find runner with description = %s", descr)
@@ -81,9 +78,7 @@ def _get_projects_from_runner(gl, runner):
     packages = []
     for k, proj in enumerate(the_runner.projects):
         packages.append(_get_project(gl, proj["id"]))
-        logger.debug(
-            "Got data from project %d/%d", k + 1, len(the_runner.projects)
-        )
+        logger.debug("Got data from project %d/%d", k + 1, len(the_runner.projects))
     return packages
 
 
@@ -96,9 +91,7 @@ def _get_projects_from_file(gl, filename):
         logger.info("Loaded %d entries from file %s", len(lines), filename)
         for k, proj in enumerate(lines):
             packages.append(_get_project(gl, proj))
-            logger.debug(
-                "Got data from project %d/%d", k + 1, len(lines)
-            )
+            logger.debug("Got data from project %d/%d", k + 1, len(lines))
     return packages
 
 

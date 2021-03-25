@@ -24,7 +24,8 @@ Examples:
     nargs=1,
 )
 @click.argument(
-    "variables", nargs=-1,
+    "variables",
+    nargs=-1,
 )
 @verbosity_option()
 @bdt.raise_on_error

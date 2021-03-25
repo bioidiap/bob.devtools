@@ -230,9 +230,10 @@ def cleanup(dry_run, username, password, includes):
 
     """
 
-    from .deploy import _setup_webdav_client
-    from .constants import WEBDAV_PATHS, SERVER
+    from .constants import SERVER
+    from .constants import WEBDAV_PATHS
     from .dav import remove_old_beta_packages
+    from .deploy import _setup_webdav_client
 
     for public in (True, False):
 

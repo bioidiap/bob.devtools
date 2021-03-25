@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import configparser
 import hashlib
-import os
 import pathlib
 import re
 
@@ -34,9 +32,9 @@ def _get_config():
             or "password" not in data["webdav"]
         ):
             raise KeyError(
-                f'If the configuration file {k} contains a "webdav" '
-                f"section, it should contain 3 variables defined inside: "
-                f'"server", "username", "password".'
+                'If the configuration file contains a "webdav" '
+                "section, it should contain 3 variables defined inside: "
+                '"server", "username", "password".'
             )
     else:
         # ask the user for the information, in case nothing available

@@ -30,9 +30,11 @@ logger = get_logger(__name__)
 
 
 try:
-    from urllib.parse import unquote, urlsplit
+    from urllib.parse import unquote
+    from urllib.parse import urlsplit
 except ImportError:
     from urllib import unquote
+
     from urlparse import urlsplit
 
 __version__ = "0.2"
@@ -366,11 +368,15 @@ class Client(object):
         urn = Urn(remote_path)
         if self.is_dir(urn.path()):
             self.download_directory(
-                local_path=local_path, remote_path=remote_path, progress=progress,
+                local_path=local_path,
+                remote_path=remote_path,
+                progress=progress,
             )
         else:
             self.download_file(
-                local_path=local_path, remote_path=remote_path, progress=progress,
+                local_path=local_path,
+                remote_path=remote_path,
+                progress=progress,
             )
 
     def download_directory(self, remote_path, local_path, progress=None):
@@ -397,7 +403,9 @@ class Client(object):
             )
             _local_path = os.path.join(local_path, resource_name)
             self.download(
-                local_path=_local_path, remote_path=_remote_path, progress=progress,
+                local_path=_local_path,
+                remote_path=_remote_path,
+                progress=progress,
             )
 
     @wrap_connection_error
@@ -481,7 +489,9 @@ class Client(object):
         """
         if os.path.isdir(local_path):
             self.upload_directory(
-                local_path=local_path, remote_path=remote_path, progress=progress,
+                local_path=local_path,
+                remote_path=remote_path,
+                progress=progress,
             )
         else:
             self.upload_file(local_path=local_path, remote_path=remote_path)
@@ -516,7 +526,9 @@ class Client(object):
             )
             _local_path = os.path.join(local_path, resource_name)
             self.upload(
-                local_path=_local_path, remote_path=_remote_path, progress=progress,
+                local_path=_local_path,
+                remote_path=_remote_path,
+                progress=progress,
             )
 
     @wrap_connection_error
@@ -603,7 +615,9 @@ class Client(object):
             path=self.get_full_path(urn_to)
         )
         self.execute_request(
-            action="copy", path=urn_from.quote(), headers_ext=[header_destination],
+            action="copy",
+            path=urn_from.quote(),
+            headers_ext=[header_destination],
         )
 
     @wrap_connection_error
@@ -886,7 +900,9 @@ class Resource(object):
 
     def read_async(self, local_path, callback=None):
         return self.client.upload_async(
-            local_path=local_path, remote_path=self.urn.path(), callback=callback,
+            local_path=local_path,
+            remote_path=self.urn.path(),
+            callback=callback,
         )
 
     def write_to(self, buff):
@@ -899,7 +915,9 @@ class Resource(object):
 
     def write_async(self, local_path, callback=None):
         return self.client.download_async(
-            local_path=local_path, remote_path=self.urn.path(), callback=callback,
+            local_path=local_path,
+            remote_path=self.urn.path(),
+            callback=callback,
         )
 
     def publish(self):

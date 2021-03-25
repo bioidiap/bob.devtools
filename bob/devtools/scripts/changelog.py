@@ -97,17 +97,15 @@ def changelog(target, changelog, group, mode, since):
     starting date is not passed, we'll use the date of the last tagged value or
     the date of the first commit, if no tags are available in the package.
     """
+    import datetime
     import os
     import sys
-    import datetime
 
-    from ..changelog import (
-        get_last_tag_date,
-        write_tags_with_commits,
-        parse_date,
-        get_changes_since,
-        get_last_tag,
-    )
+    from ..changelog import get_changes_since
+    from ..changelog import get_last_tag
+    from ..changelog import get_last_tag_date
+    from ..changelog import parse_date
+    from ..changelog import write_tags_with_commits
     from ..release import get_gitlab_instance
 
     gl = get_gitlab_instance()
