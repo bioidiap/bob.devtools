@@ -2,17 +2,21 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21-2
+    rev: 5.8.0
     hooks:
     - id: isort
       args: [-sl]
   - repo: https://github.com/psf/black
-    rev: stable
+    rev: 20.8b1
     hooks:
       - id: black
         exclude: bob/devtools/templates/setup.py
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.0
+    hooks:
+      - id: flake8
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v3.4.0
     hooks:
       - id: check-ast
         exclude: bob/devtools/templates/setup.py
@@ -22,10 +26,9 @@ repos:
       - id: debug-statements
         exclude: bob/devtools/templates/setup.py
       - id: check-added-large-files
-      - id: flake8
         exclude: bob/devtools/templates/setup.py
       - id: check-yaml
-        exclude: ./*/meta.yaml
+        exclude: .*/meta.yaml
   - repo: local
     hooks:
       - id: sphinx-build

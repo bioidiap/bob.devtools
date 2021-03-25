@@ -3,6 +3,7 @@
 import glob
 import os
 import shutil
+import sys
 
 import click
 import pkg_resources
@@ -32,7 +33,19 @@ logger = get_logger(__name__)
 
 @with_plugins(pkg_resources.iter_entry_points("bdt.ci.cli"))
 @click.group(cls=bdt.AliasedGroup)
-def ci():
+@click.option(
+    "-l",
+    "--local",
+    is_flag=True,
+    default=False,
+    help="Setups CI like environment for running ci scripts locally.",
+)
+@click.option(
+    "--python",
+    default=".".join(str(v) for v in sys.version_info[:2]),
+    help="Change the Python version for local runs.",
+)
+def ci(local, python):
     """Commands for building packages and handling CI activities.
 
     Commands defined here are supposed to run on our CI, where a number
@@ -40,7 +53,10 @@ def ci():
     **NOT** attempt to run these commands in your own installation.
     Unexpected errors may occur.
     """
-    pass
+    if local:
+        os.environ["CI_JOB_TOKEN"] = "0"
+        os.environ["CI_PROJECT_DIR"] = "."
+        os.environ["PYTHON_VERSION"] = python
 
 
 @ci.command(
@@ -297,8 +313,9 @@ def pypi(package, dry_run):
             % os.environ["CI_PROJECT_PATH"]
         )
 
-    from ..constants import CACERT
     from twine.settings import Settings
+
+    from ..constants import CACERT
 
     settings = Settings(
         username=os.environ["PYPIUSER"],
@@ -397,7 +414,8 @@ def base_build(order, group, dry_run):
             continue
 
         variants_file = select_conda_build_config(
-            paths=[recipe, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe, os.curdir],
+            branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build configuration file: %s", variants_file)
 
@@ -449,25 +467,31 @@ def test(ctx, dry_run):
     recipe_dir = os.path.join(os.path.realpath(os.curdir), "conda")
 
     condarc = select_user_condarc(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     if condarc is not None:
         logger.info("Condarc configuration file: %s", condarc)
 
     variants_file = select_conda_build_config(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build configuration file: %s", variants_file)
 
     append_file = select_conda_recipe_append(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build recipe-append file: %s", append_file)
 
     from .test import test
 
     base_path = os.path.join(
-        os.environ["CONDA_ROOT"], "conda-bld", "*", os.environ["CI_PROJECT_NAME"],
+        os.environ["CONDA_ROOT"],
+        "conda-bld",
+        "*",
+        os.environ["CI_PROJECT_NAME"],
     )
 
     ctx.invoke(
@@ -527,18 +551,21 @@ def build(ctx, dry_run, recipe_dir):
 
     # Use custom variants and append files if available on recipe-dir
     condarc = select_user_condarc(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     if condarc is not None:
         logger.info("Condarc configuration file: %s", condarc)
 
     variants_file = select_conda_build_config(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build configuration file: %s", variants_file)
 
     append_file = select_conda_recipe_append(
-        paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+        paths=[recipe_dir, os.curdir],
+        branch=os.environ.get("CI_COMMIT_REF_NAME"),
     )
     logger.info("Conda build recipe-append file: %s", append_file)
 
@@ -582,8 +609,8 @@ def clean(ctx):
     meant to be used outside this context.
     """
 
-    from ..build import git_clean_build
     from ..bootstrap import run_cmdline
+    from ..build import git_clean_build
 
     git_clean_build(run_cmdline, verbose=(ctx.meta["verbosity"] >= 3))
 
@@ -640,9 +667,11 @@ def nightlies(ctx, order, dry_run):
 
     token = os.environ["CI_JOB_TOKEN"]
 
-    import git
-    from .build import build
     from urllib.request import urlopen
+
+    import git
+
+    from .build import build
 
     # loaded all recipes, now cycle through them implementing what is described
     # in the documentation of this function
@@ -676,21 +705,28 @@ def nightlies(ctx, order, dry_run):
         recipe_dir = os.path.join(clone_to, "conda")
 
         condarc = select_user_condarc(
-            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir],
+            branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         if condarc is not None:
             logger.info("Condarc configuration file: %s", condarc)
 
         variants_file = select_conda_build_config(
-            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir],
+            branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build configuration file: %s", variants_file)
 
         append_file = select_conda_recipe_append(
-            paths=[recipe_dir, os.curdir], branch=os.environ.get("CI_COMMIT_REF_NAME"),
+            paths=[recipe_dir, os.curdir],
+            branch=os.environ.get("CI_COMMIT_REF_NAME"),
         )
         logger.info("Conda build recipe-append file: %s", append_file)
 
+        logger.info("Running checks")
+        ctx.invoke(check, root=clone_to)
+
+        logger.info("Building")
         ctx.invoke(
             build,
             recipe_dir=[recipe_dir],
@@ -951,3 +987,29 @@ def clean_betas(dry_run):
         password=os.environ["DOCPASS"],
         includes=includes,
     )
+
+
+@ci.command(
+    epilog="""
+Example:
+
+    bdt ci check -vv
+"""
+)
+@click.option(
+    "-d",
+    "--dir",
+    "root",
+    default=os.path.join(os.path.realpath(os.curdir)),
+    help="Path to the root folder of the package.",
+)
+@verbosity_option()
+@bdt.raise_on_error
+def check(root):
+    # checks if a pyproject.toml file exists
+    path = os.path.join(root, "pyproject.toml")
+    if not os.path.isfile(path):
+        raise RuntimeError(
+            "pyproject.toml file not found in the root folder of the package. "
+            "See https://gitlab.idiap.ch/bob/bob/-/wikis/ci-checks#pyprojecttoml"
+        )
