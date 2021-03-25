@@ -51,6 +51,7 @@ requirements:
     - psutil
     - tabulate
     - python-graphviz
+    - pip
 
 test:
   requires:

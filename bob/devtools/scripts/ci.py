@@ -1019,10 +1019,10 @@ def check(root):
     if os.path.isfile(path):
         from ..bootstrap import run_cmdline
 
-        run_cmdline(["pip", "install", "--user", "--upgrade", "pre-commit"])
+        run_cmdline(["python", "-m", "pip", "install", "pre-commit"])
         try:
             backup = os.environ.get("SKIP", "")
             os.environ["SKIP"] = "sphinx-build,sphinx-doctest"
-            run_cmdline(["pre-commit", "run", "--all-files"])
+            run_cmdline(["python", "-m", "pre_commit", "run", "--all-files"])
         finally:
             os.environ["SKIP"] = backup
