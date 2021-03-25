@@ -1020,4 +1020,9 @@ def check(root):
         from ..bootstrap import run_cmdline
 
         run_cmdline(["pip", "install", "pre-commit"])
-        run_cmdline(["pre-commit", "run", "--all-files"])
+        try:
+            backup = os.environ.get("SKIP", "")
+            os.environ["SKIP"] = "sphinx-build,sphinx-doctest"
+            run_cmdline(["pre-commit", "run", "--all-files"])
+        finally:
+            os.environ["SKIP"] = backup
