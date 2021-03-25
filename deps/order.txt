@@ -2,3 +2,4 @@ repodata-patches
 python-gitlab
 untokenize
 docformatter
+pre-commit
