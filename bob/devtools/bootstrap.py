@@ -89,7 +89,7 @@ def human_time(seconds, granularity=2):
     return ", ".join([x for x in result[:granularity] if x is not None])
 
 
-def run_cmdline(cmd, env=None):
+def run_cmdline(cmd, env=None, **kwargs):
     """Runs a command on a environment, logs output and reports status.
 
     Parameters:
@@ -114,6 +114,7 @@ def run_cmdline(cmd, env=None):
         env=env,
         bufsize=1,
         universal_newlines=True,
+        **kwargs,
     )
 
     for line in iter(p.stdout.readline, ""):

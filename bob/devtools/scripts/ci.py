@@ -1023,6 +1023,6 @@ def check(root):
         try:
             backup = os.environ.get("SKIP", "")
             os.environ["SKIP"] = "sphinx-build,sphinx-doctest"
-            run_cmdline(["python", "-m", "pre_commit", "run", "--all-files"])
+            run_cmdline(["python", "-m", "pre_commit", "run", "--all-files"], cwd=root)
         finally:
             os.environ["SKIP"] = backup
