@@ -48,24 +48,6 @@ build_linux:
     key: "linux-cache"
 
 
-build_macos_intel:
-  extends: .build_template
-  tags:
-    - macos
-    - intel
-  script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
-    - python3 ./bob/devtools/build.py -vv
-  artifacts:
-    paths:
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
-  cache:
-    key: "macos-intel-cache"
-
-
 # Deploy targets
 .deploy_template:
   stage: deploy
@@ -81,7 +63,6 @@ build_macos_intel:
     - bdt ci clean -vv
   dependencies:
     - build_linux
-    - build_macos_intel
   tags:
     - docker
   cache:
@@ -123,7 +104,6 @@ pypi:
     - bdt ci clean -vv
   dependencies:
     - build_linux
-    - build_macos_intel
   tags:
     - docker
   cache:

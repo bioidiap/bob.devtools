@@ -57,31 +57,6 @@ stages:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
 
-.build_macos_intel_template:
-  extends: .build_template
-  tags:
-    - macos
-    - intel
-  artifacts:
-    paths:
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
-      - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
-
-
-build_macos_intel_37:
-  extends: .build_macos_intel_template
-  variables:
-    PYTHON_VERSION: "3.7"
-  cache:
-    key: "build-py37"
-
-build_macos_intel_38:
-  extends: .build_macos_intel_template
-  variables:
-    PYTHON_VERSION: "3.8"
-  cache:
-    key: "build-py38"
-
 build_linux_37:
   extends: .build_linux_template
   variables:
@@ -128,13 +103,6 @@ build_linux_38:
   image: docker.idiap.ch/bob/docker-images/c3i-linux-64
 
 
-.test_macos_intel_template:
-  extends: .test_template
-  tags:
-    - macos
-    - intel
-
-
 # Deploy targets
 .deploy_template:
   extends: .bootstrap
@@ -145,8 +113,6 @@ build_linux_38:
   dependencies:
     - build_linux_37
     - build_linux_38
-    - build_macos_intel_37
-    - build_macos_intel_38
   tags:
     - docker
   cache:
@@ -186,8 +152,6 @@ pypi:
   dependencies:
     - build_linux_37
     - build_linux_38
-    - build_macos_intel_37
-    - build_macos_intel_38
   tags:
     - docker
   cache:

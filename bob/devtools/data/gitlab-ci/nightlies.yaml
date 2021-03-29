@@ -57,26 +57,6 @@ build_linux_38:
   cache:
     key: 'build-py38'
 
-build_macos_intel_37:
-  extends: .build_template
-  variables:
-    PYTHON_VERSION: "3.7"
-  tags:
-    - macos
-    - intel
-  cache:
-    key: 'build-py37'
-
-build_macos_intel_38:
-  extends: .build_template
-  variables:
-    PYTHON_VERSION: "3.8"
-  tags:
-    - macos
-    - intel
-  cache:
-    key: 'build-py38'
-
 
 # Periodic cleanup of beta packages
 .cleanup_template:
