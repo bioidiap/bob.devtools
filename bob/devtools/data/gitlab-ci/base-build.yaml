@@ -38,3 +38,12 @@ build_linux:
   image: docker.idiap.ch/bob/docker-images/c3i-linux-64
   cache:
     key: "linux-cache"
+
+
+build_macos_intel:
+  extends: .build_template
+  tags:
+    - macos
+    - intel
+  cache:
+    key: "macos-intel-cache"
