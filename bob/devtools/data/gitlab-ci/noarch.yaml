@@ -67,6 +67,17 @@ build_linux:
       - ${CONDA_ROOT}/conda-bld/noarch/*.tar.bz2
 
 
+build_macos_intel:
+  variables:
+    PYTHON_VERSION: "3.8"
+  cache:
+    key: "build"
+  extends: .build_template
+  tags:
+    - macos
+    - intel
+
+
 # Test targets (not normally used)
 .test_template:
   extends: .bootstrap
@@ -86,6 +97,13 @@ build_linux:
   image: docker.idiap.ch/bob/docker-images/c3i-linux-64
 
 
+.test_macos_intel_template:
+  extends: .test_template
+  tags:
+    - macos
+    - intel
+
+
 # Deploy targets
 .deploy_template:
   extends: .bootstrap
@@ -95,6 +113,7 @@ build_linux:
     - bdt ci clean -vv
   dependencies:
     - build_linux
+    - build_macos_intel
   tags:
     - docker
   cache:
@@ -133,6 +152,7 @@ pypi:
     - bdt ci clean -vv
   dependencies:
     - build_linux
+    - build_macos_intel
   tags:
     - docker
   cache:
