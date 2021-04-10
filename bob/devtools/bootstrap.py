@@ -206,12 +206,12 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "/miniconda/Miniconda3-py37_4.8.2-%s-x86_64.sh"
+    path = "/miniconda/Miniconda3-py39_4.9.2-%s-x86_64.sh"
     if platform.system() == "Darwin":
-        md5sum = "e0320c20ea13d04407424ecf57b70eaf"
+        md5sum = "0658832393a50f5a578bcad825304886"
         path = path % "MacOSX"
     else:
-        md5sum = "87e77f097f6ebb5127c77662dfc3165e"
+        md5sum = "b4e46fcc8029e2cfa731b788f25b1d36"
         path = path % "Linux"
 
     if os.path.exists("miniconda.sh"):

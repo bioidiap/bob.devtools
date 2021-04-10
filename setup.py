@@ -8,19 +8,28 @@ version = open("version.txt").read().rstrip()
 
 requires = [
     "setuptools",
+    "black >=19",
     "click>=7",
     "click-plugins",
+    "conda>=4",
+    "conda-build>=3",
+    "conda-verify>=3",
     "certifi",
+    "docformatter",
     "requests",
     "gitpython",
+    "graphviz",
     "python-gitlab",
     "sphinx",
     "pyyaml>=5.1",
-    "twine",
+    "python-dateutil",
+    "twine<3",
     "lxml",
     "jinja2",
+    "tabulate",
     "termcolor",
     "psutil",
+    "pytz",
 ]
 
 setup(

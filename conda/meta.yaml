@@ -42,7 +42,6 @@ requirements:
     - python-gitlab
     - requests
     - sphinx
-    - smmap <4
     - pyyaml >=5.1
     - twine <3
     - lxml
