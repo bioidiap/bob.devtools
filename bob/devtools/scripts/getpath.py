@@ -16,14 +16,14 @@ logger = get_logger(__name__)
     epilog="""
 Examples:
 
-  1. Get the file ``order.txt`` from bob.nightlies master branch:
+  1. Get the file ``order.txt`` from nightlies master branch:
 
-     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab getpath bob/nightlies order.txt
 
 
   2. Get the file ``order.txt`` from a different branch ``2.x``:
 
-     $ bdt gitlab getpath --ref=2.x bob/bob.nightlies order.txt
+     $ bdt gitlab getpath --ref=2.x bob/nightlies order.txt
 
 
   3. Get the directory ``gitlab`` (and eventual sub-directories) from bob.admin, save outputs in directory ``_ci``:

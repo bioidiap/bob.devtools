@@ -23,11 +23,11 @@ Examples:
 
   1. Process all the jobs from a particular pipeline
 
-     $ bdt gitlab process-pipelines bob/bob.nightlies pipelines
+     $ bdt gitlab process-pipelines bob/nightlies pipelines
 
   2. Process a particular job from a pipeline
 
-     $ bdt gitlab process-pipelines bob/bob.nightlies pipelines --job-id xxx
+     $ bdt gitlab process-pipelines bob/nightlies pipelines --job-id xxx
 
 """
 )
@@ -97,7 +97,7 @@ Examples:
 
   1. Get the most recent pipelines from a particular project wit their corresponding job numbers
 
-     $ bdt gitlab get-pipelines bob/bob.nightlies
+     $ bdt gitlab get-pipelines bob/nightlies
 
 
 """

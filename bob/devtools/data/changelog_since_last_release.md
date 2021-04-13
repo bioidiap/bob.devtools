@@ -147,7 +147,7 @@
        add log output instead
      - bob.measure!86 Fix decimal number control for metrics: Fixes
        bob.measure#52
-     - bob.measure!88 Fix tests: Should fix bob.nightlies#40
+     - bob.measure!88 Fix tests: Should fix nightlies#40
      - bob.measure!67 Titles: Allow list of titles and remove `(development)`
        `(evaluation)` when default titles are modified
      - bob.measure!45 Condapackage

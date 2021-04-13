@@ -33,7 +33,7 @@ def update_bob(stable):
 
     gl = get_gitlab_instance()
 
-    # download order.txt form bob.nightlies and get the list of packages
+    # download order.txt form nightlies and get the list of packages
     nightlies = gl.projects.get("bob/nightlies")
 
     with tempfile.NamedTemporaryFile() as f:

@@ -38,7 +38,7 @@ Examples:
   5. Generates a complete list of changelogs for a list of packages (one per line):
 
 \b
-     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab getpath bob/nightlies order.txt
      $ bdt gitlab lasttag bob/bob
      # copy and paste date to next command
      $ bdt gitlab changelog -vvv --since="2018-07-17 10:23:40" order.txt changelog.md

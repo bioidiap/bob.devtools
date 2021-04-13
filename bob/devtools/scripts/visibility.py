@@ -27,7 +27,7 @@ Examples:
   2. Checks the visibility of all packages in a file list:
 
 \b
-     $ bdt gitlab getpath bob/bob.nightlies order.txt
+     $ bdt gitlab getpath bob/nightlies order.txt
      $ bdt gitlab visibility order.txt
 """
 )

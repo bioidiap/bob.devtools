@@ -196,6 +196,10 @@ def get_parsed_tag(gitpkg, tag):
 
         # increase the version accordingly
         major, minor, patch = latest_tag_name.split(".")
+        # handle alpha and beta version
+        if "a" in patch or "b" in patch:
+            patch = patch.split("a")[0].split("b")[0]
+            patch = int(patch) - 1
 
         if "major" == tag:
             # increment the first number in 'v#.#.#' but make minor and patch
@@ -510,7 +514,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     # commit and push changes
     update_files_at_master(
         gitpkg,
-        {"README.rst": readme_content, "version.txt": version_number},
+        {"README.rst": readme_content, "version.txt": version_number + "\n"},
         "Increased stable version to %s" % version_number,
         dry_run,
     )
