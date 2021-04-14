@@ -6,10 +6,6 @@ import click
 
 from ..log import get_logger
 from ..log import verbosity_option
-from ..release import get_gitlab_instance
-from ..release import parse_and_process_package_changelog
-from ..release import release_package
-from ..release import wait_for_pipeline_to_finish
 from . import bdt
 
 logger = get_logger(__name__)
@@ -139,6 +135,11 @@ def release(changelog, group, package, resume, dry_run):
     * If your package depends on an unreleased version of another package,
       you need to release that package first.
     """
+
+    from ..release import get_gitlab_instance
+    from ..release import parse_and_process_package_changelog
+    from ..release import release_package
+    from ..release import wait_for_pipeline_to_finish
 
     gl = get_gitlab_instance()
 

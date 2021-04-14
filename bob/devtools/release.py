@@ -544,7 +544,7 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     # commit and push changes
     update_files_at_master(
         gitpkg,
-        {"README.rst": readme_content, "version.txt": version_number},
+        {"README.rst": readme_content, "version.txt": version_number + "\n"},
         "Increased latest version to %s [skip ci]" % version_number,
         dry_run,
     )
