@@ -79,16 +79,12 @@ Here are the instructions to release Bob meta package:
      $ bdt gitlab update-bob -vvv --stable
 
 * The script above cannot identify linux only packages. After running the script,
-  **you need to manually tag linux only packages** in both ``conda/meta.yaml`` and
-  ``requirements.txt``. For example, in ``conda/meta.yaml``:
+  **you need to manually tag linux only packages** in ``conda/meta.yaml``.
+  For example:
 
   .. code-block:: yaml
 
      - bob.ip.binseg ==1.1.0  # [linux]
-
-  and, in ``requirements.txt``::
-
-     bob.ip.binseg ==1.1.0 ; sys_platform == 'linux'
 
 * Test the conda recipe of bob. You may want to cancel the
   command below once it reaches the nosetests.:
