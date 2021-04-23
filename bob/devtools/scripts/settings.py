@@ -3,9 +3,8 @@
 
 import os
 import click
-import gitlab
 
-from ..log import echo_warning, echo_info, echo_normal
+from ..log import echo_info, echo_normal
 from ..log import get_logger
 from ..log import verbosity_option
 from ..release import get_gitlab_instance
@@ -141,7 +140,7 @@ def settings(projects, avatar, description, archive, dry_run):
                     # list current settings
                     s = f"{k.namespace['name']}/{k.name}"
                     if k.archived:
-                        s += f" [archived]"
+                        s += " [archived]"
                     s += f": {k.description}"
                     echo_normal(s)
 
