@@ -70,6 +70,7 @@ setup(
             "changelog = bob.devtools.scripts.changelog:changelog",
             "lasttag = bob.devtools.scripts.lasttag:lasttag",
             "runners = bob.devtools.scripts.runners:runners",
+            "settings = bob.devtools.scripts.settings:settings",
             "jobs = bob.devtools.scripts.jobs:jobs",
             "visibility = bob.devtools.scripts.visibility:visibility",
             "getpath = bob.devtools.scripts.getpath:getpath",
