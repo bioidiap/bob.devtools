@@ -141,8 +141,6 @@ libblitz:
   - 1.0.1
 libpng:
   - 1.6.37
-libsvm:
-  - 3.24
 libtiff:
   - 4.1.0
 matplotlib:
