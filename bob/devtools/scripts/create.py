@@ -279,13 +279,16 @@ def create(
     if "create" in config:
         pip_extras_config = config["create"].get("pip_extras", "").split()
     pip_extras = _uniq(pip_extras_config + list(pip_extras))
-    logger.info("Pip-installing: %s", pip_extras)
+    if pip_extras:
+        logger.info("Pip-installing: %s", pip_extras)
 
-    cmd = [conda, "run", "--live-stream", "--name", name, "pip", "install"]
-    cmd += pip_extras
-    if not dry_run:
-        run_cmdline(cmd)
+        cmd = [conda, "run", "--live-stream", "--name", name, "pip", "install"]
+        cmd += pip_extras
+        if not dry_run:
+            run_cmdline(cmd)
+        else:
+            logger.info(f"Command: {' '.join(cmd)}")
     else:
-        logger.info(f"Command: {' '.join(cmd)}")
+        logger.info("No pip packages to install")
 
     echo_normal(f'>>> Execute on your shell: "conda activate {name}"')
