@@ -2,6 +2,7 @@
 # vim: set fileencoding=utf-8 :
 
 
+import datetime
 import os
 import tempfile
 
@@ -33,7 +34,7 @@ Examples:
   1. Mirrors a conda channel:
 
 \b
-     $ bdt mirror -vv https://www.idiap.ch/software/bob/label/beta
+     $ bdt mirror -vv https://www.idiap.ch/software/bob/conda/label/beta mirror
 
     """
 )
@@ -57,7 +58,11 @@ Examples:
     "-b",
     "--blacklist",
     type=click.Path(
-        exists=True, dir_okay=False, file_okay=True, readable=True, resolve_path=True
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        readable=True,
+        resolve_path=True,
     ),
     help="A file containing a list of globs to exclude from local "
     "mirroring, one per line",
@@ -66,7 +71,11 @@ Examples:
     "-w",
     "--whitelist",
     type=click.Path(
-        exists=True, dir_okay=False, file_okay=True, readable=True, resolve_path=True
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        readable=True,
+        resolve_path=True,
     ),
     help="A file containing a list of globs to include at local "
     "mirroring, one per line.  This is considered *after* "
@@ -113,8 +122,17 @@ Examples:
     default=False,
     help="If set, then packages that are supposed to be kept locally "
     "will be checksummed against the remote repository repodata.json "
-    "expections.  Errors will be reported and packages will be "
+    "expectations.  Errors will be reported and packages will be "
     "removed from the local repository",
+)
+@click.option(
+    "-s",
+    "--start-date",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="To filter packages to mirror by date, supply a starting date "
+    "in isoformat (yyyy-mm-dd, e.g. 2019-03-30).  If you do so, then only "
+    "packages that were recorded at the date or later will be downloaded "
+    "to your mirror",
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -128,6 +146,7 @@ def mirror(
     tmpdir,
     patch,
     checksum,
+    start_date,
 ):
     """Mirrors a conda channel to a particular local destination
 
@@ -158,23 +177,28 @@ def mirror(
         logger.info("Creating conda channel at %s...", dest_dir)
         if not dry_run:
             conda_build.api.update_index(
-                [dest_dir], subdir=DEFAULT_SUBDIRS, progress=False, verbose=False
+                [dest_dir],
+                subdir=DEFAULT_SUBDIRS,
+                progress=False,
+                verbose=False,
             )
+
+    start_date = start_date.date()  # only interested on the day itself
 
     for arch in DEFAULT_SUBDIRS:
 
         remote_repodata = get_json(channel_url, arch, "repodata_from_packages.json.bz2")
-        logger.info(
-            "%d packages available in remote index",
-            len(remote_repodata.get("packages", {})),
-        )
+
+        # merge all available packages into one single dictionary
+        remote_package_info = {}
+        remote_package_info.update(remote_repodata.get("packages", {}))
+        remote_package_info.update(remote_repodata.get("packages.conda", {}))
+
+        logger.info("%d packages available in remote index", len(remote_package_info))
         local_packages = get_local_contents(dest_dir, arch)
         logger.info("%d packages available in local mirror", len(local_packages))
 
-        remote_packages = set(
-            list(remote_repodata.get("packages", {}).keys())
-            + list(remote_repodata.get("packages.conda", {}).keys())
-        )
+        remote_packages = set(remote_package_info.keys())
 
         if blacklist is not None and os.path.exists(blacklist):
             globs_to_remove = set(load_glob_list(blacklist))
@@ -190,6 +214,29 @@ def mirror(
         if whitelist is not None and os.path.exists(whitelist):
             globs_to_consider = set(load_glob_list(whitelist))
             to_download = whitelist_filter(to_download, globs_to_consider)
+
+        # if the user passed a cut date, only download packages that are newer
+        # or at the same date than the proposed date
+        if start_date is not None:
+            too_old = set()
+            for k in to_download:
+                pkgdate = datetime.datetime.fromtimestamp(
+                    remote_package_info[k]["timestamp"] / 1000.0
+                ).date()
+                if pkgdate < start_date:
+                    logger.debug(
+                        "Package %s, from %s is older than %s, not downloading",
+                        k,
+                        pkgdate.isoformat(),
+                        start_date.isoformat(),
+                    )
+                    too_old.add(k)
+            logger.info(
+                "Filtering out %d older packages from index (older than %s)",
+                len(too_old),
+                start_date.isoformat(),
+            )
+            to_download -= too_old
 
         # in the local packages, subset those that we no longer need, be it
         # because they have been removed from the remote repository, or because
@@ -215,7 +262,12 @@ def mirror(
 
         if to_download:
             download_packages(
-                to_download, remote_repodata, channel_url, dest_dir, arch, dry_run
+                to_download,
+                remote_repodata,
+                channel_url,
+                dest_dir,
+                arch,
+                dry_run,
             )
         else:
             echo_info(
