@@ -183,7 +183,8 @@ def mirror(
                 verbose=False,
             )
 
-    start_date = start_date.date()  # only interested on the day itself
+    if start_date is not None:
+        start_date = start_date.date()  # only interested on the day itself
 
     for arch in DEFAULT_SUBDIRS:
 
