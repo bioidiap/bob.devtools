@@ -221,6 +221,12 @@ def mirror(
         if start_date is not None:
             too_old = set()
             for k in to_download:
+                if "timestamp" not in remote_package_info[k]:
+                    logger.debug(
+                        "Package %s does not contain a timestamp (ignoring)...",
+                        k,
+                    )
+                    continue
                 pkgdate = datetime.datetime.fromtimestamp(
                     remote_package_info[k]["timestamp"] / 1000.0
                 ).date()
