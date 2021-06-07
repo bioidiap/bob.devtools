@@ -246,7 +246,7 @@ def mirror(
 
         if whitelist is not None and os.path.exists(whitelist):
             globs_to_consider = set(load_glob_list(whitelist))
-            to_download = whitelist_filter(to_download, globs_to_consider)
+            to_download += whitelist_filter(remote_packages, globs_to_consider)
 
         # in the local packages, subset those that we no longer need, be it
         # because they have been removed from the remote repository, or because
