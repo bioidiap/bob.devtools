@@ -199,22 +199,12 @@ def mirror(
         local_packages = get_local_contents(dest_dir, arch)
         logger.info("%d packages available in local mirror", len(local_packages))
 
+        # by default, download everything
         remote_packages = set(remote_package_info.keys())
+        to_download = set(remote_package_info.keys())
 
-        if blacklist is not None and os.path.exists(blacklist):
-            globs_to_remove = set(load_glob_list(blacklist))
-        else:
-            globs_to_remove = set()
-
-        # in the remote packages, subset those that need to be downloaded
-        # according to our own interest
-        to_download = blacklist_filter(
-            remote_packages - local_packages, globs_to_remove
-        )
-
-        if whitelist is not None and os.path.exists(whitelist):
-            globs_to_consider = set(load_glob_list(whitelist))
-            to_download = whitelist_filter(to_download, globs_to_consider)
+        # remove stuff we already downloaded
+        to_download -= local_packages
 
         # if the user passed a cut date, only download packages that are newer
         # or at the same date than the proposed date
@@ -244,6 +234,19 @@ def mirror(
                 start_date.isoformat(),
             )
             to_download -= too_old
+
+        if blacklist is not None and os.path.exists(blacklist):
+            globs_to_remove = set(load_glob_list(blacklist))
+        else:
+            globs_to_remove = set()
+
+        # in the remote packages, subset those that need to be downloaded
+        # according to our own interest
+        to_download = blacklist_filter(to_download, globs_to_remove)
+
+        if whitelist is not None and os.path.exists(whitelist):
+            globs_to_consider = set(load_glob_list(whitelist))
+            to_download = whitelist_filter(to_download, globs_to_consider)
 
         # in the local packages, subset those that we no longer need, be it
         # because they have been removed from the remote repository, or because
