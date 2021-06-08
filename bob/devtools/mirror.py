@@ -80,7 +80,7 @@ def get_json(channel, platform, name):
     ----------
     channel : str
         Complete channel URL
-    platform : {'linux-64', 'osx-64', 'noarch'}
+    platform : {'linux-64', 'osx-64', 'osx-arm64', 'noarch'}
         The platform of interest
     name : str
         The name of the file to retrieve.  If the name ends in '.bz2', then it
@@ -90,11 +90,18 @@ def get_json(channel, platform, name):
     -------
     repodata : dict
         contents of repodata.json
+
+    Raises
+    ------
+    RuntimeError :
+        If the URL cannot be reached
     """
 
     url = channel + "/" + platform + "/" + name
     logger.debug("[checking] %s...", url)
     r = requests.get(url, allow_redirects=True, stream=True)
+    if r.status_code == 404:
+        raise RuntimeError("URL '%s' does not exist" % url)
     size = r.headers.get("Content-length", "??")
     logger.info("[download] %s (%s bytes)...", url, size)
 
@@ -374,7 +381,8 @@ def checksum_packages(repodata, dest_dir, arch, packages):
     dest_dir : str
         Path leading to local mirror
     arch : str
-        Current architecture being considered (e.g. noarch, linux-64 or osx-64)
+        Current architecture being considered (e.g. noarch, linux-64, osx-64,
+        osx-arm64)
     packages : list
         List of packages that are available locally, by name
 

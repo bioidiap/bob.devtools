@@ -169,7 +169,7 @@ def mirror(
         logger.warn("!!!! DRY RUN MODE !!!!")
         logger.warn("Nothing will be really mirrored")
 
-    DEFAULT_SUBDIRS = ["noarch", "linux-64", "osx-64"]
+    DEFAULT_SUBDIRS = ["noarch", "linux-64", "osx-64", "osx-arm64"]
 
     noarch = os.path.join(dest_dir, "noarch")
     if not os.path.exists(noarch):  # first time
@@ -188,7 +188,18 @@ def mirror(
 
     for arch in DEFAULT_SUBDIRS:
 
-        remote_repodata = get_json(channel_url, arch, "repodata_from_packages.json.bz2")
+        try:
+            remote_repodata = get_json(
+                channel_url, arch, "repodata_from_packages.json.bz2"
+            )
+        except RuntimeError:
+            # the architecture does not exist?
+            logger.warning(
+                "Architecture %s does not seem to exist at channel %s - ignoring...",
+                arch,
+                channel_url,
+            )
+            continue
 
         # merge all available packages into one single dictionary
         remote_package_info = {}
