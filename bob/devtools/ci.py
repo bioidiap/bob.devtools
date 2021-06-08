@@ -40,6 +40,43 @@ def is_master(refname, tag, repodir):
     return refname == "master"
 
 
+def is_private(baseurl, package):
+    """Tells if a given package (with a namespace) is public or private
+
+    This function checks if a fully qualified package in the format
+    ``<namespace>/<name>`` is publicly accessible.  It does this by trying to
+    access ``info/refs?service=git-upload-pack`` from the package in question.
+
+    This method does **not** rely on the fact the user has access to Gitlab.
+
+    .. warning::
+
+       This method only works for fully qualified package names (i.e.,
+       containing at least one forward-slash ``/``).
+
+    Args:
+
+      baseurl: The base URL for the gitlab service to consult
+      package: Fully qualified (i.e., with a namespace) package name.  For
+        example: ``bob/bob.extension``.
+
+    Returns: a boolean, indicating if the package is private (``True``) or not
+    (``False``).
+    """
+
+    from urllib.error import HTTPError
+    from urllib.request import urlopen
+
+    private = True
+    try:
+        r = urlopen(baseurl + "/" + package + "/info/refs?service=git-upload-pack")
+        private = r.getcode() != 200
+    except HTTPError as e:
+        private = e.getcode() == 401
+
+    return private
+
+
 def is_stable(package, refname, tag, repodir):
     """Determines if the package being published is stable.
 

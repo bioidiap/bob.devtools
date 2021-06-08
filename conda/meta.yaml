@@ -55,6 +55,8 @@ requirements:
 test:
   requires:
     - sphinx_rtd_theme
+    - pytest
+    - pytest-cov
   imports:
     - {{ name }}
   commands:
@@ -113,6 +115,7 @@ test:
     - bdt sphinx --help
     - bdt sphinx migrate-autodoc-flags --help
     - bdt gitlab alt-nightlies --help
+    - pytest --capture=no --verbose --cov {{ name }} --cov-report term-missing --cov-report html:sphinx/coverage --cov-report xml:coverage.xml --pyargs {{ name }}
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     {% if not os.path.exists('sphinx') %}
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi

@@ -14,6 +14,7 @@ from click_plugins import with_plugins
 from ..build import comment_cleanup
 from ..build import load_order_file
 from ..ci import cleanup
+from ..ci import is_private
 from ..ci import read_packages
 from ..ci import select_conda_build_config
 from ..ci import select_conda_recipe_append
@@ -667,8 +668,6 @@ def nightlies(ctx, order, dry_run):
 
     token = os.environ["CI_JOB_TOKEN"]
 
-    from urllib.request import urlopen
-
     import git
 
     from .build import build
@@ -698,7 +697,10 @@ def nightlies(ctx, order, dry_run):
         )
 
         # determine package visibility
-        private = urlopen("https://gitlab.idiap.ch/%s" % package).getcode() != 200
+        private = is_private("https://gitlab.idiap.ch", package)
+        private_str = "PRIVATE" if private else "PUBLIC"
+        logger.info('Package "%s" is %s', package, private_str)
+
         stable = "STABLE" in os.environ
 
         # Use custom variants and append files if available on recipe-dir
