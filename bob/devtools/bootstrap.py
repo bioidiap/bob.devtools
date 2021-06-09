@@ -477,6 +477,9 @@ if __name__ == "__main__":
     if args.verbose >= 3:
         conda_verbosity = ["-vv"]
 
+    # print conda information for debugging purposes
+    run_cmdline([conda_bin, "info"] + conda_verbosity)
+
     if args.command == "build":
 
         # simple - just use the defaults channels when self building
@@ -552,6 +555,3 @@ if __name__ == "__main__":
         if conda_cmd == "install":
             cmd += ["--update-specs"]
         run_cmdline(cmd)
-
-    # print conda information for debugging purposes
-    run_cmdline([conda_bin, "info"] + conda_verbosity)
