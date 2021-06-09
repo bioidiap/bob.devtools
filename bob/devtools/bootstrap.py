@@ -232,22 +232,25 @@ def ensure_miniconda_sh():
     # re-downloads installer
     import http.client
 
-    server = "www.idiap.ch"  # http
+    server = ("bobconda.lab.idiap.ch", 8000)  # http
 
-    logger.info("Connecting to http://%s...", server)
-    conn = http.client.HTTPConnection(server)
+    logger.info("Connecting to http://%s:%d...", *server)
+    conn = http.client.HTTPConnection(server[0], port=server[1])
     conn.request("GET", path)
     r1 = conn.getresponse()
 
-    assert r1.status == 200, "Request for http://%s%s - returned status %d " "(%s)" % (
-        server,
+    assert (
+        r1.status == 200
+    ), "Request for http://%s:%d%s - returned status %d " "(%s)" % (
+        server[0],
+        server[1],
         path,
         r1.status,
         r1.reason,
     )
 
     dst = "miniconda.sh"
-    logger.info("(download) http://%s%s -> %s...", server, path, dst)
+    logger.info("(download) http://%s:%d%s -> %s...", server[0], server[1], path, dst)
     with open(dst, "wb") as f:
         f.write(r1.read())
 
