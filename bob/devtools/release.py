@@ -138,7 +138,7 @@ def get_latest_tag_name(gitpkg):
         for tag in latest_tags
         if StrictVersion.version_re.match(tag.name[1:])
     ]
-    if not tag_names: # no tags wee found.
+    if not tag_names:  # no tags wee found.
         return None
     # sort them correctly according to each subversion number
     tag_names.sort(key=StrictVersion)
