@@ -232,10 +232,10 @@ def ensure_miniconda_sh():
     # re-downloads installer
     import http.client
 
-    server = ("https://bobconda.lab.idiap.ch", 8443)  # http
+    server = ("bobconda.lab.idiap.ch", 8443)  # http
 
     logger.info("Connecting to http://%s:%d...", *server)
-    conn = http.client.HTTPConnection(server[0], port=server[1])
+    conn = http.client.HTTPSConnection(server[0], port=server[1])
     conn.request("GET", path)
     r1 = conn.getresponse()
 
