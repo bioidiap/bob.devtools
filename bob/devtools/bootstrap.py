@@ -457,13 +457,13 @@ if __name__ == "__main__":
     logger.info("(create) %s", condarc)
     with open(condarc, "wt") as f:
         # Replaces https://repo.anaconda.com/pkgs/main by
-        # http://bobconda.lab.idiap.ch:8000, so it is optimized for
+        # https://bobconda.lab.idiap.ch:8443, so it is optimized for
         # a CI build.  Notice we consider this script is only executed in this
         # context.  The URL should NOT work outside of Idiap's network.
         f.write(
             _BASE_CONDARC.replace(
                 "https://repo.anaconda.com",
-                "http://bobconda.lab.idiap.ch:8000",
+                "https://bobconda.lab.idiap.ch:8443",
             )
         )
 
