@@ -168,9 +168,14 @@ def test(
         from ..bootstrap import get_channels
 
         channels, _ = get_channels(
-            public=(not private), stable=stable, server=server, intranet=ci, group=group
+            public=(not private),
+            stable=stable,
+            server=server,
+            intranet=ci,
+            group=group,
+            add_dependent_channels=True,
         )
-        condarc_options["channels"] = channels + ["defaults"]
+        condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",

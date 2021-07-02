@@ -256,8 +256,9 @@ def create(
             server=server,
             intranet=private,
             group=group,
+            add_dependent_channels=True,
         )
-        condarc_options["channels"] = channels + ["defaults"]
+        condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during environment creation:" "\n  - %s",

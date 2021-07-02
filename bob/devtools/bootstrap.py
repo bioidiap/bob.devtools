@@ -282,7 +282,7 @@ def install_miniconda(prefix, name):
         shutil.rmtree(cached)
 
 
-def get_channels(public, stable, server, intranet, group):
+def get_channels(public, stable, server, intranet, group, add_dependent_channels=False):
     """Returns the relevant conda channels to consider if building project.
 
     The subset of channels to be returned depends on the visibility and
@@ -310,6 +310,8 @@ def get_channels(public, stable, server, intranet, group):
         compiling is part of.  Values should match URL namespaces currently
         available on our internal webserver.  Currently, only "bob" or "beat"
         will work.
+      add_dependent_channels: If True, will add the defaults and conda-forge
+        channels to the list
 
 
     Returns: a list of channels that need to be considered.
@@ -346,6 +348,9 @@ def get_channels(public, stable, server, intranet, group):
             "public" if public else "private", "stable" if stable else "beta"
         )
     ]
+
+    if add_dependent_channels:
+        channels += ["defaults", "conda-forge"]
 
     return channels, upload_channel
 
@@ -516,9 +521,13 @@ if __name__ == "__main__":
         conda_bld_path = os.path.join(args.conda_root, "conda-bld")
         run_cmdline([conda_bin, "index", conda_bld_path])
         channels, _ = get_channels(
-            public=True, stable=True, server=_SERVER, intranet=True, group="bob"
+            public=True,
+            stable=True,
+            server=_SERVER,
+            intranet=True,
+            group="bob",
+            add_dependent_channels=True,
         )
-        channels += ["defaults"]
         channels = (
             ["--override-channels"]
             + ["--channel=" + conda_bld_path]
@@ -541,9 +550,9 @@ if __name__ == "__main__":
             server=_SERVER,
             intranet=True,
             group="bob",
+            add_dependent_channels=True,
         )
 
-        channels += ["defaults"]
         channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         cmd = (

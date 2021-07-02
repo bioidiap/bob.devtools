@@ -183,6 +183,7 @@ def rebuild(
         server=server,
         intranet=ci,
         group=group,
+        add_dependent_channels=True,
     )
 
     if condarc is not None:
@@ -194,7 +195,7 @@ def rebuild(
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
     if "channels" not in condarc_options:
-        condarc_options["channels"] = channels + ["defaults"]
+        condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",
