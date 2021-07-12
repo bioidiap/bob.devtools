@@ -462,17 +462,17 @@ if __name__ == "__main__":
     condarc = os.path.join(args.conda_root, "condarc")
     logger.info("(create) %s", condarc)
     with open(condarc, "wt") as f:
-        # Replaces https://repo.anaconda.com and https://conda.anaconda.org by our
-        # mirrors, so it is optimized for a CI build.  Notice we consider this
-        # script is only executed in this context.  The URL should NOT work
-        # outside of Idiap's network.
+        # Replaces https://repo.anaconda.com and https://conda.anaconda.org by
+        # our proxies, so it is optimized for a CI build.  Notice we consider
+        # this script is only executed in this context.  The URL should NOT
+        # work outside of Idiap's network.
         f.write(
             _BASE_CONDARC.replace(
                 "https://repo.anaconda.com",
-                "https://bobconda.lab.idiap.ch:8443",
+                "http://bobconda.lab.idiap.ch:8000",
             ).replace(
                 "https://conda.anaconda.org",
-                "https://bobconda.lab.idiap.ch:9443",
+                "http://bobconda.lab.idiap.ch:9000",
             )
         )
 
