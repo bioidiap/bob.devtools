@@ -14,6 +14,7 @@ from ..build import get_env_directory
 from ..build import make_conda_config
 from ..build import root_logger_protection
 from ..constants import BASE_CONDARC
+from ..constants import BOBRC_PATH
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
 from ..constants import MATPLOTLIB_RCDIR
@@ -189,6 +190,7 @@ def test(
     conda_config = make_conda_config(config, None, append_file, condarc_options)
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
+    set_environment("BOBRC", BOBRC_PATH)
 
     # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
     # and derived documentation building via Sphinx)

@@ -126,3 +126,7 @@ MATPLOTLIB_RCDIR = pkg_resources.resource_filename(__name__, "data")
 
 It is required for certain builds that use matplotlib functionality.
 """
+
+BOBRC_PATH = pkg_resources.resource_filename(__name__, "data", "bobrc")
+"""The path to custom Bob configuration file to be used during the CI
+"""

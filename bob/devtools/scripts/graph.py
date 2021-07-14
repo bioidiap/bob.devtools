@@ -10,6 +10,7 @@ from ..bootstrap import get_channels
 from ..bootstrap import set_environment
 from ..build import make_conda_config
 from ..constants import BASE_CONDARC
+from ..constants import BOBRC_PATH
 from ..constants import CONDA_BUILD_CONFIG
 from ..constants import CONDA_RECIPE_APPEND
 from ..constants import MATPLOTLIB_RCDIR
@@ -200,6 +201,7 @@ def graph(
     conda_config = make_conda_config(config, python, append_file, condarc_options)
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
+    set_environment("BOBRC", BOBRC_PATH)
 
     # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
     # and derived documentation building via Sphinx)
