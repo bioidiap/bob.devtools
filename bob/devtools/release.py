@@ -96,7 +96,7 @@ def _update_readme(readme, version):
     """
 
     # replace the badge in the readme's text with the given version
-    DOC_IMAGE = re.compile(r"\-(stable|(v\d+\.\d+\.\d+([abc]\d+)?))\-")
+    DOC_IMAGE = re.compile(r"\-(available|master|latest|(v\d+\.\d+\.\d+([abc]\d+)?))\-")
     BRANCH_RE = re.compile(r"/(stable|master|(v\d+\.\d+\.\d+([abc]\d+)?))")
 
     new_readme = []
@@ -106,10 +106,10 @@ def _update_readme(readme, version):
                 replacement = "/v%s" % version if version is not None else "/master"
                 line = BRANCH_RE.sub(replacement, line)
             if ("software/bob" in line) or ("software/beat" in line):  # our doc server
-                replacement = "/v%s" % version if version is not None else "/stable"
+                replacement = "/v%s" % version if version is not None else "/master"
                 line = BRANCH_RE.sub(replacement, line)
         if DOC_IMAGE.search(line) is not None:
-            replacement = "-v%s-" % version if version is not None else "-stable-"
+            replacement = "-v%s-" % version if version is not None else "-latest-"
             line = DOC_IMAGE.sub(replacement, line)
         new_readme.append(line)
     return "\n".join(new_readme) + "\n"
