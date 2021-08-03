@@ -297,6 +297,8 @@ def parse_dependencies(recipe_dir, config):
     # causes conflicts on macOS
     if "llvm-tools" in build_requirements:
         build_requirements.remove("llvm-tools")
+    if "libgfortran4" in build_requirements:
+        build_requirements.remove("libgfortran4")
     return (
         build_requirements
         + remove_pins(recipe["requirements"].get("host", []))
