@@ -227,8 +227,7 @@ def get_parsed_recipe(metadata):
     """Renders the recipe and returns the interpreted YAML file."""
 
     with root_logger_protection():
-        output = conda_build.api.output_yaml(metadata[0][0])
-    return yaml.load(output, Loader=yaml.FullLoader)
+        return metadata[0][0].get_rendered_recipe_text()
 
 
 def exists_on_channel(channel_url, basename):
@@ -289,29 +288,56 @@ def remove_pins(deps):
     return [ll.split()[0] for ll in deps]
 
 
+def uniq(seq, idfun=None):
+    """Very fast, order preserving uniq function."""
+
+    # order preserving
+    if idfun is None:
+
+        def idfun(x):
+            return x
+
+    seen = {}
+    result = []
+    for item in seq:
+        marker = idfun(item)
+        # in old Python versions:
+        # if seen.has_key(marker)
+        # but in new ones:
+        if marker in seen:
+            continue
+        seen[marker] = 1
+        result.append(item)
+    return result
+
+
 def parse_dependencies(recipe_dir, config):
 
     metadata = get_rendered_metadata(recipe_dir, config)
     recipe = get_parsed_recipe(metadata)
-    build_requirements = remove_pins(recipe["requirements"].get("build", []))
-    # causes conflicts on macOS
-    if "llvm-tools" in build_requirements:
-        build_requirements.remove("llvm-tools")
-    if "libgfortran4" in build_requirements:
-        build_requirements.remove("libgfortran4")
-    return (
-        build_requirements
-        + remove_pins(recipe["requirements"].get("host", []))
-        + recipe["requirements"].get("run", [])
-        + recipe.get("test", {}).get("requires", [])
-        + ["pip"]  # required for installing further packages
-        + ["bob.buildout"]  # required for basic bootstrap of most recipes
-        + ["ipython"]  # for ipdb
-        # Also add anaconda compilers to make sure source installed packages are
-        # compiled properly
-        + ["clangxx_osx-64" if platform.system() == "Darwin" else "gxx_linux-64"]
-    )
-    # by last, packages required for local dev
+    requirements = []
+    for section in ("build", "host"):
+        requirements += remove_pins(recipe.get("requirements", {}).get(section, []))
+    # we don't remove pins for the rest of the recipe
+    requirements += recipe.get("requirements", {}).get("run", [])
+    requirements += recipe.get("test", {}).get("requires", [])
+
+    # also add anaconda compilers to make sure source installed packages are
+    # compiled properly
+    if platform.system() == "Darwin":
+        requirements += ["clangxx_osx-64"]
+    else:
+        requirements += ["gxx_linux-64"]
+
+    # further requirements
+    requirements += [
+        "pip",  # required for installing further packages
+        "bob.buildout",  # required for basic bootstrap of most recipes
+        "ipython",  # for ipdb
+    ]
+
+    # remove duplicates without affecting the order
+    return uniq(requirements)
 
 
 def get_env_directory(conda, name):
