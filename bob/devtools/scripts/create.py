@@ -3,6 +3,7 @@
 
 import os
 import sys
+import warnings
 
 import click
 import yaml
@@ -259,10 +260,13 @@ def create(
     )
 
     conda_config = make_conda_config(config, python, append_file, condarc_options)
-    deps = parse_dependencies(recipe_dir, conda_config)
-    # when creating a local development environment, remove the always_yes
-    # option
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        # conda parsing will raise a warning about splitting build/test phases
+        # which is pretty annoying - this will take care of it.
+        deps = parse_dependencies(recipe_dir, conda_config)
 
+    # when creating a local development environment, remove the always_yes option
     del condarc_options["always_yes"]
     conda_create(conda, name, overwrite, condarc_options, deps, dry_run, use_local)
 
