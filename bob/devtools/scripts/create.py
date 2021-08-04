@@ -12,6 +12,7 @@ from ..bootstrap import set_environment
 from ..build import conda_create
 from ..build import make_conda_config
 from ..build import parse_dependencies
+from ..build import uniq
 from ..config import read_config
 from ..constants import BASE_CONDARC
 from ..constants import CONDA_BUILD_CONFIG
@@ -23,14 +24,6 @@ from ..log import verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)
-
-
-def _uniq(seq):
-    """Fast order preserving uniq() function for Python lists"""
-
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 @click.command(
@@ -279,7 +272,7 @@ def create(
     pip_extras_config = []
     if "create" in config:
         pip_extras_config = config["create"].get("pip_extras", "").split()
-    pip_extras = _uniq(pip_extras_config + list(pip_extras))
+    pip_extras = uniq(pip_extras_config + list(pip_extras))
     if pip_extras:
         logger.info("Pip-installing: %s", pip_extras)
 

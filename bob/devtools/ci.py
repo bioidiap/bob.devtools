@@ -135,29 +135,6 @@ def read_packages(filename):
     return packages
 
 
-def uniq(seq, idfun=None):
-    """Very fast, order preserving uniq function."""
-
-    # order preserving
-    if idfun is None:
-
-        def idfun(x):
-            return x
-
-    seen = {}
-    result = []
-    for item in seq:
-        marker = idfun(item)
-        # in old Python versions:
-        # if seen.has_key(marker)
-        # but in new ones:
-        if marker in seen:
-            continue
-        seen[marker] = 1
-        result.append(item)
-    return result
-
-
 def select_build_file(basename, paths, branch):
     """Selects the file to use for a build.
 

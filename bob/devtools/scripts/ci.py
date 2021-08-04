@@ -13,13 +13,13 @@ from click_plugins import with_plugins
 
 from ..build import comment_cleanup
 from ..build import load_order_file
+from ..build import uniq
 from ..ci import cleanup
 from ..ci import is_private
 from ..ci import read_packages
 from ..ci import select_conda_build_config
 from ..ci import select_conda_recipe_append
 from ..ci import select_user_condarc
-from ..ci import uniq
 from ..constants import BASE_CONDARC
 from ..constants import SERVER
 from ..deploy import deploy_conda_package
