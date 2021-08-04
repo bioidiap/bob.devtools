@@ -1002,7 +1002,7 @@ Example:
     "-d",
     "--dir",
     "root",
-    default=os.path.join(os.path.realpath(os.curdir)),
+    default=os.path.realpath(os.curdir),
     help="Path to the root folder of the package.",
 )
 @verbosity_option()
@@ -1012,19 +1012,23 @@ def check(root):
     path = os.path.join(root, "pyproject.toml")
     if not os.path.isfile(path):
         raise RuntimeError(
-            "pyproject.toml file not found in the root folder of the package. "
+            "pyproject.toml file not found at the root folder of the package. "
             "See https://gitlab.idiap.ch/bob/bob/-/wikis/ci-checks#pyprojecttoml"
         )
 
-    # if there is a pre-commit file, run the tests
+    # if there is a pre-commit configuration file, run the tests
     path = os.path.join(root, ".pre-commit-config.yaml")
     if os.path.isfile(path):
+        from shutil import which
+
         from ..bootstrap import run_cmdline
 
-        run_cmdline(["python", "-m", "pip", "install", "pre-commit"])
+        run_cmdline([which("pip"), "install", "pre-commit"])
         try:
             backup = os.environ.get("SKIP", "")
             os.environ["SKIP"] = "sphinx-build,sphinx-doctest"
-            run_cmdline(["python", "-m", "pre_commit", "run", "--all-files"], cwd=root)
+            run_cmdline([which("pre-commit"), "run", "--all-files"], cwd=root)
         finally:
             os.environ["SKIP"] = backup
+    else:
+        logger.info(f"Cannot find file {path}.  Skipping pre-commit checks...")
