@@ -1024,11 +1024,10 @@ def check(root):
         from ..bootstrap import run_cmdline
 
         run_cmdline([which("pip"), "install", "pre-commit"])
-        try:
-            backup = os.environ.get("SKIP", "")
-            os.environ["SKIP"] = "sphinx-build,sphinx-doctest"
-            run_cmdline([which("pre-commit"), "run", "--all-files"], cwd=root)
-        finally:
-            os.environ["SKIP"] = backup
+
+        # we skip sphinx build and doctests as this is run by the ci later
+        env = os.environ.copy()
+        env["SKIP"] = "sphinx-build,sphinx-doctest"
+        run_cmdline([which("pre-commit"), "run", "--all-files"], env=env, cwd=root)
     else:
         logger.info(f"Cannot find file {path}.  Skipping pre-commit checks...")
