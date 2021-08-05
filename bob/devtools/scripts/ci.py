@@ -255,7 +255,9 @@ def readme(package):
         failed = check([k])
 
         if failed:
-            raise RuntimeError("twine check (a.k.a. readme check) %s: FAILED" % k)
+            raise RuntimeError(
+                "twine check (a.k.a. readme check) %s: FAILED" % k
+            )
         else:
             logger.info("twine check (a.k.a. readme check) %s: OK", k)
 
@@ -395,7 +397,9 @@ def base_build(order, group, dry_run):
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
     # dump packages at conda_root
-    condarc_options["croot"] = os.path.join(os.environ["CONDA_ROOT"], "conda-bld")
+    condarc_options["croot"] = os.path.join(
+        os.environ["CONDA_ROOT"], "conda-bld"
+    )
 
     recipes = load_order_file(order)
 
@@ -493,7 +497,8 @@ def test(ctx, dry_run):
 
     ctx.invoke(
         test,
-        package=glob.glob(base_path + "*.conda") + glob.glob(base_path + "*.tar.bz2"),
+        package=glob.glob(base_path + "*.conda")
+        + glob.glob(base_path + "*.tar.bz2"),
         condarc=condarc,
         config=variants_file,
         append_file=append_file,
@@ -673,12 +678,16 @@ def nightlies(ctx, order, dry_run):
     for n, (package, branch) in enumerate(packages):
 
         echo_normal("\n" + (80 * "="))
-        echo_normal("Building %s@%s (%d/%d)" % (package, branch, n + 1, len(packages)))
+        echo_normal(
+            "Building %s@%s (%d/%d)" % (package, branch, n + 1, len(packages))
+        )
         echo_normal((80 * "=") + "\n")
 
         group, name = package.split("/", 1)
 
-        clone_to = os.path.join(os.environ["CI_PROJECT_DIR"], "src", group, name)
+        clone_to = os.path.join(
+            os.environ["CI_PROJECT_DIR"], "src", group, name
+        )
         dirname = os.path.dirname(clone_to)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -767,7 +776,8 @@ def nightlies(ctx, order, dry_run):
         local_docs = os.path.join(os.environ["CI_PROJECT_DIR"], "sphinx")
         if os.path.exists(local_docs):
             logger.debug(
-                "Sphinx output was generated during test/rebuild " "of %s - Erasing...",
+                "Sphinx output was generated during test/rebuild "
+                "of %s - Erasing...",
                 package,
             )
             shutil.rmtree(local_docs)
@@ -869,7 +879,8 @@ def docs(ctx, requirement, dry_run):
                     clone_to,
                 )
                 git.Repo.clone_from(
-                    "https://gitlab-ci-token:%s@gitlab.idiap.ch/%s" % (token, package),
+                    "https://gitlab-ci-token:%s@gitlab.idiap.ch/%s"
+                    % (token, package),
                     clone_to,
                     branch=branch,
                     depth=1,
@@ -895,7 +906,9 @@ def docs(ctx, requirement, dry_run):
                 with open(requirements_path) as f:
                     extra_intersphinx += comment_cleanup(f.readlines())
 
-            nitpick_path = os.path.join(clone_to, "doc", "nitpick-exceptions.txt")
+            nitpick_path = os.path.join(
+                clone_to, "doc", "nitpick-exceptions.txt"
+            )
             if os.path.exists(nitpick_path):
                 with open(nitpick_path) as f:
                     nitpick += comment_cleanup(f.readlines())
@@ -994,26 +1007,20 @@ Example:
     bdt ci check -vv
 """
 )
-@click.option(
-    "-d",
-    "--dir",
-    "root",
-    default=os.path.realpath(os.curdir),
-    help="Path to the root folder of the package.",
-)
 @verbosity_option()
 @bdt.raise_on_error
-def check(root):
+def check():
     # checks if a pyproject.toml file exists
-    path = os.path.join(root, "pyproject.toml")
+    path = "pyproject.toml"
     if not os.path.isfile(path):
         raise RuntimeError(
-            "pyproject.toml file not found at the root folder of the package. "
-            "See https://gitlab.idiap.ch/bob/bob/-/wikis/ci-checks#pyprojecttoml"
+            f"{path} file not found at the root folder of the package."
+            f"See https://gitlab.idiap.ch/bob/bob/-/wikis/ci-checks#"
+            f"pyprojecttoml"
         )
 
     # if there is a pre-commit configuration file, run the tests
-    path = os.path.join(root, ".pre-commit-config.yaml")
+    path = ".pre-commit-config.yaml"
     if os.path.isfile(path):
         from shutil import which
 
@@ -1025,9 +1032,16 @@ def check(root):
         env = os.environ.copy()
         env["SKIP"] = "sphinx-build,sphinx-doctest"
         run_cmdline(
-            [which("pre-commit"), "run", "--all-files", "--show-diff-on-failure"],
+            [
+                which("pre-commit"),
+                "run",
+                "--all-files",
+                "--show-diff-on-failure",
+            ],
             env=env,
-            cwd=root,
         )
     else:
-        logger.info(f"Cannot find file {path}.  Skipping pre-commit checks...")
+        logger.info(
+            f"Cannot find file {path} at the root folder of the package.  "
+            f"Skipping pre-commit checks..."
+        )

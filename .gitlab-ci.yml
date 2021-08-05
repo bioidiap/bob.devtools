@@ -37,6 +37,8 @@ build_linux:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - pip install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     paths:
@@ -59,6 +61,8 @@ build_macos_intel:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - pip install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv
   artifacts:
     paths:

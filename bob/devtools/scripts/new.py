@@ -111,7 +111,11 @@ def new(package, author, email, title, license, output_dir):
     #  Title
     # =======
     rst_title = (
-        ("=" * (2 + len(title))) + "\n " + title + "\n" + ("=" * (2 + len(title)))
+        ("=" * (2 + len(title)))
+        + "\n "
+        + title
+        + "\n"
+        + ("=" * (2 + len(title)))
     )
 
     # the jinja context defines the substitutions to be performed
@@ -132,7 +136,9 @@ def new(package, author, email, title, license, output_dir):
     # copy the whole template structure and de-templatize the needed files
     if output_dir is None:
         output_dir = os.path.join(os.path.realpath(os.curdir), name)
-    logger.info("Creating structure for %s at directory %s", package, output_dir)
+    logger.info(
+        "Creating structure for %s at directory %s", package, output_dir
+    )
 
     if os.path.exists(output_dir):
         raise IOError(
@@ -154,7 +160,6 @@ def new(package, author, email, title, license, output_dir):
         ".flake8",
         ".gitignore",
         ".gitlab-ci.yml",
-        ".isort.cfg",
         ".pre-commit-config.yaml",
         "buildout.cfg",
         "doc/conf.py",
@@ -180,7 +185,9 @@ def new(package, author, email, title, license, output_dir):
         __name__, os.path.join("..", "templates")
     )
     logger.info("Creating base %s python module", group)
-    shutil.copytree(os.path.join(template_dir, "pkg"), os.path.join(output_dir, group))
+    shutil.copytree(
+        os.path.join(template_dir, "pkg"), os.path.join(output_dir, group)
+    )
 
     # copies specific images to the right spot
     copy_file(os.path.join("doc", "img", "%s-favicon.ico" % group), output_dir)
@@ -199,4 +206,6 @@ def new(package, author, email, title, license, output_dir):
         comment_start_string="(#",
         comment_end_string="#)",
     )
-    render_template(conda_env, os.path.join("conda", "meta.yaml"), context, output_dir)
+    render_template(
+        conda_env, os.path.join("conda", "meta.yaml"), context, output_dir
+    )
