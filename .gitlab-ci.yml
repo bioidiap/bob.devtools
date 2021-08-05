@@ -2,6 +2,7 @@
 variables:
   PYTHONUNBUFFERED: "1"
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
+  PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
 
 
 # Definition of our build pipeline order
@@ -19,6 +20,7 @@ stages:
   cache:
     paths:
       - miniconda.sh
+      - ${PRE_COMMIT_HOME}
 
 
 build_linux:
@@ -35,6 +37,8 @@ build_linux:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - pip install pre-commit
+    - pre-commit run --all-files
     - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     paths:
@@ -57,6 +61,8 @@ build_macos_intel:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - pip install pre-commit
+    - pre-commit run --all-files
     - python3 ./bob/devtools/build.py -vv
   artifacts:
     paths:
