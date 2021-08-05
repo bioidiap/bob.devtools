@@ -57,6 +57,7 @@ build_linux:
     PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
+    - bdt ci check -vv
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
