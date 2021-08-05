@@ -124,7 +124,8 @@ def run_cmdline(cmd, env=None, **kwargs):
 
     if p.wait() != 0:
         raise RuntimeError(
-            "command `%s' exited with error state (%d)" % (" ".join(cmd), p.returncode)
+            "command `%s' exited with error state (%d)"
+            % (" ".join(cmd), p.returncode)
         )
 
     total = time.time() - start
@@ -162,7 +163,9 @@ def merge_conda_cache(cache, prefix, name):
     cached_packages = glob.glob(os.path.join(cached_pkgs_dir, "*.tar.bz2"))
     cached_packages.extend(glob.glob(os.path.join(cached_pkgs_dir, "*.conda")))
 
-    cached_packages = [k for k in cached_packages if not k.startswith(name + "-")]
+    cached_packages = [
+        k for k in cached_packages if not k.startswith(name + "-")
+    ]
     logger.info("Merging %d cached conda packages", len(cached_packages))
     for k in cached_packages:
         dst = os.path.join(pkgs_dir, os.path.basename(k))
@@ -179,7 +182,9 @@ def merge_conda_cache(cache, prefix, name):
             data = sorted(list(data))
     else:
         # use both cached and actual conda package caches
-        with open(pkgs_urls_txt, "rb") as f1, open(cached_pkgs_urls_txt, "rb") as f2:
+        with open(pkgs_urls_txt, "rb") as f1, open(
+            cached_pkgs_urls_txt, "rb"
+        ) as f2:
             data = set(f1.readlines() + f2.readlines())
             data = sorted(list(data))
 
@@ -251,7 +256,9 @@ def ensure_miniconda_sh():
     )
 
     dst = "miniconda.sh"
-    logger.info("(download) http://%s:%d%s -> %s...", server[0], server[1], path, dst)
+    logger.info(
+        "(download) http://%s:%d%s -> %s...", server[0], server[1], path, dst
+    )
     with open(dst, "wb") as f:
         f.write(r1.read())
 
@@ -283,7 +290,9 @@ def install_miniconda(prefix, name):
         shutil.rmtree(cached)
 
 
-def get_channels(public, stable, server, intranet, group, add_dependent_channels=False):
+def get_channels(
+    public, stable, server, intranet, group, add_dependent_channels=False
+):
     """Returns the relevant conda channels to consider if building project.
 
     The subset of channels to be returned depends on the visibility and
@@ -321,7 +330,8 @@ def get_channels(public, stable, server, intranet, group, add_dependent_channels
     if (not public) and (not intranet):
         raise RuntimeError(
             "You cannot request for private channels and set"
-            " intranet=False (server=%s) - these are conflicting options" % server
+            " intranet=False (server=%s) - these are conflicting options"
+            % server
         )
 
     channels = []
@@ -430,7 +440,8 @@ if __name__ == "__main__":
         default=os.environ.get(
             "CONDA_ROOT", os.path.realpath(os.path.join(os.curdir, "miniconda"))
         ),
-        help="The location where we should install miniconda " "[default: %(default)s]",
+        help="The location where we should install miniconda "
+        "[default: %(default)s]",
     )
     parser.add_argument(
         "-t",
@@ -557,7 +568,9 @@ if __name__ == "__main__":
             add_dependent_channels=True,
         )
 
-        channels = ["--override-channels"] + ["--channel=%s" % k for k in channels]
+        channels = ["--override-channels"] + [
+            "--channel=%s" % k for k in channels
+        ]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
         cmd = (
             [conda_bin, conda_cmd, "--yes"]

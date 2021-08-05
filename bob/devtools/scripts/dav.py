@@ -8,8 +8,18 @@ import pkg_resources
 
 from click_plugins import with_plugins
 
-from ..dav import augment_path_with_hash, remove_old_beta_packages, setup_webdav_client
-from ..log import echo_info, echo_normal, echo_warning, get_logger, verbosity_option
+from ..dav import (
+    augment_path_with_hash,
+    remove_old_beta_packages,
+    setup_webdav_client,
+)
+from ..log import (
+    echo_info,
+    echo_normal,
+    echo_warning,
+    get_logger,
+    verbosity_option,
+)
 from . import bdt
 
 logger = get_logger(__name__)
@@ -259,7 +269,9 @@ def upload(private, execute, checksum, local, remote):
     cl = setup_webdav_client(private)
 
     if not cl.check(remote):
-        echo_warning("base remote directory for upload %s does not exist" % (remote,))
+        echo_warning(
+            "base remote directory for upload %s does not exist" % (remote,)
+        )
         return 1
 
     for k in local:

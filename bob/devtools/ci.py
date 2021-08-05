@@ -68,7 +68,9 @@ def is_private(baseurl, package):
 
     private = True
     try:
-        r = urlopen(baseurl + "/" + package + "/info/refs?service=git-upload-pack")
+        r = urlopen(
+            baseurl + "/" + package + "/info/refs?service=git-upload-pack"
+        )
         private = r.getcode() != 200
     except HTTPError as e:
         private = e.getcode() == 401
@@ -96,11 +98,15 @@ def is_stable(package, refname, tag, repodir):
 
     if tag is not None:
         logger.info('Project %s tag is "%s"', package, tag)
-        parsed_tag = distutils.version.LooseVersion(tag[1:]).version  # remove 'v'
+        parsed_tag = distutils.version.LooseVersion(
+            tag[1:]
+        ).version  # remove 'v'
         is_prerelease = any([isinstance(k, str) for k in parsed_tag])
 
         if is_prerelease:
-            logger.warn("Pre-release detected - not publishing to stable channels")
+            logger.warn(
+                "Pre-release detected - not publishing to stable channels"
+            )
             return False
 
         if is_master(refname, tag, repodir):
@@ -174,7 +180,9 @@ def select_build_file(basename, paths, branch):
         specific_basename = "%s-%s" % (basename, branch)
         for path in paths:
             path = os.path.realpath(path)
-            candidate = os.path.join(path, "%s%s" % (specific_basename, extension))
+            candidate = os.path.join(
+                path, "%s%s" % (specific_basename, extension)
+            )
             if os.path.exists(candidate):
                 return candidate
 

@@ -30,7 +30,8 @@ def process_log(log):
 
         # Checking the date
         date = re.findall(
-            "[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}", ll
+            "[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2} [0-9]{2,2}:[0-9]{2,2}:[0-9]{2,2}",
+            ll,
         )
         if len(date) > 0:
             # logs[date[0]]=current_package

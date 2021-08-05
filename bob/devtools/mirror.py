@@ -70,7 +70,9 @@ def _list_conda_packages(local_dir):
         List of conda packages in `local_dir`
     """
     contents = os.listdir(local_dir)
-    return fnmatch.filter(contents, "*.conda") + fnmatch.filter(contents, "*.tar.bz2")
+    return fnmatch.filter(contents, "*.conda") + fnmatch.filter(
+        contents, "*.tar.bz2"
+    )
 
 
 def get_json(channel, platform, name):
@@ -126,7 +128,8 @@ def get_local_contents(path, arch):
     logger.info("Listing package contents of %s...", path_arch)
     contents = os.listdir(path_arch)
     return set(
-        fnmatch.filter(contents, "*.tar.bz2") + fnmatch.filter(contents, "*.conda")
+        fnmatch.filter(contents, "*.tar.bz2")
+        + fnmatch.filter(contents, "*.conda")
     )
 
 
@@ -301,7 +304,9 @@ def download_packages(packages, repodata, channel_url, dest_dir, arch, dry_run):
 
             # move
             local_dest = os.path.join(dest_dir, arch, p)
-            logger.info("[move: %d/%d] %s -> %s", k, total, temp_dest, local_dest)
+            logger.info(
+                "[move: %d/%d] %s -> %s", k, total, temp_dest, local_dest
+            )
 
             # check local directory is available before moving
             dirname = os.path.dirname(local_dest)

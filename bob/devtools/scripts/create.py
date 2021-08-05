@@ -11,7 +11,12 @@ import yaml
 from ..bootstrap import run_cmdline, set_environment
 from ..build import conda_create, make_conda_config, parse_dependencies, uniq
 from ..config import read_config
-from ..constants import BASE_CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, SERVER
+from ..constants import (
+    BASE_CONDARC,
+    CONDA_BUILD_CONFIG,
+    CONDA_RECIPE_APPEND,
+    SERVER,
+)
 from ..log import echo_normal, get_logger, verbosity_option
 from . import bdt
 
@@ -80,7 +85,8 @@ Examples:
     "--python",
     default=("%d.%d" % sys.version_info[:2]),
     show_default=True,
-    help="Version of python to build the " "environment for [default: %(default)s]",
+    help="Version of python to build the "
+    "environment for [default: %(default)s]",
 )
 @click.option(
     "-o",
@@ -250,7 +256,9 @@ def create(
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    conda_config = make_conda_config(config, python, append_file, condarc_options)
+    conda_config = make_conda_config(
+        config, python, append_file, condarc_options
+    )
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         # conda parsing will raise a warning about splitting build/test phases
@@ -259,7 +267,9 @@ def create(
 
     # when creating a local development environment, remove the always_yes option
     del condarc_options["always_yes"]
-    conda_create(conda, name, overwrite, condarc_options, deps, dry_run, use_local)
+    conda_create(
+        conda, name, overwrite, condarc_options, deps, dry_run, use_local
+    )
 
     # part 2: pip-install everything listed in pip-extras
     # mix-in stuff from ~/.bdtrc and command-line

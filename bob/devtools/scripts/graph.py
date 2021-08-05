@@ -197,7 +197,9 @@ def graph(
         "\n  - ".join(condarc_options["channels"]),
     )
 
-    conda_config = make_conda_config(config, python, append_file, condarc_options)
+    conda_config = make_conda_config(
+        config, python, append_file, condarc_options
+    )
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
     set_environment("BOBRC", BOBRC_PATH)

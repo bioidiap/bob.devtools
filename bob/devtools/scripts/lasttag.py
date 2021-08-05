@@ -49,10 +49,13 @@ def lasttag(package):
         tag = get_last_tag(use_package)
         date = parse_date(tag.commit["committed_date"])
         echo_normal(
-            "%s: %s (%s)" % (package, tag.name, date.strftime("%Y-%m-%d %H:%M:%S"))
+            "%s: %s (%s)"
+            % (package, tag.name, date.strftime("%Y-%m-%d %H:%M:%S"))
         )
     except gitlab.GitlabGetError:
         logger.warn(
-            "Gitlab access error - package %s does not exist?", package, exc_info=True
+            "Gitlab access error - package %s does not exist?",
+            package,
+            exc_info=True,
         )
         echo_warning("%s: unknown" % (package,))

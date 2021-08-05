@@ -15,7 +15,9 @@ def _get_runner_from_description(gl, descr):
 
     # search for the runner to affect
     the_runner = [
-        k for k in gl.runners.list(all=True) if k.attributes["description"] == descr
+        k
+        for k in gl.runners.list(all=True)
+        if k.attributes["description"] == descr
     ]
     if not the_runner:
         raise RuntimeError("Cannot find runner with description = %s", descr)
@@ -76,7 +78,9 @@ def _get_projects_from_runner(gl, runner):
     packages = []
     for k, proj in enumerate(the_runner.projects):
         packages.append(_get_project(gl, proj["id"]))
-        logger.debug("Got data from project %d/%d", k + 1, len(the_runner.projects))
+        logger.debug(
+            "Got data from project %d/%d", k + 1, len(the_runner.projects)
+        )
     return packages
 
 

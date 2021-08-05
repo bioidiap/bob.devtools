@@ -52,11 +52,15 @@ def jobs(name, status):
 
     # search for the runner(s) to affect
     runners = [
-        k for k in gl.runners.list(all=True) if k.attributes["description"] in names
+        k
+        for k in gl.runners.list(all=True)
+        if k.attributes["description"] in names
     ]
 
     if not runners:
-        raise RuntimeError("Cannot find runner with description = %s" % "|".join(names))
+        raise RuntimeError(
+            "Cannot find runner with description = %s" % "|".join(names)
+        )
 
     for runner in runners:
         jobs = runner.jobs.list(all=True, status=status)

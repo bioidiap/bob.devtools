@@ -108,7 +108,9 @@ def docs(ctx, requirement, dry_run, python, group):
       \b
     """
     set_up_environment_variables(
-        python=python, name_space=group, project_dir=os.path.dirname(requirement)
+        python=python,
+        name_space=group,
+        project_dir=os.path.dirname(requirement),
     )
 
     ctx.invoke(ci.docs, requirement=requirement, dry_run=dry_run)
@@ -158,7 +160,9 @@ Examples:
 def build(ctx, dry_run, recipe_dir, python, group):
     """Run the CI build step locally."""
     set_up_environment_variables(
-        python=python, name_space=group, project_dir=os.path.join(recipe_dir, "..")
+        python=python,
+        name_space=group,
+        project_dir=os.path.join(recipe_dir, ".."),
     )
 
     ctx.invoke(ci.build, dry_run=dry_run, recipe_dir=recipe_dir)

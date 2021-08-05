@@ -127,7 +127,9 @@ def compute_adjencence_matrix(
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
-        build_number, _ = next_build_number(main_channel, os.path.basename(path))
+        build_number, _ = next_build_number(
+            main_channel, os.path.basename(path)
+        )
 
         # at this point, all elements are parsed, I know the package version,
         # build number and all dependencies
@@ -192,7 +194,9 @@ def compute_adjencence_matrix(
 
         # do not recurse for packages we already know
         all_recurse -= set(current.keys())
-        logger.info("Recursing over the following packages: %s", ", ".join(all_recurse))
+        logger.info(
+            "Recursing over the following packages: %s", ", ".join(all_recurse)
+        )
 
         for dep in all_recurse:
             dep_adjmtx = compute_adjencence_matrix(
@@ -264,7 +268,13 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
                 values["name"],
             )
             continue
-        name = values["name"] + "\n" + values["version"] + "\n" + values["build_string"]
+        name = (
+            values["name"]
+            + "\n"
+            + values["version"]
+            + "\n"
+            + values["build_string"]
+        )
         nodes[values["name"]] = graph.node(
             values["name"], name, shape="box", color="blue"
         )
@@ -284,7 +294,9 @@ def generate_graph(adjacence_matrix, deptypes, whitelist):
 
         for ref, parts in deps.items():
             if not whitelist_compiled.match(ref):
-                logger.debug("Skipping dependence %s (did not match whitelist)", ref)
+                logger.debug(
+                    "Skipping dependence %s (did not match whitelist)", ref
+                )
                 continue
 
             if not any([k == ref for k in nodes.keys()]):

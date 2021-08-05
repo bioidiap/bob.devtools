@@ -218,7 +218,9 @@ def build(
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
     condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
-    conda_config = make_conda_config(config, python, append_file, condarc_options)
+    conda_config = make_conda_config(
+        config, python, append_file, condarc_options
+    )
 
     set_environment("MATPLOTLIBRC", MATPLOTLIB_RCDIR)
     set_environment("BOBRC", BOBRC_PATH)
@@ -256,7 +258,9 @@ def build(
 
         # checks if we should actually build this recipe
         if should_skip_build(metadata):
-            logger.info("Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch)
+            logger.info(
+                "Skipping UNSUPPORTED build of %s for %s", recipe_dir, arch
+            )
             continue
 
         rendered_recipe = get_parsed_recipe(metadata)
@@ -267,7 +271,9 @@ def build(
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
-        build_number, _ = next_build_number(upload_channel, os.path.basename(path))
+        build_number, _ = next_build_number(
+            upload_channel, os.path.basename(path)
+        )
 
         logger.info(
             "Building %s-%s-py%s (build: %d) for %s",
@@ -283,7 +289,9 @@ def build(
             # get it right
             set_environment("BOB_BUILD_NUMBER", str(build_number))
             with root_logger_protection():
-                paths = conda_build.api.build(d, config=conda_config, notest=no_test)
+                paths = conda_build.api.build(
+                    d, config=conda_config, notest=no_test
+                )
             # if you get to this point, the package was successfully rebuilt
             # set environment to signal caller we may dispose of it
             os.environ["BDT_BUILD"] = ":".join(paths)

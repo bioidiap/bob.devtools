@@ -128,7 +128,9 @@ def gen_new_index_and_patch_instructions(repodata):
     instructions = {}
     for i, packages_key in enumerate(["packages", "packages.conda"]):
         new_index = _gen_new_index(repodata, packages_key)
-        inst = _gen_patch_instructions(repodata[packages_key], new_index, packages_key)
+        inst = _gen_patch_instructions(
+            repodata[packages_key], new_index, packages_key
+        )
         _add_removals(inst, REMOVALS[repodata["info"]["subdir"]])
         if i == 0:
             instructions.update(inst)
@@ -149,7 +151,9 @@ def main():
     repodatas = {}
     subdirs = SUBDIRS
     for subdir in tqdm.tqdm(subdirs, desc="Downloading repodata"):
-        repodata_url = "/".join((BASE_URL, subdir, "repodata_from_packages.json"))
+        repodata_url = "/".join(
+            (BASE_URL, subdir, "repodata_from_packages.json")
+        )
         response = requests.get(repodata_url)
         response.raise_for_status()
         repodatas[subdir] = response.json()
@@ -169,7 +173,11 @@ def main():
         patch_instructions_path = join(prefix_subdir, "patch_instructions.json")
         with open(patch_instructions_path, "w") as fh:
             json.dump(
-                instructions, fh, indent=2, sort_keys=True, separators=(",", ": ")
+                instructions,
+                fh,
+                indent=2,
+                sort_keys=True,
+                separators=(",", ": "),
             )
 
 

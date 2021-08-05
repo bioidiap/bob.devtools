@@ -7,10 +7,15 @@ import os
 import urllib
 
 from conda_build.index import _apply_instructions
-from gen_patch_json import BASE_URL, SUBDIRS, gen_new_index_and_patch_instructions
+from gen_patch_json import (
+    BASE_URL,
+    SUBDIRS,
+    gen_new_index_and_patch_instructions,
+)
 
 CACHE_DIR = os.environ.get(
-    "CACHE_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+    "CACHE_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache"),
 )
 
 
@@ -26,8 +31,14 @@ def show_record_diffs(subdir, ref_repodata, new_repodata):
             print(f"{subdir}::{name}")
             ref_lines = json.dumps(ref_pkg, indent=2).splitlines()
             new_lines = json.dumps(new_pkg, indent=2).splitlines()
-            for ln in difflib.unified_diff(ref_lines, new_lines, n=0, lineterm=""):
-                if ln.startswith("+++") or ln.startswith("---") or ln.startswith("@@"):
+            for ln in difflib.unified_diff(
+                ref_lines, new_lines, n=0, lineterm=""
+            ):
+                if (
+                    ln.startswith("+++")
+                    or ln.startswith("---")
+                    or ln.startswith("@@")
+                ):
                     continue
                 print(ln)
 
@@ -58,7 +69,10 @@ if __name__ == "__main__":
         description="show repodata changes from the current gen_patch_json"
     )
     parser.add_argument(
-        "--subdirs", nargs="*", default=None, help="subdir(s) show, default is all"
+        "--subdirs",
+        nargs="*",
+        default=None,
+        help="subdir(s) show, default is all",
     )
     parser.add_argument(
         "--use-cache",
@@ -76,7 +90,9 @@ if __name__ == "__main__":
         subdir_dir = os.path.join(CACHE_DIR, subdir)
         if not os.path.exists(subdir_dir):
             os.makedirs(subdir_dir)
-        raw_repodata_path = os.path.join(subdir_dir, "repodata_from_packages.json.bz2")
+        raw_repodata_path = os.path.join(
+            subdir_dir, "repodata_from_packages.json.bz2"
+        )
         ref_repodata_path = os.path.join(subdir_dir, "repodata.json.bz2")
         if not args.use_cache:
             download_subdir(subdir, raw_repodata_path, ref_repodata_path)

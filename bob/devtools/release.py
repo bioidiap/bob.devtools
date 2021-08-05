@@ -96,20 +96,30 @@ def _update_readme(readme, version):
     """
 
     # replace the badge in the readme's text with the given version
-    DOC_IMAGE = re.compile(r"\-(available|master|latest|(v\d+\.\d+\.\d+([abc]\d+)?))\-")
+    DOC_IMAGE = re.compile(
+        r"\-(available|master|latest|(v\d+\.\d+\.\d+([abc]\d+)?))\-"
+    )
     BRANCH_RE = re.compile(r"/(stable|master|(v\d+\.\d+\.\d+([abc]\d+)?))")
 
     new_readme = []
     for line in readme.splitlines():
         if BRANCH_RE.search(line) is not None:
             if "gitlab" in line:  # gitlab links
-                replacement = "/v%s" % version if version is not None else "/master"
+                replacement = (
+                    "/v%s" % version if version is not None else "/master"
+                )
                 line = BRANCH_RE.sub(replacement, line)
-            if ("software/bob" in line) or ("software/beat" in line):  # our doc server
-                replacement = "/v%s" % version if version is not None else "/master"
+            if ("software/bob" in line) or (
+                "software/beat" in line
+            ):  # our doc server
+                replacement = (
+                    "/v%s" % version if version is not None else "/master"
+                )
                 line = BRANCH_RE.sub(replacement, line)
         if DOC_IMAGE.search(line) is not None:
-            replacement = "-v%s-" % version if version is not None else "-latest-"
+            replacement = (
+                "-v%s-" % version if version is not None else "-latest-"
+            )
             line = DOC_IMAGE.sub(replacement, line)
         new_readme.append(line)
     return "\n".join(new_readme) + "\n"
@@ -242,7 +252,9 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
     logger.info(tag_name)
     tag = gitpkg.tags.get(tag_name)
     tag_comments = "\n".join(tag_comments_list)
-    logger.info("Found tag %s, updating its comments with:\n%s", tag.name, tag_comments)
+    logger.info(
+        "Found tag %s, updating its comments with:\n%s", tag.name, tag_comments
+    )
     if not dry_run:
         tag.set_release_description(tag_comments)
     return tag
@@ -319,8 +331,12 @@ def update_files_with_mr(
                 logger.info("Merging !%d immediately - CI was skipped", mr.iid)
                 mr.merge()
             else:
-                logger.info("Auto-merging !%d only if pipeline succeeds", mr.iid)
-                time.sleep(0.5)  # to avoid the MR to be merged automatically - bug?
+                logger.info(
+                    "Auto-merging !%d only if pipeline succeeds", mr.iid
+                )
+                time.sleep(
+                    0.5
+                )  # to avoid the MR to be merged automatically - bug?
                 mr.merge(merge_when_pipeline_succeeds=True)
 
 

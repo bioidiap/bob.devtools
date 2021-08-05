@@ -57,7 +57,9 @@ def deploy_conda_package(
     """
 
     server_info = WEBDAV_PATHS[stable][public]
-    davclient = _setup_webdav_client(SERVER, server_info["root"], username, password)
+    davclient = _setup_webdav_client(
+        SERVER, server_info["root"], username, password
+    )
 
     basename = os.path.basename(package)
     arch = arch or os.path.basename(os.path.dirname(package))
@@ -73,11 +75,15 @@ def deploy_conda_package(
             )
 
         else:
-            logger.info("[dav] rm -f %s%s%s", SERVER, server_info["root"], remote_path)
+            logger.info(
+                "[dav] rm -f %s%s%s", SERVER, server_info["root"], remote_path
+            )
             if not dry_run:
                 davclient.clean(remote_path)
 
-    logger.info("[dav] %s -> %s%s%s", package, SERVER, server_info["root"], remote_path)
+    logger.info(
+        "[dav] %s -> %s%s%s", package, SERVER, server_info["root"], remote_path
+    )
     if not dry_run:
         davclient.upload(local_path=package, remote_path=remote_path)
 
@@ -127,7 +133,9 @@ def deploy_documentation(
         )
 
     server_info = WEBDAV_PATHS[stable][public]
-    davclient = _setup_webdav_client(SERVER, server_info["root"], username, password)
+    davclient = _setup_webdav_client(
+        SERVER, server_info["root"], username, password
+    )
 
     remote_path_prefix = "%s/%s" % (server_info["docs"], package)
 

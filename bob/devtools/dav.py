@@ -69,7 +69,9 @@ def augment_path_with_hash(path):
     """
     path = pathlib.Path(path)
     if not path.is_file():
-        raise ValueError(f"Can only augment path to files with a hash. Got: {path}")
+        raise ValueError(
+            f"Can only augment path to files with a hash. Got: {path}"
+        )
     file_hash = compute_sha256(path)[:8]
     suffix = "".join(path.suffixes)
     base_name = str(path.name)[: -len(suffix) or None]

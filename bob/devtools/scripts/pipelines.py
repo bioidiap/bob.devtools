@@ -53,7 +53,8 @@ def process_pipelines(package, pipeline, job_id):
 
         if len(jobs) == 0:
             print(
-                "Job %s not found in the pipeline %s. Use `bdt gitlab get-pipelines` to search "
+                "Job %s not found in the pipeline %s. "
+                "Use `bdt gitlab get-pipelines` to search "
                 % (job_id, pipeline.attributes["id"])
             )
 
@@ -84,7 +85,9 @@ def process_pipelines(package, pipeline, job_id):
         pass
     except gitlab.GitlabGetError:
         logger.warn(
-            "Gitlab access error - package %s does not exist?", package, exc_info=True
+            "Gitlab access error - package %s does not exist?",
+            package,
+            exc_info=True,
         )
         echo_warning("%s: unknown" % (package,))
 
@@ -137,6 +140,8 @@ def get_pipelines(package):
 
     except gitlab.GitlabGetError:
         logger.warn(
-            "Gitlab access error - package %s does not exist?", package, exc_info=True
+            "Gitlab access error - package %s does not exist?",
+            package,
+            exc_info=True,
         )
         echo_warning("%s: unknown" % (package,))

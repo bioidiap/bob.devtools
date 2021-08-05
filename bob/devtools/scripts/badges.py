@@ -172,7 +172,9 @@ def badges(package, update_readme, dry_run, server):
 
         # download and edit README to setup badges
         if update_readme:
-            readme_file = use_package.files.get(file_path="README.rst", ref="master")
+            readme_file = use_package.files.get(
+                file_path="README.rst", ref="master"
+            )
             readme_content = readme_file.decode().decode()
             readme_content = _update_readme(readme_content, info)
             # commit and push changes
@@ -187,6 +189,8 @@ def badges(package, update_readme, dry_run, server):
 
     except gitlab.GitlabGetError:
         logger.warn(
-            "Gitlab access error - package %s does not exist?", package, exc_info=True
+            "Gitlab access error - package %s does not exist?",
+            package,
+            exc_info=True,
         )
         echo_warning("%s: unknown" % (package,))

@@ -205,9 +205,13 @@ def mirror(
         remote_package_info.update(remote_repodata.get("packages", {}))
         remote_package_info.update(remote_repodata.get("packages.conda", {}))
 
-        logger.info("%d packages available in remote index", len(remote_package_info))
+        logger.info(
+            "%d packages available in remote index", len(remote_package_info)
+        )
         local_packages = get_local_contents(dest_dir, arch)
-        logger.info("%d packages available in local mirror", len(local_packages))
+        logger.info(
+            "%d packages available in local mirror", len(local_packages)
+        )
 
         # by default, download everything
         remote_packages = set(remote_package_info.keys())

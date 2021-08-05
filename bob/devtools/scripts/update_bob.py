@@ -17,7 +17,8 @@ Examples:
 """
 )
 @click.option(
-    "--stable/--beta", help="To use the stable versions in the list and pin packages."
+    "--stable/--beta",
+    help="To use the stable versions in the list and pin packages.",
 )
 @verbosity_option()
 @bdt.raise_on_error
@@ -26,7 +27,11 @@ def update_bob(stable):
     import tempfile
 
     from ..ci import read_packages
-    from ..release import download_path, get_gitlab_instance, get_latest_tag_name
+    from ..release import (
+        download_path,
+        get_gitlab_instance,
+        get_latest_tag_name,
+    )
 
     gl = get_gitlab_instance()
 
@@ -53,11 +58,14 @@ def update_bob(stable):
         else:
             private_packages.append(package.replace("bob/", ""))
 
-        logger.debug("%s is %s", package, "public" if is_public else "not public")
+        logger.debug(
+            "%s is %s", package, "public" if is_public else "not public"
+        )
 
     logger.info("Found %d public packages", len(public_packages))
     logger.info(
-        "The following packages were not public:\n%s", "\n".join(private_packages)
+        "The following packages were not public:\n%s",
+        "\n".join(private_packages),
     )
 
     # if requires stable versions, add latest tag versions to the names
@@ -67,7 +75,9 @@ def update_bob(stable):
             get_latest_tag_name(gl.projects.get(f"bob/{pkg}"))
             for pkg in public_packages
         ]
-        public_packages = [f"{pkg} =={tag}" for pkg, tag in zip(public_packages, tags)]
+        public_packages = [
+            f"{pkg} =={tag}" for pkg, tag in zip(public_packages, tags)
+        ]
 
     # modify conda/meta.yaml and requirements.txt in bob/bob
     logger.info("Updating conda/meta.yaml")
@@ -80,7 +90,10 @@ def update_bob(stable):
         i2 = lines.find(end_tag)
 
         lines = (
-            lines[:i1] + "\n    - ".join([""] + public_packages) + "\n    " + lines[i2:]
+            lines[:i1]
+            + "\n    - ".join([""] + public_packages)
+            + "\n    "
+            + lines[i2:]
         )
 
     with open("conda/meta.yaml", "w") as f:

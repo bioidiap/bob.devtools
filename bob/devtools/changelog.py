@@ -25,7 +25,9 @@ def parse_date(d):
 def _sort_commits(commits, reverse):
     """Sorts gitlab commit objects using their ``committed_date`` attribute."""
 
-    return sorted(commits, key=lambda x: parse_date(x.committed_date), reverse=reverse)
+    return sorted(
+        commits, key=lambda x: parse_date(x.committed_date), reverse=reverse
+    )
 
 
 def _sort_tags(tags, reverse):
@@ -151,7 +153,9 @@ def _write_one_tag(f, pkg_name, tag):
         if line.startswith("* ") or line.startswith("- "):
             line = line[2:]
 
-        line = line.replace("!", pkg_name + "!").replace(pkg_name + pkg_name, pkg_name)
+        line = line.replace("!", pkg_name + "!").replace(
+            pkg_name + pkg_name, pkg_name
+        )
         line = line.replace("#", pkg_name + "#")
         if not line:
             continue
@@ -204,7 +208,9 @@ def _write_mergerequests_range(f, pkg_name, mrs):
         title = title.replace(" !", " " + pkg_name + "!")
         title = title.replace(" #", " " + pkg_name + "#")
         if mr.description is not None:
-            description = mr.description.strip().replace("\r", "").replace("\n", "  ")
+            description = (
+                mr.description.strip().replace("\r", "").replace("\n", "  ")
+            )
             description = description.replace(" !", " " + pkg_name + "!")
             description = description.replace(" #", " " + pkg_name + "#")
         else:
@@ -305,7 +311,9 @@ def write_tags_with_commits(f, gitpkg, since, mode):
             # the attribute 'merged_at' is not available in GitLab API as of 27
             # June 2018
             mrs4tag = [
-                k for k in mrs if (start_date < parse_date(k.updated_at) <= end_date)
+                k
+                for k in mrs
+                if (start_date < parse_date(k.updated_at) <= end_date)
             ]
             _write_mergerequests_range(
                 f, gitpkg.attributes["path_with_namespace"], mrs4tag
@@ -322,7 +330,9 @@ def write_tags_with_commits(f, gitpkg, since, mode):
             # write leftover merge requests
             # the attribute 'merged_at' is not available in GitLab API as of 27
             # June 2018
-            leftover_mrs = [k for k in mrs if parse_date(k.updated_at) > start_date]
+            leftover_mrs = [
+                k for k in mrs if parse_date(k.updated_at) > start_date
+            ]
             _write_mergerequests_range(
                 f, gitpkg.attributes["path_with_namespace"], leftover_mrs
             )

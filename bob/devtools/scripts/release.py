@@ -157,7 +157,9 @@ def release(changelog, group, package, resume, dry_run):
     if package:
         # get the index where the package first appears in the list
         start_idx = [
-            i for i, line in enumerate(changelogs) if line[1:].strip() == package
+            i
+            for i, line in enumerate(changelogs)
+            if line[1:].strip() == package
         ]
 
         if not start_idx:
@@ -194,7 +196,9 @@ def release(changelog, group, package, resume, dry_run):
 
         # release the package with the found tag and its comments
         if use_package:
-            pipeline_id = release_package(use_package, tag, tag_comments, dry_run)
+            pipeline_id = release_package(
+                use_package, tag, tag_comments, dry_run
+            )
             # now, wait for the pipeline to finish, before we can release the
             # next package
             wait_for_pipeline_to_finish(use_package, pipeline_id, dry_run)

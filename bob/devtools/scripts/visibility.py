@@ -81,7 +81,8 @@ def visibility(target, group):
                 use_package.id,
             )
             echo_normal(
-                "%s: %s" % (package, use_package.attributes["visibility"].lower())
+                "%s: %s"
+                % (package, use_package.attributes["visibility"].lower())
             )
         except gitlab.GitlabGetError:
             logger.warn(

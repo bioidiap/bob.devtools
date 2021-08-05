@@ -46,7 +46,9 @@ Examples:
 @click.argument("target")
 @click.argument(
     "changelog",
-    type=click.Path(exists=False, dir_okay=False, file_okay=True, writable=True),
+    type=click.Path(
+        exists=False, dir_okay=False, file_okay=True, writable=True
+    ),
     required=False,
 )
 @click.option(
@@ -121,7 +123,9 @@ def changelog(target, changelog, group, mode, since):
                 if k.strip() and not k.strip().startswith("#")
             ]
     else:
-        logger.info("Assuming %s is a package name (file does not exist)...", target)
+        logger.info(
+            "Assuming %s is a package name (file does not exist)...", target
+        )
         packages = [target]
 
     # if the user passed a date, convert it
@@ -194,5 +198,7 @@ def changelog(target, changelog, group, mode, since):
             changelog_file = open(changelog, "at")
 
         # write_tags(f, use_package, last_release_date)
-        write_tags_with_commits(changelog_file, use_package, last_release_date, mode)
+        write_tags_with_commits(
+            changelog_file, use_package, last_release_date, mode
+        )
         changelog_file.flush()
