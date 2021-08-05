@@ -1037,6 +1037,7 @@ def check():
                 "run",
                 "--all-files",
                 "--show-diff-on-failure",
+                "--verbose",
             ],
             env=env,
         )
