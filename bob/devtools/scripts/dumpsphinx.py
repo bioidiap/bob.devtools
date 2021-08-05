@@ -6,8 +6,7 @@ import click
 
 from sphinx.ext import intersphinx
 
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)

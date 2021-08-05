@@ -2,8 +2,7 @@
 
 import click
 
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)
@@ -101,11 +100,13 @@ def changelog(target, changelog, group, mode, since):
     import os
     import sys
 
-    from ..changelog import get_changes_since
-    from ..changelog import get_last_tag
-    from ..changelog import get_last_tag_date
-    from ..changelog import parse_date
-    from ..changelog import write_tags_with_commits
+    from ..changelog import (
+        get_changes_since,
+        get_last_tag,
+        get_last_tag_date,
+        parse_date,
+        write_tags_with_commits,
+    )
     from ..release import get_gitlab_instance
 
     gl = get_gitlab_instance()

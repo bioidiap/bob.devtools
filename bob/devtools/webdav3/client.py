@@ -12,26 +12,26 @@ import lxml.etree as etree
 import requests
 
 from ..log import get_logger
-from .connection import ProxySettings
-from .connection import WebDAVSettings
-from .exceptions import ConnectionException
-from .exceptions import LocalResourceNotFound
-from .exceptions import MethodNotSupported
-from .exceptions import NoConnection
-from .exceptions import NotEnoughSpace
-from .exceptions import OptionNotValid
-from .exceptions import RemoteParentNotFound
-from .exceptions import RemoteResourceNotFound
-from .exceptions import ResourceTooBig
-from .exceptions import ResponseErrorCode
+from .connection import ProxySettings, WebDAVSettings
+from .exceptions import (
+    ConnectionException,
+    LocalResourceNotFound,
+    MethodNotSupported,
+    NoConnection,
+    NotEnoughSpace,
+    OptionNotValid,
+    RemoteParentNotFound,
+    RemoteResourceNotFound,
+    ResourceTooBig,
+    ResponseErrorCode,
+)
 from .urn import Urn
 
 logger = get_logger(__name__)
 
 
 try:
-    from urllib.parse import unquote
-    from urllib.parse import urlsplit
+    from urllib.parse import unquote, urlsplit
 except ImportError:
     from urllib import unquote
 

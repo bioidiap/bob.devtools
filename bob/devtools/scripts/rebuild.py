@@ -9,26 +9,28 @@ import click
 import conda_build.api
 import yaml
 
-from ..bootstrap import get_channels
-from ..bootstrap import set_environment
-from ..build import conda_arch
-from ..build import get_docserver_setup
-from ..build import get_env_directory
-from ..build import get_output_path
-from ..build import get_parsed_recipe
-from ..build import get_rendered_metadata
-from ..build import make_conda_config
-from ..build import next_build_number
-from ..build import root_logger_protection
-from ..build import should_skip_build
-from ..constants import BASE_CONDARC
-from ..constants import BOBRC_PATH
-from ..constants import CONDA_BUILD_CONFIG
-from ..constants import CONDA_RECIPE_APPEND
-from ..constants import MATPLOTLIB_RCDIR
-from ..constants import SERVER
-from ..log import get_logger
-from ..log import verbosity_option
+from ..bootstrap import get_channels, set_environment
+from ..build import (
+    conda_arch,
+    get_docserver_setup,
+    get_env_directory,
+    get_output_path,
+    get_parsed_recipe,
+    get_rendered_metadata,
+    make_conda_config,
+    next_build_number,
+    root_logger_protection,
+    should_skip_build,
+)
+from ..constants import (
+    BASE_CONDARC,
+    BOBRC_PATH,
+    CONDA_BUILD_CONFIG,
+    CONDA_RECIPE_APPEND,
+    MATPLOTLIB_RCDIR,
+    SERVER,
+)
+from ..log import get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)

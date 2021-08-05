@@ -11,9 +11,7 @@ import dateutil.parser
 
 from .config import read_config
 from .deploy import _setup_webdav_client
-from .log import echo_normal
-from .log import echo_warning
-from .log import get_logger
+from .log import echo_normal, echo_warning, get_logger
 
 logger = get_logger(__name__)
 

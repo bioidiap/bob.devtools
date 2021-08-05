@@ -8,20 +8,11 @@ import warnings
 import click
 import yaml
 
-from ..bootstrap import run_cmdline
-from ..bootstrap import set_environment
-from ..build import conda_create
-from ..build import make_conda_config
-from ..build import parse_dependencies
-from ..build import uniq
+from ..bootstrap import run_cmdline, set_environment
+from ..build import conda_create, make_conda_config, parse_dependencies, uniq
 from ..config import read_config
-from ..constants import BASE_CONDARC
-from ..constants import CONDA_BUILD_CONFIG
-from ..constants import CONDA_RECIPE_APPEND
-from ..constants import SERVER
-from ..log import echo_normal
-from ..log import get_logger
-from ..log import verbosity_option
+from ..constants import BASE_CONDARC, CONDA_BUILD_CONFIG, CONDA_RECIPE_APPEND, SERVER
+from ..log import echo_normal, get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)

@@ -8,14 +8,8 @@ import pkg_resources
 
 from click_plugins import with_plugins
 
-from ..dav import augment_path_with_hash
-from ..dav import remove_old_beta_packages
-from ..dav import setup_webdav_client
-from ..log import echo_info
-from ..log import echo_normal
-from ..log import echo_warning
-from ..log import get_logger
-from ..log import verbosity_option
+from ..dav import augment_path_with_hash, remove_old_beta_packages, setup_webdav_client
+from ..log import echo_info, echo_normal, echo_warning, get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)

@@ -3,8 +3,7 @@
 
 import click
 
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)
@@ -27,9 +26,7 @@ def update_bob(stable):
     import tempfile
 
     from ..ci import read_packages
-    from ..release import download_path
-    from ..release import get_gitlab_instance
-    from ..release import get_latest_tag_name
+    from ..release import download_path, get_gitlab_instance, get_latest_tag_name
 
     gl = get_gitlab_instance()
 

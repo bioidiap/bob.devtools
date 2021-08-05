@@ -7,9 +7,7 @@ import gitlab
 
 from tabulate import tabulate
 
-from ..log import echo_warning
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import echo_warning, get_logger, verbosity_option
 from ..pipelines import process_log
 from ..release import get_gitlab_instance
 from . import bdt

@@ -11,22 +11,18 @@ import yaml
 
 from click_plugins import with_plugins
 
-from ..build import comment_cleanup
-from ..build import load_order_file
-from ..build import uniq
-from ..ci import cleanup
-from ..ci import is_private
-from ..ci import read_packages
-from ..ci import select_conda_build_config
-from ..ci import select_conda_recipe_append
-from ..ci import select_user_condarc
-from ..constants import BASE_CONDARC
-from ..constants import SERVER
-from ..deploy import deploy_conda_package
-from ..deploy import deploy_documentation
-from ..log import echo_normal
-from ..log import get_logger
-from ..log import verbosity_option
+from ..build import comment_cleanup, load_order_file, uniq
+from ..ci import (
+    cleanup,
+    is_private,
+    read_packages,
+    select_conda_build_config,
+    select_conda_recipe_append,
+    select_user_condarc,
+)
+from ..constants import BASE_CONDARC, SERVER
+from ..deploy import deploy_conda_package, deploy_documentation
+from ..log import echo_normal, get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)

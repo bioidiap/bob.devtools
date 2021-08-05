@@ -9,10 +9,8 @@ import pkg_resources
 
 from click_plugins import with_plugins
 
-from ..log import get_logger
-from ..log import verbosity_option
-from . import bdt
-from . import ci
+from ..log import get_logger, verbosity_option
+from . import bdt, ci
 
 logger = get_logger(__name__)
 

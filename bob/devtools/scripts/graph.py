@@ -6,19 +6,18 @@ import sys
 import click
 import yaml
 
-from ..bootstrap import get_channels
-from ..bootstrap import set_environment
+from ..bootstrap import get_channels, set_environment
 from ..build import make_conda_config
-from ..constants import BASE_CONDARC
-from ..constants import BOBRC_PATH
-from ..constants import CONDA_BUILD_CONFIG
-from ..constants import CONDA_RECIPE_APPEND
-from ..constants import MATPLOTLIB_RCDIR
-from ..constants import SERVER
-from ..graph import compute_adjencence_matrix
-from ..graph import generate_graph
-from ..log import get_logger
-from ..log import verbosity_option
+from ..constants import (
+    BASE_CONDARC,
+    BOBRC_PATH,
+    CONDA_BUILD_CONFIG,
+    CONDA_RECIPE_APPEND,
+    MATPLOTLIB_RCDIR,
+    SERVER,
+)
+from ..graph import compute_adjencence_matrix, generate_graph
+from ..log import get_logger, verbosity_option
 from ..release import get_gitlab_instance
 from . import bdt
 

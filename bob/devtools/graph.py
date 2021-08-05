@@ -12,12 +12,13 @@ import tempfile
 from io import BytesIO
 
 from .bootstrap import set_environment
-from .build import get_output_path
-from .build import get_parsed_recipe
-from .build import get_rendered_metadata
-from .build import next_build_number
-from .log import echo_info
-from .log import get_logger
+from .build import (
+    get_output_path,
+    get_parsed_recipe,
+    get_rendered_metadata,
+    next_build_number,
+)
+from .log import echo_info, get_logger
 
 logger = get_logger(__name__)
 

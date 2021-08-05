@@ -9,8 +9,7 @@ import distutils.version
 import git
 
 from .build import load_order_file
-from .log import echo_info
-from .log import get_logger
+from .log import echo_info, get_logger
 
 logger = get_logger(__name__)
 
@@ -244,8 +243,7 @@ def cleanup(dry_run, username, password, includes):
 
     """
 
-    from .constants import SERVER
-    from .constants import WEBDAV_PATHS
+    from .constants import SERVER, WEBDAV_PATHS
     from .dav import remove_old_beta_packages
     from .deploy import _setup_webdav_client
 

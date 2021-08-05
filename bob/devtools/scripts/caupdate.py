@@ -2,8 +2,7 @@
 
 import click
 
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import get_logger, verbosity_option
 from . import bdt
 
 logger = get_logger(__name__)
@@ -33,9 +32,7 @@ def caupdate():
 
     import requests
 
-    from ..constants import CACERT
-    from ..constants import CACERT_URL
-    from ..constants import IDIAP_ROOT_CA
+    from ..constants import CACERT, CACERT_URL, IDIAP_ROOT_CA
 
     logger.info("Retrieving %s...", CACERT_URL)
     r = requests.get(CACERT_URL, allow_redirects=True)

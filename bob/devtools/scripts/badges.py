@@ -4,11 +4,8 @@
 import click
 import gitlab
 
-from ..log import echo_warning
-from ..log import get_logger
-from ..log import verbosity_option
-from ..release import get_gitlab_instance
-from ..release import update_files_at_master
+from ..log import echo_warning, get_logger, verbosity_option
+from ..release import get_gitlab_instance, update_files_at_master
 from . import bdt
 
 logger = get_logger(__name__)

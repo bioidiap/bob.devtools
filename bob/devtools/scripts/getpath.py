@@ -2,10 +2,8 @@
 
 import click
 
-from ..log import get_logger
-from ..log import verbosity_option
-from ..release import download_path
-from ..release import get_gitlab_instance
+from ..log import get_logger, verbosity_option
+from ..release import download_path, get_gitlab_instance
 from . import bdt
 from .common_options import ref_option
 

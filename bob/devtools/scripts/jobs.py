@@ -2,10 +2,7 @@
 
 import click
 
-from ..log import echo_info
-from ..log import echo_normal
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import echo_info, echo_normal, get_logger, verbosity_option
 from ..release import get_gitlab_instance
 from . import bdt
 

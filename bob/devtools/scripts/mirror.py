@@ -9,19 +9,18 @@ import tempfile
 import click
 import conda_build.api
 
-from ..log import echo_info
-from ..log import echo_warning
-from ..log import get_logger
-from ..log import verbosity_option
-from ..mirror import blacklist_filter
-from ..mirror import checksum_packages
-from ..mirror import copy_and_clean_patch
-from ..mirror import download_packages
-from ..mirror import get_json
-from ..mirror import get_local_contents
-from ..mirror import load_glob_list
-from ..mirror import remove_packages
-from ..mirror import whitelist_filter
+from ..log import echo_info, echo_warning, get_logger, verbosity_option
+from ..mirror import (
+    blacklist_filter,
+    checksum_packages,
+    copy_and_clean_patch,
+    download_packages,
+    get_json,
+    get_local_contents,
+    load_glob_list,
+    remove_packages,
+    whitelist_filter,
+)
 from . import bdt
 
 logger = get_logger(__name__)

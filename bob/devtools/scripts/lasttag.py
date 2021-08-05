@@ -3,12 +3,8 @@
 import click
 import gitlab
 
-from ..changelog import get_last_tag
-from ..changelog import parse_date
-from ..log import echo_normal
-from ..log import echo_warning
-from ..log import get_logger
-from ..log import verbosity_option
+from ..changelog import get_last_tag, parse_date
+from ..log import echo_normal, echo_warning, get_logger, verbosity_option
 from ..release import get_gitlab_instance
 from . import bdt
 

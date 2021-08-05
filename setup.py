@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # Define package version
 version = open("version.txt").read().rstrip()

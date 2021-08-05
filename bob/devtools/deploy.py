@@ -6,8 +6,7 @@
 
 import os
 
-from .constants import SERVER
-from .constants import WEBDAV_PATHS
+from .constants import SERVER, WEBDAV_PATHS
 from .log import get_logger
 
 logger = get_logger(__name__)

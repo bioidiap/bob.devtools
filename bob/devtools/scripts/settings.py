@@ -5,15 +5,10 @@ import os
 
 import click
 
-from ..log import echo_info
-from ..log import echo_normal
-from ..log import get_logger
-from ..log import verbosity_option
+from ..log import echo_info, echo_normal, get_logger, verbosity_option
 from ..release import get_gitlab_instance
 from . import bdt
-from .runners import _get_project
-from .runners import _get_projects_from_file
-from .runners import _get_projects_from_group
+from .runners import _get_project, _get_projects_from_file, _get_projects_from_group
 
 logger = get_logger(__name__)
 

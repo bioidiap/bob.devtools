@@ -8,8 +8,7 @@ import pkg_resources
 import sphinx_rtd_theme
 
 # For inter-documentation mapping:
-from bob.extension.utils import link_documentation
-from bob.extension.utils import load_requirements
+from bob.extension.utils import link_documentation, load_requirements
 
 # -- General configuration -----------------------------------------------------
 
