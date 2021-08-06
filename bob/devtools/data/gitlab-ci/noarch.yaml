@@ -24,9 +24,10 @@ stages:
     - "[ -r /root/.condarc ] && rm -f /root/.condarc"
     - "[ -d /root/.conda ] && rm -rf /root/.conda"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py -vv channel base
+    - python3 bootstrap.py -vv channel build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
+    - conda activate build
+    - bdt ci check -vv
   cache:
     paths:
       - miniconda.sh
@@ -39,7 +40,6 @@ stages:
   extends: .bootstrap
   stage: build
   script:
-    - bdt ci check -vv
     - bdt ci build -vv
     - bdt ci clean -vv
   artifacts:
@@ -57,7 +57,6 @@ build_linux:
     PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
-    - bdt ci check -vv
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv

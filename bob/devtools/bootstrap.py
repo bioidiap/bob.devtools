@@ -450,6 +450,13 @@ if __name__ == "__main__":
         help="If building a tag, pass it with this flag [default: %(default)s]",
     )
     parser.add_argument(
+        "-p",
+        "--python",
+        default=os.environ.get("PYTHON_VERSION", None),
+        help="If a specific python version must be used, "
+        "bootstraps a new environment with it [default: %(default)s]",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -572,12 +579,11 @@ if __name__ == "__main__":
             "--channel=%s" % k for k in channels
         ]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
-        cmd = (
-            [conda_bin, conda_cmd, "--yes"]
-            + conda_verbosity
-            + channels
-            + ["-n", args.envname, "bob.devtools"]
-        )
+        cmd = [conda_bin, conda_cmd, "--yes"] + conda_verbosity + channels
+        # can only enforce python version on newly created environments
+        if conda_cmd == "create" and args.python is not None:
+            cmd.append(f"python={args.python}")
+        cmd += ["-n", args.envname, "bob.devtools"]
         if conda_cmd == "install":
             cmd += ["--update-specs"]
         run_cmdline(cmd)
