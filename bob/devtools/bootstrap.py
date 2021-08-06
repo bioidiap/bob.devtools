@@ -579,11 +579,16 @@ if __name__ == "__main__":
             "--channel=%s" % k for k in channels
         ]
         conda_cmd = "install" if args.envname in ("base", "root") else "create"
-        cmd = [conda_bin, conda_cmd, "--yes"] + conda_verbosity + channels
+        cmd = (
+            [conda_bin, conda_cmd, "--yes"]
+            + conda_verbosity
+            + channels
+            + ["-n", args.envname]
+        )
         # can only enforce python version on newly created environments
         if conda_cmd == "create" and args.python is not None:
-            cmd.append(f"python={args.python}")
-        cmd += ["-n", args.envname, "bob.devtools"]
+            cmd += [f"python={args.python}"]
+        cmd += ["bob.devtools"]
         if conda_cmd == "install":
             cmd += ["--update-specs"]
         run_cmdline(cmd)
