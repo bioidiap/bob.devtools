@@ -504,10 +504,6 @@ if __name__ == "__main__":
     if args.verbose >= 3:
         conda_verbosity = ["-vv"]
 
-    # clean all caches because we may have changed
-    # the URL address of channels
-    run_cmdline([conda_bin, "clean", "--all"] + conda_verbosity)
-
     # print conda information for debugging purposes
     run_cmdline([conda_bin, "info"] + conda_verbosity)
 
