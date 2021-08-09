@@ -4,7 +4,9 @@
 """Tools to help CI-based builds and artifact deployment."""
 
 
+import contextlib
 import distutils.version
+import os
 
 import git
 
@@ -295,3 +297,26 @@ def cleanup(dry_run, username, password, includes):
                 pyver=True,
                 includes=includes,
             )
+
+
+@contextlib.contextmanager
+def temporary_cwd(path):
+    """Temporarily changes the working directory to a given path
+
+    A context manager that temporarily changes the path to the given directory.
+    The working directory changes the working directory back to the starting
+    directory when it exits.
+
+
+    Args:
+
+      path: The directory to temporarily change to
+
+    """
+
+    oldpwd = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(oldpwd)

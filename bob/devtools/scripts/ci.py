@@ -19,6 +19,7 @@ from ..ci import (
     select_conda_build_config,
     select_conda_recipe_append,
     select_user_condarc,
+    temporary_cwd,
 )
 from ..constants import BASE_CONDARC, SERVER
 from ..deploy import deploy_conda_package, deploy_documentation
@@ -730,8 +731,9 @@ def nightlies(ctx, order, dry_run):
         )
         logger.info("Conda build recipe-append file: %s", append_file)
 
-        logger.info("Running checks")
-        ctx.invoke(check, root=clone_to)
+        logger.info("Running checks...")
+        with temporary_cwd(clone_to):
+            ctx.invoke(check)
 
         logger.info("Building")
         ctx.invoke(
