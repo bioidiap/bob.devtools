@@ -205,7 +205,7 @@ https://backports.debian.org.  To install the newest git version, after an
 
 .. code-block:: sh
 
-   $ apt-get -t stretch-backports install "git"
+   $ apt-get -t stretch-backports install "git" "git-lfs"
 
 
 X11
