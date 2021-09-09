@@ -26,11 +26,15 @@ requirements:
     - python {{ python }}
     - setuptools {{ setuptools }}
     - bob.extension
-    # place your other host dependencies here
+    # place your other host dependencies here (same as requirements.txt)
+    # use the format:
+    # - numpy {{ numpy }}
   run:
     - python
     - setuptools
     # place other runtime dependencies here (same as requirements.txt)
+    # Use the format:
+    # - {{ pin_compatible('numpy') }}
 
 test:
   imports:
@@ -44,8 +48,6 @@ test:
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
   requires:
-    - bob-devel {{ bob_devel }}.*(% if group == 'beat' %)
-    - beat-devel {{ beat_devel }}.*(% endif %)
     - pytest
     - pytest-cov
     - coverage
