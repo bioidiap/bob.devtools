@@ -29,12 +29,19 @@ requirements:
     # place your other host dependencies here (same as requirements.txt)
     # use the format:
     # - numpy {{ numpy }}
+
+    # Also place your optional dependencies here, like:
+    # - matplotlib {{ matplotlib }}
   run:
     - python
     - setuptools
     # place other runtime dependencies here (same as requirements.txt)
     # Use the format:
     # - {{ pin_compatible('numpy') }}
+
+  # List your optional dependencies here, like:
+  # run_constrained:
+  #   - {{ pin_compatible('matplotlib') }}
 
 test:
   imports:
@@ -48,11 +55,11 @@ test:
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
   requires:
-    - pytest
-    - pytest-cov
-    - coverage
-    - sphinx
-    - sphinx_rtd_theme
+    - pytest {{ pytest }}
+    - pytest-cov {{ pytest_cov }}
+    - coverage {{ coverage }}
+    - sphinx {{ sphinx }}
+    - sphinx_rtd_theme {{ sphinx_rtd_theme }}
     # extend this list with further test-time-only dependencies
 
 about:
