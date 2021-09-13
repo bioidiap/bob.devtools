@@ -208,7 +208,7 @@ six:
 sox:
   - 14.4.2
 sphinx:
-  - 4.0.1
+  - 4.0.2
 sphinx_rtd_theme:
   - 0.4.3
 sphinxcontrib_httpdomain:
