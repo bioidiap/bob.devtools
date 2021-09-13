@@ -127,6 +127,8 @@ freetype:
   - 2.10.4
 giflib:
   - 5.2.1
+graphviz:
+  - 2.40.1
 h5py:
   - 2.10.0
 hdf5:
