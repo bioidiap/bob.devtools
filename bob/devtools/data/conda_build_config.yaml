@@ -161,6 +161,8 @@ pandas:
   - 1.2.4
 pillow:
   - 8.2.0
+psutil:
+  - 5.8.0
 psycopg2:
   - 2.8.6
 pybind11:
