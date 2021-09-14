@@ -86,6 +86,7 @@ package_names_map:
   dask_jobqueue: dask-jobqueue
   dask_ml: dask-ml
   docker_py: docker-py
+  font_ttf_dejavu_sans_mono: font-ttf-dejavu-sans-mono
   pkg_config: pkg-config
   pytest_cov: pytest-cov
   python_graphviz: python-graphviz
