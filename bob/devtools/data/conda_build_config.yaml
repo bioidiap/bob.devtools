@@ -123,6 +123,8 @@ docopt:
   - 0.6.2
 ffmpeg:
   - 4.2.2
+font_ttf_dejavu_sans_mono:
+  - 2.37
 freetype:
   - 2.10.4
 giflib:
