@@ -6,6 +6,7 @@
 
 import contextlib
 import copy
+import datetime
 import distutils.version
 import glob
 import json
@@ -15,6 +16,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 
 import conda_build.api
 import yaml
@@ -703,6 +705,138 @@ def base_build(
         return conda_build.api.build(recipe_dir, config=conda_config)
 
 
+def global_pin(
+    bootstrap, server, intranet, group, conda_build_config, condarc_options
+):
+    """
+    Tests that all packages listed in bob/devtools/data/conda_build_config.yaml
+    can be installed in one environment.
+    """
+    # Load the packages and their pins in bob/devtools/data/conda_build_config.yaml
+    # Create a temporary conda-build recipe to test if all packages can be installed
+
+    with open(conda_build_config, "r") as f:
+        content = f.read()
+
+    idx1 = content.find("# AUTOMATIC PARSING START")
+    idx2 = content.find("# AUTOMATIC PARSING END")
+    content = content[idx1:idx2]
+    package_pins = yaml.safe_load(content)
+
+    package_names_map = package_pins.pop("package_names_map")
+
+    packages = [package_names_map.get(p, p) for p in package_pins.keys()]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a conda-build recipe
+        recipe_path = tmpdir + "/meta.yaml"
+        with open(recipe_path, "w") as f:
+            content = """
+package:
+  name: global-pins
+  version: {date}
+
+build:
+  number: 0
+
+requirements:
+  host:
+    - python {{{{ python }}}}
+    - {{{{ compiler('c') }}}}
+    - {{{{ compiler('cxx') }}}}
+{package_list}
+
+  run:
+    - python
+  {{% for package in resolved_packages('host') %}}
+    - {{{{ package }}}}
+  {{% endfor %}}
+
+test:
+  requires:
+    - numpy
+    - ffmpeg
+    - pytorch
+    - torchvision
+    - setuptools
+  commands:
+    # we expect these features from ffmpeg:
+    - ffmpeg -codecs | grep "DEVI.S zlib"  # [unix]
+    - ffmpeg -codecs | grep "DEV.LS h264"  # [unix]
+""".format(
+                date=datetime.date.today().strftime("%Y.%m.%d"),
+                package_list="\n".join(
+                    [
+                        "    - {p1} {{{{ {p2} }}}}".format(
+                            p1=p, p2=p.replace("-", "_").replace(".", "_")
+                        )
+                        for p in packages
+                    ]
+                ),
+            )
+            logger.info(
+                "Writing a conda build recipe with the following content:\n%s",
+                content,
+            )
+            f.write(content)
+
+        # write run_test.py file
+        run_test_path = tmpdir + "/run_test.py"
+        with open(run_test_path, "w") as f:
+            content = """
+import sys
+
+# couple of imports to see if packages are working
+import numpy
+import pkg_resources
+
+
+def test_pytorch():
+    import torch
+    from torchvision.models import DenseNet
+
+    model = DenseNet()
+    t = torch.randn(1, 3, 224, 224)
+    out = model(t)
+    assert out.shape[1] == 1000
+
+
+def _check_package(name, pyname=None):
+    "Checks if a Python package can be `require()`'d"
+
+    pyname = pyname or name
+    print(f"Checking Python setuptools integrity for {name} (pyname: {pyname})")
+    pkg_resources.require(pyname)
+
+
+def test_setuptools_integrity():
+
+    _check_package('pytorch', 'torch')
+    _check_package('torchvision')
+
+
+# test if pytorch installation is sane
+test_pytorch()
+test_setuptools_integrity()
+"""
+            logger.info(
+                "Writing a run_test.py file with the following content:\n%s",
+                content,
+            )
+            f.write(content)
+
+        # run conda build
+        base_build(
+            bootstrap=bootstrap,
+            server=server,
+            intranet=intranet,
+            group=group,
+            recipe_dir=tmpdir,
+            conda_build_config=conda_build_config,
+            condarc_options=condarc_options,
+        )
+
+
 if __name__ == "__main__":
 
     import argparse
@@ -823,6 +957,18 @@ if __name__ == "__main__":
     prefix = get_env_directory(os.environ["CONDA_EXE"], "base")
     if condarc_options.get("conda-build", {}).get("root-dir") is None:
         condarc_options["croot"] = os.path.join(prefix, "conda-bld")
+
+    # Check global pin versions compatibility
+    global_pin(
+        bootstrap=bootstrap,
+        server=server,
+        intranet=not args.internet,
+        group=args.group,
+        conda_build_config=os.path.join(
+            args.work_dir, "bob", "devtools", "data", "conda_build_config.yaml"
+        ),
+        condarc_options=condarc_options,
+    )
 
     # builds all dependencies in the 'deps' subdirectory - or at least checks
     # these dependencies are already available; these dependencies go directly
