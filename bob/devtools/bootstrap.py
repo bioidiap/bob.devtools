@@ -520,6 +520,7 @@ if __name__ == "__main__":
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
                 "conda-verify=%s" % conda_verify_version,
+                "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
         )

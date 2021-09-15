@@ -15,7 +15,11 @@ repos:
     rev: 3.9.2
     hooks:
       - id: flake8
-        exclude: bob/devtools/templates/setup.py
+        exclude: |
+              (?x)^(
+                  bob/devtools/templates/setup.py|
+                  deps/bob-devel/run_test.py
+              )$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
@@ -29,4 +33,4 @@ repos:
       - id: check-added-large-files
         exclude: bob/devtools/templates/setup.py
       - id: check-yaml
-        exclude: .*/meta.yaml
+        exclude: .*/meta.*.yaml

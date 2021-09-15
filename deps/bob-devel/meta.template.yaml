@@ -1,0 +1,32 @@
+package:
+  name: bob-devel
+  version: 2021.09.14
+
+build:
+  number: 0
+
+requirements:
+  host:
+    - python {{ python }}
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+# PACKAGE_LIST
+
+  run:
+    - python
+  run_constrained:
+  {% for package in resolved_packages('host') %}
+    - {{ package }}
+  {% endfor %}
+
+test:
+  requires:
+    - numpy
+    - ffmpeg
+    - pytorch
+    - torchvision
+    - setuptools
+  commands:
+    # we expect these features from ffmpeg:
+    - ffmpeg -codecs | grep "DEVI.S zlib"  # [unix]
+    - ffmpeg -codecs | grep "DEV.LS h264"  # [unix]

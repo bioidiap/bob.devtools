@@ -6,7 +6,6 @@
 
 import contextlib
 import copy
-import datetime
 import distutils.version
 import glob
 import json
@@ -16,8 +15,8 @@ import platform
 import re
 import subprocess
 import sys
-import tempfile
 
+import click
 import conda_build.api
 import yaml
 
@@ -705,8 +704,14 @@ def base_build(
         return conda_build.api.build(recipe_dir, config=conda_config)
 
 
-def global_pin(
-    bootstrap, server, intranet, group, conda_build_config, condarc_options
+def bob_devel(
+    bootstrap,
+    server,
+    intranet,
+    group,
+    conda_build_config,
+    condarc_options,
+    work_dir,
 ):
     """
     Tests that all packages listed in bob/devtools/data/conda_build_config.yaml
@@ -727,198 +732,84 @@ def global_pin(
 
     packages = [package_names_map.get(p, p) for p in package_pins.keys()]
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a conda-build recipe
-        recipe_path = tmpdir + "/meta.yaml"
-        with open(recipe_path, "w") as f:
-            content = """
-package:
-  name: global-pins
-  version: {date}
-
-build:
-  number: 0
-
-requirements:
-  host:
-    - python {{{{ python }}}}
-    - {{{{ compiler('c') }}}}
-    - {{{{ compiler('cxx') }}}}
-{package_list}
-
-  run:
-    - python
-  {{% for package in resolved_packages('host') %}}
-    - {{{{ package }}}}
-  {{% endfor %}}
-
-test:
-  requires:
-    - numpy
-    - ffmpeg
-    - pytorch
-    - torchvision
-    - setuptools
-  commands:
-    # we expect these features from ffmpeg:
-    - ffmpeg -codecs | grep "DEVI.S zlib"  # [unix]
-    - ffmpeg -codecs | grep "DEV.LS h264"  # [unix]
-""".format(
-                date=datetime.date.today().strftime("%Y.%m.%d"),
-                package_list="\n".join(
-                    [
-                        "    - {p1} {{{{ {p2} }}}}".format(
-                            p1=p, p2=p.replace("-", "_").replace(".", "_")
-                        )
-                        for p in packages
-                    ]
-                ),
+    recipe_dir = os.path.join(work_dir, "deps", "bob-devel")
+    template_yaml = os.path.join(recipe_dir, "meta.template.yaml")
+    final_yaml = os.path.join(recipe_dir, "meta.yaml")
+    package_list = "\n".join(
+        [
+            "    - {p1} {{{{ {p2} }}}}".format(
+                p1=p, p2=p.replace("-", "_").replace(".", "_")
             )
-            logger.info(
-                "Writing a conda build recipe with the following content:\n%s",
-                content,
-            )
-            f.write(content)
+            for p in packages
+        ]
+    )
 
-        # write run_test.py file
-        run_test_path = tmpdir + "/run_test.py"
-        with open(run_test_path, "w") as f:
-            content = """
-import sys
-
-# couple of imports to see if packages are working
-import numpy
-import pkg_resources
-
-
-def test_pytorch():
-    import torch
-    from torchvision.models import DenseNet
-
-    model = DenseNet()
-    t = torch.randn(1, 3, 224, 224)
-    out = model(t)
-    assert out.shape[1] == 1000
-
-
-def _check_package(name, pyname=None):
-    "Checks if a Python package can be `require()`'d"
-
-    pyname = pyname or name
-    print(f"Checking Python setuptools integrity for {name} (pyname: {pyname})")
-    pkg_resources.require(pyname)
-
-
-def test_setuptools_integrity():
-
-    _check_package('pytorch', 'torch')
-    _check_package('torchvision')
-
-
-# test if pytorch installation is sane
-test_pytorch()
-test_setuptools_integrity()
-"""
-            logger.info(
-                "Writing a run_test.py file with the following content:\n%s",
-                content,
-            )
-            f.write(content)
-
-        # run conda build
-        base_build(
-            bootstrap=bootstrap,
-            server=server,
-            intranet=intranet,
-            group=group,
-            recipe_dir=tmpdir,
-            conda_build_config=conda_build_config,
-            condarc_options=condarc_options,
+    with open(template_yaml) as fr, open(final_yaml, "w") as fw:
+        content = fr.read()
+        content = content.replace("# PACKAGE_LIST", package_list)
+        logger.info(
+            "Writing a conda build recipe with the following content:\n%s",
+            content,
         )
+        fw.write(content)
 
-
-if __name__ == "__main__":
-
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Builds bob.devtools on the CI"
-    )
-    parser.add_argument(
-        "-g",
-        "--group",
-        default=os.environ.get("CI_PROJECT_NAMESPACE", "bob"),
-        help="The namespace of the project being built [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-n",
-        "--name",
-        default=os.environ.get("CI_PROJECT_NAME", "bob.devtools"),
-        help="The name of the project being built [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-c",
-        "--conda-root",
-        default=os.environ.get(
-            "CONDA_ROOT", os.path.realpath(os.path.join(os.curdir, "miniconda"))
-        ),
-        help="The location where we should install miniconda "
-        "[default: %(default)s]",
-    )
-    parser.add_argument(
-        "-V",
-        "--visibility",
-        choices=["public", "internal", "private"],
-        default=os.environ.get("CI_PROJECT_VISIBILITY", "public"),
-        help="The visibility level for this project [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-t",
-        "--tag",
-        default=os.environ.get("CI_COMMIT_TAG", None),
-        help="If building a tag, pass it with this flag [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-w",
-        "--work-dir",
-        default=os.environ.get("CI_PROJECT_DIR", os.path.realpath(os.curdir)),
-        help="The directory where the repo was cloned [default: %(default)s]",
-    )
-    parser.add_argument(
-        "-T",
-        "--twine-check",
-        action="store_true",
-        default=False,
-        help="If set, then performs the equivalent of a "
-        '"twine check" on the generated python package (zip file)',
-    )
-    parser.add_argument(
-        "--internet",
-        "-i",
-        default=False,
-        action="store_true",
-        help="If executing on an internet-connected server, unset this flag",
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="count",
-        default=0,
-        help="Increases the verbosity level.  We always prints error and "
-        "critical messages. Use a single ``-v`` to enable warnings, "
-        "two ``-vv`` to enable information messages and three ``-vvv`` "
-        "to enable debug messages [default: %(default)s]",
-    )
-    parser.add_argument(
-        "--test-mark-expr",
-        "-A",
-        default="",
-        help="Use this flag to avoid running certain tests during the build.  "
-        "It forwards all settings to ``nosetests`` via --eval-attr=<settings>``"
-        " and ``pytest`` via -m=<settings>.",
+    # run conda build
+    packages = base_build(
+        bootstrap=bootstrap,
+        server=server,
+        intranet=intranet,
+        group=group,
+        recipe_dir=recipe_dir,
+        conda_build_config=conda_build_config,
+        condarc_options=condarc_options,
     )
 
-    args = parser.parse_args()
+    print(f"The following packages were built: {packages}")
+
+
+@click.group()
+@click.option(
+    "-g",
+    "--group",
+    default=os.environ.get("CI_PROJECT_NAMESPACE", "bob"),
+    help="The namespace of the project being built",
+)
+@click.option(
+    "-c",
+    "--conda-root",
+    default=os.environ.get(
+        "CONDA_ROOT", os.path.realpath(os.path.join(os.curdir, "miniconda"))
+    ),
+    help="The location where we should install miniconda",
+)
+@click.option(
+    "-w",
+    "--work-dir",
+    default=os.environ.get("CI_PROJECT_DIR", os.path.realpath(os.curdir)),
+    help="The directory where the repo was cloned",
+)
+@click.option(
+    "--internet",
+    "-i",
+    is_flag=True,
+    help="If executing on an internet-connected server, unset this flag",
+)
+@click.option(
+    "--verbose",
+    "-v",
+    default=0,
+    help="Increases the verbosity level.  We always prints error and critical messages. Use a single '-v' to enable warnings, two '-vv' to enable information messages and three '-vvv' to enable debug messages [default: %(default)s]",
+)
+@click.option(
+    "--test-mark-expr",
+    "-A",
+    default="",
+    help="Use this flag to avoid running certain tests during the build.  It forwards all settings to 'nosetests' via --eval-attr=<settings> and 'pytest' via -m=<settings>.",
+)
+@click.pass_context
+def cli(ctx, group, conda_root, work_dir, internet, verbose, test_mark_expr):
+    "Builds bob.devtools on the CI"
+    ctx.ensure_object(dict)
 
     # loads the "adjacent" bootstrap module
     import importlib.util
@@ -930,25 +821,20 @@ if __name__ == "__main__":
     spec.loader.exec_module(bootstrap)
     server = bootstrap._SERVER
 
-    bootstrap.setup_logger(logger, args.verbose)
+    bootstrap.setup_logger(logger, verbose)
 
     bootstrap.set_environment("DOCSERVER", server)
     bootstrap.set_environment("LANG", "en_US.UTF-8")
     bootstrap.set_environment("LC_ALL", os.environ["LANG"])
-    bootstrap.set_environment("NOSE_EVAL_ATTR", args.test_mark_expr)
-    bootstrap.set_environment("PYTEST_ADDOPTS", f"-m '{args.test_mark_expr}'")
-
-    # get information about the version of the package being built
-    version, is_prerelease = check_version(args.work_dir, args.tag)
-    bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
+    bootstrap.set_environment("NOSE_EVAL_ATTR", test_mark_expr)
+    bootstrap.set_environment("PYTEST_ADDOPTS", f"-m '{test_mark_expr}'")
 
     # create the build configuration
     conda_build_config = os.path.join(
-        args.work_dir, "conda", "conda_build_config.yaml"
+        work_dir, "conda", "conda_build_config.yaml"
     )
-    recipe_append = os.path.join(args.work_dir, "data", "recipe_append.yaml")
 
-    condarc = os.path.join(args.conda_root, "condarc")
+    condarc = os.path.join(conda_root, "condarc")
     logger.info("Loading (this build's) CONDARC file from %s...", condarc)
     with open(condarc, "rb") as f:
         condarc_options = yaml.load(f, Loader=yaml.FullLoader)
@@ -958,21 +844,48 @@ if __name__ == "__main__":
     if condarc_options.get("conda-build", {}).get("root-dir") is None:
         condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
-    # Check global pin versions compatibility
-    global_pin(
-        bootstrap=bootstrap,
-        server=server,
-        intranet=not args.internet,
-        group=args.group,
+    # populate ctx.obj
+    ctx.obj["test_mark_expr"] = test_mark_expr
+
+    ctx.obj["verbose"] = verbose
+    ctx.obj["conda_root"] = conda_root
+    ctx.obj["group"] = group
+    ctx.obj["bootstrap"] = bootstrap
+    ctx.obj["server"] = server
+    ctx.obj["work_dir"] = work_dir
+    ctx.obj["internet"] = internet
+    ctx.obj["condarc_options"] = condarc_options
+    ctx.obj["conda_build_config"] = conda_build_config
+
+
+@cli.command()
+@click.pass_obj
+def build_bob_devel(obj):
+    bob_devel(
+        bootstrap=obj["bootstrap"],
+        server=obj["server"],
+        intranet=not obj["internet"],
+        group=obj["group"],
         conda_build_config=os.path.join(
-            args.work_dir, "bob", "devtools", "data", "conda_build_config.yaml"
+            obj["work_dir"],
+            "bob",
+            "devtools",
+            "data",
+            "conda_build_config.yaml",
         ),
-        condarc_options=condarc_options,
+        condarc_options=obj["condarc_options"],
     )
 
-    # builds all dependencies in the 'deps' subdirectory - or at least checks
-    # these dependencies are already available; these dependencies go directly
-    # to the public channel once built
+    git_clean_build(obj["bootstrap"].run_cmdline, verbose=(obj["verbose"] >= 3))
+
+
+@cli.command()
+@click.pass_obj
+def build_deps(obj):
+    """builds all dependencies in the 'deps' subdirectory - or at least checks
+    these dependencies are already available; these dependencies go directly
+    to the public channel once built
+    """
     recipes = load_order_file(os.path.join("deps", "order.txt"))
     for k, recipe in enumerate([os.path.join("deps", k) for k in recipes]):
 
@@ -980,22 +893,61 @@ if __name__ == "__main__":
             # ignore - not a conda package
             continue
         base_build(
-            bootstrap,
-            server,
-            not args.internet,
-            args.group,
+            obj["bootstrap"],
+            obj["server"],
+            not obj["internet"],
+            obj["group"],
             recipe,
-            conda_build_config,
-            condarc_options,
+            obj["conda_build_config"],
+            obj["condarc_options"],
         )
 
-    public = args.visibility == "public"
+    git_clean_build(obj["bootstrap"].run_cmdline, verbose=(obj["verbose"] >= 3))
+
+
+@cli.command()
+@click.option(
+    "-T",
+    "--twine-check",
+    is_flag=True,
+    help="If set, then performs the equivalent of a 'twine check' on the generated python package (zip file)",
+)
+@click.option(
+    "-V",
+    "--visibility",
+    type=click.Choice(["public", "internal", "private"]),
+    default=os.environ.get("CI_PROJECT_VISIBILITY", "public"),
+    help="The visibility level for this project",
+)
+@click.option(
+    "-t",
+    "--tag",
+    default=os.environ.get("CI_COMMIT_TAG"),
+    help="If building a tag, pass it with this flag",
+)
+@click.pass_obj
+def build_devtools(obj, twine_check, visibility, tag):
+    bootstrap = obj["bootstrap"]
+    condarc_options = obj["condarc_options"]
+    conda_build_config = obj["conda_build_config"]
+    work_dir = obj["work_dir"]
+    server = obj["server"]
+    internet = obj["internet"]
+    group = obj["group"]
+
+    # get information about the version of the package being built
+    version, is_prerelease = check_version(work_dir, tag)
+    bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
+
+    recipe_append = os.path.join(work_dir, "data", "recipe_append.yaml")
+
+    public = visibility == "public"
     channels, upload_channel = bootstrap.get_channels(
         public=public,
         stable=(not is_prerelease),
         server=server,
-        intranet=(not args.internet),
-        group=args.group,
+        intranet=(not internet),
+        group=group,
     )
 
     if "channels" not in condarc_options:
@@ -1010,19 +962,19 @@ if __name__ == "__main__":
         conda_build_config, None, recipe_append, condarc_options
     )
 
-    recipe_dir = os.path.join(args.work_dir, "conda")
+    recipe_dir = os.path.join(obj["work_dir"], "conda")
     metadata = get_rendered_metadata(recipe_dir, conda_config)
     paths = get_output_path(metadata, conda_config)
 
     # asserts we're building at the right location
     for path in paths:
-        assert path.startswith(os.path.join(args.conda_root, "conda-bld")), (
+        assert path.startswith(os.path.join(obj["conda_root"], "conda-bld")), (
             'Output path for build (%s) does not start with "%s" - this '
             "typically means this build is running on a shared builder and "
             "the file ~/.conda/environments.txt is polluted with other "
             "environment paths.  To fix, empty that file and set its mode "
             "to read-only for all."
-            % (path, os.path.join(args.conda_root, "conda-bld"))
+            % (path, os.path.join(obj["conda_root"], "conda-bld"))
         )
 
     # retrieve the current build number(s) for this build
@@ -1034,8 +986,6 @@ if __name__ == "__main__":
     build_number = max([int(k) for k in build_numbers])
 
     # runs the build using the conda-build API
-    arch = conda_arch()
-
     # notice we cannot build from the pre-parsed metadata because it has already
     # resolved the "wrong" build number.  We'll have to reparse after setting the
     # environment variable BOB_BUILD_NUMBER.
@@ -1044,7 +994,7 @@ if __name__ == "__main__":
         conda_build.api.build(recipe_dir, config=conda_config)
 
     # checks if long_description of python package renders fine
-    if args.twine_check:
+    if twine_check:
         from twine.commands.check import check
 
         package = glob.glob("dist/*.zip")
@@ -1057,4 +1007,8 @@ if __name__ == "__main__":
         else:
             logger.info("twine check (a.k.a. readme check) %s: OK", package[0])
 
-    git_clean_build(bootstrap.run_cmdline, verbose=(args.verbose >= 3))
+    git_clean_build(bootstrap.run_cmdline, verbose=(obj["verbose"] >= 3))
+
+
+if __name__ == "__main__":
+    cli(obj={})
