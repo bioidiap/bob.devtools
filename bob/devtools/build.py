@@ -726,6 +726,13 @@ def bob_devel(
     idx1 = content.find("# AUTOMATIC PARSING START")
     idx2 = content.find("# AUTOMATIC PARSING END")
     content = content[idx1:idx2]
+
+    # filter out using conda-build specific markers
+    from conda_build.metadata import ns_cfg, select_lines
+
+    config = make_conda_config(conda_build_config, None, None, condarc_options)
+    content = select_lines(content, ns_cfg(config), variants_in_place=False)
+
     package_pins = yaml.safe_load(content)
 
     package_names_map = package_pins.pop("package_names_map")
