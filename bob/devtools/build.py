@@ -802,6 +802,19 @@ def bob_devel(
     help="If executing on an internet-connected server, unset this flag",
 )
 @click.option(
+    "-V",
+    "--visibility",
+    type=click.Choice(["public", "internal", "private"]),
+    default=os.environ.get("CI_PROJECT_VISIBILITY", "public"),
+    help="The visibility level for this project",
+)
+@click.option(
+    "-t",
+    "--tag",
+    default=os.environ.get("CI_COMMIT_TAG"),
+    help="If building a tag, pass it with this flag",
+)
+@click.option(
     "--verbose",
     "-v",
     count=True,
@@ -814,7 +827,17 @@ def bob_devel(
     help="Use this flag to avoid running certain tests during the build.  It forwards all settings to 'nosetests' via --eval-attr=<settings> and 'pytest' via -m=<settings>.",
 )
 @click.pass_context
-def cli(ctx, group, conda_root, work_dir, internet, verbose, test_mark_expr):
+def cli(
+    ctx,
+    group,
+    conda_root,
+    work_dir,
+    internet,
+    visibility,
+    tag,
+    verbose,
+    test_mark_expr,
+):
     "Builds bob.devtools on the CI"
     ctx.ensure_object(dict)
 
@@ -851,9 +874,23 @@ def cli(ctx, group, conda_root, work_dir, internet, verbose, test_mark_expr):
     if condarc_options.get("conda-build", {}).get("root-dir") is None:
         condarc_options["croot"] = os.path.join(prefix, "conda-bld")
 
-    # populate ctx.obj
-    ctx.obj["test_mark_expr"] = test_mark_expr
+    # get information about the version of the package being built
+    version, is_prerelease = check_version(work_dir, tag)
+    bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
 
+    public = visibility == "public"
+    channels, upload_channel = bootstrap.get_channels(
+        public=public,
+        stable=(not is_prerelease),
+        server=server,
+        intranet=(not internet),
+        group=group,
+    )
+
+    if "channels" not in condarc_options:
+        condarc_options["channels"] = channels + ["defaults"]
+
+    # populate ctx.obj
     ctx.obj["verbose"] = verbose
     ctx.obj["conda_root"] = conda_root
     ctx.obj["group"] = group
@@ -863,6 +900,7 @@ def cli(ctx, group, conda_root, work_dir, internet, verbose, test_mark_expr):
     ctx.obj["internet"] = internet
     ctx.obj["condarc_options"] = condarc_options
     ctx.obj["conda_build_config"] = conda_build_config
+    ctx.obj["upload_channel"] = upload_channel
 
 
 @cli.command()
@@ -920,46 +958,14 @@ def build_deps(obj):
     is_flag=True,
     help="If set, then performs the equivalent of a 'twine check' on the generated python package (zip file)",
 )
-@click.option(
-    "-V",
-    "--visibility",
-    type=click.Choice(["public", "internal", "private"]),
-    default=os.environ.get("CI_PROJECT_VISIBILITY", "public"),
-    help="The visibility level for this project",
-)
-@click.option(
-    "-t",
-    "--tag",
-    default=os.environ.get("CI_COMMIT_TAG"),
-    help="If building a tag, pass it with this flag",
-)
 @click.pass_obj
 def build_devtools(obj, twine_check, visibility, tag):
     bootstrap = obj["bootstrap"]
     condarc_options = obj["condarc_options"]
     conda_build_config = obj["conda_build_config"]
     work_dir = obj["work_dir"]
-    server = obj["server"]
-    internet = obj["internet"]
-    group = obj["group"]
-
-    # get information about the version of the package being built
-    version, is_prerelease = check_version(work_dir, tag)
-    bootstrap.set_environment("BOB_PACKAGE_VERSION", version)
-
+    upload_channel = obj["upload_channel"]
     recipe_append = os.path.join(work_dir, "data", "recipe_append.yaml")
-
-    public = visibility == "public"
-    channels, upload_channel = bootstrap.get_channels(
-        public=public,
-        stable=(not is_prerelease),
-        server=server,
-        intranet=(not internet),
-        group=group,
-    )
-
-    if "channels" not in condarc_options:
-        condarc_options["channels"] = channels + ["defaults"]
 
     logger.info(
         "Using the following channels during build:\n  - %s",
