@@ -959,7 +959,7 @@ def build_deps(obj):
     help="If set, then performs the equivalent of a 'twine check' on the generated python package (zip file)",
 )
 @click.pass_obj
-def build_devtools(obj, twine_check, visibility, tag):
+def build_devtools(obj, twine_check):
     bootstrap = obj["bootstrap"]
     condarc_options = obj["condarc_options"]
     conda_build_config = obj["conda_build_config"]
