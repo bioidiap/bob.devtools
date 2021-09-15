@@ -797,7 +797,7 @@ def bob_devel(
 @click.option(
     "--verbose",
     "-v",
-    default=0,
+    count=True,
     help="Increases the verbosity level.  We always prints error and critical messages. Use a single '-v' to enable warnings, two '-vv' to enable information messages and three '-vvv' to enable debug messages [default: %(default)s]",
 )
 @click.option(
