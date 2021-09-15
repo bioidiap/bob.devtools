@@ -874,6 +874,7 @@ def build_bob_devel(obj):
             "conda_build_config.yaml",
         ),
         condarc_options=obj["condarc_options"],
+        work_dir=obj["work_dir"],
     )
 
     git_clean_build(obj["bootstrap"].run_cmdline, verbose=(obj["verbose"] >= 3))
