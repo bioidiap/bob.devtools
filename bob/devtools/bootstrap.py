@@ -509,6 +509,9 @@ if __name__ == "__main__":
 
     if args.command == "build":
 
+        # clean conda cache and packages before building
+        run_cmdline([conda_bin, "clean", "--all"])
+
         # simple - just use the defaults channels when self building
         run_cmdline(
             [conda_bin, "install", "--yes"]
