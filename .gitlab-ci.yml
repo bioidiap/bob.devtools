@@ -23,7 +23,7 @@ stages:
       - ${PRE_COMMIT_HOME}
 
 
-build_linux:
+.build_linux_template:
   extends: .build_template
   variables:
     BUILD_EGG: "true"
@@ -33,13 +33,9 @@ build_linux:
   before_script:
     - rm -f /root/.condarc
     - rm -rf /root/.conda
-  script:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
-    - python3 ./bob/devtools/build.py -vv --twine-check
   artifacts:
     paths:
       - dist/*.zip
@@ -52,24 +48,56 @@ build_linux:
     key: "linux-cache"
 
 
-build_macos_intel:
+.build_macos_intel_template:
   extends: .build_template
   tags:
     - macos
     - intel
-  script:
+  before_script:
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
-    - python3 ./bob/devtools/build.py -vv
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
   cache:
     key: "macos-intel-cache"
+
+
+build_linux_bob_devel:
+  extends: .build_linux_template
+  script:
+    - python3 ./bob/devtools/build.py -vv build-bob-devel
+
+build_linux_deps:
+  extends: .build_linux_template
+  script:
+    - python3 ./bob/devtools/build.py -vv build-deps
+
+build_linux_bob_devtools:
+  extends: .build_linux_template
+  script:
+    - pip install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
+    - python3 ./bob/devtools/build.py -vv build-devtools --twine-check
+
+build_macos_intel_bob_devel:
+  extends: .build_macos_intel_template
+  script:
+    - python3 ./bob/devtools/build.py -vv build-bob-devel
+
+build_macos_intel_deps:
+  extends: .build_macos_intel_template
+  script:
+    - python3 ./bob/devtools/build.py -vv build-deps
+
+build_macos_intel_bob_devtools:
+  extends: .build_macos_intel_template
+  script:
+    - pip install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
+    - python3 ./bob/devtools/build.py -vv build-devtools
 
 
 # Deploy targets
@@ -86,8 +114,12 @@ build_macos_intel:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux
-    - build_macos_intel
+    - build_linux_bob_devel
+    - build_linux_deps
+    - build_linux_bob_devtools
+    - build_macos_intel_bob_devel
+    - build_macos_intel_deps
+    - build_macos_intel_bob_devtools
   tags:
     - docker
   cache:
@@ -128,8 +160,12 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux
-    - build_macos_intel
+    - build_linux_bob_devel
+    - build_linux_deps
+    - build_linux_bob_devtools
+    - build_macos_intel_bob_devel
+    - build_macos_intel_deps
+    - build_macos_intel_bob_devtools
   tags:
     - docker
   cache:

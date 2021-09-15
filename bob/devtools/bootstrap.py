@@ -509,6 +509,9 @@ if __name__ == "__main__":
 
     if args.command == "build":
 
+        # clean conda cache and packages before building
+        run_cmdline([conda_bin, "clean", "--all"])
+
         # simple - just use the defaults channels when self building
         run_cmdline(
             [conda_bin, "install", "--yes"]
@@ -520,6 +523,7 @@ if __name__ == "__main__":
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
                 "conda-verify=%s" % conda_verify_version,
+                "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
         )
