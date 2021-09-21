@@ -457,6 +457,15 @@ if __name__ == "__main__":
         "bootstraps a new environment with it [default: %(default)s]",
     )
     parser.add_argument(
+        "--no-proxy",
+        default=("BDT_NO_PROXY" in os.environ),
+        action="store_true",
+        help="If specified, bootstrap will not use the reverse caching "
+        "proxy for downloading conda packages.  You may also set the "
+        "environment variable BDT_NO_PROXY to any value, to disable "
+        "this feature.",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -480,19 +489,24 @@ if __name__ == "__main__":
     condarc = os.path.join(args.conda_root, "condarc")
     logger.info("(create) %s", condarc)
     with open(condarc, "wt") as f:
-        # Replaces https://repo.anaconda.com and https://conda.anaconda.org by
-        # our proxies, so it is optimized for a CI build.  Notice we consider
-        # this script is only executed in this context.  The URL should NOT
-        # work outside of Idiap's network.
-        f.write(
-            _BASE_CONDARC.replace(
-                "https://repo.anaconda.com",
-                "http://bobconda.lab.idiap.ch:8000",
-            ).replace(
-                "https://conda.anaconda.org",
-                "http://bobconda.lab.idiap.ch:9000",
+        if args.no_proxy:
+            logger.info("Disabling reverse caching proxy for conda channels...")
+            f.write(_BASE_CONDARC)
+        else:
+            logger.info("Enabling reverse caching proxy for conda channels...")
+            # Replaces https://repo.anaconda.com and https://conda.anaconda.org
+            # by our proxies, so it is optimized for a CI build.  Notice we
+            # consider this script is only executed in this context.  The URL
+            # should NOT work outside of Idiap's network.
+            f.write(
+                _BASE_CONDARC.replace(
+                    "https://repo.anaconda.com",
+                    "http://bobconda.lab.idiap.ch:8000",
+                ).replace(
+                    "https://conda.anaconda.org",
+                    "http://bobconda.lab.idiap.ch:9000",
+                )
             )
-        )
 
     conda_version = "4"
     conda_build_version = "3"
