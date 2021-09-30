@@ -15,6 +15,10 @@ stages:
 # Build targets
 .build_template:
   stage: build
+  before_script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
   artifacts:
     expire_in: 1 week
   cache:
@@ -29,13 +33,7 @@ stages:
     BUILD_EGG: "true"
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
-  before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
+  image: quay.io/condaforge/linux-anvil-comp7
   artifacts:
     paths:
       - dist/*.zip
@@ -53,10 +51,6 @@ stages:
   tags:
     - macos
     - intel
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
@@ -103,9 +97,6 @@ build_macos_intel_bob_devtools:
 # Deploy targets
 .deploy_template:
   stage: deploy
-  before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -150,9 +141,6 @@ pypi:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
-  before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
