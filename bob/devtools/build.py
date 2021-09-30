@@ -654,8 +654,8 @@ def base_build(
         add_dependent_channels=True,
     )
 
-    if "channels" not in condarc_options:
-        condarc_options["channels"] = channels
+    # alays use the correct channel list: stable and public
+    condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",
