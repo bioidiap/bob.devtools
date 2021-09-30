@@ -44,7 +44,7 @@ stages:
   extends: .build_template
   tags:
     - docker
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
 
 build_linux_37:
   extends: .build_linux_template
@@ -87,7 +87,7 @@ build_macos_intel_38:
   stage: cleanup
   tags:
     - docker
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
   script:
     - bdt ci clean-betas -vv
   cache:
