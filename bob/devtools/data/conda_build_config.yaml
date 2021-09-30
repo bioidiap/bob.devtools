@@ -132,11 +132,6 @@ zip_keys:
     - python
     - numpy
     - python_impl
-  -                             # [linux64]
-    - cudnn                     # [linux64]
-    - cuda_compiler_version     # [linux64]
-    - cdt_name                  # [linux64]
-    - docker_image              # [linux64 and os.environ.get("BUILD_PLATFORM") == "linux-64"]
 
 
 # TODO: remove these when run_exports are added to the packages.
