@@ -412,68 +412,96 @@ If your package depends on **third-party packages** (not Bob_ or BEAT_ existing
 resources) that are not in the CI, but exist on the conda ``defaults`` channel,
 you should perform some extra steps:
 
-1. Add the package in the ``meta.yml`` file of bob-devel in
-   ``bob/bob.conda/conda/bob-devel``:
+1. Update ``conda_build_config.yaml`` in
+   ``bob/bob.devtools/bob/devtools/data/conda_buid_config.yaml`` with
+   your dependencies. Place them in the ``AUTOMATIC PARSING`` block in
+   alphabetical order. Make sure your dependency doesn't conflict with
+   the others by following the same steps as when updating a dependency
+   (next section).
+
+  .. code-block:: yaml
 
 
-   .. code-block:: yaml
+    # AUTOMATIC PARSING START
+    # DO NOT MODIFY THIS COMMENT
 
-      requirements:
-        host:
-          - python {{ python }}
-          - {{ compiler('c') }}
-          - {{ compiler('cxx') }}
-          # Dependency list of bob packages. Everything is pinned to allow for better
-          # reproducibility. Please keep this list sorted. It is recommended that you
-          # update all dependencies at once (to their latest version) each time you
-          # modify the dependencies here. Use ``conda search`` to find the latest
-          # version of packages.
-          - boost 1.65.1
-          - caffe 1.0  # [linux]
-          - click 6.7
-          - click-plugins 1.0.3
-          - ..
-          - [your dependency here]
+    # list all packages with dashes or dots in their names, here:
+    package_names_map:
+      click_plugins: click-plugins
+      dask_jobqueue: dask-jobqueue
+      dask_ml: dask-ml
+      docker_py: docker-py
+      font_ttf_dejavu_sans_mono: font-ttf-dejavu-sans-mono
+      pkg_config: pkg-config
+      pytest_cov: pytest-cov
+      python_graphviz: python-graphviz
+      scikit_image: scikit-image
+      scikit_learn: scikit-learn
+      sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
+      sphinxcontrib_mermaid: sphinxcontrib-mermaid
+      sphinxcontrib_programoutput: sphinxcontrib-programoutput
+      zc_buildout: zc.buildout
+      zc_recipe_egg: zc.recipe.egg
 
-2. At the same file, update the version with the current date, in the format
-   preset.
 
-   .. code-block:: yaml
+    boost:
+      - 1.73.0
+    click:
+      - 8.0.1
+    click_plugins:
+      - 1.1.1
+    cmake:
+      - 3.14.0
+    coverage:
+      - 5.5
 
-      package:
-        name: bob-devel
-        version: 2018.05.02  <-- HERE
+    ...
+    [your dependecy here]
 
-3. Update the ``beat-devel`` and ``bob-devel`` versions in the ``meta.yml``
-   file inside ``bob/bob.conda/conda/beat-devel``:
 
-   .. code-block:: yaml
+2. In the file ``bob/bob.devtools/deps/bob-devel/meta.template.yaml``,
+   update the version with the current date, in the format preset.
 
-      package:
-        name: beat-devel
-        version: 2018.05.02  <-- HERE
+  .. code-block:: yaml
 
-      [...]
+    package:
+    name: bob-devel
+    version: 2021.09.14 <-- HERE
 
-      requirements:
-        host:
-          - python {{ python }}
-          - bob-devel 2018.05.02  <-- HERE
-          - requests 2.18.4
+3. Submit a merge request with your changes.
 
-4. Update the ``conda_build_config.yaml`` in
-   ``bob/bob.devtools/bob/devtools/data/conda_build_config.yaml`` with your
-   dependencies, and with the updated version of bob-devel and beat-devel. See
-   `this here <https://gitlab.idiap.ch/bob/bob.conda/merge_requests/363>`_ and
-   `this MR here <https://gitlab.idiap.ch/bob/bob.admin/merge_requests/89>`_
-   for concrete examples on how to do this.
 
-   .. note::
+Updating a dependency version
+=============================
 
-      **This step should be performed after bob.conda's pipeline on master is
-      finished** (i.e. perform steps 1 to 3 in a branch, open a merge request
-      and wait for it to be merged, and wait for the new master branch to be
-      "green").
+All dependencies versions are listed in
+``bob/bob.devtools/bob/devtools/data/conda_build_config.yaml`` to ensure that
+all bob packages use compatible versions of those dependencies. When updating
+(or adding a new) dependency, you must make sure that the new version doesn't
+conflicts with **all** other dependencies. Often, a newest verion of your
+dependency has newer requirements for its own dependencies, which can conflict
+with the rest of ``bob`` dependencies. Therefore it is often best to update all
+dependencies at once, not just one. To do so, ask ``conda`` to create an
+environment with all ``bob`` dependencies:
+
+.. code-block:: bash
+
+  conda create -n bob_deps --dry-run --override-channels \\
+  -c http://www.idiap.ch/software/bob/conda/label/beta \\
+  -c http://www.idiap.ch/software/bob/conda \\
+  -c defaults
+  click-plugins cmake coverage dask ... [all bob dependencies]
+
+The versions solved by ``conda`` should be the newest compatible ones you can
+use. If you require a specific version of a dependency, say ``h5py`` you can
+specify only that version in the ``conda`` command and let conda solve the
+rest.
+
+.. note::
+
+  '.' or '-' in package names are changed to '_' in the
+  ``conda_build_config.yaml`` file. Make sure to use the real packages name in
+  the ``conda`` command.
 
 
 Conda recipe
