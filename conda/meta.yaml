@@ -36,7 +36,7 @@ requirements:
     # - conda-verify=3
     - certifi
     - docformatter
-    - git
+    - git  # [linux]
     - pytz
     - python-dateutil
     - gitpython
