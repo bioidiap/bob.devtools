@@ -521,6 +521,12 @@ if __name__ == "__main__":
     # print conda information for debugging purposes
     run_cmdline([conda_bin, "info"] + conda_verbosity)
 
+    should_install_git = ["git"]
+    # check if platform is mac, then don't install git
+    # see: https://github.com/conda-forge/git-feedstock/issues/50
+    if platform.system() == "Darwin":
+        should_install_git = []
+
     if args.command == "build":
 
         # clean conda cache and packages before building
@@ -536,13 +542,13 @@ if __name__ == "__main__":
                 "-n",
                 "base",
                 "python",
-                "git",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
                 # "conda-verify=%s" % conda_verify_version,
                 "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
+            + should_install_git
         )
 
     elif args.command == "local":
@@ -555,12 +561,12 @@ if __name__ == "__main__":
                 "-n",
                 "base",
                 "python",
-                "git",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
                 # "conda-verify=%s" % conda_verify_version,
                 "twine",  # required for checking readme of python (zip) distro
             ]
+            + should_install_git
         )
         conda_bld_path = os.path.join(args.conda_root, "conda-bld")
         run_cmdline([conda_bin, "index", conda_bld_path])
