@@ -613,10 +613,10 @@ def base_build(
     condarc_options,
 ):
     """Builds a non-beat/non-bob software dependence that doesn't exist on
-    defaults.
+    conda-forge.
 
     This function will build a software dependence that is required for our
-    software stack, but does not (yet) exist on the defaults channels.  It first
+    software stack, but does not (yet) exist on the conda-forge channels.  It first
     check if the build should run for the current architecture, checks if the
     package is not already built on our public channel and, if that is true, then
     proceeds with the build of the dependence.
@@ -888,7 +888,7 @@ def cli(
     )
 
     if "channels" not in condarc_options:
-        condarc_options["channels"] = channels + ["defaults"]
+        condarc_options["channels"] = channels + ["conda-forge"]
 
     # populate ctx.obj
     ctx.obj["verbose"] = verbose

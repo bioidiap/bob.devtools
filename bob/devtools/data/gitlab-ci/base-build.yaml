@@ -33,9 +33,9 @@ build_linux:
   tags:
     - docker
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
+  image: quay.io/condaforge/linux-anvil-comp7
   cache:
     key: "linux-cache"
 

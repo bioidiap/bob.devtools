@@ -19,8 +19,8 @@ stages:
 # All stages are prepared the same, with a base set of commands
 .bootstrap:
   before_script:
-    - "[ -r /root/.condarc ] && rm -f /root/.condarc"
-    - "[ -d /root/.conda ] && rm -rf /root/.conda"
+    - "[ -r ~/.condarc ] && rm -f ~/.condarc"
+    - "[ -d ~/.conda ] && rm -rf ~/.conda"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -44,7 +44,7 @@ stages:
   extends: .build_template
   tags:
     - docker
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+  image: quay.io/condaforge/linux-anvil-comp7
 
 build_linux_37:
   extends: .build_linux_template
@@ -87,7 +87,7 @@ build_macos_intel_38:
   stage: cleanup
   tags:
     - docker
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+  image: quay.io/condaforge/linux-anvil-comp7
   script:
     - bdt ci clean-betas -vv
   cache:

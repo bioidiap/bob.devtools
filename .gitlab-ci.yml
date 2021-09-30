@@ -29,10 +29,10 @@ stages:
     BUILD_EGG: "true"
   tags:
     - docker
-  image: docker.idiap.ch/bob/docker-images/c3i-linux-64
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
@@ -65,10 +65,10 @@ stages:
     key: "macos-intel-cache"
 
 
-build_linux_bob_devel:
-  extends: .build_linux_template
-  script:
-    - python3 ./bob/devtools/build.py -vv build-bob-devel
+# build_linux_bob_devel:
+#   extends: .build_linux_template
+#   script:
+#     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
 build_linux_deps:
   extends: .build_linux_template
@@ -82,10 +82,10 @@ build_linux_bob_devtools:
     - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools --twine-check
 
-build_macos_intel_bob_devel:
-  extends: .build_macos_intel_template
-  script:
-    - python3 ./bob/devtools/build.py -vv build-bob-devel
+# build_macos_intel_bob_devel:
+#   extends: .build_macos_intel_template
+#   script:
+#     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
 build_macos_intel_deps:
   extends: .build_macos_intel_template
@@ -104,8 +104,8 @@ build_macos_intel_bob_devtools:
 .deploy_template:
   stage: deploy
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -114,10 +114,10 @@ build_macos_intel_bob_devtools:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_bob_devel
+    # - build_linux_bob_devel
     - build_linux_deps
     - build_linux_bob_devtools
-    - build_macos_intel_bob_devel
+    # - build_macos_intel_bob_devel
     - build_macos_intel_deps
     - build_macos_intel_bob_devtools
   tags:
@@ -151,8 +151,8 @@ pypi:
   except:
     - branches
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -160,10 +160,10 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux_bob_devel
+    # - build_linux_bob_devel
     - build_linux_deps
     - build_linux_bob_devtools
-    - build_macos_intel_bob_devel
+    # - build_macos_intel_bob_devel
     - build_macos_intel_deps
     - build_macos_intel_bob_devtools
   tags:

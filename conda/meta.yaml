@@ -33,9 +33,10 @@ requirements:
     - click-plugins
     - conda=4
     - conda-build=3
-    - conda-verify=3
+    # - conda-verify=3
     - certifi
     - docformatter
+    - git  # [linux]
     - pytz
     - python-dateutil
     - gitpython
