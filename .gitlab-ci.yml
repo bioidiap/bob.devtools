@@ -31,8 +31,8 @@ stages:
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
@@ -104,8 +104,8 @@ build_macos_intel_bob_devtools:
 .deploy_template:
   stage: deploy
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
@@ -151,8 +151,8 @@ pypi:
   except:
     - branches
   before_script:
-    - rm -f /root/.condarc
-    - rm -rf /root/.conda
+    - rm -f ~/.condarc
+    - rm -rf ~/.conda
   script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
