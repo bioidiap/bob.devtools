@@ -495,7 +495,9 @@ environment with all ``bob`` dependencies:
 The versions solved by ``conda`` should be the newest compatible ones you can
 use. If you require a specific version of a dependency, say ``h5py`` you can
 specify only that version in the ``conda`` command and let conda solve the
-rest.
+rest. Note that you have to update the pinned version of all packages at once
+according to the ``conda create`` output. It is not possible to just update
+the version of one dependency alone.
 
 .. note::
 
