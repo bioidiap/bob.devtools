@@ -52,7 +52,7 @@ build_linux:
   extends: .build_template
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  image: quay.io/condaforge/linux-anvil-comp7
   variables:
     PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
@@ -97,7 +97,7 @@ build_macos_intel:
   extends: .test_template
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  image: quay.io/condaforge/linux-anvil-comp7
 
 
 .test_macos_intel_template:

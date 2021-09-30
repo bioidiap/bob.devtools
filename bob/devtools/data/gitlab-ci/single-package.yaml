@@ -52,7 +52,7 @@ stages:
   extends: .build_template
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  image: quay.io/condaforge/linux-anvil-comp7
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
@@ -127,7 +127,7 @@ build_linux_38:
   extends: .test_template
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  image: quay.io/condaforge/linux-anvil-comp7
 
 
 .test_macos_intel_template:
