@@ -409,7 +409,7 @@ New unexisting dependencies
 ===========================
 
 If your package depends on **third-party packages** (not Bob_ or BEAT_ existing
-resources) that are not in the CI, but exist on the conda ``defaults`` channel,
+resources) that are not in the CI, but exist on the ``conda-forge`` channel,
 you should perform some extra steps:
 
 1. Update ``conda_build_config.yaml`` in
@@ -486,10 +486,10 @@ environment with all ``bob`` dependencies:
 
 .. code-block:: bash
 
-  conda create -n bob_deps --dry-run --override-channels \\
+  conda create -n bob_deps --dry-run --override-channels --strict-channel-priority \\
   -c http://www.idiap.ch/software/bob/conda/label/beta \\
   -c http://www.idiap.ch/software/bob/conda \\
-  -c defaults
+  -c conda-forge
   click-plugins cmake coverage dask ... [all bob dependencies]
 
 The versions solved by ``conda`` should be the newest compatible ones you can

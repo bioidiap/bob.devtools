@@ -78,7 +78,7 @@ Examples:
 @verbosity_option()
 @bdt.raise_on_error
 def base_deploy(dry_run):
-    """Deploys dependencies not available at the defaults channel.
+    """Deploys dependencies to our public channel
 
     Deployment happens to our public channel directly, as these are
     dependencies are required for proper bob/beat package runtime

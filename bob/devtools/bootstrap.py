@@ -361,7 +361,7 @@ def get_channels(
     ]
 
     if add_dependent_channels:
-        channels += ["defaults", "conda-forge"]
+        channels += ["conda-forge"]
 
     return channels, upload_channel
 
@@ -526,11 +526,13 @@ if __name__ == "__main__":
         # clean conda cache and packages before building
         run_cmdline([conda_bin, "clean", "--all"])
 
-        # simple - just use the defaults channels when self building
+        # Just use the conda-forge channels when self building
         run_cmdline(
             [conda_bin, "install", "--yes"]
             + conda_verbosity
             + [
+                "-c",
+                "conda-forge",
                 "-n",
                 "base",
                 "python",
