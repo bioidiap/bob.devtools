@@ -378,7 +378,7 @@ numpy:
   # part of a zip_keys: python, python_impl, numpy
   - 1.19.5
 opencv:
-  - 4.5.2
+  - 4.5.1
 pandas:
   - 1.3.3
 pillow:
