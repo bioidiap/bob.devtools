@@ -413,7 +413,7 @@ resources) that are not in the CI, but exist on the ``conda-forge`` channel,
 you should perform some extra steps:
 
 1. Update ``conda_build_config.yaml`` in
-   ``bob/bob.devtools/bob/devtools/data/conda_buid_config.yaml`` with
+   ``bob.devtools/bob/devtools/data/conda_buid_config.yaml`` with
    your dependencies. Place them in the ``AUTOMATIC PARSING`` block in
    alphabetical order. Make sure your dependency doesn't conflict with
    the others by following the same steps as when updating a dependency
@@ -459,14 +459,13 @@ you should perform some extra steps:
     [your dependecy here]
 
 
-2. In the file ``bob/bob.devtools/deps/bob-devel/meta.template.yaml``,
-   update the version with the current date, in the format preset.
+2. In the file ``bob.devtools/bob/devtools/data/conda_buid_config.yaml``,
+   update the version of ``bob-devel`` with the current date, in the format preset.
 
   .. code-block:: yaml
 
-    package:
-    name: bob-devel
-    version: 2021.09.14 <-- HERE
+    bob_devel_version:
+      - 2021.09.14 <-- HERE
 
 3. Submit a merge request with your changes.
 
@@ -487,9 +486,9 @@ environment with all ``bob`` dependencies:
 .. code-block:: bash
 
   conda create -n bob_deps --dry-run --override-channels --strict-channel-priority \\
-  -c http://www.idiap.ch/software/bob/conda/label/beta \\
   -c http://www.idiap.ch/software/bob/conda \\
-  -c conda-forge
+  -c conda-forge \\
+  python=3.8 \\ # fix the python version
   click-plugins cmake coverage dask ... [all bob dependencies]
 
 The versions solved by ``conda`` should be the newest compatible ones you can
@@ -503,7 +502,9 @@ the version of one dependency alone.
 
   '.' or '-' in package names are changed to '_' in the
   ``conda_build_config.yaml`` file. Make sure to use the real packages name in
-  the ``conda`` command.
+  the ``conda`` command. Moreover, please remember to update the
+  ``package_names_map`` field if you add a new dependecy with `.` or  `-` in its
+  name.
 
 
 Conda recipe
@@ -632,8 +633,7 @@ recipes.  Here are some notes:
   dependencies that we **do not** develop.  The jinja variable name should not
   contain ``.`` or ``-``; replace those with ``_``.  Bob_ and BEAT_ packages
   (and gridtk) should be listed as is. These jinja variables are defined inside
-  bob/bob.devtools> in ``bob/devtools/data/conda_build_config.yaml`` and the
-  version numbers are defined in bob/conda> in ``conda/bob-devel/meta.yaml``.
+  bob/bob.devtools> in ``bob/devtools/data/conda_build_config.yaml``.
   So, you will need to modify these two files before you can use a new package
   in your Bob package.
 
