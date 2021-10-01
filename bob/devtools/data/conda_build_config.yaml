@@ -128,10 +128,10 @@ zip_keys:
     - c_compiler_version        # [unix]
     - cxx_compiler_version      # [unix]
     - fortran_compiler_version  # [unix]
-  -
-    - python
-    - numpy
-    - python_impl
+  # -
+  #   - python
+  #   - numpy
+  #   - python_impl
 
 
 # TODO: remove these when run_exports are added to the packages.
