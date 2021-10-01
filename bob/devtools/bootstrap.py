@@ -253,8 +253,9 @@ def ensure_miniconda_sh():
     conn.request("GET", path)
     r1 = conn.getresponse()
 
-    assert (
-        r1.status == 200
+    assert r1.status in (
+        200,
+        302,
     ), "Request for http://%s%s - returned status %d " "(%s)" % (
         server[0],
         path,
