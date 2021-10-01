@@ -214,7 +214,7 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "/conda-forge/miniforge/releases/download/4.10.3-6/Miniforge3-4.10.3-6-%s-x86_64.sh"
+    path = "https://github.com/conda-forge/miniforge/releases/download/4.10.3-6/Miniforge3-4.10.3-6-%s-x86_64.sh"
     if platform.system() == "Darwin":
         sha256 = (
             "eabb50e2594d55eeb2a74fa05a919be876ec364e8064e1623ab096f39d6b6dd1"
@@ -244,29 +244,13 @@ def ensure_miniconda_sh():
             os.unlink("miniconda.sh")
 
     # re-downloads installer
-    import http.client
-
-    server = ("github.com",)  # https
-
-    logger.info("Connecting to https://%s...", *server)
-    conn = http.client.HTTPSConnection(server[0])
-    conn.request("GET", path)
-    r1 = conn.getresponse()
-
-    assert r1.status in (
-        200,
-        302,
-    ), "Request for http://%s%s - returned status %d " "(%s)" % (
-        server[0],
-        path,
-        r1.status,
-        r1.reason,
-    )
+    import urllib.request
 
     dst = "miniconda.sh"
-    logger.info("(download) http://%s%s -> %s...", server[0], path, dst)
+    logger.info("(download) %s -> %s...", path, dst)
+    response = urllib.request.urlopen(path)
     with open(dst, "wb") as f:
-        f.write(r1.read())
+        f.write(response.read())
 
 
 def install_miniconda(prefix, name):
