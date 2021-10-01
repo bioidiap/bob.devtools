@@ -22,6 +22,8 @@ conda_build: #!final
   pkg_format: '2'
 default_channels: #!final
   - https://repo.anaconda.com/pkgs/main
+channels:
+  - conda-forge
 channel_alias: https://conda.anaconda.org #!final
 quiet: true #!final
 remote_connect_timeout_secs: 120.0 #!final
