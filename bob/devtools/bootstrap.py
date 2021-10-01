@@ -255,9 +255,8 @@ def ensure_miniconda_sh():
 
     assert (
         r1.status == 200
-    ), "Request for http://%s:%d%s - returned status %d " "(%s)" % (
+    ), "Request for http://%s%s - returned status %d " "(%s)" % (
         server[0],
-        server[1],
         path,
         r1.status,
         r1.reason,
