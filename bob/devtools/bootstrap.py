@@ -284,7 +284,13 @@ def install_miniconda(prefix, name):
         logger.info("(move) %s -> %s", prefix, cached)
         os.rename(prefix, cached)
 
-    run_cmdline(["bash", "miniconda.sh", "-b", "-p", prefix])
+    # remove /opt/conda entries from path to avoid conflicts
+    env = os.environ.copy()
+    env["PATH"] = ":".join(
+        [p for p in env["PATH"].split(":") if not p.startswith("/opt/conda/")]
+    )
+
+    run_cmdline(["bash", "miniconda.sh", "-b", "-p", prefix], env=env)
     if cached is not None:
         merge_conda_cache(cached, prefix, name)
         shutil.rmtree(cached)
