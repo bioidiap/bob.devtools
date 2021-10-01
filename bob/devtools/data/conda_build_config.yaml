@@ -293,7 +293,7 @@ pin_run_as_build:
 
 # update this version to the current date when you modify the pins below
 bob_devel_version:
-  - 2021.10.01
+  - 2021.10.02
 
 # AUTOMATIC PARSING START
 # DO NOT MODIFY THIS COMMENT
@@ -360,7 +360,7 @@ jpeg:
 jsonschema:
   - 3.2.0
 libblitz:
-  - 0.10
+  - 1.0.2
 libpng:
   - 1.6.37
 libtiff:
@@ -428,7 +428,7 @@ scikit_learn:
 scipy:
   - 1.7.1
 setuptools:
-  - 49.6.0
+  - 58.0.4
 simplejson:
   - 3.17.5
 six:
