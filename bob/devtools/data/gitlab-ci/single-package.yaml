@@ -21,9 +21,9 @@ stages:
 # All stages are prepared the same, with a base set of commands
 .bootstrap:
   before_script:
-    - "[ -r ~/.condarc ] && rm -f ~/.condarc"
+    - "[ -r ~/.condarc ] && rm -fv ~/.condarc"
     # remove ~/.conda if it exists unless it's a mac machine
-    - "[ -d ~/.conda ] && [ ! -d /Applications ] && rm -rf ~/.conda"
+    - "[ -d ~/.conda ] && [ ! -d /Applications ] && rm -rfv ~/.conda"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
