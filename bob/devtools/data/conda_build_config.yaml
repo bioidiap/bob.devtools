@@ -293,7 +293,7 @@ pin_run_as_build:
 
 # update this version to the current date when you modify the pins below
 bob_devel_version:
-  - 2021.10.02
+  - 2021.10.03
 
 # AUTOMATIC PARSING START
 # DO NOT MODIFY THIS COMMENT
@@ -395,10 +395,6 @@ psycopg2:
   - 2.9.1
 pybind11:
   - 2.7.1
-pyopengl:
-  - 3.1.5
-pyqtgraph:
-  - 0.12.2
 pytables:
   - 3.6.1
 pytest:
@@ -413,10 +409,6 @@ pyyaml:
   - 5.4.1
 pyzmq:
   - 22.3.0
-qdarkstyle:
-  - 3.0.2
-qtpy:
-  - 1.11.2
 requests:
   - 2.26.0
 schema:
