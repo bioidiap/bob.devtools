@@ -291,6 +291,10 @@ pin_run_as_build:
 # names here should not contain dots or dashes. You should replace dots and dashes with
 # underlines.
 
+# update this version to the current date when you modify the pins below
+bob_devel_version:
+  - 2021.10.01
+
 # AUTOMATIC PARSING START
 # DO NOT MODIFY THIS COMMENT
 

@@ -68,7 +68,7 @@ stages:
 build_linux_bob_devel:
   extends: .build_linux_template
   script:
-    - yum install -y mesa-libGL-devel  # need this for pyopengl
+    - sudo yum install -y mesa-libGL-devel  # need this for pyopengl
     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
 build_linux_deps:
