@@ -22,7 +22,8 @@ stages:
 .bootstrap:
   before_script:
     - "[ -r ~/.condarc ] && rm -f ~/.condarc"
-    - "[ -d ~/.conda ] && rm -rf ~/.conda"
+    # remove ~/.conda if it exists unless it's a mac machine
+    - "[ -d ~/.conda ] && [ ! -d /Applications ] && rm -rf ~/.conda"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel bdt
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh

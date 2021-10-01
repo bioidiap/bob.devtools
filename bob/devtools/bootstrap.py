@@ -558,6 +558,8 @@ if __name__ == "__main__":
             [conda_bin, "install", "--yes"]
             + conda_verbosity
             + [
+                "-c",
+                "conda-forge",
                 "-n",
                 "base",
                 "python",
