@@ -214,36 +214,44 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "/miniconda/Miniconda3-py39_4.10.3-%s-x86_64.sh"
+    path = "/4.10.3-6/Miniforge3-4.10.3-6-%s-x86_64.sh"
     if platform.system() == "Darwin":
-        md5sum = "09bb30a9204ced74ce3c06762cb442fc"
+        sha256 = (
+            "eabb50e2594d55eeb2a74fa05a919be876ec364e8064e1623ab096f39d6b6dd1"
+        )
         path = path % "MacOSX"
     else:
-        md5sum = "8c69f65a4ae27fb41df0fe552b4a8a3b"
+        sha256 = (
+            "8e76a21311e4fcc9ee8497b72717b276bb960e0151c5b27816502f14bac6303f"
+        )
         path = path % "Linux"
 
     if os.path.exists("miniconda.sh"):
-        logger.info("(check) miniconda.sh md5sum (== %s?)", md5sum)
+        logger.info("(check) miniconda.sh sha256 (== %s?)", sha256)
         import hashlib
 
-        actual_md5 = hashlib.md5(open("miniconda.sh", "rb").read()).hexdigest()
-        if actual_md5 == md5sum:
+        actual_sha256 = hashlib.sha256(
+            open("miniconda.sh", "rb").read()
+        ).hexdigest()
+        if actual_sha256 == sha256:
             logger.info("Re-using cached miniconda3 installer (hash matches)")
             return
         else:
             logger.info(
                 "Erasing cached miniconda3 installer (%s does NOT " "match)",
-                actual_md5,
+                actual_sha256,
             )
             os.unlink("miniconda.sh")
 
     # re-downloads installer
     import http.client
 
-    server = ("bobconda.lab.idiap.ch", 8000)  # http
+    server = (
+        "https://github.com/conda-forge/miniforge/releases/download",
+    )  # http
 
-    logger.info("Connecting to http://%s:%d...", *server)
-    conn = http.client.HTTPConnection(server[0], port=server[1])
+    logger.info("Connecting to http://%s...", *server)
+    conn = http.client.HTTPConnection(server[0])
     conn.request("GET", path)
     r1 = conn.getresponse()
 
