@@ -73,26 +73,12 @@ stages:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
 
 
-build_macos_intel_37:
-  extends: .build_macos_intel_template
-  variables:
-    PYTHON_VERSION: "3.7"
-  cache:
-    key: "build-py37"
-
 build_macos_intel_38:
   extends: .build_macos_intel_template
   variables:
     PYTHON_VERSION: "3.8"
   cache:
     key: "build-py38"
-
-build_linux_37:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.7"
-  cache:
-    key: "build-py37"
 
 build_linux_38:
   extends: .build_linux_template
@@ -148,9 +134,7 @@ build_linux_38:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_37
     - build_linux_38
-    - build_macos_intel_37
     - build_macos_intel_38
   tags:
     - docker
@@ -189,9 +173,7 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux_37
     - build_linux_38
-    - build_macos_intel_37
     - build_macos_intel_38
   tags:
     - docker

@@ -1,7 +1,3 @@
-build_linux_37:
-  tags:
-    - docker-build
-
 build_linux_38:
   tags:
     - docker-build
