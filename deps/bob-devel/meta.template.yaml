@@ -1,6 +1,6 @@
 package:
   name: bob-devel
-  version: 2021.10.01
+  version: {{ bob_devel_version }}
 
 build:
   number: 0
