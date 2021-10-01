@@ -246,12 +246,10 @@ def ensure_miniconda_sh():
     # re-downloads installer
     import http.client
 
-    server = (
-        "https://github.com/conda-forge/miniforge/releases/download",
-    )  # http
+    server = ("github.com/conda-forge/miniforge/releases/download",)  # https
 
-    logger.info("Connecting to http://%s...", *server)
-    conn = http.client.HTTPConnection(server[0])
+    logger.info("Connecting to https://%s...", *server)
+    conn = http.client.HTTPSConnection(server[0])
     conn.request("GET", path)
     r1 = conn.getresponse()
 
