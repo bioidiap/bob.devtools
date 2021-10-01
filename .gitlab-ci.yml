@@ -67,12 +67,20 @@ stages:
 
 build_linux_bob_devel:
   extends: .build_linux_template
+  # run bob-devel test only when bob/devtools/data/conda_build_config.yaml changes
+  only:
+    changes:
+      - bob/devtools/data/conda_build_config.yaml
   script:
     - sudo yum install -y mesa-libGL-devel  # need this for pyopengl
     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
 build_linux_deps:
   extends: .build_linux_template
+  # run deps test only when deps changes
+  only:
+    changes:
+      - deps/**/*
   script:
     - python3 ./bob/devtools/build.py -vv build-deps
 
@@ -85,11 +93,19 @@ build_linux_bob_devtools:
 
 build_macos_intel_bob_devel:
   extends: .build_macos_intel_template
+  # run bob-devel test only when bob/devtools/data/conda_build_config.yaml changes
+  only:
+    changes:
+      - bob/devtools/data/conda_build_config.yaml
   script:
     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
 build_macos_intel_deps:
   extends: .build_macos_intel_template
+  # run deps test only when deps changes
+  only:
+    changes:
+      - deps/**/*
   script:
     - python3 ./bob/devtools/build.py -vv build-deps
 
