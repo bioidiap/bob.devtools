@@ -887,8 +887,7 @@ def cli(
         group=group,
     )
 
-    if "channels" not in condarc_options:
-        condarc_options["channels"] = channels + ["conda-forge"]
+    condarc_options["channels"] = channels + ["conda-forge"]
 
     # populate ctx.obj
     ctx.obj["verbose"] = verbose

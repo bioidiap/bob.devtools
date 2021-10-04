@@ -197,8 +197,7 @@ def rebuild(
         # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
-    if "channels" not in condarc_options:
-        condarc_options["channels"] = channels
+    condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",

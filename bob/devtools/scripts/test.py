@@ -168,18 +168,17 @@ def test(
         # use default
         condarc_options = yaml.load(BASE_CONDARC, Loader=yaml.FullLoader)
 
-    if "channels" not in condarc_options:
-        from ..bootstrap import get_channels
+    from ..bootstrap import get_channels
 
-        channels, _ = get_channels(
-            public=(not private),
-            stable=stable,
-            server=server,
-            intranet=ci,
-            group=group,
-            add_dependent_channels=True,
-        )
-        condarc_options["channels"] = channels
+    channels, _ = get_channels(
+        public=(not private),
+        stable=stable,
+        server=server,
+        intranet=ci,
+        group=group,
+        add_dependent_channels=True,
+    )
+    condarc_options["channels"] = channels
 
     logger.info(
         "Using the following channels during (potential) build:\n  - %s",
