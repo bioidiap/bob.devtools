@@ -86,6 +86,7 @@ pip-installable packages, create a section named ``create`` in the file
 
    [create]
    pip_extras = ipdb
+                bob.buildout
                 mr.developer
 
 Then, by default, ``bdt create`` will automatically pip install ``ipdb`` and

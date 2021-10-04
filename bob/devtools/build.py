@@ -331,17 +331,13 @@ def parse_dependencies(recipe_dir, config):
     requirements += recipe.get("requirements", {}).get("run", [])
     requirements += recipe.get("test", {}).get("requires", [])
 
-    # also add anaconda compilers to make sure source installed packages are
+    # also add conda-forge compilers to make sure source installed packages are
     # compiled properly
-    if platform.system() == "Darwin":
-        requirements += ["clangxx_osx-64"]
-    else:
-        requirements += ["gxx_linux-64"]
+    requirements += ["compilers"]
 
     # further requirements
     requirements += [
         "pip",  # required for installing further packages
-        "bob.buildout",  # required for basic bootstrap of most recipes
         "ipython",  # for ipdb
     ]
 
