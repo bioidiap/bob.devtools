@@ -179,7 +179,10 @@ Building the reference setup
     start at login.  In "Preferences > Filesystem Sharing", ensure that
     `/var/folders` is included in the list (that is the default location for
     temporary files in macOS).
-12. Reboot the machine. At this point, the gitlab user should be auto-logged
+12. Once installed, go the the settings and in "General" uncheck the option
+    "Use gRPC FUSE for file sharing". At the time of writing (04.10.2021), the
+    gRPC Fuse system does not work well with beat/beat.core> testing.
+13. Reboot the machine. At this point, the gitlab user should be auto-logged
     and the runner process should be executing.  Congratulations, you're done!
 
 
