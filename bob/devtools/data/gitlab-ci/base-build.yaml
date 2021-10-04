@@ -34,7 +34,6 @@ build_linux:
     - docker
   before_script:
     - rm -fv ~/.condarc
-    - rm -rfv ~/.conda
   image: quay.io/condaforge/linux-anvil-comp7
   cache:
     key: "linux-cache"
