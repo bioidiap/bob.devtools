@@ -20,6 +20,7 @@ from ..build import (
     next_build_number,
     root_logger_protection,
     should_skip_build,
+    use_mambabuild,
 )
 from ..constants import (
     BASE_CONDARC,
@@ -264,9 +265,9 @@ def build(
 
         rendered_recipe = get_parsed_recipe(metadata)
 
-        logger.debug("Printing rendered recipe")
-        logger.debug("\n" + yaml.dump(rendered_recipe))
-        logger.debug("Finished printing rendered recipe")
+        logger.info("Printing rendered recipe")
+        logger.info("\n" + yaml.dump(rendered_recipe))
+        logger.info("Finished printing rendered recipe")
         path = get_output_path(metadata, conda_config)[0]
 
         # gets the next build number
@@ -288,6 +289,7 @@ def build(
             # get it right
             set_environment("BOB_BUILD_NUMBER", str(build_number))
             with root_logger_protection():
+                use_mambabuild()
                 paths = conda_build.api.build(
                     d, config=conda_config, notest=no_test
                 )
