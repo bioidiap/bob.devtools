@@ -31,8 +31,7 @@ stages:
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
-    - rm -f ~/.condarc
-    - rm -rf ~/.conda
+    - rm -fv ~/.condarc
     - python3 ./bob/devtools/bootstrap.py -vv build
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
