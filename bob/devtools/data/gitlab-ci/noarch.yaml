@@ -26,7 +26,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     # for conda inspect during builds (on macos)
-    - conda install -n base conda-build
+    - mamba install -n base conda-build
     - conda activate base
     - bdt ci check -vv
   cache:

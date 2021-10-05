@@ -1021,6 +1021,18 @@ def check():
             f"pyprojecttoml"
         )
 
+    # check if the package uses pip to install itself
+    path = "conda/meta.yaml"
+    if os.path.isfile(path):
+        with open(path) as f:
+            content = f.read()
+        if '- "{{ PYTHON }} -m pip install . -vv"' not in content:
+            raise RuntimeError(
+                f"""Could not find the pip install line inside the {path} file.
+Please apply similar changes to the {path} file:
+https://gitlab.idiap.ch/bob/bob.extension/-/merge_requests/133/diffs"""
+            )
+
     # if there is a pre-commit configuration file, run the tests
     path = ".pre-commit-config.yaml"
     if os.path.isfile(path):
