@@ -48,7 +48,6 @@ test:
   imports:
     - {{ name }}
   commands:
-    - pip check
     # runs tests for package only, report only what is in the package
     # creates html and xml reports and place them in specific directories
     - pytest --verbose --cov {{ name }} --cov-report term-missing --cov-report html:{{ project_dir }}/sphinx/coverage --cov-report xml:{{ project_dir }}/coverage.xml --pyargs {{ name }}
@@ -57,7 +56,6 @@ test:
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
   requires:
-    - pip {{ pip }}
     - pytest {{ pytest }}
     - pytest-cov {{ pytest_cov }}
     - coverage {{ coverage }}

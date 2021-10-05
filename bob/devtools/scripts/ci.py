@@ -1026,11 +1026,13 @@ def check():
     if os.path.isfile(path):
         with open(path) as f:
             content = f.read()
-        if '- "{{ PYTHON }} -m pip install . -vv"' not in content:
+        if (
+            '- "{{ PYTHON }} -m pip install . -vv"' not in content
+            or "    - pip {{ pip }}" not in content
+        ):
             raise RuntimeError(
                 f"""Could not find the pip install line inside the {path} file.
-Please apply similar changes to the {path} file:
-https://gitlab.idiap.ch/bob/bob.extension/-/merge_requests/133/diffs"""
+Please see bob/devtools/templates/conda/meta.yaml for a template."""
             )
 
     # if there is a pre-commit configuration file, run the tests

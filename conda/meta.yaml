@@ -56,14 +56,12 @@ requirements:
 
 test:
   requires:
-    - pip
-    - sphinx_rtd_theme
-    - pytest
-    - pytest-cov
+    - sphinx_rtd_theme {{ sphinx_rtd_theme }}
+    - pytest {{ pytest }}
+    - pytest-cov {{ pytest_cov }}
   imports:
     - {{ name }}
   commands:
-    - pip check
     - bdt -h
     - bdt -?
     - bdt --help
