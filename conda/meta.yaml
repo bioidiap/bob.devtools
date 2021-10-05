@@ -56,9 +56,9 @@ requirements:
 
 test:
   requires:
-    - sphinx_rtd_theme {{ sphinx_rtd_theme }}
-    - pytest {{ pytest }}
-    - pytest-cov {{ pytest_cov }}
+    - sphinx_rtd_theme
+    - pytest
+    - pytest-cov
   imports:
     - {{ name }}
   commands:
