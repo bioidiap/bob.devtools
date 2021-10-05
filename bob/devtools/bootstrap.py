@@ -540,7 +540,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                # "conda-verify=%s" % conda_verify_version,
+                "mamba",
+                "boa",
                 "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
@@ -561,7 +562,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                # "conda-verify=%s" % conda_verify_version,
+                "mamba",
+                "boa",
                 "twine",  # required for checking readme of python (zip) distro
             ]
             + should_install_git
