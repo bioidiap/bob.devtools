@@ -204,6 +204,7 @@ def create(
     this app and use the flag `--overwrite` to re-create from scratch the
     development environment.
     """
+    import pathlib
 
     recipe_dir = recipe_dir or os.path.join(os.path.realpath("."), "conda")
 
@@ -211,7 +212,9 @@ def create(
         raise RuntimeError("The directory %s does not exist" % recipe_dir)
 
     # this is not used to conda-build, just to create the final environment
-    conda = os.environ.get("CONDA_EXE")
+    conda = pathlib.Path(os.environ.get("CONDA_EXE"))
+    # replace conda with mamba
+    conda = str(conda.parent / "mamba")
     if conda is None:
         raise RuntimeError(
             "Cannot find `conda' executable (${CONDA_EXEC}) - "
