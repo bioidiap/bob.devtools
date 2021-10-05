@@ -711,22 +711,7 @@ def base_build(
         return conda_build.api.build(recipe_dir, config=conda_config)
 
 
-def bob_devel(
-    bootstrap,
-    server,
-    intranet,
-    group,
-    conda_build_config,
-    condarc_options,
-    work_dir,
-):
-    """
-    Tests that all packages listed in bob/devtools/data/conda_build_config.yaml
-    can be installed in one environment.
-    """
-    # Load the packages and their pins in bob/devtools/data/conda_build_config.yaml
-    # Create a temporary conda-build recipe to test if all packages can be installed
-
+def load_packages_from_conda_build_config(conda_build_config, condarc_options):
     with open(conda_build_config, "r") as f:
         content = f.read()
 
@@ -745,6 +730,29 @@ def bob_devel(
     package_names_map = package_pins.pop("package_names_map")
 
     packages = [package_names_map.get(p, p) for p in package_pins.keys()]
+
+    return packages, package_names_map
+
+
+def bob_devel(
+    bootstrap,
+    server,
+    intranet,
+    group,
+    conda_build_config,
+    condarc_options,
+    work_dir,
+):
+    """
+    Tests that all packages listed in bob/devtools/data/conda_build_config.yaml
+    can be installed in one environment.
+    """
+    # Load the packages and their pins in bob/devtools/data/conda_build_config.yaml
+    # Create a temporary conda-build recipe to test if all packages can be installed
+
+    packages, _ = load_packages_from_conda_build_config(
+        conda_build_config, condarc_options
+    )
 
     recipe_dir = os.path.join(work_dir, "deps", "bob-devel")
     template_yaml = os.path.join(recipe_dir, "meta.template.yaml")
