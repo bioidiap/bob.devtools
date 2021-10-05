@@ -27,8 +27,8 @@ stages:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     # for conda inspect during builds (on macos)
     - conda activate base
-    - mamba install -n base conda-build
     - bdt ci check -vv
+    - conda clean --all
   cache:
     paths:
       - miniconda.sh
