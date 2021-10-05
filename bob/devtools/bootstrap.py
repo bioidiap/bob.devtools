@@ -214,15 +214,15 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "https://github.com/conda-forge/miniforge/releases/download/4.10.3-6/Miniforge3-4.10.3-6-%s-x86_64.sh"
+    path = "https://github.com/conda-forge/miniforge/releases/download/4.10.3-6/Mambaforge-4.10.3-6-%s-x86_64.sh"
     if platform.system() == "Darwin":
         sha256 = (
-            "eabb50e2594d55eeb2a74fa05a919be876ec364e8064e1623ab096f39d6b6dd1"
+            "955a6255871d9b53975e1c1581910844bcf33cbca613c7dba2842f6269917da6"
         )
         path = path % "MacOSX"
     else:
         sha256 = (
-            "8e76a21311e4fcc9ee8497b72717b276bb960e0151c5b27816502f14bac6303f"
+            "c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
         )
         path = path % "Linux"
 
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     condarc = os.path.join(args.conda_root, "condarc")
 
     install_miniconda(args.conda_root, args.name)
-    conda_bin = os.path.join(args.conda_root, "bin", "conda")
+    conda_bin = os.path.join(args.conda_root, "bin", "mamba")
 
     # creates the condarc file
     condarc = os.path.join(args.conda_root, "condarc")
@@ -506,7 +506,8 @@ if __name__ == "__main__":
 
     conda_version = "4"
     conda_build_version = "3"
-    conda_verify_version = "3"
+    mamba_version = "0.15"
+    boa_version = "0.6"
 
     conda_verbosity = []
     # if args.verbose >= 2:
@@ -540,7 +541,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                # "conda-verify=%s" % conda_verify_version,
+                "mamba=%s" % mamba_version,
+                "boa=%s" % boa_version,
                 "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
@@ -561,7 +563,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                # "conda-verify=%s" % conda_verify_version,
+                "mamba=%s" % mamba_version,
+                "boa=%s" % boa_version,
                 "twine",  # required for checking readme of python (zip) distro
             ]
             + should_install_git

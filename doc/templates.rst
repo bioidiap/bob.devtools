@@ -459,15 +459,7 @@ you should perform some extra steps:
     [your dependecy here]
 
 
-2. In the file ``bob.devtools/bob/devtools/data/conda_buid_config.yaml``,
-   update the version of ``bob-devel`` with the current date, in the format preset.
-
-  .. code-block:: yaml
-
-    bob_devel_version:
-      - 2021.09.14 <-- HERE
-
-3. Submit a merge request with your changes.
+2. Submit a merge request with your changes.
 
 
 Updating a dependency version

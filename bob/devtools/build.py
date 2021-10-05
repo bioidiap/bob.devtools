@@ -222,10 +222,20 @@ def get_output_path(metadata, config):
         return conda_build.api.get_output_file_paths(metadata, config=config)
 
 
+def use_mambabuild():
+    """Will inject mamba solver to conda build API to speed up resolves"""
+    # only importing this module will do the job.
+    from boa.cli.mambabuild import prepare
+
+    prepare()
+
+
 def get_rendered_metadata(recipe_dir, config):
     """Renders the recipe and returns the interpreted YAML file."""
 
     with root_logger_protection():
+        # use mambabuild instead
+        use_mambabuild()
         return conda_build.api.render(recipe_dir, config=config)
 
 
@@ -697,6 +707,7 @@ def base_build(
     # if you get to this point, just builds the package(s)
     logger.info("Building %s", recipe_dir)
     with root_logger_protection():
+        use_mambabuild()
         return conda_build.api.build(recipe_dir, config=conda_config)
 
 
