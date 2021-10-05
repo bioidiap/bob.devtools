@@ -506,7 +506,7 @@ if __name__ == "__main__":
 
     conda_version = "4"
     conda_build_version = "3"
-    mamba_version = "0.16"
+    mamba_version = "0.15"
     boa_version = "0.6"
 
     conda_verbosity = []
