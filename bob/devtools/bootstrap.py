@@ -479,7 +479,7 @@ if __name__ == "__main__":
     condarc = os.path.join(args.conda_root, "condarc")
 
     install_miniconda(args.conda_root, args.name)
-    conda_bin = os.path.join(args.conda_root, "bin", "conda")
+    conda_bin = os.path.join(args.conda_root, "bin", "mamba")
 
     # creates the condarc file
     condarc = os.path.join(args.conda_root, "condarc")
