@@ -27,6 +27,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - conda clean --all
   cache:
     paths:
       - torch

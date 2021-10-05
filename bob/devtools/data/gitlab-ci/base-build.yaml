@@ -22,6 +22,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - conda clean --all
     - bdt ci base-build -vv nopython.txt
     - bdt ci base-build -vv python.txt
     - '[ "${CI_COMMIT_REF_NAME}" = "master" ] && bdt ci base-deploy -vv'
