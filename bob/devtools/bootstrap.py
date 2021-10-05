@@ -506,7 +506,8 @@ if __name__ == "__main__":
 
     conda_version = "4"
     conda_build_version = "3"
-    conda_verify_version = "3"
+    mamba_version = "0.16"
+    boa_version = "0.6"
 
     conda_verbosity = []
     # if args.verbose >= 2:
@@ -540,8 +541,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                "mamba",
-                "boa",
+                "mamba=%s" % mamba_version,
+                "boa=%s" % boa_version,
                 "click",
                 "twine",  # required for checking readme of python (zip) distro
             ]
@@ -562,8 +563,8 @@ if __name__ == "__main__":
                 "python",
                 "conda=%s" % conda_version,
                 "conda-build=%s" % conda_build_version,
-                "mamba",
-                "boa",
+                "mamba=%s" % mamba_version,
+                "boa=%s" % boa_version,
                 "twine",  # required for checking readme of python (zip) distro
             ]
             + should_install_git
