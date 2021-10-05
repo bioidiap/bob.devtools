@@ -1,6 +1,8 @@
+{% set version = datetime.datetime.utcnow().strftime('%Y%m%d.%H.%M.%S') %}
+
 package:
   name: bob-devel
-  version: {{ bob_devel_version }}
+  version: {{ version }}
 
 build:
   number: 0
