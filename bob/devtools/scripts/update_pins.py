@@ -3,10 +3,20 @@
 import click
 
 
-@click.command()
+@click.command(
+    epilog="""Example:
+
+python bob/devtools/scripts/update_pins.py --python 3.8
+
+Force specific version of packages:
+
+python bob/devtools/scripts/update_pins.py --python 3.8 opencv=4.5.1 pytorch=1.9
+"""
+)
+@click.argument("manual_pins", nargs=-1)
 @click.option("--python", required=True, help="Python version to pin, e.g. 3.8")
-def update_pins(python):
-    from subprocess import check_output
+def update_pins(manual_pins, python):
+    import subprocess
 
     from bob.devtools.build import load_packages_from_conda_build_config
 
@@ -18,20 +28,29 @@ def update_pins(python):
     reversed_package_names_map = {v: k for k, v in package_names_map.items()}
 
     # ask mamba to create an environment with the packages
-    env_text = check_output(
-        [
-            "mamba",
-            "create",
-            "--dry-run",
-            "--override-channels",
-            "-c",
-            "conda-forge",
-            "-n",
-            "temp_env",
-            f"python={python}",
-        ]
-        + packages
-    ).decode("utf-8")
+    try:
+        output = subprocess.run(
+            [
+                "mamba",
+                "create",
+                "--dry-run",
+                "--override-channels",
+                "-c",
+                "conda-forge",
+                "-n",
+                "temp_env",
+                f"python={python}",
+            ]
+            + packages
+            + list(manual_pins),
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(e.output.decode())
+        raise e
+
+    env_text = output.stdout.decode("utf-8")
     print(env_text)
 
     resolved_packages = []
