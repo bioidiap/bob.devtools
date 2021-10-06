@@ -20,7 +20,7 @@ stages:
 .bootstrap:
   tags:
     - docker
-  image: quay.io/condaforge/linux-anvil-comp7
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
     - rm -fv ~/.condarc
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
