@@ -35,7 +35,7 @@ build_linux:
     - docker
   before_script:
     - rm -fv ~/.condarc
-  image: quay.io/condaforge/linux-anvil-comp7
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
   cache:
     key: "linux-cache"
 

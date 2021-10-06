@@ -3,3 +3,7 @@ build:
     - DOCSERVER
     - NOSE_EVAL_ATTR
     - PYTEST_ADDOPTS
+
+requirements:
+  build:
+    - sysroot_linux-64 2.17  # [linux64]
