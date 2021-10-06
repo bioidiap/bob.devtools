@@ -376,7 +376,7 @@ jinja2:
 jpeg:
   - 9d
 jsonschema:
-  - 4.0.1
+  - 3.2.0
 libblitz:
   - 1.0.2
 libpng:
