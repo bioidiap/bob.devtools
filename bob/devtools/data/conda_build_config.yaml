@@ -287,9 +287,27 @@ pin_run_as_build:
 # Ideally we want to build against the oldest possible version of
 # packages so packages can be installed with a wide range of versions. It is
 # best to keep this in sync with:
-# https://github.com/AnacondaRecipes/aggregate/blob/master/conda_build_config.yaml The
-# names here should not contain dots or dashes. You should replace dots and dashes with
-# underlines.
+# https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml
+# The names here should not contain dots or dashes. You should replace dots and
+# dashes with underlines.
+
+# blas
+libblas:
+  - 3.8 *netlib  # [not (osx and arm64)]
+  - 3.9 *netlib  # [osx and arm64]
+libcblas:
+  - 3.8 *netlib  # [not (osx and arm64)]
+  - 3.9 *netlib  # [osx and arm64]
+liblapack:
+  - 3.8 *netlib  # [not (osx and arm64)]
+  - 3.9 *netlib  # [osx and arm64]
+liblapacke:
+  - 3.8 *netlib  # [not (osx and arm64)]
+  - 3.9 *netlib  # [osx and arm64]
+blas_impl:
+  - openblas
+  - mkl          # [x86 or x86_64]
+  - blis         # [x86 or x86_64]
 
 # AUTOMATIC PARSING START
 # DO NOT MODIFY THIS COMMENT
