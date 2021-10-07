@@ -90,7 +90,7 @@ def base_deploy(dry_run):
         logger.warn("Nothing is being deployed to server")
 
     package = os.environ["CI_PROJECT_PATH"]
-    group, name = package.split("/")
+    group, name = package.split("/", 1)
 
     # deploys all conda package artefacts currently available (erases them
     # afterwards)
@@ -176,7 +176,7 @@ def deploy(latest, dry_run):
         logger.warn("Nothing is being deployed to server")
 
     package = os.environ["CI_PROJECT_PATH"]
-    group, name = package.split("/")
+    group, name = package.split("/", 1)
 
     # determine if building branch or tag, and project visibility
     stable = "CI_COMMIT_TAG" in os.environ
