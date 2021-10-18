@@ -426,7 +426,7 @@ pytest_cov:
 python_graphviz:
   - 0.17
 pytorch:
-  - 1.8.0
+  - 1.8.0 cuda*
 pyyaml:
   - 5.4.1
 pyzmq:
