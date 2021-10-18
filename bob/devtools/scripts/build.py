@@ -8,7 +8,7 @@ import click
 import conda_build.api
 import yaml
 
-from ..bootstrap import get_channels, set_environment
+from ..bootstrap import get_channels, run_cmdline, set_environment
 from ..build import (
     conda_arch,
     get_docserver_setup,
@@ -247,6 +247,18 @@ def build(
 
         if not os.path.exists(d):
             raise RuntimeError("The directory %s does not exist" % d)
+
+        # If in docker, install the packages inside the yum_requirements.txt file if it exists
+        yum_requirements_file = os.path.join(d, "yum_requirements.txt")
+        if "docker" in os.environ.get("CI_RUNNER_TAGS", "") and os.path.exists(
+            yum_requirements_file
+        ):
+            logger.info(
+                "Installing packages from yum_requirements.txt file using yum"
+            )
+            cmd = ["/usr/bin/sudo", "-n", "yum", "-y", "install"]
+            cmd.extend(open(yum_requirements_file).read().splitlines())
+            run_cmdline(cmd)
 
         version_candidate = os.path.join(d, "..", "version.txt")
         if os.path.exists(version_candidate):

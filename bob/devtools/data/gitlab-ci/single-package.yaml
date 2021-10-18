@@ -84,7 +84,6 @@ build_linux_38:
     PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
-    - if [ -f "${CI_PROJECT_DIR}/conda/yum_requirements.txt" ]; then /usr/bin/sudo -n yum -y install $(cat ${CI_PROJECT_DIR}/conda/yum_requirements.txt); fi # [linux]
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
     - bdt ci clean -vv
