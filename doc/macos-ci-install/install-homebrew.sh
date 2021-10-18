@@ -17,6 +17,6 @@ if [ ! -x ${brew} ]; then
     brew=/opt/homebrew/bin/brew
 fi
 
-${brew} install curl git coreutils highlight neovim tmux htop python@3 pygments gitlab-runner
+${brew} install curl git coreutils highlight neovim tmux htop python@3 pygments imagemagick gitlab-runner
 ${brew} services list #forces the installation of "services" support
 ${brew} install --cask mactex
