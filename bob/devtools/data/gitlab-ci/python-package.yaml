@@ -1,0 +1,135 @@
+# This YAML file contains descriptions for the CI of python-only packages
+# - do **not** modify it unless you know what you're doing (and up to!)
+
+# Definition of global variables (all stages)
+variables:
+  PYTHONUNBUFFERED: "1"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
+  DEPLOY: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/deploy.py"
+
+
+# Definition of our build pipeline order
+stages:
+  - build
+  - test
+  - deploy
+  - pypi
+
+
+# Build targets
+build:
+  image: python:latest
+  tags:
+    - docker
+  stage: build
+  before_script:
+    - pip install twine pre-commit sphinx sphinx-rtd-theme
+  script:
+    - "[ -r .pre-commit-config.yaml ] && pre-commit run --all-files --show-diff-on-failure --verbose"
+    - python setup.py sdist --formats=zip
+    - twine check dist/*.zip
+    - pip install -e .
+    - "[ -e doc ] && sphinx-build doc html"
+  artifacts:
+    paths:
+      - dist/*.zip
+      - html
+    expire_in: 1 week
+  cache:
+    key: "build-py"
+    paths:
+      - ${PRE_COMMIT_HOME}
+      - ${PIP_CACHE_DIR}
+
+
+# Test targets
+.test_template:
+  tags:
+    - docker
+  stage: test
+  dependencies:
+    - build
+  before_script:
+    - pip install tox
+  cache:
+    key: "test-py"
+    paths:
+      - ${PIP_CACHE_DIR}
+
+
+test_py38:
+  extends: .test_template
+  image: python:3.8
+  script:
+    - tox -e py38
+
+test_py39:
+  extends: .test_template
+  image: python:3.9
+  script:
+    - tox -e py39
+
+test_py310:
+  extends: .test_template
+  image: python:3.10
+  script:
+    - tox -e py310
+
+
+.deploy_template:
+  image: python:latest
+  tags:
+    - docker
+  stage: deploy
+  dependencies:
+    - test_py38
+    - test_py39
+    - test_py310
+    - build
+  before_script:
+    - pip install webdavclient3
+    - curl --silent "${DEPLOY}" --output "deploydocs.py"
+  script:
+    - python ./deploydocs.py -v html
+
+deploy_beta:
+  extends: .deploy_template
+  environment: beta
+  only:
+    - master
+
+deploy_stable:
+  extends: .deploy_template
+  environment: stable
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+  except:
+    - branches
+
+
+pypi:
+  image: python:latest
+  tags:
+    - docker
+  stage: pypi
+  environment: pypi
+  only:
+    refs:
+      - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+    variables:
+      - $CI_PROJECT_VISIBILITY == "public"
+  except:
+    - branches
+  dependencies:
+    - test_py38
+    - test_py39
+    - test_py310
+    - build
+  before_script:
+    - pip install twine
+  script:
+    - twine --skip-existing --username=${PYPIUSER} --password=${PYPIPASS} dist/*.zip
+  cache:
+    paths:
+      - ${PIP_CACHE_DIR}

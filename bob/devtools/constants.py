@@ -7,7 +7,7 @@ import os
 
 import pkg_resources
 
-from . import bootstrap
+from . import bootstrap, deploy
 from .log import get_logger
 
 logger = get_logger(__name__)
@@ -30,37 +30,11 @@ CONDA_RECIPE_APPEND = pkg_resources.resource_filename(
 
 
 SERVER = bootstrap._SERVER
+assert SERVER == deploy._SERVER, "Also change deploy._SERVER to match this!"
 """This is the default server use use to store data and build artifacts"""
 
-
-WEBDAV_PATHS = {
-    True: {  # stable?
-        False: {  # visible?
-            "root": "/private-upload",
-            "conda": "/conda",
-            "docs": "/docs",
-        },
-        True: {  # visible?
-            "root": "/public-upload",
-            "conda": "/conda",
-            "docs": "/docs",
-        },
-    },
-    False: {  # stable?
-        False: {  # visible?
-            "root": "/private-upload",
-            "conda": "/conda/label/beta",
-            "docs": "/docs",
-        },
-        True: {  # visible?
-            "root": "/public-upload",
-            "conda": "/conda/label/beta",
-            "docs": "/docs",
-        },
-    },
-}
+WEBDAV_PATHS = deploy._WEBDAV_PATHS
 """Default locations of our webdav upload paths"""
-
 
 IDIAP_ROOT_CA = b"""
 Idiap Root CA 2016 - for internal use
