@@ -4,12 +4,41 @@
 """Deployment utilities for conda packages and documentation via webDAV."""
 
 
+import logging
 import os
 
-from .constants import SERVER, WEBDAV_PATHS
-from .log import get_logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# This must be a copy of what is in bootstrap.py.
+# Notice this script is also called independently of bob.devtools!
+_SERVER = "http://www.idiap.ch"
+
+_WEBDAV_PATHS = {
+    True: {  # stable?
+        False: {  # visible?
+            "root": "/private-upload",
+            "conda": "/conda",
+            "docs": "/docs",
+        },
+        True: {  # visible?
+            "root": "/public-upload",
+            "conda": "/conda",
+            "docs": "/docs",
+        },
+    },
+    False: {  # stable?
+        False: {  # visible?
+            "root": "/private-upload",
+            "conda": "/conda/label/beta",
+            "docs": "/docs",
+        },
+        True: {  # visible?
+            "root": "/public-upload",
+            "conda": "/conda/label/beta",
+            "docs": "/docs",
+        },
+    },
+}
 
 
 def _setup_webdav_client(server, root, username, password):
@@ -23,7 +52,7 @@ def _setup_webdav_client(server, root, username, password):
         webdav_password=password,
     )
 
-    from .webdav3 import client as webdav
+    from webdav3 import client as webdav
 
     retval = webdav.Client(webdav_options)
     assert retval.valid()
@@ -56,9 +85,9 @@ def deploy_conda_package(
         messages.
     """
 
-    server_info = WEBDAV_PATHS[stable][public]
+    server_info = _WEBDAV_PATHS[stable][public]
     davclient = _setup_webdav_client(
-        SERVER, server_info["root"], username, password
+        _SERVER, server_info["root"], username, password
     )
 
     basename = os.path.basename(package)
@@ -71,18 +100,18 @@ def deploy_conda_package(
                 "The file %s/%s already exists on the server "
                 "- this can be due to more than one build with deployment "
                 "running at the same time.  Re-running the broken builds "
-                "normally fixes it" % (SERVER, remote_path)
+                "normally fixes it" % (_SERVER, remote_path)
             )
 
         else:
             logger.info(
-                "[dav] rm -f %s%s%s", SERVER, server_info["root"], remote_path
+                "[dav] rm -f %s%s%s", _SERVER, server_info["root"], remote_path
             )
             if not dry_run:
                 davclient.clean(remote_path)
 
     logger.info(
-        "[dav] %s -> %s%s%s", package, SERVER, server_info["root"], remote_path
+        "[dav] %s -> %s%s%s", package, _SERVER, server_info["root"], remote_path
     )
     if not dry_run:
         davclient.upload(local_path=package, remote_path=remote_path)
@@ -132,9 +161,9 @@ def deploy_documentation(
             "ensure documentation is being produced for your project!" % path
         )
 
-    server_info = WEBDAV_PATHS[stable][public]
+    server_info = _WEBDAV_PATHS[stable][public]
     davclient = _setup_webdav_client(
-        SERVER, server_info["root"], username, password
+        _SERVER, server_info["root"], username, password
     )
 
     remote_path_prefix = "%s/%s" % (server_info["docs"], package)
@@ -161,7 +190,85 @@ def deploy_documentation(
                 davclient.mkdir(remote_path_prefix)
         remote_path = "%s/%s" % (remote_path_prefix, k)
         logger.info(
-            "[dav] %s -> %s%s%s", path, SERVER, server_info["root"], remote_path
+            "[dav] %s -> %s%s%s",
+            path,
+            _SERVER,
+            server_info["root"],
+            remote_path,
         )
         if not dry_run:
             davclient.upload_directory(local_path=path, remote_path=remote_path)
+
+
+if __name__ == "__main__":
+
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Deploys documentation from python-only packages"
+    )
+    parser.add_argument(
+        "directory",
+        help="Directory containing the sphinx build to deploy",
+    )
+    parser.add_argument(
+        "-p",
+        "--package",
+        default=os.environ.get("CI_PROJECT_PATH", None),
+        help="The package being built [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-x",
+        "--visibility",
+        default=os.environ.get("CI_PROJECT_VISIBILITY", "private"),
+        help="The visibility of the package being built [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-b",
+        "--branch",
+        default=os.environ.get("CI_COMMIT_REF_NAME", None),
+        help="Name of the branch being built [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-t",
+        "--tag",
+        default=os.environ.get("CI_COMMIT_TAG", None),
+        help="If building a tag, pass it with this flag [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-u",
+        "--username",
+        default=os.environ.get("DOCUSER", None),
+        help="Username for webdav deployment [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-P",
+        "--password",
+        default=os.environ.get("DOCPASS", None),
+        help="Password for webdav deployment [default: %(default)s]",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Be verbose (enables INFO logging)",
+        action="store_const",
+        dest="loglevel",
+        default=logging.WARNING,
+        const=logging.INFO,
+    )
+
+    args = parser.parse_args()
+    logging.basicConfig(level=args.loglevel)
+
+    deploy_documentation(
+        args.directory,
+        package=args.package,
+        stable=(args.tag is not None),
+        latest=True,
+        public=(args.visibility == "public"),
+        branch=args.branch,
+        tag=args.tag,
+        username=args.username,
+        password=args.password,
+        dry_run=False,
+    )
