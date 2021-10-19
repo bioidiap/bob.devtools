@@ -7,7 +7,7 @@ version = open("version.txt").read().rstrip()
 
 requires = [
     "setuptools",
-    "black>=19",
+    "black>=19b0",
     "click>=7",
     "click-plugins",
     # "conda>=4",
