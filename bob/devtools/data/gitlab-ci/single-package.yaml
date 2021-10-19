@@ -72,6 +72,18 @@ stages:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
 
 
+.build_macos_arm_template:
+  extends: .build_template
+  tags:
+    - bob
+    - macos
+    - arm
+  artifacts:
+    paths:
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.tar.bz2
+
+
 build_macos_intel_38:
   extends: .build_macos_intel_template
   variables:
@@ -81,6 +93,13 @@ build_macos_intel_38:
 
 build_macos_intel_39:
   extends: .build_macos_intel_template
+  variables:
+    PYTHON_VERSION: "3.9"
+  cache:
+    key: "build-py39"
+
+build_macos_arm_39:
+  extends: .build_macos_arm_template
   variables:
     PYTHON_VERSION: "3.9"
   cache:
@@ -112,35 +131,6 @@ build_linux_39:
     key: "build-py39"
 
 
-# Test targets (not normally used)
-.test_template:
-  extends: .bootstrap
-  stage: test
-  script:
-    - bdt ci test -vv
-    - bdt ci clean -vv
-  cache:
-    paths:
-      - miniconda.sh
-      - torch
-
-
-.test_linux_template:
-  extends: .test_template
-  tags:
-    - bob
-    - docker
-  image: quay.io/condaforge/linux-anvil-cos7-x86_64
-
-
-.test_macos_intel_template:
-  extends: .test_template
-  tags:
-    - bob
-    - macos
-    - intel
-
-
 # Deploy targets
 .deploy_template:
   extends: .bootstrap
@@ -153,6 +143,7 @@ build_linux_39:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
+    - build_macos_arm_39
   tags:
     - bob
     - docker
@@ -195,6 +186,7 @@ pypi:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
+    - build_macos_arm_39
   tags:
     - bob
     - docker

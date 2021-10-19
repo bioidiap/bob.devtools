@@ -94,7 +94,7 @@ def base_deploy(dry_run):
 
     # deploys all conda package artefacts currently available (erases them
     # afterwards)
-    for arch in ("linux-64", "osx-64", "noarch"):
+    for arch in ("linux-64", "linux-aarch64", "osx-64", "osx-arm64", "noarch"):
         # finds conda dependencies and uploads what we can find
         base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", arch)
         conda_paths = os.path.join(base_path, "*.conda")
@@ -184,7 +184,7 @@ def deploy(latest, dry_run):
 
     # deploys all conda package artefacts currently available (erases them
     # afterwards)
-    for arch in ("linux-64", "osx-64", "noarch"):
+    for arch in ("linux-64", "linux-aarch64", "osx-64", "osx-arm64", "noarch"):
         # finds conda packages and uploads what we can find
         base_path = os.path.join(os.environ["CONDA_ROOT"], "conda-bld", arch)
         conda_paths = os.path.join(base_path, "*.conda")

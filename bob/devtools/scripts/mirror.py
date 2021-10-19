@@ -168,7 +168,13 @@ def mirror(
         logger.warn("!!!! DRY RUN MODE !!!!")
         logger.warn("Nothing will be really mirrored")
 
-    DEFAULT_SUBDIRS = ["noarch", "linux-64", "osx-64", "osx-arm64"]
+    DEFAULT_SUBDIRS = [
+        "noarch",
+        "linux-64",
+        "linux-aarch64",
+        "osx-64",
+        "osx-arm64",
+    ]
 
     noarch = os.path.join(dest_dir, "noarch")
     if not os.path.exists(noarch):  # first time

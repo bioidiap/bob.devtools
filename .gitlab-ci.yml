@@ -65,6 +65,23 @@ stages:
     key: "macos-intel-cache"
 
 
+.build_macos_arm_template:
+  extends: .build_template
+  tags:
+    - macos
+    - arm
+  before_script:
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
+  artifacts:
+    paths:
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.tar.bz2
+  cache:
+    key: "macos-arm-cache"
+
+
 build_linux_bob_devel:
   extends: .build_linux_template
   # run bob-devel test only when bob/devtools/data/conda_build_config.yaml changes
@@ -100,6 +117,15 @@ build_macos_intel_bob_devel:
   script:
     - python3 ./bob/devtools/build.py -vv build-bob-devel
 
+build_macos_arm_bob_devel:
+  extends: .build_macos_arm_template
+  # run bob-devel test only when bob/devtools/data/conda_build_config.yaml changes
+  only:
+    changes:
+      - bob/devtools/data/conda_build_config.yaml
+  script:
+    - python3 ./bob/devtools/build.py -vv build-bob-devel
+
 build_macos_intel_deps:
   extends: .build_macos_intel_template
   # run deps test only when deps changes
@@ -109,8 +135,24 @@ build_macos_intel_deps:
   script:
     - python3 ./bob/devtools/build.py -vv build-deps
 
+build_macos_arm_deps:
+  extends: .build_macos_arm_template
+  # run deps test only when deps changes
+  only:
+    changes:
+      - deps/**/*
+  script:
+    - python3 ./bob/devtools/build.py -vv build-deps
+
 build_macos_intel_bob_devtools:
   extends: .build_macos_intel_template
+  script:
+    - pip install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
+    - python3 ./bob/devtools/build.py -vv build-devtools
+
+build_macos_arm_bob_devtools:
+  extends: .build_macos_arm_template
   script:
     - pip install pre-commit
     - pre-commit run --all-files --show-diff-on-failure
@@ -134,6 +176,9 @@ build_macos_intel_bob_devtools:
     - build_macos_intel_bob_devel
     - build_macos_intel_deps
     - build_macos_intel_bob_devtools
+    - build_macos_arm_bob_devel
+    - build_macos_arm_deps
+    - build_macos_arm_bob_devtools
   tags:
     - docker
     - bob
@@ -178,6 +223,9 @@ pypi:
     - build_macos_intel_bob_devel
     - build_macos_intel_deps
     - build_macos_intel_bob_devtools
+    - build_macos_arm_bob_devel
+    - build_macos_arm_deps
+    - build_macos_arm_bob_devtools
   tags:
     - bob
     - docker

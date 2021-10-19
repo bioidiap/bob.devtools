@@ -82,7 +82,7 @@ def get_json(channel, platform, name):
     ----------
     channel : str
         Complete channel URL
-    platform : {'linux-64', 'osx-64', 'osx-arm64', 'noarch'}
+    platform : {'linux-64', 'linux-aarch64', 'osx-64', 'osx-arm64', 'noarch'}
         The platform of interest
     name : str
         The name of the file to retrieve.  If the name ends in '.bz2', then it
@@ -386,8 +386,8 @@ def checksum_packages(repodata, dest_dir, arch, packages):
     dest_dir : str
         Path leading to local mirror
     arch : str
-        Current architecture being considered (e.g. noarch, linux-64, osx-64,
-        osx-arm64)
+        Current architecture being considered (e.g. noarch, linux-64,
+        linux-aarch64, osx-64, osx-arm64)
     packages : list
         List of packages that are available locally, by name
 
