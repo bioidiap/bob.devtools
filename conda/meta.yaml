@@ -53,6 +53,7 @@ requirements:
     - tabulate
     - python-graphviz
     - pip
+    - webdavclient3
 
 test:
   requires:

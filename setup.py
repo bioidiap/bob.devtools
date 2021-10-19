@@ -29,6 +29,7 @@ requires = [
     "termcolor",
     "psutil",
     "pytz",
+    "webdavclient3",
 ]
 
 setup(
