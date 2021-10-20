@@ -388,7 +388,7 @@ make:
 matplotlib:
   - 3.4.3
 mkl:
-  - 2020.4  # [x86 or x86_64]
+  - 2020.4
 ncurses:
   - 6.2
 nose:
