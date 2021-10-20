@@ -294,21 +294,18 @@ def get_channels(
     The subset of channels to be returned depends on the visibility and
     stability of the package being built.  Here are the rules:
 
-    * public and stable: only returns the public stable channel(s)
-    * public and not stable: returns both public stable and beta channels
+    * public and stable: returns the public stable channel
+    * public and not stable: returns the public beta channel
     * not public and stable: returns both public and private stable channels
-    * not public and not stable: returns all channels
+    * not public and not stable: returns both public and private beta channels
 
-    Beta channels have priority over stable channels, if returned.  Public
-    channels have priority over private channles, if turned.
-
+    Public channels have priority over private channles, if turned.
 
     Args:
 
       public: Boolean indicating if we're supposed to include only public
         channels
-      stable: Boolean indicating if we're supposed to include only stable
-        channels
+      stable: Boolean indicating if we're supposed to include stable channels
       server: The base address of the server containing our conda channels
       intranet: Boolean indicating if we should add "private"/"public" prefixes
         on the conda paths
@@ -316,8 +313,7 @@ def get_channels(
         compiling is part of.  Values should match URL namespaces currently
         available on our internal webserver.  Currently, only "bob" or "beat"
         will work.
-      add_dependent_channels: If True, will add the defaults and conda-forge
-        channels to the list
+      add_dependent_channels: If True, will add the conda-forge channel to the list
 
 
     Returns: a list of channels that need to be considered.
@@ -335,20 +331,21 @@ def get_channels(
 
     # do not use '/public' urls for public channels
     prefix = "/software/" + group
-    if not stable:
+    if stable:
+        channels += [server + prefix + "/conda"]
+        channels_dict["public/stable"] = channels[-1]
+    else:
         channels += [server + prefix + "/conda/label/beta"]  # allowed betas
         channels_dict["public/beta"] = channels[-1]
 
-    channels += [server + prefix + "/conda"]
-    channels_dict["public/stable"] = channels[-1]
-
     if not public:
         prefix = "/private"
-        if not stable:  # allowed private channels
+        if stable:  # allowed private channels
+            channels += [server + prefix + "/conda"]
+            channels_dict["private/stable"] = channels[-1]
+        else:
             channels += [server + prefix + "/conda/label/beta"]  # allowed betas
             channels_dict["private/beta"] = channels[-1]
-        channels += [server + prefix + "/conda"]
-        channels_dict["private/stable"] = channels[-1]
 
     upload_channel = channels_dict[
         "{}/{}".format(
