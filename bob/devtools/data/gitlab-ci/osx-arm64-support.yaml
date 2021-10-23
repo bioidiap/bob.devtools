@@ -1,0 +1,42 @@
+.build_macos_arm_template:
+  extends: .build_template
+  tags:
+    - macos
+    - arm
+  artifacts:
+    paths:
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
+      - ${CONDA_ROOT}/conda-bld/osx-arm64/*.tar.bz2
+
+build_macos_arm_38:
+  extends: .build_macos_arm_template
+  variables:
+    PYTHON_VERSION: "3.8"
+  cache:
+    key: "build-py38"
+
+.deploy_template:
+  dependencies:
+    - build_linux_38
+    - build_macos_intel_38
+    - build_macos_arm_38
+
+deploy_beta:
+  extends: .deploy_template
+  environment: beta
+  only:
+    - master
+
+deploy_stable:
+  extends: .deploy_template
+  environment: stable
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+  except:
+    - branches
+
+pypi:
+  dependencies:
+    - build_linux_38
+    - build_macos_intel_38
+    - build_macos_arm_38
