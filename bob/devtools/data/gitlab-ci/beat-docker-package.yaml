@@ -1,3 +1,4 @@
 build_linux_38:
   tags:
+    - bob
     - docker-build

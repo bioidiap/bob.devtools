@@ -21,6 +21,7 @@ stages:
 build:
   image: python:latest
   tags:
+    - bob
     - docker
   stage: build
   before_script:
@@ -46,6 +47,7 @@ build:
 # Test targets
 .test_template:
   tags:
+    - bob
     - docker
   stage: test
   dependencies:
@@ -80,6 +82,7 @@ test_py310:
 .deploy_template:
   image: python:latest
   tags:
+    - bob
     - docker
   stage: deploy
   dependencies:
@@ -111,6 +114,7 @@ deploy_stable:
 pypi:
   image: python:latest
   tags:
+    - bob
     - docker
   stage: pypi
   environment: pypi
