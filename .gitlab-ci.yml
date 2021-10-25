@@ -28,6 +28,7 @@ stages:
   variables:
     BUILD_EGG: "true"
   tags:
+    - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
@@ -49,6 +50,7 @@ stages:
 .build_macos_intel_template:
   extends: .build_template
   tags:
+    - bob
     - macos
     - intel
   before_script:
@@ -134,6 +136,7 @@ build_macos_intel_bob_devtools:
     - build_macos_intel_bob_devtools
   tags:
     - docker
+    - bob
   cache:
     paths:
       - miniconda.sh
@@ -176,6 +179,7 @@ pypi:
     - build_macos_intel_deps
     - build_macos_intel_bob_devtools
   tags:
+    - bob
     - docker
   cache:
     paths:

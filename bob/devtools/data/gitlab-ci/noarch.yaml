@@ -51,6 +51,7 @@ stages:
 build_linux:
   extends: .build_template
   tags:
+    - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   variables:
@@ -77,6 +78,7 @@ build_macos_intel:
     key: "build"
   extends: .build_template
   tags:
+    - bob
     - macos
     - intel
 
@@ -96,6 +98,7 @@ build_macos_intel:
 .test_linux_template:
   extends: .test_template
   tags:
+    - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
 
@@ -103,6 +106,7 @@ build_macos_intel:
 .test_macos_intel_template:
   extends: .test_template
   tags:
+    - bob
     - macos
     - intel
 
@@ -118,6 +122,7 @@ build_macos_intel:
     - build_linux
     - build_macos_intel
   tags:
+    - bob
     - docker
   cache:
     key: "deploy"
@@ -157,6 +162,7 @@ pypi:
     - build_linux
     - build_macos_intel
   tags:
+    - bob
     - docker
   cache:
     key: "pypi"

@@ -19,6 +19,7 @@ stages:
 # All stages are prepared the same, with a base set of commands
 .bootstrap:
   tags:
+    - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
