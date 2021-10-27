@@ -42,7 +42,6 @@ build:
     PYTHON_VERSION: "3.8"
     BUILD_EGG: "true"
   script:
-    - yum -y install dejavu-sans-fonts
     - bdt ci docs -vv packages.txt
     - bdt ci clean -vv
   artifacts:
