@@ -43,7 +43,7 @@ requirements:
     - gitpython
     - python-gitlab
     - requests
-    - sphinx!=4.0.1
+    - sphinx >=4.0.2
     - pyyaml >=5.1
     - twine <3
     - lxml

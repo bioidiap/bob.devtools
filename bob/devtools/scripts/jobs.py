@@ -13,18 +13,23 @@ logger = get_logger(__name__)
     epilog="""
 Examples:
 
-  1. List running jobs on any of our runners
+  1. List running jobs on any runners with tag "bob" (default)
 
      $ bdt gitlab jobs -vv
 
 
-  2. List running jobs on a runner defined by its description:
+  2. List running jobs on a runner with tag "macos":
 
-     $ bdt gitlab jobs -vv macmini
+     $ bdt gitlab jobs -vv macos
+
+
+  2. List running jobs on a runner with tag "macos" and "foo":
+
+     $ bdt gitlab jobs -vv macos foo
 
 """
 )
-@click.argument("name", nargs=-1)
+@click.argument("tags", nargs=-1)
 @click.option(
     "-s",
     "--status",
@@ -36,31 +41,19 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def jobs(name, status):
+def jobs(status, tags):
     """Lists jobs on a given runner identified by description."""
 
     gl = get_gitlab_instance()
     gl.auth()
 
-    names = name or [
-        "linux-shell",
-        "linux-docker",
-        "macpro",
-        "macmini",
-        "macm1",
-    ]
+    tags = tags or ["bob"]
 
     # search for the runner(s) to affect
-    runners = [
-        k
-        for k in gl.runners.list(all=True)
-        if k.attributes["description"] in names
-    ]
+    runners = gl.runners.list(tag_list=tags)
 
     if not runners:
-        raise RuntimeError(
-            "Cannot find runner with description = %s" % "|".join(names)
-        )
+        raise RuntimeError("Cannot find runner with tags = %s" % "|".join(tags))
 
     for runner in runners:
         jobs = runner.jobs.list(all=True, status=status)
