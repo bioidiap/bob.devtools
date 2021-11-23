@@ -190,12 +190,24 @@ Running regular updates
 -----------------------
 
 We recommend that the CI machine to have homebrew and installed pip packages
-updated regularly (once a week).  To do so, setup a cronjob like the following:
+updated regularly (once a week).  To do so, setup a cronjob like the following,
+for the ``admin`` user:
 
 .. code-block:: text
 
    SHELL=/bin/bash
    MAILTO="your.email@idiap.ch"
    00 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/update-ci.sh)
+
+And one line the following for the ``gitlab`` user, about 30 minutes later, to
+give time for the machine updating to be performed.  The second cronjob will
+re-spawn the gitlab-runner, which may be necessary if it was updated on the
+previous step:
+
+.. code-block:: text
+
+   SHELL=/bin/bash
+   MAILTO="your.email@idiap.ch"
+   30 12 * * 0 /bin/bash <(curl -s https://gitlab.idiap.ch/bob/bob.devtools/raw/master/doc/macos-ci-install/reconfig-gitlab-runner.sh)
 
 .. include:: links.rst
