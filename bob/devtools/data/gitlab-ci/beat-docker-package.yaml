@@ -2,3 +2,8 @@ build_linux_38:
   tags:
     - bob
     - docker-build
+
+build_linux_39:
+  tags:
+    - bob
+    - docker-build
