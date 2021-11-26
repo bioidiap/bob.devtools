@@ -53,6 +53,13 @@ build_linux_38:
   cache:
     key: 'build-py38'
 
+build_linux_39:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.9"
+  cache:
+    key: 'build-py39'
+
 build_macos_intel_38:
   extends: .build_template
   variables:
@@ -63,6 +70,17 @@ build_macos_intel_38:
     - intel
   cache:
     key: 'build-py38'
+
+build_macos_intel_39:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.9"
+  tags:
+    - bob
+    - macos
+    - intel
+  cache:
+    key: 'build-py39'
 
 
 # Periodic cleanup of beta packages
