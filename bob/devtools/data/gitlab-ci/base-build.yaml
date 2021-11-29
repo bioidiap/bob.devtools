@@ -47,3 +47,13 @@ build_macos_intel:
     - intel
   cache:
     key: "macos-intel-cache"
+
+
+build_macos_arm:
+  extends: .build_template
+  tags:
+    - bob
+    - macos
+    - arm
+  cache:
+    key: "macos-arm-cache"

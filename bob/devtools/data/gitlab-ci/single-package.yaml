@@ -102,6 +102,7 @@ build_macos_arm_39:
   extends: .build_macos_arm_template
   variables:
     PYTHON_VERSION: "3.9"
+  allow_failure: true
   cache:
     key: "build-py39"
 
@@ -143,7 +144,6 @@ build_linux_39:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
-    - build_macos_arm_39
   tags:
     - bob
     - docker
@@ -186,7 +186,6 @@ pypi:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
-    - build_macos_arm_39
   tags:
     - bob
     - docker

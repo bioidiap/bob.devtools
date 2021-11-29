@@ -83,6 +83,18 @@ build_macos_intel:
     - intel
 
 
+build_macos_arm:
+  variables:
+    PYTHON_VERSION: "3.9"
+  cache:
+    key: "build"
+  extends: .build_template
+  tags:
+    - bob
+    - macos
+    - arm
+
+
 # Test targets (not normally used)
 .test_template:
   extends: .bootstrap
@@ -111,6 +123,14 @@ build_macos_intel:
     - intel
 
 
+.test_macos_arm_template:
+  extends: .test_template
+  tags:
+    - bob
+    - macos
+    - arm
+
+
 # Deploy targets
 .deploy_template:
   extends: .bootstrap
@@ -121,6 +141,7 @@ build_macos_intel:
   dependencies:
     - build_linux
     - build_macos_intel
+    - build_macos_arm
   tags:
     - bob
     - docker
@@ -161,6 +182,7 @@ pypi:
   dependencies:
     - build_linux
     - build_macos_intel
+    - build_macos_arm
   tags:
     - bob
     - docker
