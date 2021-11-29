@@ -144,6 +144,7 @@ build_linux_39:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
+    - build_macos_arm_39
   tags:
     - bob
     - docker
@@ -186,6 +187,7 @@ pypi:
     - build_linux_39
     - build_macos_intel_38
     - build_macos_intel_39
+    - build_macos_arm_39
   tags:
     - bob
     - docker
