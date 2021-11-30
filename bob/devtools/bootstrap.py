@@ -214,17 +214,24 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "https://github.com/conda-forge/miniforge/releases/download/4.10.3-6/Mambaforge-4.10.3-6-%s-x86_64.sh"
-    if platform.system() == "Darwin":
-        sha256 = (
-            "955a6255871d9b53975e1c1581910844bcf33cbca613c7dba2842f6269917da6"
-        )
-        path = path % "MacOSX"
+    path = "https://github.com/conda-forge/miniforge/releases/download/4.10.3-6/Mambaforge-4.10.3-6-%s-%s.sh"
+    if platform.system().lower() == "darwin":  # apple silicon
+        system = "MacOSX"
+        if platform.machine().lower() == "arm64":
+            sha256 = "3cd1f11743f936ba522709eb7a173930c299ac681671a909b664222329a56290"
+            machine = "arm64"
+        else:  # intel
+            sha256 = "955a6255871d9b53975e1c1581910844bcf33cbca613c7dba2842f6269917da6"
+            machine = "x86_64"
     else:
-        sha256 = (
-            "c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
-        )
-        path = path % "Linux"
+        system = "Linux"
+        if platform.machine().lower() == "aarch64":  # raspberry pi
+            sha256 = "d597961defe8c7889f3e924d0dc7624fab2c8845abccdd8ffa8da8018ff3dc6e"
+            machine = "aarch64"
+        else:  # intel
+            sha256 = "c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
+            machine = "x86_64"
+    path = path % (system, machine)
 
     if os.path.exists("miniconda.sh"):
         logger.info("(check) miniconda.sh sha256 (== %s?)", sha256)

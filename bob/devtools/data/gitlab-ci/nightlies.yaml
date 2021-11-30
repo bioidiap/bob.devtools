@@ -82,6 +82,17 @@ build_macos_intel_39:
   cache:
     key: 'build-py39'
 
+build_macos_arm_39:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.9"
+  tags:
+    - bob
+    - macos
+    - arm
+  cache:
+    key: 'build-py39'
+
 
 # Periodic cleanup of beta packages
 .cleanup_template:

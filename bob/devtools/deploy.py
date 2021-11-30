@@ -68,9 +68,10 @@ def deploy_conda_package(
     Args:
 
       package (str): Path leading to the conda package to be deployed
-      arch (str): The conda architecture to deploy to (``linux-64``, ``osx-64``,
-        ``noarch``, or ``None`` - in which case the architecture is going to be
-        guessed from the directory where the package sits)
+      arch (str): The conda architecture to deploy to (``linux-64``,
+        ``linux-aarch64``, ``osx-64``, ``osx-arm64``, ``noarch``, or ``None`` -
+        in which case the architecture is going to be guessed from the
+        directory where the package sits)
       stable (bool): Indicates if the package should be deployed on a stable
         (``True``) or beta (``False``) channel
       public (bool): Indicates if the package is supposed to be distributed
