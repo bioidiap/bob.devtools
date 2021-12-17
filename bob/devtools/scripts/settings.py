@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 def _change_settings(project, info, dry_run):
     """Updates the project settings using ``info``"""
 
-    name = f"{project.namespace['name']}/{project.name}"
+    name = f"{project.namespace['full_path']}/{project.name}"
     echo_normal(f"Changing {name}...")
 
     if info.get("archive") is not None:
@@ -77,6 +77,12 @@ Examples:
     help="Set this to update the project description",
 )
 @click.option(
+    "-g",
+    "--group/--no-group",
+    default=False,
+    help="If set, consider the the provided name as a group name",
+)
+@click.option(
     "-A",
     "--archive/--unarchive",
     default=None,
@@ -92,7 +98,7 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def settings(projects, avatar, description, archive, dry_run):
+def settings(projects, avatar, description, group, archive, dry_run):
     """Updates project settings"""
 
     # if we are in a dry-run mode, let's let it be known
@@ -105,11 +111,11 @@ def settings(projects, avatar, description, archive, dry_run):
 
     for target in projects:
 
-        if "/" in target:  # it is a specific project
-            gl_projects.append(_get_project(gl, target))
-
-        elif os.path.exists(target):  # it is a file with project names
+        if os.path.exists(target):  # it is a file with project names
             gl_projects += _get_projects_from_file(gl, target)
+
+        if not group:  # it is a specific project
+            gl_projects.append(_get_project(gl, target))
 
         else:  # it is a group - get all projects
             gl_projects += _get_projects_from_group(gl, target)
