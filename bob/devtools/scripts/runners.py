@@ -121,6 +121,12 @@ Examples:
 @click.argument("name")
 @click.argument("targets", nargs=-1, required=True)
 @click.option(
+    "-g",
+    "--group/--no-group",
+    default=False,
+    help="If set, consider the the provided name as a group name",
+)
+@click.option(
     "-d",
     "--dry-run/--no-dry-run",
     default=False,
@@ -130,7 +136,7 @@ Examples:
 )
 @verbosity_option()
 @bdt.raise_on_error
-def enable(name, targets, dry_run):
+def enable(name, targets, group, dry_run):
     """Enables runners on whole gitlab groups or single projects.
 
     You may provide project names (like "group/project"), whole groups, and
@@ -145,11 +151,11 @@ def enable(name, targets, dry_run):
     packages = []
     for target in targets:
 
-        if "/" in target:  # it is a specific project
-            packages.append(_get_project(gl, target))
-
-        elif os.path.exists(target):  # it is a file with project names
+        if os.path.exists(target):  # it is a file with project names
             packages += _get_projects_from_file(gl, target)
+
+        elif not group:  # it is a specific project
+            packages.append(_get_project(gl, target))
 
         else:  # it is a group - get all projects
             packages += _get_projects_from_group(gl, target)

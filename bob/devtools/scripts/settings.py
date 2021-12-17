@@ -114,7 +114,7 @@ def settings(projects, avatar, description, group, archive, dry_run):
         if os.path.exists(target):  # it is a file with project names
             gl_projects += _get_projects_from_file(gl, target)
 
-        if not group:  # it is a specific project
+        elif not group:  # it is a specific project
             gl_projects.append(_get_project(gl, target))
 
         else:  # it is a group - get all projects
