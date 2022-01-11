@@ -67,7 +67,9 @@ def get_gitlab_instance():
     cfgs = ["~/.python-gitlab.cfg", "/etc/python-gitlab.cfg"]
     cfgs = [os.path.expanduser(k) for k in cfgs]
     if any([os.path.exists(k) for k in cfgs]):
-        gl = gitlab.Gitlab.from_config("idiap", cfgs)
+        gl = gitlab.Gitlab.from_config(
+            "idiap", [k for k in cfgs if os.path.exists(k)]
+        )
     else:  # ask the user for a token or use one from the current runner
         server = "https://gitlab.idiap.ch"
         token = os.environ.get("CI_JOB_TOKEN")
