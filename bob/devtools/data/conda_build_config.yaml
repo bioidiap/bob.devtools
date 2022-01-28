@@ -339,6 +339,7 @@ package_names_map:
   sphinxcontrib_programoutput: sphinxcontrib-programoutput
   zc_buildout: zc.buildout
   zc_recipe_egg: zc.recipe.egg
+  imageio_ffmpeg: imageio-ffmpeg
 
 
 boost:
@@ -366,7 +367,7 @@ docker_py:
 docopt:
   - 0.6.2
 ffmpeg:
-  - 4.4.0
+  - 4.3.2
 flaky:
   - 3.7.0
 font_ttf_dejavu_sans_mono:
@@ -381,6 +382,8 @@ h5py:
   - 2.10.0
 hdf5:
   - 1.10.6
+imageio_ffmpeg:
+  - 0.4.5
 jinja2:
   - 3.0.2
 jpeg:
