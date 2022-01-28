@@ -340,6 +340,7 @@ package_names_map:
   zc_buildout: zc.buildout
   zc_recipe_egg: zc.recipe.egg
   imageio_ffmpeg: imageio-ffmpeg
+  pytorch_lightning: pytorch-lightning
 
 
 boost:
@@ -443,6 +444,8 @@ python_graphviz:
 pytorch:
   - 1.8.0 cuda*  # [linux]
   - 1.8.0  # [osx]
+pytorch_lightning:
+  - 1.5.9
 pyyaml:
   - 5.4.1
 pyzmq:
