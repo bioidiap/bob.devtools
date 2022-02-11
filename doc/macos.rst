@@ -182,7 +182,12 @@ Building the reference setup
 12. Once installed, go the the settings and in "General" uncheck the option
     "Use gRPC FUSE for file sharing". At the time of writing (04.10.2021), the
     gRPC Fuse system does not work well with beat/beat.core> testing.
-13. Reboot the machine. At this point, the gitlab user should be auto-logged
+13. Import Idiap's self-signed root certificate::
+
+        $ curl -o cert.crt -s https://pki.idiap.ch/download/Idiap_2016_Root-cacert.crt
+        $ sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cert.crt
+        $ rm -f cert.crt
+14. Reboot the machine. At this point, the gitlab user should be auto-logged
     and the runner process should be executing.  Congratulations, you're done!
 
 
