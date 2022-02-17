@@ -402,7 +402,7 @@ make:
 matplotlib:
   - 3.5.1
 mkl:  # [x86 or x86_64]
-  - 2022.0.1  # [x86 or x86_64]
+  - 2021.4.0  # [x86 or x86_64]
 ncurses:
   - 6.3
 nose:
