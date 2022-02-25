@@ -346,13 +346,13 @@ package_names_map:
 boost:
   - 1.77.0
 click:
-  - 8.0.3
+  - 8.0.4
 click_plugins:
   - 1.1.1
 cmake:
   - 3.22.2
 coverage:
-  - 6.3.1
+  - 6.3.2
 dask:
   - 2022.2.0
 dask_jobqueue:
@@ -368,7 +368,7 @@ docker_py:
 docopt:
   - 0.6.2
 ffmpeg:
-  - 4.4.1
+  - 4.3.2
 flaky:
   - 3.7.0
 font_ttf_dejavu_sans_mono:
@@ -428,7 +428,7 @@ psycopg2:
 pybind11:
   - 2.9.1
 pyopengl:
-  - 3.1.5
+  - 3.1.6
 pyqt:  # [not arm64]
   - 5.12.3  # [not arm64]
 pyqtgraph:
@@ -459,7 +459,7 @@ requests:
 schema:
   - 0.7.5
 scikit_image:
-  - 0.19.1
+  - 0.19.2
 scikit_learn:
   - 1.0.2
 scipy:
@@ -487,7 +487,8 @@ sqlalchemy:
 tabulate:
   - 0.8.9
 tensorflow:
-  - 2.7.0
+  - 2.7.0 cuda*  # [linux]
+  - 2.7.0  # [osx]
 termcolor:
   - 1.1.0
 torchvision:
