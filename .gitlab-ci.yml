@@ -3,7 +3,6 @@ variables:
   PYTHONUNBUFFERED: "1"
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
   PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
-  CONDA_OVERRIDE_CUDA: "11.6"
 
 
 # Definition of our build pipeline order
