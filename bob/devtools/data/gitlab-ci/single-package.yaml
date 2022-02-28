@@ -58,6 +58,9 @@ stages:
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
+  variables:
+    # The version of cuda at Idiap
+    CONDA_OVERRIDE_CUDA: "11.6"
 
 
 .build_macos_intel_template:

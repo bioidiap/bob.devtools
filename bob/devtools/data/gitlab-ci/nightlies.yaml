@@ -45,6 +45,9 @@ stages:
     - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  variables:
+    # The version of cuda at Idiap
+    CONDA_OVERRIDE_CUDA: "11.6"
 
 build_linux_38:
   extends: .build_linux_template

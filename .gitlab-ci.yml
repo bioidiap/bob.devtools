@@ -84,6 +84,9 @@ stages:
 
 build_linux_bob_devel:
   extends: .build_linux_template
+  variables:
+    # The version of cuda at Idiap
+    CONDA_OVERRIDE_CUDA: "11.6"
   # run bob-devel test only when bob/devtools/data/conda_build_config.yaml changes
   only:
     changes:
