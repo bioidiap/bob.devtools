@@ -113,6 +113,9 @@ build_macos_arm:
     - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  variables:
+    # The version of cuda at Idiap
+    CONDA_OVERRIDE_CUDA: "11.6"
 
 
 .test_macos_intel_template:
