@@ -67,7 +67,7 @@ Examples:
 
   1. Generates a new project for Bob:
 
-     $ bdt new -vv bob/bob.newpackage "John Doe" "joe@example.com"
+     $ bdt dev new -vv bob/bob.newpackage "John Doe" "joe@example.com"
 """
 )
 @click.argument("package")

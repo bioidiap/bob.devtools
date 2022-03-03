@@ -68,16 +68,16 @@ test:
     - bdt --help
     - bdt dumpsphinx --help
     - bdt dumpsphinx https://docs.python.org/3/objects.inv > /dev/null
-    - bdt create --help
+    - bdt dev create --help
     - bdt build --help
     - bdt mirror --help
     - bdt rebuild --help
     - bdt test --help
     - bdt caupdate --help
-    - bdt new --help
-    - bdt new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
-    - bdt new -t "New package" -l bsd -o bob.foobar2 bob/bob.foobar "John Doe" "joe.doe@example.com"
-    - bdt new -t "New package" -l bsd -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
+    - bdt dev new --help
+    - bdt dev new -t "New package" -o bob.foobar bob/bob.foobar "John Doe" "joe.doe@example.com"
+    - bdt dev new -t "New package" -l bsd -o bob.foobar2 bob/bob.foobar "John Doe" "joe.doe@example.com"
+    - bdt dev new -t "New package" -l bsd -o beat.foobar beat/beat.foobar "John Doe" "joe.doe@example.com"
     - bdt gitlab --help
     - bdt gitlab lasttag --help
       #- bdt gitlab lasttag -vv bob/bob.devtools

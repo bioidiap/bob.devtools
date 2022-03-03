@@ -31,7 +31,7 @@ Examples:
 
 \b
      $ cd bob.package.foo
-     $ bdt create -vv myenv
+     $ bdt dev create -vv myenv
 
      The above command assumes the directory `conda' exists on the current directory and that it contains a file called `meta.yaml' containing the recipe for the package you want to create a development environment for.
 
@@ -40,12 +40,12 @@ Examples:
 
   2. By default, we use the native python version of your conda installation as the default python version to use for the newly created environment. You may select a different one with `--python=X.Y':
 
-     $ bdt create -vv --python=3.6 myenv
+     $ bdt dev create -vv --python=3.6 myenv
 
 
   3. By default, we use our own condarc and `conda_build_config.yaml` files that are used in creating packages for our CI/CD system. If you wish to use your own, specify them on the command line:
 
-     $ bdt create -vv --python=3.6 --config=config.yaml --condarc=~/.condarc myenv
+     $ bdt dev create -vv --python=3.6 --config=config.yaml --condarc=~/.condarc myenv
 
      Notice the condarc file **must** end in `condarc', or conda will complain.
 
@@ -55,7 +55,7 @@ Examples:
   enable debug printing.  Equivalent conda commands you can execute on the
   shell will be printed:
 
-     $ bdt create -vvv --dry-run myenv
+     $ bdt dev create -vvv --dry-run myenv
 
 
   5. You can use the option `--pip-extras` to force the installation of extra
@@ -65,7 +65,7 @@ Examples:
   explained in our Setup subsection of the Installation manual.  To use this
   flag on the command-line, specify one pip-installable package each time:
 
-     $ bdt create -vvv --pip-extras=ipdb --pip-extras=mr.developer myenv
+     $ bdt dev create -vvv --pip-extras=ipdb --pip-extras=mr.developer myenv
 
      Using this option **adds** to what is available in the configuration file.
      So, if your configuration file already contains ``ipdb`` and you wish to

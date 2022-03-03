@@ -62,6 +62,7 @@ setup(
             "local = bob.devtools.scripts.local:local",
             "gitlab = bob.devtools.scripts.gitlab:gitlab",
             "sphinx = bob.devtools.scripts.sphinx:sphinx",
+            "dev = bob.devtools.scripts.development:dev",
         ],
         "bdt.gitlab.cli": [
             "badges = bob.devtools.scripts.badges:badges",
@@ -105,6 +106,12 @@ setup(
             "rmtree = bob.devtools.scripts.dav:rmtree",
             "upload = bob.devtools.scripts.dav:upload",
             "clean-betas = bob.devtools.scripts.dav:clean_betas",
+        ],
+        "bdt.dev.cli": [
+            "new = bob.devtools.scripts.new:new",
+            "create = bob.devtools.scripts.create:create",
+            "install = bob.devtools.scripts.development:install",
+            "checkout = bob.devtools.scripts.development:checkout",
         ],
     },
     classifiers=[

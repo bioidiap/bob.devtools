@@ -31,7 +31,7 @@ To run the test units on your package call:
 
 .. code-block:: sh
 
-  $ ./bin/nosetests -v
+  $ nosetests -v
   bob.example.library.test.test_reverse ... ok
 
   ----------------------------------------------------------------------
@@ -824,7 +824,7 @@ Buildout
 ========
 
 The default buildout file ``buildout.cfg`` should buildout from the installed
-distribution (use ``bdt create`` for that purpose) and **avoid mr.developer
+distribution (use ``bdt dev create`` for that purpose) and **avoid mr.developer
 checkouts**.  If you have one of those, move it to ``develop.cfg`` and create a
 new `buildout.cfg` which should be as simple as possible.  The template project
 provided by this package takes care of this.
