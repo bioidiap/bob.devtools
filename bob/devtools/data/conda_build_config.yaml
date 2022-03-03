@@ -383,6 +383,8 @@ h5py:
   - 3.6.0
 hdf5:
   - 1.12.1
+imageio:
+  - 2.16.1
 imageio_ffmpeg:
   - 0.4.5
 jinja2:
