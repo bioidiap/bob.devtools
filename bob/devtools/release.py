@@ -139,7 +139,7 @@ def get_latest_tag_name(gitpkg):
     """
 
     # get 50 latest tags as a list
-    latest_tags = gitpkg.tags.list(all=True)
+    latest_tags = gitpkg.releases.list(all=True)
     if not latest_tags:
         return None
     # create list of tags' names but ignore the first 'v' character in each name
@@ -252,13 +252,14 @@ def update_tag_comments(gitpkg, tag_name, tag_comments_list, dry_run=False):
 
     # get tag and update its description
     logger.info(tag_name)
-    tag = gitpkg.tags.get(tag_name)
+    tag = gitpkg.releases.get(tag_name)
     tag_comments = "\n".join(tag_comments_list)
     logger.info(
         "Found tag %s, updating its comments with:\n%s", tag.name, tag_comments
     )
     if not dry_run:
-        tag.set_release_description(tag_comments)
+        tag.description = tag_comments
+        tag.save()
     return tag
 
 
@@ -547,10 +548,11 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     tag_comments = "\n".join(tag_comments_list)
     logger.debug("Updating tag comments with:\n%s", tag_comments)
     if not dry_run:
-        tag = gitpkg.tags.create({"tag_name": tag_name, "ref": "master"})
+        tag = gitpkg.releases.create({"tag_name": tag_name, "ref": "master"})
         # update tag with comments
         if tag_comments:
-            tag.set_release_description(tag_comments)
+            tag.description = tag_comments
+            tag.save()
 
     # get the pipeline that is actually running with no skips
     running_pipeline = get_last_pipeline(gitpkg)
