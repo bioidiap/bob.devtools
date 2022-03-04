@@ -12,14 +12,9 @@ from pkg_resources import iter_entry_points
 )
 def install(folders):
     """runs pip install -vvv --no-build-isolation --no-dependencies --editable <folder>"""
-    import os
     import subprocess
 
     for folder in folders:
-        if not os.path.exists(os.path.join(folder, "setup.py")):
-            raise click.ClickException(
-                "Folder does not contain a setup.py: %s" % folder
-            )
 
         # call pip
         subprocess.check_call(
