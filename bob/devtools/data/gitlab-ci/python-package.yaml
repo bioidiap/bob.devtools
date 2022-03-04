@@ -135,7 +135,7 @@ pypi:
   before_script:
     - pip install twine
   script:
-    - twine --skip-existing --username=${PYPIUSER} --password=${PYPIPASS} dist/*.zip
+    - twine upload --skip-existing --username=${PYPIUSER} --password=${PYPIPASS} dist/*.zip
   cache:
     paths:
       - ${PIP_CACHE_DIR}
