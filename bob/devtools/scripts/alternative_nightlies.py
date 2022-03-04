@@ -65,7 +65,7 @@ def alt_nightlies(order, variables):
         )
 
         # wait for it to finish
-        while pipeline.status in ("pending", "running"):
+        while pipeline.status in ("pending", "running", "created"):
             time.sleep(3)
             pipeline.refresh()
             continue

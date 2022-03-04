@@ -17,7 +17,7 @@ channels:
    $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
 
 If you use one of our supported Python versions on your base environment, you
-may also install ``bdt`` on it:
+may also install ``bdt`` on it (recommended):
 
 .. code-block:: sh
 
@@ -30,8 +30,11 @@ installed, you can use these tools within the created environment like this:
 
 .. code-block:: sh
 
-   $ conda activate base  #or bdt, depending where you installed it
-   (bdt) $ bdt --help
+   $ ln -s $(which bdt) ~/.local/bin
+   # make sure ~/.local/bin is in your $PATH
+   $ export PATH=$HOME/.local/bin:$PATH
+   # use bdt any time now no matter which conda env is activated
+   $ bdt --help
 
 
 .. _bob.devtools.install.setup:
@@ -78,7 +81,7 @@ You may obtain these parameters from our internal page explaining the `WebDAV
 configuration`_.  For security reasons, you should also set ``chmod 600`` to
 this file.
 
-To increment your development environments created with ``bdt create`` using
+To increment your development environments created with ``bdt dev create`` using
 pip-installable packages, create a section named ``create`` in the file
 ``~/.bdtrc`` with the following contents, e.g.:
 
@@ -89,7 +92,7 @@ pip-installable packages, create a section named ``create`` in the file
                 bob.buildout
                 mr.developer
 
-Then, by default, ``bdt create`` will automatically pip install ``ipdb`` and
+Then, by default, ``bdt dev create`` will automatically pip install ``ipdb`` and
 ``mr.developer`` at environment creation time.  You may reset this list to your
 liking.
 
