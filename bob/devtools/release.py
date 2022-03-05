@@ -548,11 +548,14 @@ def release_package(gitpkg, tag_name, tag_comments_list, dry_run=False):
     tag_comments = "\n".join(tag_comments_list)
     logger.debug("Updating tag comments with:\n%s", tag_comments)
     if not dry_run:
-        tag = gitpkg.releases.create({"tag_name": tag_name, "ref": "master"})
-        # update tag with comments
+        params = {
+            "name": tag_name,
+            "tag_name": tag_name,
+            "ref": "master",
+        }
         if tag_comments:
-            tag.description = tag_comments
-            tag.save()
+            params["description"] = tag_comments
+        gitpkg.releases.create(params)
 
     # get the pipeline that is actually running with no skips
     running_pipeline = get_last_pipeline(gitpkg)
