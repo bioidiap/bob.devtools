@@ -33,8 +33,8 @@ requirements:
     - click-plugins
     - conda=4
     - conda-build=3
-    - mamba=0.15
-    - boa=0.6
+    - mamba=0.21
+    - boa=0.9
     - certifi
     - docformatter
     - git  # [linux]
