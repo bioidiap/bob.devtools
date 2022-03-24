@@ -105,6 +105,7 @@ build_macos_arm_39:
   extends: .build_macos_arm_template
   variables:
     PYTHON_VERSION: "3.9"
+  allow_failure: true
   cache:
     key: "build-py39"
 
