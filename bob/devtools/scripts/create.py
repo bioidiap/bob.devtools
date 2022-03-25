@@ -192,8 +192,8 @@ def create(
 
     It uses the conda render API to render a recipe and install an environment
     containing all build/host, run and test dependencies of a package. It does
-    **not** build the package itself, just install dependencies so you can build
-    the package by hand, possibly using buildout or similar. If you'd like to
+    **not** build the package itself, just install dependencies so you can
+    build the package by hand, possibly using pip or similar. If you'd like to
     conda-build your package, just use `conda build` instead.
 
     Once the environment is created, a copy of the used `condarc' file is placed
