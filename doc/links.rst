@@ -12,7 +12,7 @@
 .. _Bob beta channels: https://www.idiap.ch/software/bob/conda/label/beta
 .. _git: http://git-scm.com/
 .. _gitlab: https://gitlab.idiap.ch/bob/
-.. _nose: https://nose.readthedocs.org/en/latest/
+.. _pytest: https://docs.pytest.org/
 .. _python: http://www.python.org
 .. _pypi: http://pypi.python.org
 .. _setuptools: https://setuptools.readthedocs.io

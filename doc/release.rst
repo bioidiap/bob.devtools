@@ -86,8 +86,8 @@ Here are the instructions to release Bob meta package:
 
      - bob.ip.binseg ==1.1.0  # [linux]
 
-* Test the conda recipe of bob. You may want to cancel the
-  command below once it reaches the nosetests.:
+* Test the conda recipe of bob. You may want to cancel the command below once
+  it reaches the unit tests:
 
   .. code-block:: sh
 

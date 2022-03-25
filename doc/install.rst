@@ -12,21 +12,31 @@ channels:
 
 .. code-block:: sh
 
-   $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda bob.devtools
-   # or, for beta releases:
-   $ conda create -n bdt -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
-
-If you use one of our supported Python versions on your base environment, you
-may also install ``bdt`` on it (recommended):
-
-.. code-block:: sh
-
    $ conda install -n base -c https://www.idiap.ch/software/bob/conda bob.devtools
    # or, for beta releases:
    $ conda install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
 
-We provide packages for both 64-bit Linux and MacOS, for Python 3.6+.  Once
+.. warning::
+
+   Some commands from this package will use the ``conda`` CLI to install
+   packages on new environments.
+
+   If you install bob.devtools on another environment which is not ``base``, a
+   new conda package-cache will be created on that environment, possibly
+   duplicating the size of your conda installation.  For this reason, we
+   recommend you install this package on the ``base`` environment.
+
+We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.  Once
 installed, you can use these tools within the created environment like this:
+
+.. code-block:: sh
+
+   $ conda activate base
+   (base) $ bdt --help
+
+
+You may also hook ``bdt`` on your global ``PATH`` variable, and avoid having to
+activate ``base`` to use the command like this:
 
 .. code-block:: sh
 
@@ -89,11 +99,10 @@ pip-installable packages, create a section named ``create`` in the file
 
    [create]
    pip_extras = ipdb
-                bob.buildout
-                mr.developer
+                pre-commit
 
-Then, by default, ``bdt dev create`` will automatically pip install ``ipdb`` and
-``mr.developer`` at environment creation time.  You may reset this list to your
-liking.
+Then, by default, ``bdt dev create`` will automatically pip install ``ipdb``
+and ``pre-commit`` at environment creation time.  You may reset this list to
+your liking.
 
 .. include:: links.rst

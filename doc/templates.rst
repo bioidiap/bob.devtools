@@ -25,26 +25,23 @@ These instructions describes some steps that needs to be noted after creating ne
 Unit tests
 ==========
 
-Writing unit tests is an important asset on code that needs to run in different platforms and a great way to make sure all is OK.
-Test units are run with nose_.
-To run the test units on your package call:
+Writing unit tests is an important asset on code that needs to run in different
+platforms and a great way to make sure all is OK. Test units are run with
+pytest_. To run the test units on your package call:
 
 .. code-block:: sh
 
-  $ nosetests -v
-  bob.example.library.test.test_reverse ... ok
+   $ pytest -sv ...
+   bob.example.library.test.test_reverse ... ok
 
-  ----------------------------------------------------------------------
-  Ran 1 test in 0.253s
 
-  OK
-
-This example shows the results of the tests in the ``bob.example.project`` package. Ideally, you should
-write test units for each function of your package ...
+This example shows the results of the tests in the ``bob.example.project``
+package. Ideally, you should write test units for each function of your
+package.
 
 .. note::
 
-   You should put additional packages needed for testing (e.g. ``nosetests``)
+   You should put additional packages needed for testing (e.g. ``pytest``)
    in the ``test-requirements.txt`` file.
 
 
