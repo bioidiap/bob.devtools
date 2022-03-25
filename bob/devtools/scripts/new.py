@@ -161,7 +161,6 @@ def new(package, author, email, title, license, output_dir):
         ".gitignore",
         ".gitlab-ci.yml",
         ".pre-commit-config.yaml",
-        "buildout.cfg",
         "doc/conf.py",
         "doc/index.rst",
         "doc/links.rst",

@@ -337,8 +337,6 @@ package_names_map:
   sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
   sphinxcontrib_mermaid: sphinxcontrib-mermaid
   sphinxcontrib_programoutput: sphinxcontrib-programoutput
-  zc_buildout: zc.buildout
-  zc_recipe_egg: zc.recipe.egg
   imageio_ffmpeg: imageio-ffmpeg
   pytorch_lightning: pytorch-lightning
 
