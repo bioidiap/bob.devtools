@@ -245,7 +245,7 @@ def ensure_miniconda_sh():
             return
         else:
             logger.info(
-                "Erasing cached miniconda3 installer (%s does NOT " "match)",
+                "Erasing cached miniconda3 installer (%s does NOT match)",
                 actual_sha256,
             )
             os.unlink("miniconda.sh")
@@ -258,6 +258,21 @@ def ensure_miniconda_sh():
     response = urllib.request.urlopen(path)
     with open(dst, "wb") as f:
         f.write(response.read())
+
+    # checks that the checksum is correct on this file
+    actual_sha256 = hashlib.sha256(
+        open("miniconda.sh", "rb").read()
+    ).hexdigest()
+    if actual_sha256 != sha256:
+        os.unlink("miniconda.sh")
+        raise RuntimeError(
+            "Just downloaded miniconda3 installer sha256 checksum (%s) does "
+            "NOT match expected value (%s). Removing downloaded installer. "
+            "A wrong checksum may end up making the CI download too many copies "
+            "and be banned! You must fix this ASAP.",
+            actual_sha256,
+            sha256,
+        )
 
 
 def install_miniconda(prefix, name):
