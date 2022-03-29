@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
+import tempfile
 
 import click
 import pkg_resources
@@ -275,11 +277,17 @@ def upload(private, execute, checksum, local, remote):
         return 1
 
     for k in local:
-        path_with_hash = k
-        if checksum:
-            path_with_hash = augment_path_with_hash(k)
-        actual_remote = remote + os.path.basename(path_with_hash)
-        remote_path = cl.get_url(actual_remote)
+
+        if not os.path.isdir(k):
+            path_with_hash = k
+            if checksum:
+                path_with_hash = augment_path_with_hash(k)
+            actual_remote = remote + os.path.basename(path_with_hash)
+            remote_path = cl.get_url(actual_remote)
+        else:
+            actual_remote = "/".join((remote, os.path.basename(k)))
+            actual_remote = re.sub("/+", "/", actual_remote)
+            remote_path = cl.get_url(actual_remote)
 
         if cl.check(actual_remote):
             echo_warning("resource %s already exists" % (remote_path,))
@@ -287,9 +295,37 @@ def upload(private, execute, checksum, local, remote):
             continue
 
         if os.path.isdir(k):
-            echo_info("cp -r %s %s" % (k, remote_path))
-            if execute:
-                cl.upload_directory(local_path=k, remote_path=actual_remote)
+            if checksum:
+                # checksumming requires we create a new temporary directory
+                # structure in which the filenames are already hashed
+                # correctly, as there are no means to pass a set of remote
+                # paths at client call.
+                with tempfile.TemporaryDirectory() as d:
+                    for root, __, files in os.walk(k):
+                        for f in files:
+                            rel_dir = os.path.relpath(root, k)
+                            os.makedirs(os.path.join(d, rel_dir), exist_ok=True)
+                            src = os.path.join(k, rel_dir, f)
+                            path_with_hash = augment_path_with_hash(src)
+                            os.symlink(
+                                os.path.join(os.path.realpath(k), rel_dir, f),
+                                os.path.join(
+                                    d,
+                                    rel_dir,
+                                    os.path.basename(path_with_hash),
+                                ),
+                            )
+                    echo_info("cp -r %s %s" % (d, remote_path))
+                    if execute:
+                        cl.upload_directory(
+                            local_path=d, remote_path=actual_remote
+                        )
+            else:
+                # it is a simple upload, you can use the actual local directory
+                # as a pointer
+                echo_info("cp -r %s %s" % (k, remote_path))
+                if execute:
+                    cl.upload_directory(local_path=k, remote_path=actual_remote)
         else:
             echo_info("cp %s %s" % (k, remote_path))
             if execute:
