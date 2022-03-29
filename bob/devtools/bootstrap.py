@@ -219,7 +219,7 @@ def ensure_miniconda_sh():
     if platform.system().lower() == "darwin":  # apple silicon
         system = "MacOSX"
         if platform.machine().lower() == "arm64":
-            sha256 = "3cd1f11743f936ba522709eb7a173930c299ac681671a909b664222329a56290"
+            sha256 = "c753e99380e3f777d690e7131fc79c6f9cb8fb79af23fb53c7b8a0ade3361fec"
             machine = "arm64"
         else:  # intel
             sha256 = "955a6255871d9b53975e1c1581910844bcf33cbca613c7dba2842f6269917da6"
@@ -227,7 +227,7 @@ def ensure_miniconda_sh():
     else:
         system = "Linux"
         if platform.machine().lower() == "aarch64":  # raspberry pi
-            sha256 = "d597961defe8c7889f3e924d0dc7624fab2c8845abccdd8ffa8da8018ff3dc6e"
+            sha256 = "b6d3c0af4ba6202dc9994e70933d2de47ef8c4e6891afce768889a7d44e1db28"
             machine = "aarch64"
         else:  # intel
             sha256 = "c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
