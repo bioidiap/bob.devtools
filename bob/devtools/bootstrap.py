@@ -269,9 +269,11 @@ def ensure_miniconda_sh():
             "Just downloaded miniconda3 installer sha256 checksum (%s) does "
             "NOT match expected value (%s). Removing downloaded installer. "
             "A wrong checksum may end up making the CI download too many copies "
-            "and be banned! You must fix this ASAP.",
-            actual_sha256,
-            sha256,
+            "and be banned! You must fix this ASAP."
+            % (
+                actual_sha256,
+                sha256,
+            )
         )
 
 
