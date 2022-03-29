@@ -5,6 +5,7 @@
 """Bootstraps a new miniconda installation and prepares it for development."""
 
 import glob
+import hashlib
 import logging
 import os
 import platform
@@ -235,7 +236,6 @@ def ensure_miniconda_sh():
 
     if os.path.exists("miniconda.sh"):
         logger.info("(check) miniconda.sh sha256 (== %s?)", sha256)
-        import hashlib
 
         actual_sha256 = hashlib.sha256(
             open("miniconda.sh", "rb").read()
