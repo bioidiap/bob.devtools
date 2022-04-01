@@ -73,6 +73,7 @@ deploy_beta:
   environment: beta
   only:
     - master
+    - main
 
 deploy_stable:
   extends: .deploy
