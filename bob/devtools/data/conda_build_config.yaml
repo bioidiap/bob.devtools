@@ -445,7 +445,7 @@ pytorch:
   - 1.10.0 cuda*  # [linux]
   - 1.10.0  # [osx]
 pytorch_lightning:
-  - 1.5.10
+  - 1.6.0
 pyyaml:
   - 6.0
 pyzmq:
