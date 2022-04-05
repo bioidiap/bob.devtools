@@ -98,11 +98,10 @@ pip-installable packages, create a section named ``create`` in the file
 .. code-block:: ini
 
    [create]
-   pip_extras = ipdb
-                pre-commit
+   pip_extras = pre-commit
 
-Then, by default, ``bdt dev create`` will automatically pip install ``ipdb``
-and ``pre-commit`` at environment creation time.  You may reset this list to
-your liking.
+Then, by default, ``bdt dev create`` will automatically pip install
+``pre-commit`` at environment creation time.  You may reset this list to your
+liking.
 
 .. include:: links.rst
