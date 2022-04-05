@@ -348,7 +348,7 @@ def parse_dependencies(recipe_dir, config):
     # further requirements
     requirements += [
         "pip",  # required for installing further packages
-        "ipython",  # for ipdb
+        "ipdb",  # for debugging
     ]
 
     # remove duplicates without affecting the order

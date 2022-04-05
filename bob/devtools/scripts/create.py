@@ -65,12 +65,12 @@ Examples:
   explained in our Setup subsection of the Installation manual.  To use this
   flag on the command-line, specify one pip-installable package each time:
 
-     $ bdt dev create -vvv --pip-extras=ipdb --pip-extras=mr.developer myenv
+     $ bdt dev create -vvv --pip-extras='pre-commit' myenv
 
      Using this option **adds** to what is available in the configuration file.
-     So, if your configuration file already contains ``ipdb`` and you wish to
-     install ``mr.developer`` as a plus, then just specify
-     ``--pip-extras=mr.developer``.
+     So, if your configuration file already contains ``pre-commit`` and you
+     wish to install ``logging_tree`` as a plus, then just specify
+     ``--pip-extras=logging_tree``.
 
 """
 )
