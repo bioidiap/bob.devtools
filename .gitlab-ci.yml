@@ -162,15 +162,11 @@ build_macos_arm_deps:
 build_macos_intel_bob_devtools:
   extends: .build_macos_intel_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools
 
 build_macos_arm_bob_devtools:
   extends: .build_macos_arm_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools
 
 
