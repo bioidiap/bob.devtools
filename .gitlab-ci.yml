@@ -5,8 +5,15 @@ variables:
   PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
 
 
+before_script:
+  - git config --global --add safe.directory ${CI_PROJECT_DIR}
+  - python3 ./bob/devtools/bootstrap.py -vv build
+  - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+  - conda activate base
+
 # Definition of our build pipeline order
 stages:
+  - qa
   - build
   - deploy
   - pypi
@@ -31,10 +38,6 @@ stages:
     - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - dist/*.zip
@@ -53,10 +56,6 @@ stages:
     - bob
     - macos
     - intel
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
@@ -70,16 +69,31 @@ stages:
   tags:
     - macos
     - arm
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
       - ${CONDA_ROOT}/conda-bld/osx-arm64/*.tar.bz2
   cache:
     key: "macos-arm-cache"
+
+
+code_quality:
+  tags:
+    - docker
+  stage: qa
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  cache:
+    key: "$CI_JOB_STAGE"
+    paths:
+      - ${PRE_COMMIT_HOME}
+
+  before_script:
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+
+  script:
+    - sudo yum install -y git python3-pip
+    - pip3 install pre-commit
+    - pre-commit run --all-files --show-diff-on-failure
 
 
 build_linux_bob_devel:
@@ -107,8 +121,6 @@ build_linux_deps:
 build_linux_bob_devtools:
   extends: .build_linux_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools --twine-check
 
 build_macos_intel_bob_devel:
@@ -150,28 +162,24 @@ build_macos_arm_deps:
 build_macos_intel_bob_devtools:
   extends: .build_macos_intel_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools
 
 build_macos_arm_bob_devtools:
   extends: .build_macos_arm_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools
 
 
 # Deploy targets
-.deploy_template:
-  stage: deploy
-  script:
+.release_template:
+  before_script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci base-deploy -vv
-    - bdt ci deploy -vv
+
+  after_script:
     - bdt ci clean -vv
+
   dependencies:
     - build_linux_bob_devel
     - build_linux_deps
@@ -182,12 +190,22 @@ build_macos_arm_bob_devtools:
     - build_macos_arm_bob_devel
     - build_macos_arm_deps
     - build_macos_arm_bob_devtools
+
   tags:
     - docker
     - bob
   cache:
     paths:
       - miniconda.sh
+
+
+.deploy_template:
+  extends: .release_template
+
+  stage: deploy
+  script:
+    - bdt ci base-deploy -vv
+    - bdt ci deploy -vv
 
 
 deploy_beta:
@@ -207,6 +225,7 @@ deploy_stable:
 
 
 pypi:
+  extends: .release_template
   stage: pypi
   environment: pypi
   only:
@@ -214,24 +233,4 @@ pypi:
   except:
     - branches
   script:
-    - python3 ./bob/devtools/bootstrap.py -vv local base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci pypi -vv dist/*.zip
-    - bdt ci clean -vv
-  dependencies:
-    - build_linux_bob_devel
-    - build_linux_deps
-    - build_linux_bob_devtools
-    - build_macos_intel_bob_devel
-    - build_macos_intel_deps
-    - build_macos_intel_bob_devtools
-    - build_macos_arm_bob_devel
-    - build_macos_arm_deps
-    - build_macos_arm_bob_devtools
-  tags:
-    - bob
-    - docker
-  cache:
-    paths:
-      - miniconda.sh

@@ -22,6 +22,7 @@ stages:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - conda activate base
     - conda clean --all
   cache:
