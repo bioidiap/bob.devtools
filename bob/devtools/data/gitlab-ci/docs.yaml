@@ -29,6 +29,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - conda clean --all
   cache:
     paths:

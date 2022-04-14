@@ -26,6 +26,7 @@ stages:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     # for conda inspect during builds (on macos)
     - conda activate base
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - bdt ci check -vv
     - conda clean --all
   cache:
