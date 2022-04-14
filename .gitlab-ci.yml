@@ -5,6 +5,12 @@ variables:
   PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
 
 
+before_script:
+  - git config --global --add safe.directory ${CI_PROJECT_DIR}
+  - python3 ./bob/devtools/bootstrap.py -vv build
+  - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+  - conda activate base
+
 # Definition of our build pipeline order
 stages:
   - qa
@@ -32,10 +38,6 @@ stages:
     - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - dist/*.zip
@@ -54,10 +56,6 @@ stages:
     - bob
     - macos
     - intel
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
@@ -71,10 +69,6 @@ stages:
   tags:
     - macos
     - arm
-  before_script:
-    - python3 ./bob/devtools/bootstrap.py -vv build
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
@@ -93,10 +87,12 @@ code_quality:
     paths:
       - ${PRE_COMMIT_HOME}
 
+  before_script:
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+
   script:
     - sudo yum install -y git python3-pip
     - pip3 install pre-commit
-    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - pre-commit run --all-files --show-diff-on-failure
 
 
