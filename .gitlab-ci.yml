@@ -7,6 +7,7 @@ variables:
 
 # Definition of our build pipeline order
 stages:
+  - qa
   - build
   - deploy
   - pypi
@@ -82,6 +83,23 @@ stages:
     key: "macos-arm-cache"
 
 
+code_quality:
+  tags:
+    - docker
+  stage: qa
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  cache:
+    key: "$CI_JOB_STAGE"
+    paths:
+      - ${PRE_COMMIT_HOME}
+
+  script:
+    - sudo yum install -y git python3-pip
+    - pip3 install pre-commit
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+    - pre-commit run --all-files --show-diff-on-failure
+
+
 build_linux_bob_devel:
   extends: .build_linux_template
   variables:
@@ -107,8 +125,6 @@ build_linux_deps:
 build_linux_bob_devtools:
   extends: .build_linux_template
   script:
-    - pip install pre-commit
-    - pre-commit run --all-files --show-diff-on-failure
     - python3 ./bob/devtools/build.py -vv build-devtools --twine-check
 
 build_macos_intel_bob_devel:
