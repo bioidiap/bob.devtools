@@ -171,15 +171,15 @@ build_macos_arm_bob_devtools:
 
 
 # Deploy targets
-.deploy_template:
-  stage: deploy
-  script:
+.release_template:
+  before_script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - bdt ci base-deploy -vv
-    - bdt ci deploy -vv
+
+  after_script:
     - bdt ci clean -vv
+
   dependencies:
     - build_linux_bob_devel
     - build_linux_deps
@@ -190,12 +190,22 @@ build_macos_arm_bob_devtools:
     - build_macos_arm_bob_devel
     - build_macos_arm_deps
     - build_macos_arm_bob_devtools
+
   tags:
     - docker
     - bob
   cache:
     paths:
       - miniconda.sh
+
+
+.deploy_template:
+  extends: .release_template
+
+  stage: deploy
+  script:
+    - bdt ci base-deploy -vv
+    - bdt ci deploy -vv
 
 
 deploy_beta:
@@ -215,6 +225,7 @@ deploy_stable:
 
 
 pypi:
+  extends: .release_template
   stage: pypi
   environment: pypi
   only:
@@ -222,24 +233,4 @@ pypi:
   except:
     - branches
   script:
-    - python3 ./bob/devtools/bootstrap.py -vv local base
-    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate base
     - bdt ci pypi -vv dist/*.zip
-    - bdt ci clean -vv
-  dependencies:
-    - build_linux_bob_devel
-    - build_linux_deps
-    - build_linux_bob_devtools
-    - build_macos_intel_bob_devel
-    - build_macos_intel_deps
-    - build_macos_intel_bob_devtools
-    - build_macos_arm_bob_devel
-    - build_macos_arm_deps
-    - build_macos_arm_bob_devtools
-  tags:
-    - bob
-    - docker
-  cache:
-    paths:
-      - miniconda.sh
