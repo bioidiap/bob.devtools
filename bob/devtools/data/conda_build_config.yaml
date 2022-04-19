@@ -442,8 +442,8 @@ pytest_cov:
 python_graphviz:
   - 0.19.1
 pytorch:
-  - 1.10.0 cuda*  # [linux]
-  - 1.10.0  # [osx]
+  - 1.10.2 cuda*  # [linux]
+  - 1.10.2  # [osx]
 pytorch_lightning:
   - 1.6.0
 pyyaml:
