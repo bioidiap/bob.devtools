@@ -27,7 +27,7 @@ build:
     - docker
   stage: build
   before_script:
-    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+    - if [[ $CI_RUNNER_TAGS == *"docker,"* ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
     - pip install twine pre-commit sphinx sphinx-rtd-theme
   script:
     - "[ -r .pre-commit-config.yaml ] && pre-commit run --all-files --show-diff-on-failure --verbose"
