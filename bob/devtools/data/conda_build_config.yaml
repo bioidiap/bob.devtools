@@ -402,7 +402,8 @@ make:
 matplotlib:
   - 3.5.1
 mkl:  # [x86 or x86_64]
-  - 2021.4.0  # [x86 or x86_64]
+  - 2022.0.1  # [linux and (x86 or x86_64)]
+  - 2022.0.0  # [osx and (x86 or x86_64)]
 ncurses:
   - 6.3
 nose:
@@ -442,8 +443,8 @@ pytest_cov:
 python_graphviz:
   - 0.19.1
 pytorch:
-  - 1.10.0 cuda*  # [linux]
-  - 1.10.0  # [osx]
+  - 1.10.2 cuda*  # [linux]
+  - 1.10.2  # [osx]
 pytorch_lightning:
   - 1.6.0
 pyyaml:
