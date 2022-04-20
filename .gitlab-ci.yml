@@ -6,7 +6,7 @@ variables:
 
 
 before_script:
-  - git config --global --add safe.directory ${CI_PROJECT_DIR}
+  - if [[ $CI_RUNNER_TAGS == *"docker,"* ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
   - python3 ./bob/devtools/bootstrap.py -vv build
   - source ${CONDA_ROOT}/etc/profile.d/conda.sh
   - conda activate base
