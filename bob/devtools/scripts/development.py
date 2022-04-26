@@ -44,7 +44,7 @@ def checkout(ctx, names, use_https, subfolder):
 
     # create the subfolder directory
     if subfolder:
-        os.path.makedirs(subfolder, exist_ok=True)
+        os.makedirs(subfolder, exist_ok=True)
 
     for name in names:
 
