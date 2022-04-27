@@ -261,10 +261,10 @@ look for some packages.
     auto-checkout = *
 
     develop = src/bob.extension
-              src/bob.blitz
+              src/bob.io.base
 
     eggs = bob.extension
-           bob.blitz
+           bob.io.base
 
     [scripts]
     recipe = bob.buildout:scripts
@@ -272,7 +272,7 @@ look for some packages.
 
     [sources]
     bob.extension = git https://gitlab.idiap.ch/bob/bob.extension
-    bob.blitz = git https://gitlab.idiap.ch/bob/bob.blitz
+    bob.io.base = git https://gitlab.idiap.ch/bob/bob.io.base
 
 A new section called ``[sources]`` appears, where the package information for
 `mr.developer`_ is initialized. For more details, please read `its
@@ -608,9 +608,6 @@ recipes.  Here are some notes:
        - python {{ python }}
        - setuptools {{ setuptools }}
        - bob.extension
-       - bob.blitz
-       - bob.core
-       - bob.math
        - bob.io.base
        - matplotlib {{ matplotlib }}
        - libblitz {{ libblitz }}

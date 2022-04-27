@@ -30,10 +30,10 @@ Examples:
      $ bdt gitlab commitfile -vv --message="[readme] Update [ci skip]" beat/beat.core README.rst
 
 
-  3. Replaces the file conda/meta.yaml on the package bob/bob.blitz through a merge request through a new branch called "conda-changes", specifying a commit/merge-request message, using the contents of the local file new.yaml, and setting the merge-request property "merge-when-pipeline-succeeds":
+  3. Replaces the file conda/meta.yaml on the package bob/bob.io.base through a merge request through a new branch called "conda-changes", specifying a commit/merge-request message, using the contents of the local file new.yaml, and setting the merge-request property "merge-when-pipeline-succeeds":
 
 \b
-     $ bdt gitlab commitfile -vv bob/bob.blitz --path=conda/meta.yaml --branch=conda-changes --auto-merge new.yaml
+     $ bdt gitlab commitfile -vv bob/bob.io.base --path=conda/meta.yaml --branch=conda-changes --auto-merge new.yaml
 
 """
 )

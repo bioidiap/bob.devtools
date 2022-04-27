@@ -16,9 +16,9 @@ package from scratch and develop existing bob packages along side it.
 TL;DR
 =====
 
-Suppose you want to checkout the package ``bob.blitz`` from source and start
+Suppose you want to checkout the package ``bob.io.base`` from source and start
 developing it locally. We will use the tools implemented in ``bob.devtools`` to
-create a proper developing environment to build and develop ``bob.blitz``. We
+create a proper developing environment to build and develop ``bob.io.base``. We
 assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
 (Refer to :ref:`bob.devtools.install` for detailed information.)
 
@@ -26,13 +26,13 @@ assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
 
 .. code-block:: sh
 
-   $ bdt dev checkout --use-ssh bob.blitz
+   $ bdt dev checkout --use-ssh bob.io.base
 
 * Create a proper conda environment:
 
 .. code-block:: sh
 
-   $ cd bob.blitz
+   $ cd bob.io.base
    $ bdt dev create -vv dev
    $ conda activate dev
 
@@ -47,11 +47,11 @@ for example:
 
 .. code-block:: python
 
-    >>> import bob.blitz
-    >>> bob.blitz # should print from '.../bob.blitz/bob/blitz/...'
-    <module 'bob.blitz' from '.../bob.blitz/bob/blitz/__init__.py'>
-    >>> print(bob.blitz.get_config())
-    bob.blitz: 2.0.20b0 [api=0x0202] (.../bob.blitz)
+    >>> import bob.io.base
+    >>> bob.io.base # should print from '.../bob.io.base/bob/blitz/...'
+    <module 'bob.io.base' from '.../bob.io.base/bob/blitz/__init__.py'>
+    >>> print(bob.io.base.get_config())
+    bob.io.base: 2.0.20b0 [api=0x0202] (.../bob.io.base)
     * C/C++ dependencies:
       - Blitz++: 0.10
       - Boost: 1.67.0
@@ -96,13 +96,13 @@ Checking out package sources
 
 |project| packages are developed through gitlab_. Various packages exist in
 |project|'s gitlab_ instance. In the following we assume you want to install
-and build locally the ``bob.blitz`` package. In order to checkout a package,
+and build locally the ``bob.io.base`` package. In order to checkout a package,
 just use git_:
 
 
 .. code-block:: sh
 
-   $ bdt dev checkout --use-ssh bob.blitz
+   $ bdt dev checkout --use-ssh bob.io.base
 
 
 Create an isolated conda environment
@@ -118,7 +118,7 @@ let's assume that you have a conda environment named ``bdt`` with installed
 
 .. code-block:: sh
 
-   $ cd bob.blitz
+   $ cd bob.io.base
    $ bdt dev create -vv dev
    $ conda activate dev
 
@@ -170,7 +170,7 @@ The last step is to install the package:
 
 .. code-block:: sh
 
-   $ cd bob.blitz #if that is not the case
+   $ cd bob.io.base #if that is not the case
    $ conda activate dev #if that is not the case
    $ bdt dev install .
 
@@ -223,9 +223,9 @@ Developing multiple existing packages simultaneously
 ----------------------------------------------------
 
 It so happens that you want to develop several packages against each other for
-your project. Let's assume you want to develop ``bob.blitz`` and
-``bob.extension`` simultaneously. ``bob.blitz`` is dependent on
-``bob.extension``. First we checkout package ``bob.blitz`` and build an
+your project. Let's assume you want to develop ``bob.io.base`` and
+``bob.extension`` simultaneously. ``bob.io.base`` is dependent on
+``bob.extension``. First we checkout package ``bob.io.base`` and build an
 isolated conda environment as explained in the previous section. Then checkout
 and install ``bob.extension`` as following:
 
@@ -269,17 +269,17 @@ Developing existing bob packages along with your new package
 ------------------------------------------------------------
 
 Let's assume you need to develop two packages, ``bob.extension`` and
-``bob.blitz``, as part of developing your new ``bob.project.awesome`` package.
+``bob.io.base``, as part of developing your new ``bob.project.awesome`` package.
 
 You need to checkout and install these packages:
 
 .. code-block:: sh
 
-    $ bdt dev checkout --use-ssh --subfolder src bob.extension bob.blitz
-    $ bdt dev install src/bob.extension src/bob.blitz  # the order of installing dependencies matters!
+    $ bdt dev checkout --use-ssh --subfolder src bob.extension bob.io.base
+    $ bdt dev install src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 When you build your new package, it is customary to checkout the dependent
-packages (in this example ``bob.extension`` and ``bob.blitz``) in the ``src``
+packages (in this example ``bob.extension`` and ``bob.io.base``) in the ``src``
 folder in the root of your project.
 
 As usual, first create an isolated conda environment using ``bdt dev create``
@@ -291,6 +291,6 @@ your environment. You can find these dependencies by checking
 .. code-block:: sh
 
     $ conda install gcc_linux-64 gxx_linux-64 libblitz
-    $ bdt dev install src/bob.extension src/bob.blitz  # the order of installing dependencies matters!
+    $ bdt dev install src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 .. include:: links.rst

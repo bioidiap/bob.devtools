@@ -30,11 +30,11 @@ Examples:
 
   1. Calculates and draws the graph of a package:
 
-     $ bdt gitlab graph bob/bob.blitz
+     $ bdt gitlab graph bob/bob.io.base
 
   2. Calculates and draws only the runtime dependencies of a package
 
-     $ bdt gitlab graph bob/bob.blitz --deptypes=run
+     $ bdt gitlab graph bob/bob.io.base --deptypes=run
 
 \b
   3. Calculates run and test dependencies of package, but only draws a subset
