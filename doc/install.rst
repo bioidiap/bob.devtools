@@ -7,14 +7,12 @@
  Installation
 ==============
 
-You can install this package via conda_, simply pointing to our stable or beta
-channels:
+You can install this package via conda_, simply pointing to our beta channel.
+We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
 
 .. code-block:: sh
 
-   $ conda install -n base -c https://www.idiap.ch/software/bob/conda bob.devtools
-   # or, for beta releases:
-   $ conda install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c https://www.idiap.ch/software/bob/conda bob.devtools
+   $ conda install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c conda-forge bob.devtools
 
 .. warning::
 
@@ -26,26 +24,17 @@ channels:
    duplicating the size of your conda installation.  For this reason, we
    recommend you install this package on the ``base`` environment.
 
-We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.  Once
-installed, you can use these tools within the created environment like this:
+You must also create an alias for ``bdt`` because some commands require another
+conda environment to be activated:
 
 .. code-block:: sh
 
    $ conda activate base
-   (base) $ bdt --help
-
-
-You may also hook ``bdt`` on your global ``PATH`` variable, and avoid having to
-activate ``base`` to use the command like this:
-
-.. code-block:: sh
-
-   $ ln -s $(which bdt) ~/.local/bin
-   # make sure ~/.local/bin is in your $PATH
-   $ export PATH=$HOME/.local/bin:$PATH
-   # use bdt any time now no matter which conda env is activated
+   $ echo "alias bdt=$(which bdt)" >> ~/.bashrc
+   $ source ~/.bashrc
+   # test if it works
+   $ conda deactivate
    $ bdt --help
-
 
 .. _bob.devtools.install.setup:
 
