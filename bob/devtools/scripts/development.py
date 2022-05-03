@@ -62,6 +62,13 @@ def checkout(ctx, names, use_https, subfolder):
 
             subprocess.check_call(["git", "clone", url, dest])
 
+            # call pre-commit if its configuration exists
+            if os.path.isfile(os.path.join(dest, ".pre-commit-config.yaml")):
+                click.echo(
+                    "Installing pre-commit hooks. Make sure you have pre-commit installed."
+                )
+                subprocess.check_call(["pre-commit", "install"], cwd=dest)
+
 
 @with_plugins(iter_entry_points("bdt.dev.cli"))
 @click.group(
