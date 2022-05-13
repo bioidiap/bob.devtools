@@ -194,11 +194,11 @@ You can see what is installed in your environment:
 
    $ conda list
 
-And you can install new packages using conda:
+And you can install new packages using mamba:
 
 .. code-block:: sh
 
-   $ conda install <package>
+   $ mamba install <package>
 
 .. note::
 
@@ -290,7 +290,7 @@ your environment. You can find these dependencies by checking
 
 .. code-block:: sh
 
-    $ conda install gcc_linux-64 gxx_linux-64 libblitz
+    $ mamba install gcc_linux-64 gxx_linux-64 libblitz
     $ bdt dev install src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 .. include:: links.rst

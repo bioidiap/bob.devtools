@@ -434,11 +434,6 @@ you should perform some extra steps:
       python_graphviz: python-graphviz
       scikit_image: scikit-image
       scikit_learn: scikit-learn
-      sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
-      sphinxcontrib_mermaid: sphinxcontrib-mermaid
-      sphinxcontrib_programoutput: sphinxcontrib-programoutput
-      zc_buildout: zc.buildout
-      zc_recipe_egg: zc.recipe.egg
 
 
     boost:
@@ -464,36 +459,21 @@ Updating a dependency version
 
 All dependencies versions are listed in
 ``bob/bob.devtools/bob/devtools/data/conda_build_config.yaml`` to ensure that
-all bob packages use compatible versions of those dependencies. When updating
-(or adding a new) dependency, you must make sure that the new version doesn't
-conflicts with **all** other dependencies. Often, a newest verion of your
-dependency has newer requirements for its own dependencies, which can conflict
-with the rest of ``bob`` dependencies. Therefore it is often best to update all
-dependencies at once, not just one. To do so, ask ``conda`` to create an
-environment with all ``bob`` dependencies:
+all bob packages use compatible versions of those dependencies. This file cannot
+be modified by hand and there is no way to update just one dependency. A script
+is provided to update dependency versions and you have to use that:
 
 .. code-block:: bash
 
-  conda create -n bob_deps --dry-run --override-channels --strict-channel-priority \\
-  -c http://www.idiap.ch/software/bob/conda \\
-  -c conda-forge \\
-  python=3.8 \\ # fix the python version
-  click-plugins cmake coverage dask ... [all bob dependencies]
-
-The versions solved by ``conda`` should be the newest compatible ones you can
-use. If you require a specific version of a dependency, say ``h5py`` you can
-specify only that version in the ``conda`` command and let conda solve the
-rest. Note that you have to update the pinned version of all packages at once
-according to the ``conda create`` output. It is not possible to just update
-the version of one dependency alone.
+    $ git clone git@gitlab.idiap.ch:bob/bob.devtools.git
+    $ cd bob.devtools
+    $ python bob/devtools/scripts/update_pins.py --help
 
 .. note::
 
-  '.' or '-' in package names are changed to '_' in the
-  ``conda_build_config.yaml`` file. Make sure to use the real packages name in
-  the ``conda`` command. Moreover, please remember to update the
-  ``package_names_map`` field if you add a new dependecy with `.` or  `-` in its
-  name.
+  If you are adding a new package and it has '.' or '-' in its pacakge name, you
+  must list it in the ``package_names_map`` block of the
+  ``conda_build_config.yaml`` file.
 
 
 Conda recipe
