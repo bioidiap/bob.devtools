@@ -7,16 +7,16 @@
  Installation
 ==============
 
-You can install this package via conda_, simply pointing to our beta channel.
+You can install this package via conda_ or mamba_, simply pointing to our beta channel.
 We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
 
 .. code-block:: sh
 
-   $ conda install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c conda-forge bob.devtools
+   $ mamba install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c conda-forge bob.devtools
 
 .. warning::
 
-   Some commands from this package will use the ``conda`` CLI to install
+   Some commands from this package will use the ``mamba`` CLI to install
    packages on new environments.
 
    If you install bob.devtools on another environment which is not ``base``, a
@@ -24,17 +24,23 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
    duplicating the size of your conda installation.  For this reason, we
    recommend you install this package on the ``base`` environment.
 
-You must also create an alias for ``bdt`` because some commands require another
-conda environment to be activated:
+Installing bob.devtools will create a terminal command called ``bdt`` which you
+must create an alias for it because some ``bdt`` commands require another conda
+environment to be activated. Moreover, development of Bob packages depend on
+pre-commit_ (pre-commit gets installed as a dependency of bob.devtools) so you
+will need an alias for that as well:
 
 .. code-block:: sh
 
    $ conda activate base
    $ echo "alias bdt=$(which bdt)" >> ~/.bashrc
+   # you will also need pre-commit which gets installed when you install bob.devtools
+   $ echo "alias pre-commit=$(which pre-commit)" >> ~/.bashrc
    $ source ~/.bashrc
    # test if it works
    $ conda deactivate
    $ bdt --help
+   $ pre-commit --help
 
 .. _bob.devtools.install.setup:
 

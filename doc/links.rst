@@ -3,6 +3,8 @@
 .. Place here references to all citations in lower case
 
 .. _conda: https://conda.io
+.. _mamba: https://mamba.readthedocs.io/
+.. _pre-commit: https://pre-commit.com/
 .. _bob: https://www.idiap.ch/software/bob
 .. _beat: https://www.idiap.ch/software/beat
 .. _shell executor: https://docs.gitlab.com/runner/executors/shell.html

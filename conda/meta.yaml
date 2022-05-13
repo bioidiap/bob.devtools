@@ -54,6 +54,7 @@ requirements:
     - python-graphviz
     - pip
     - webdavclient3
+    - pre-commit
 
 test:
   requires:
