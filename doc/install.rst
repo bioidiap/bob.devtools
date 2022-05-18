@@ -12,7 +12,10 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
 
 .. code-block:: sh
 
-   $ mamba install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c conda-forge bob.devtools
+   $ mamba install -n base \
+      -c https://www.idiap.ch/software/bob/conda/label/beta \
+      -c conda-forge \
+      bob.devtools
 
 .. warning::
 
