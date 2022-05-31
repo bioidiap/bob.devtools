@@ -527,8 +527,8 @@ if __name__ == "__main__":
 
     conda_version = "4"
     conda_build_version = "3"
-    mamba_version = "0.21"
-    boa_version = "0.9"
+    mamba_version = "0.23"
+    boa_version = "0.11"
 
     conda_verbosity = []
     # if args.verbose >= 2:
