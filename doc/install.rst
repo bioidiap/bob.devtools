@@ -12,7 +12,10 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
 
 .. code-block:: sh
 
-   $ mamba install -n base -c https://www.idiap.ch/software/bob/conda/label/beta -c conda-forge bob.devtools
+   $ mamba install -n base \
+      -c https://www.idiap.ch/software/bob/conda/label/beta \
+      -c conda-forge \
+      bob.devtools
 
 .. warning::
 
@@ -25,17 +28,21 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
    recommend you install this package on the ``base`` environment.
 
 Installing bob.devtools will create a terminal command called ``bdt`` which you
-must create an alias for it because some ``bdt`` commands require another conda
+must make available in your ``PATH`` because some ``bdt`` commands require another conda
 environment to be activated. Moreover, development of Bob packages depend on
 pre-commit_ (pre-commit gets installed as a dependency of bob.devtools) so you
-will need an alias for that as well:
+will need to make that available in your ``PATH`` environment variable as well:
 
 .. code-block:: sh
 
+   # Make sure bdt and pre-commit are available in your PATH
+   $ mkdir -pv $HOME/.local/bin
+   $ export PATH=$HOME/.local/bin:$PATH
    $ conda activate base
-   $ echo "alias bdt=$(which bdt)" >> ~/.bashrc
-   # you will also need pre-commit which gets installed when you install bob.devtools
-   $ echo "alias pre-commit=$(which pre-commit)" >> ~/.bashrc
+   $ ln -s $(command -v bdt) $HOME/.local/bin/
+   $ ln -s $(command -v pre-commit) $HOME/.local/bin/
+   # Make sure $HOME/.local/bin is in your PATH all the time.
+   $ echo 'export PATH=$HOME/.local/bin:$PATH' >> $HOME/.bashrc
    $ source ~/.bashrc
    # test if it works
    $ conda deactivate
@@ -93,10 +100,11 @@ pip-installable packages, create a section named ``create`` in the file
 .. code-block:: ini
 
    [create]
-   pip_extras = pre-commit
+   pip_extras = ipdb
+                ipdbplugin
 
-Then, by default, ``bdt dev create`` will automatically pip install
-``pre-commit`` at environment creation time.  You may reset this list to your
+Then, by default, ``bdt dev create`` will automatically pip install ``ipdb`` and
+``ipdbplugin`` at environment creation time.  You may reset this list to your
 liking.
 
 .. include:: links.rst

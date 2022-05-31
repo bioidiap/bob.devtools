@@ -36,6 +36,13 @@ assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
    $ bdt dev create -vv dev
    $ conda activate dev
 
+.. note::
+
+   ``bdt`` might try to install the cuda version of deep learning packages. If
+   you don't have cuda drivers installed and face errors such as ``nothing
+   provides __cuda``, you might need to run: ``export CONDA_OVERRIDE_CUDA=11.6``
+   where instead of ``11.6`` you should put the latest version of cuda.
+
 * Build the package using pip:
 
 .. code-block:: sh
