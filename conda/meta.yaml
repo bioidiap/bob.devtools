@@ -31,6 +31,8 @@ requirements:
     - black >=19
     - click >=7
     - click-plugins
+    # conda, conda-build, mamba, boa versions below are the same versions as in
+    # bob.devtools/bob/devtools/bootstrap.py
     - conda=4
     - conda-build=3
     - mamba=0.23

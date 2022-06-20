@@ -525,6 +525,7 @@ if __name__ == "__main__":
                 )
             )
 
+    # These are the same versions as in bob.devtools/conda/meta.yaml
     conda_version = "4"
     conda_build_version = "3"
     mamba_version = "0.23"
