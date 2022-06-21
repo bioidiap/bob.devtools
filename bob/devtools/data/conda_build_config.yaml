@@ -380,6 +380,8 @@ imageio:
   - 2.16.1
 imageio_ffmpeg:
   - 0.4.5
+jinja2:
+  - 3.1.2
 make:
   - 4.3
 matplotlib:
