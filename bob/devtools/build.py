@@ -452,17 +452,20 @@ def conda_create(conda, name, overwrite, condarc, packages, dry_run, use_local):
 def get_docserver_setup(public, stable, server, intranet, group):
     """Returns a setup for BOB_DOCUMENTATION_SERVER.
 
+    BOB_DOCUMENTATION_SERVER is used in bob.extension.utils.link_documentation
+    to find the links of the documentation of Bob packages. The initial servers in
+    the output servers list have higher priority.
+
     What is available to build the documentation depends on the setup of
     ``public`` and ``stable``:
 
-    * public and stable: only returns the public stable channel(s)
-    * public and not stable: returns both public stable and beta channels
-    * not public and stable: returns both public and private stable channels
-    * not public and not stable: returns all channels
+    * public and stable: only returns the public stable folder
+    * public and not stable: only returns the public beta folder
+    * not public and stable: returns public and private stable folders
+    * not public and not stable: returns public and private beta folders
 
-    Beta channels have priority over stable channels, if returned.  Private
-    channels have priority over public channles, if turned.
-
+    If returned, Priavte channels have **lower** priority over public channles
+    because, private packages become public eventually.
 
     Args:
 
@@ -473,7 +476,8 @@ def get_docserver_setup(public, stable, server, intranet, group):
       server: The base address of the server containing our conda channels
       intranet: Boolean indicating if we should add "private"/"public" prefixes
         on the returned paths
-      group: The group of packages (gitlab namespace) the package we're compiling
+      group: The group of packages (gitlab namespace) the package we're
+      compiling
         is part of.  Values should match URL namespaces currently available on
         our internal webserver.  Currently, only "bob" or "beat" will work.
 
@@ -493,6 +497,7 @@ def get_docserver_setup(public, stable, server, intranet, group):
 
     # public documentation: always can access
     prefix = "/software/%s" % group
+
     if stable:
         entries += [
             server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",

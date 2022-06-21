@@ -1,9 +1,5 @@
-build:
-  script_env:
-    - DOCSERVER
-    - NOSE_EVAL_ATTR
-    - PYTEST_ADDOPTS
-
+# Because we want to use centos 7
+# https://conda-forge.org/docs/maintainer/knowledge_base.html#using-centos-7
 requirements:  # [linux64]
   build:  # [linux64]
     - sysroot_linux-64 2.17  # [linux64]
