@@ -419,6 +419,8 @@ pytorch:
   - 1.10.2  # [osx]
 pytorch_lightning:
   - 1.6.0
+pyyaml:
+  - 6.0
 pyzmq:
   - 22.3.0
 requests:
