@@ -873,7 +873,6 @@ def cli(
 
     bootstrap.setup_logger(logger, verbose)
 
-    bootstrap.set_environment("DOCSERVER", server)
     bootstrap.set_environment("LANG", "en_US.UTF-8")
     bootstrap.set_environment("LC_ALL", os.environ["LANG"])
     bootstrap.set_environment("NOSE_EVAL_ATTR", test_mark_expr)
