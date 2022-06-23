@@ -716,7 +716,9 @@ def base_build(
         return conda_build.api.build(recipe_dir, config=conda_config)
 
 
-def load_packages_from_conda_build_config(conda_build_config, condarc_options):
+def load_packages_from_conda_build_config(
+    conda_build_config, condarc_options, with_pins=False
+):
     with open(conda_build_config, "r") as f:
         content = f.read()
 
@@ -734,7 +736,15 @@ def load_packages_from_conda_build_config(conda_build_config, condarc_options):
 
     package_names_map = package_pins.pop("package_names_map")
 
-    packages = [package_names_map.get(p, p) for p in package_pins.keys()]
+    if with_pins:
+        # NB : in pins, need to strip the occasional " cuda*" suffix
+        # tensorflow=x.x.x cuda* -> tensorflow=x.x.x
+        packages = [
+            f"{package_names_map.get(p, p)}={str(v[0]).split(' ')[0]}"
+            for p, v in package_pins.items()
+        ]
+    else:
+        packages = [package_names_map.get(p, p) for p in package_pins.keys()]
 
     return packages, package_names_map
 
