@@ -89,8 +89,11 @@ def checkout(ctx, names, use_https, subfolder):
                     subprocess.check_call(["pre-commit", "install"], cwd=dest)
                 except subprocess.CalledProcessError:
                     click.echo(
-                        "pre-commit installation failed. Please install pre-commit manually."
+                        "pre-commit git hook installation failed. "
+                        "Please make sure you have pre-commit installed "
+                        "and its binary is in the PATH."
                     )
+                    raise
 
 
 # the group command must be at the end of this file for plugins to work.
