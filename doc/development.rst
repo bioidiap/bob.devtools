@@ -47,7 +47,7 @@ assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
 
 .. code-block:: sh
 
-   $ bdt dev install . # calls pip with correct arguments
+   $ bdt dev install -n dev . # calls pip with correct arguments
    $ python
 
 for example:
@@ -179,7 +179,7 @@ The last step is to install the package:
 
    $ cd bob.io.base #if that is not the case
    $ conda activate dev #if that is not the case
-   $ bdt dev install .
+   $ bdt dev install -n dev .
 
 To run the test suite:
 
@@ -240,7 +240,7 @@ and install ``bob.extension`` as following:
 .. code-block:: sh
 
     $ bdt dev checkout --use-ssh --subfolder src bob.extension
-    $ bdt dev install src/bob.extension
+    $ bdt dev install -n dev src/bob.extension
 
 
 .. _bob.devtools.create_package:
@@ -269,7 +269,7 @@ start developing your package.
     $ cd bob.project.awesome
     $ bdt dev create --stable -vv awesome-project  #here we used the stable channels to make the conda environment.
     $ conda activate awesome-project
-    $ bdt dev install .
+    $ bdt dev install -n awesome-project .
 
 
 Developing existing bob packages along with your new package
@@ -283,7 +283,7 @@ You need to checkout and install these packages:
 .. code-block:: sh
 
     $ bdt dev checkout --use-ssh --subfolder src bob.extension bob.io.base
-    $ bdt dev install src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
+    $ bdt dev install -n awesome-project src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 When you build your new package, it is customary to checkout the dependent
 packages (in this example ``bob.extension`` and ``bob.io.base``) in the ``src``
@@ -298,6 +298,6 @@ your environment. You can find these dependencies by checking
 .. code-block:: sh
 
     $ mamba install gcc_linux-64 gxx_linux-64 libblitz
-    $ bdt dev install src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
+    $ bdt dev install -n awesome-project src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 .. include:: links.rst
