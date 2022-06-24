@@ -205,7 +205,6 @@ def graph(
 
     # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
     # and derived documentation building via Sphinx)
-    set_environment("DOCSERVER", server)
     set_environment("BOB_DOCUMENTATION_SERVER", "/not/set")
 
     # avoids conda-build complaints

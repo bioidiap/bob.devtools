@@ -227,7 +227,6 @@ def build(
 
     # setup BOB_DOCUMENTATION_SERVER environment variable (used for bob.extension
     # and derived documentation building via Sphinx)
-    set_environment("DOCSERVER", server)
     doc_urls = get_docserver_setup(
         public=(not private),
         stable=stable,
