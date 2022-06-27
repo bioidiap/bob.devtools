@@ -178,6 +178,9 @@ build_macos_arm_bob_devtools:
     - conda activate base
 
   after_script:
+    - python3 ./bob/devtools/bootstrap.py -vv local base
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
     - bdt ci clean -vv
 
   dependencies:
