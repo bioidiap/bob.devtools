@@ -118,7 +118,12 @@ bdt dev install -n bobbioface src/bob.bio.base
 bdt dev new -vv bob/bob.newpackage "John Doe" "joe@example.com"
 # edit the conda/meta.yaml and requirements.txt files to add your dependencies
 bdt dev create --python 3.9 bobnewpackage
-bdt install -n bobnewpackage ."""
+bdt install -n bobnewpackage .
+
+\b
+# create an environment with all external bob dependencies
+bdt dev dependencies --python 3.9 my_env
+"""
 )
 def dev():
     """Development scripts"""

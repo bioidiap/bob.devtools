@@ -112,6 +112,7 @@ setup(
             "create = bob.devtools.scripts.create:create",
             "install = bob.devtools.scripts.development:install",
             "checkout = bob.devtools.scripts.development:checkout",
+            "dependencies = bob.devtools.scripts.dependencies:dependencies",
         ],
     },
     classifiers=[
