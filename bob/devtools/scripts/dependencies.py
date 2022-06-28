@@ -25,7 +25,7 @@ def dependencies(env_name, python):
         "bob.devtools", "data/conda_build_config.yaml"
     )
 
-    packages, package_names_map = load_packages_from_conda_build_config(
+    packages, _ = load_packages_from_conda_build_config(
         conda_config_path, {"channels": []}, with_pins=True
     )
 
