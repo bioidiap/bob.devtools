@@ -36,12 +36,23 @@ assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
    $ bdt dev create -vv dev
    $ conda activate dev
 
+If you know that you plan to develop many packages (or even every Bob package), you can
+also instead create an environment that contains the integrality of external dependencies.
+This avoids the need to run ``bdt dev create`` for many packages. You will need to pick a Python version:
+
+.. code-block:: sh
+
+   $ bdt dev dependencies --python 3.9 dev
+   $ conda activate dev
+
 .. note::
 
    ``bdt`` might try to install the cuda version of deep learning packages. If
    you don't have cuda drivers installed and face errors such as ``nothing
    provides __cuda``, you might need to run: ``export CONDA_OVERRIDE_CUDA=11.6``
    where instead of ``11.6`` you should put the latest version of cuda.
+   You can also use this trick if you actually want to ensure ``bdt`` will
+   install the cuda version of deep learning packages.
 
 * Build the package using pip:
 
@@ -241,6 +252,19 @@ and install ``bob.extension`` as following:
 
     $ bdt dev checkout --use-ssh --subfolder src bob.extension
     $ bdt dev install -n dev src/bob.extension
+
+
+If you want to develop many packages, or even all Bob packages at once, you can proceed a bit
+differently. First, create an environment containing all external Bob dependencies.
+
+.. code-block:: sh
+
+    $ bdt dev dependencies --python 3.9 bob_deps
+    $ conda activate bob_deps
+    $ mkdir -pv bob_beta/src
+    $ cd bob_beta/src
+    $ bdt dev checkout --use-ssh bob.extension bob.io.base bob.pipelines # ... checkout all packages you need
+    $ bdt dev install bob.extension bob.io.base bob.pipelines # ... install all packages you need
 
 
 .. _bob.devtools.create_package:

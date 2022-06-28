@@ -4,24 +4,26 @@ import click
 
 @click.command(
     epilog="""Example:
-  1. Creates an environment called `myenv' containing all external bob dependencies:
 
-python bob/devtools/scripts/install_deps.py  myenv
+    Creates an environment called `myenv' based on Python 3.8 and containing all external bob dependencies:
 
-2. The version of python to solve with can be provided as option:
 
-python bob/devtools/scripts/install_deps.py  myenv --python=3.8
-
+    bdt dev dependencies --python 3.8 myenv
 """
 )
 @click.argument("env_name", nargs=1)
 @click.option("--python", required=True, help="Python version to pin, e.g. 3.8")
-def install_deps(env_name, python):
+def dependencies(env_name, python):
+    """Creates an environment with all external bob dependencies."""
     import subprocess
+
+    import pkg_resources
 
     from bob.devtools.build import load_packages_from_conda_build_config
 
-    conda_config_path = "bob/devtools/data/conda_build_config.yaml"
+    conda_config_path = pkg_resources.resource_filename(
+        "bob.devtools", "data/conda_build_config.yaml"
+    )
 
     packages, package_names_map = load_packages_from_conda_build_config(
         conda_config_path, {"channels": []}, with_pins=True
@@ -40,7 +42,10 @@ def install_deps(env_name, python):
                 env_name,
                 f"python={python}",
             ]
-            + packages,
+            + packages
+            + [
+                "compilers"
+            ],  # Install conda-forge compilers for compiled pacakges
             check=True,
         )
     except subprocess.CalledProcessError as e:
@@ -49,4 +54,4 @@ def install_deps(env_name, python):
 
 
 if __name__ == "__main__":
-    install_deps()
+    dependencies()
