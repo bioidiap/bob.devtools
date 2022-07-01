@@ -1,11 +1,11 @@
 .. vim: set fileencoding=utf-8 :
 
-.. image:: https://img.shields.io/badge/docs-latest-orange.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.devtools/badges/master/pipeline.svg
-   :target: https://gitlab.idiap.ch/bob/bob.devtools/commits/master
-.. image:: https://gitlab.idiap.ch/bob/bob.devtools/badges/master/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.devtools/commits/master
+.. image:: https://img.shields.io/badge/docs-v5.1.0-orange.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/v5.1.0/index.html
+.. image:: https://gitlab.idiap.ch/bob/bob.devtools/badges/v5.1.0/pipeline.svg
+   :target: https://gitlab.idiap.ch/bob/bob.devtools/commits/v5.1.0
+.. image:: https://gitlab.idiap.ch/bob/bob.devtools/badges/v5.1.0/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.devtools/commits/v5.1.0
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.devtools
 
@@ -38,4 +38,4 @@ development `mailing list`_.
 .. _bob: https://www.idiap.ch/software/bob
 .. _beat: https://www.idiap.ch/software/beat
 .. _mailing list: https://www.idiap.ch/software/bob/discuss
-.. _user guide: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/master/install.html
+.. _user guide: https://www.idiap.ch/software/bob/docs/bob/bob.devtools/v5.1.0/install.html
