@@ -45,7 +45,7 @@ def install(env_name, folders):
             cmd,
             shell=True,
         )
-        click.echo("Installed package using the command:", cmd)
+        click.echo(f"Installed package using the command: {cmd}")
 
 
 @click.command(epilog="See bdt dev --help for examples of this command.")
