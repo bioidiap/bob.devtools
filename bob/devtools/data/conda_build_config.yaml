@@ -417,6 +417,8 @@ psutil:
   - 5.9.1
 pybind11:
   - 2.9.2
+pysoundfile:
+  - 0.10.3
 pytest:
   - 7.1.2
 pytest_cov:
