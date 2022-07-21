@@ -60,7 +60,9 @@ def get_last_tag(package):
 
     # according to the Gitlab API documentation, tags are sorted from the last
     # updated to the first, by default - no need to do further sorting!
-    tag_list = package.tags.list(page=1, per_page=1) # Silence userWarning on list()
+    tag_list = package.tags.list(
+        page=1, per_page=1
+    )  # Silence userWarning on list()
 
     if tag_list:
         # there are tags, use these
@@ -86,7 +88,9 @@ def get_last_tag_date(package):
 
     # according to the Gitlab API documentation, tags are sorted from the last
     # updated to the first, by default - no need to do further sorting!
-    tag_list = package.tags.list(page=1, per_page=1) # Silence userWarning on list()
+    tag_list = package.tags.list(
+        page=1, per_page=1
+    )  # Silence userWarning on list()
 
     if tag_list:
         # there are tags, use these
