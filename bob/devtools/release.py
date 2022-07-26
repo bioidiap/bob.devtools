@@ -21,7 +21,7 @@ def download_path(package, path, output=None, ref="master"):
     """Downloads paths from gitlab, with an optional recurse.
 
     This method will download an archive of the repository from chosen
-    reference, and then it will search insize the zip blob for the path to be
+    reference, and then it will search inside the zip blob for the path to be
     copied into output.  It uses :py:class:`zipfile.ZipFile` to do this search.
     This method will not be very efficient for larger repository references,
     but works recursively by default.
@@ -277,7 +277,7 @@ def update_files_with_mr(
         files_dict: Dictionary of file names and their contents (as text)
         message: Commit message
         branch: The branch name to use for the merge request
-        automerge: If we should set the "merge if build suceeds" flag on the
+        automerge: If we should set the "merge if build succeeds" flag on the
           created MR
         dry_run: If True, nothing will be pushed to gitlab
         user_id: The integer which numbers the user to attribute this MR to
@@ -384,7 +384,7 @@ def get_last_pipeline(gitpkg):
 
         gitpkg: gitlab package object
 
-    Returns: The gtilab object of the pipeline
+    Returns: The gitlab object of the pipeline
     """
 
     # wait for 10 seconds to ensure that if a pipeline was just submitted,
