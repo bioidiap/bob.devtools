@@ -48,7 +48,7 @@ stages:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
+        path: coverage.xml
 
 
 .build_linux_template:
