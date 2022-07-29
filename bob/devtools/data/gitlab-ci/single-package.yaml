@@ -46,7 +46,9 @@ stages:
   artifacts:
     expire_in: 1 week
     reports:
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
 
 
 .build_linux_template:
