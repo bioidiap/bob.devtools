@@ -139,7 +139,7 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
    You must make both ``/scratch/builds`` and ``/scratch/cache`` owned by the
    user running the ``gitlab-runner`` process.  Typically, it is
    ``gitlab-runner``.  These commands, in this case, are in order to complete
-   the setup::
+   the setup:
 
    .. code-block:: sh
 
@@ -151,7 +151,7 @@ the values of ``<internal.ipv4.address>`` and ``<token>`` on the template below)
 
 Once the configuration is done, add the gitlab-runner user to the docker group
 so it can do tasks related to Docker (images pulling, python client call,
-etc.)::
+etc.):
 
 .. code-block:: sh
 
