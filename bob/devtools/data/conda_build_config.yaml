@@ -395,6 +395,8 @@ make:
   - 4.3
 matplotlib:
   - 3.5.2
+mne-base:
+  - 1.1.0
 ncurses:
   - 6.3
 nose:
