@@ -341,16 +341,17 @@ package_names_map:
   dask_ml: dask-ml
   docker_py: docker-py
   font_ttf_dejavu_sans_mono: font-ttf-dejavu-sans-mono
+  imageio_ffmpeg: imageio-ffmpeg
+  mne_base: mne-base
   pkg_config: pkg-config
   pytest_cov: pytest-cov
   python_graphviz: python-graphviz
+  pytorch_lightning: pytorch-lightning
   scikit_image: scikit-image
   scikit_learn: scikit-learn
   sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
   sphinxcontrib_mermaid: sphinxcontrib-mermaid
   sphinxcontrib_programoutput: sphinxcontrib-programoutput
-  imageio_ffmpeg: imageio-ffmpeg
-  pytorch_lightning: pytorch-lightning
 
 
 click:
@@ -395,7 +396,7 @@ make:
   - 4.3
 matplotlib:
   - 3.5.2
-mne-base:
+mne_base:
   - 1.1.0
 ncurses:
   - 6.3
