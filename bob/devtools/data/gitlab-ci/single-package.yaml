@@ -43,6 +43,7 @@ stages:
   script:
     - bdt ci build -vv
     - bdt ci clean -vv
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     expire_in: 1 week
     reports:
