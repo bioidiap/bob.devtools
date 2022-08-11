@@ -73,7 +73,7 @@ def update_pins(manual_pins, python):
     idx1 = content.find(START)
     idx2 = content.find("# AUTOMATIC PARSING END")
     pins = "\n".join(
-        f"{reversed_package_names_map.get(name, name)}:\n  - {version}"
+        f'{reversed_package_names_map.get(name, name)}:\n  - "{version}"'
         for name, version in resolved_packages
         if name in packages
     )
