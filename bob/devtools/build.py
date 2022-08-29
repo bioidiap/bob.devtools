@@ -591,6 +591,7 @@ def git_clean_build(runner, verbose):
         "miniconda.sh",  # the installer, cached
         "torch",  # eventual pytorch caches
         "sphinx",  # build artifact -- documentation
+        "test_results.xml",  # build artifact -- tests report
         "coverage.xml",  # build artifact -- coverage report
     ]
 
