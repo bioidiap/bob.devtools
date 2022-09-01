@@ -347,6 +347,8 @@ package_names_map:
   pytest_cov: pytest-cov
   python_graphviz: python-graphviz
   pytorch_lightning: pytorch-lightning
+  sphinx_autodoc_typehints: sphinx-autodoc-typehints
+  sphinx_click: sphinx-click
   scikit_image: scikit-image
   scikit_learn: scikit-learn
   sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
@@ -455,6 +457,10 @@ six:
   - "1.16.0"
 sphinx:
   - "5.0.2"
+sphinx_autodoc_typehints:
+  - "1.19.2"
+sphinx_click:
+  - "4.3.0"
 sphinx_rtd_theme:
   - "1.0.0"
 sphinxcontrib_programoutput:
