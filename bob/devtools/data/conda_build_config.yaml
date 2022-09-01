@@ -349,6 +349,8 @@ package_names_map:
   pytorch_lightning: pytorch-lightning
   scikit_image: scikit-image
   scikit_learn: scikit-learn
+  sphinx_click: sphinx-click
+  sphinx_autodoc_typehints: sphinx-autodoc-typehints
   sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
   sphinxcontrib_mermaid: sphinxcontrib-mermaid
   sphinxcontrib_programoutput: sphinxcontrib-programoutput
@@ -455,6 +457,10 @@ six:
   - "1.16.0"
 sphinx:
   - "5.0.2"
+sphinx_click:
+  - "4.3.0"
+sphinx_autodoc_typehints:
+  - "1.19.2"
 sphinx_rtd_theme:
   - "1.0.0"
 sphinxcontrib_programoutput:
