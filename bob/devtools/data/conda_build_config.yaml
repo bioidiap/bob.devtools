@@ -456,7 +456,7 @@ simplejson:
 six:
   - "1.16.0"
 sphinx:
-  - "5.0.2"
+  - "5.1.1"
 sphinx_autodoc_typehints:
   - "1.19.2"
 sphinx_click:
