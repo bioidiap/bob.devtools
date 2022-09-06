@@ -469,6 +469,8 @@ sqlalchemy:
   - "1.4.39"
 tabulate:
   - "0.8.10"
+tensorboard:
+  - "2.8.0"
 tensorflow:
   - "2.8.1 cuda*"  # [linux]
   - "2.8.1"  # [osx]
