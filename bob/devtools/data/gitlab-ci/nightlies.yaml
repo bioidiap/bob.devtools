@@ -6,8 +6,7 @@ variables:
   PYTHONUNBUFFERED: "1"
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
   BOOTSTRAP: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/bootstrap.py"
-  TORCH_HOME: "${CI_PROJECT_DIR}/.cache/torch"
-  PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
+  XDG_CACHE_HOME: "${CI_PROJECT_DIR}/.cache"
 
 
 # Definition of our build pipeline order
@@ -28,8 +27,8 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${TORCH_HOME}
-      - ${PRE_COMMIT_HOME}
+      - ${XDG_CACHE_HOME}/torch
+      - ${XDG_CACHE_HOME}/pre-commit
 
 
 # Build targets

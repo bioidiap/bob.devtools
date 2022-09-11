@@ -4,11 +4,10 @@
 # Definition of global variables (all stages)
 variables:
   PYTHONUNBUFFERED: "1"
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
   DEPLOY: "https://gitlab.idiap.ch/bob/bob.devtools/raw/master/bob/devtools/deploy.py"
   # The version of cuda at Idiap
   CONDA_OVERRIDE_CUDA: "11.6"
+  XDG_CACHE_HOME: "${CI_PROJECT_DIR}/.cache"
 
 
 # Definition of our build pipeline order
@@ -43,8 +42,9 @@ build:
   cache:
     key: "build-py"
     paths:
-      - ${PRE_COMMIT_HOME}
-      - ${PIP_CACHE_DIR}
+      - ${XDG_CACHE_HOME}/pip
+      - ${XDG_CACHE_HOME}/torch
+      - ${XDG_CACHE_HOME}/pre-commit
 
 
 # Test targets
