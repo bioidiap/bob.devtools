@@ -33,7 +33,7 @@ stages:
     - conda clean --all
   cache:
     paths:
-      - ${XDG_CACHE_HOME}/torch
+      - .cache/torch
 
 
 # Build target

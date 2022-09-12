@@ -42,9 +42,9 @@ build:
   cache:
     key: "build-py"
     paths:
-      - ${XDG_CACHE_HOME}/pip
-      - ${XDG_CACHE_HOME}/torch
-      - ${XDG_CACHE_HOME}/pre-commit
+      - .cache/pip
+      - .cache/torch
+      - .cache/pre-commit
 
 
 # Test targets

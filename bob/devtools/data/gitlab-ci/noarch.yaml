@@ -31,8 +31,8 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${XDG_CACHE_HOME}/torch
-      - ${XDG_CACHE_HOME}/pre-commit
+      - .cache/torch
+      - .cache/pre-commit
 
 
 # Build targets
