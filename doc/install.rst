@@ -8,7 +8,7 @@
 ==============
 
 You can install this package via conda_ or mamba_, simply pointing to our beta channel.
-We provide packages for both 64-bit Linux and MacOS, for Python 3.8+.
+We provide packages for both 64-bit Linux and MacOS, for Python 3.9+.
 
 .. code-block:: sh
 
