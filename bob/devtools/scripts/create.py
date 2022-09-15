@@ -266,6 +266,10 @@ def create(
         # which is pretty annoying - this will take care of it.
         deps = parse_dependencies(recipe_dir, conda_config)
 
+    # if python is among dependencies, the use what the user has specified
+    if "python" in deps:  # force python version
+        deps[deps.index("python")] = f"python={python}"
+
     # when creating a local development environment, remove the always_yes option
     del condarc_options["always_yes"]
     conda_create(
