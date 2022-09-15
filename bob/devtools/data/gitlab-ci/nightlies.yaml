@@ -49,13 +49,6 @@ stages:
     # The version of cuda at Idiap
     CONDA_OVERRIDE_CUDA: "11.6"
 
-build_linux_38:
-  extends: .build_linux_template
-  variables:
-    PYTHON_VERSION: "3.8"
-  cache:
-    key: 'build-py38'
-
 build_linux_39:
   extends: .build_linux_template
   variables:
@@ -63,16 +56,12 @@ build_linux_39:
   cache:
     key: 'build-py39'
 
-build_macos_intel_38:
-  extends: .build_template
+build_linux_310:
+  extends: .build_linux_template
   variables:
-    PYTHON_VERSION: "3.8"
-  tags:
-    - bob
-    - macos
-    - intel
+    PYTHON_VERSION: "3.10"
   cache:
-    key: 'build-py38'
+    key: 'build-py310'
 
 build_macos_intel_39:
   extends: .build_template
@@ -85,6 +74,17 @@ build_macos_intel_39:
   cache:
     key: 'build-py39'
 
+build_macos_intel_310:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.10"
+  tags:
+    - bob
+    - macos
+    - intel
+  cache:
+    key: 'build-py310'
+
 build_macos_arm_39:
   extends: .build_template
   variables:
@@ -95,6 +95,17 @@ build_macos_arm_39:
     - arm
   cache:
     key: 'build-py39'
+
+build_macos_arm_310:
+  extends: .build_template
+  variables:
+    PYTHON_VERSION: "3.10"
+  tags:
+    - bob
+    - macos
+    - arm
+  cache:
+    key: 'build-py310'
 
 
 # Periodic cleanup of beta packages
