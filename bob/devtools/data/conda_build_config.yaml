@@ -354,6 +354,7 @@ package_names_map:
   sphinxcontrib_httpdomain: sphinxcontrib-httpdomain
   sphinxcontrib_mermaid: sphinxcontrib-mermaid
   sphinxcontrib_programoutput: sphinxcontrib-programoutput
+  tomli_w: tomli-w
 
 
 click:
@@ -480,6 +481,8 @@ torchvision:
   - "0.12.0"
 tomli:
   - "2.0.1"
+tomli_w:
+  - "1.0.0"
 tqdm:
   - "4.64.0"
 xarray:
