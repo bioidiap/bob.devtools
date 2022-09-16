@@ -94,19 +94,19 @@ stages:
       - ${CONDA_ROOT}/conda-bld/osx-arm64/*.tar.bz2
 
 
-build_macos_intel_38:
-  extends: .build_macos_intel_template
-  variables:
-    PYTHON_VERSION: "3.8"
-  cache:
-    key: "build-py38"
-
 build_macos_intel_39:
   extends: .build_macos_intel_template
   variables:
     PYTHON_VERSION: "3.9"
   cache:
     key: "build-py39"
+
+build_macos_intel_310:
+  extends: .build_macos_intel_template
+  variables:
+    PYTHON_VERSION: "3.10"
+  cache:
+    key: "build-py310"
 
 build_macos_arm_39:
   extends: .build_macos_arm_template
@@ -115,17 +115,24 @@ build_macos_arm_39:
   cache:
     key: "build-py39"
 
-build_linux_38:
-  extends: .build_linux_template
+build_macos_arm_310:
+  extends: .build_macos_arm_template
   variables:
-    PYTHON_VERSION: "3.8"
+    PYTHON_VERSION: "3.10"
   cache:
-    key: "build-py38"
+    key: "build-py310"
 
 build_linux_39:
   extends: .build_linux_template
   variables:
     PYTHON_VERSION: "3.9"
+  cache:
+    key: "build-py39"
+
+build_linux_310:
+  extends: .build_linux_template
+  variables:
+    PYTHON_VERSION: "3.10"
     BUILD_EGG: "true"
   script:
     - bdt ci build -vv
@@ -138,7 +145,7 @@ build_linux_39:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
-    key: "build-py39"
+    key: "build-py310"
 
 
 # Deploy targets
@@ -149,11 +156,12 @@ build_linux_39:
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
-    - build_linux_38
     - build_linux_39
-    - build_macos_intel_38
+    - build_linux_310
     - build_macos_intel_39
+    - build_macos_intel_310
     - build_macos_arm_39
+    - build_macos_arm_310
   tags:
     - bob
     - docker
@@ -193,11 +201,12 @@ pypi:
     - bdt ci pypi -vv dist/*.zip
     - bdt ci clean -vv
   dependencies:
-    - build_linux_38
     - build_linux_39
-    - build_macos_intel_38
+    - build_linux_310
     - build_macos_intel_39
+    - build_macos_intel_310
     - build_macos_arm_39
+    - build_macos_arm_310
   tags:
     - bob
     - docker

@@ -6,15 +6,17 @@ import click
 @click.command(
     epilog="""Example:
 
-python bob/devtools/scripts/update_pins.py --python 3.8
+python bob/devtools/scripts/update_pins.py --python 3.10
 
 Force specific version of packages:
 
-python bob/devtools/scripts/update_pins.py --python 3.8 opencv=4.5.1 pytorch=1.9
+python bob/devtools/scripts/update_pins.py --python 3.10 opencv=4.5.1 pytorch=1.9
 """
 )
 @click.argument("manual_pins", nargs=-1)
-@click.option("--python", required=True, help="Python version to pin, e.g. 3.8")
+@click.option(
+    "--python", required=True, help="Python version to pin, e.g. 3.10"
+)
 def update_pins(manual_pins, python):
     import subprocess
 

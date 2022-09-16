@@ -57,7 +57,7 @@ build_linux:
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   variables:
-    PYTHON_VERSION: "3.9"
+    PYTHON_VERSION: "3.10"
     BUILD_EGG: "true"
   script:
     - bdt ci build -vv
@@ -75,7 +75,7 @@ build_linux:
 
 build_macos_intel:
   variables:
-    PYTHON_VERSION: "3.9"
+    PYTHON_VERSION: "3.10"
   cache:
     key: "build"
   extends: .build_template
@@ -87,7 +87,7 @@ build_macos_intel:
 
 build_macos_arm:
   variables:
-    PYTHON_VERSION: "3.9"
+    PYTHON_VERSION: "3.10"
   cache:
     key: "build"
   extends: .build_template

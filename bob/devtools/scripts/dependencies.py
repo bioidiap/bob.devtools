@@ -5,14 +5,16 @@ import click
 @click.command(
     epilog="""Example:
 
-    Creates an environment called `myenv' based on Python 3.8 and containing all external bob dependencies:
+    Creates an environment called `myenv' based on Python 3.10 and containing all external bob dependencies:
 
 
-    bdt dev dependencies --python 3.8 myenv
+    bdt dev dependencies --python 3.10 myenv
 """
 )
 @click.argument("env_name", nargs=1)
-@click.option("--python", required=True, help="Python version to pin, e.g. 3.8")
+@click.option(
+    "--python", required=True, help="Python version to pin, e.g. 3.10"
+)
 def dependencies(env_name, python):
     """Creates an environment with all external bob dependencies."""
     import subprocess

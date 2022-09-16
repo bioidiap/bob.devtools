@@ -47,7 +47,7 @@ requirements:
     - requests
     - sphinx >=4.0.2
     - pyyaml >=5.1
-    - twine <3
+    - twine
     - lxml
     - jinja2
     - termcolor

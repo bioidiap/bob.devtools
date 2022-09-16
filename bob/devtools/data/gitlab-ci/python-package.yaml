@@ -63,12 +63,6 @@ build:
       - ${PIP_CACHE_DIR}
 
 
-test_py38:
-  extends: .test_template
-  image: python:3.8
-  script:
-    - tox -e py38
-
 test_py39:
   extends: .test_template
   image: python:3.9
@@ -89,7 +83,6 @@ test_py310:
     - docker
   stage: deploy
   dependencies:
-    - test_py38
     - test_py39
     - test_py310
     - build
@@ -130,7 +123,6 @@ pypi:
   except:
     - branches
   dependencies:
-    - test_py38
     - test_py39
     - test_py310
     - build

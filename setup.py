@@ -22,7 +22,7 @@ requires = [
     "sphinx",
     "pyyaml>=5.1",
     "python-dateutil",
-    "twine<3",
+    "twine",
     "lxml",
     "jinja2",
     "tabulate",
