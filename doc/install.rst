@@ -7,8 +7,9 @@
  Installation
 ==============
 
-You can install this package via conda_ or mamba_, simply pointing to our beta channel.
-We provide packages for both 64-bit Linux and MacOS, for Python 3.9+.
+You can install this package via mamba_ (advised, but also works with conda_),
+simply pointing to our beta channel. We provide packages for both 64-bit Linux
+and MacOS, for Python 3.9+.
 
 .. code-block:: sh
 
@@ -16,6 +17,29 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.9+.
       -c https://www.idiap.ch/software/bob/conda/label/beta \
       -c conda-forge \
       bob.devtools
+
+.. tip:: **Alternative install command**
+
+   To avoid long command-lines prefixing the channel list above, it is also
+   possible to setup a ``condarc`` file, on the root of your mamba_ (or conda_)
+   installation, to contain the following:
+
+   .. code-block:: sh
+
+      $ cat ~/mamba/condarc
+      show_channel_urls: true
+      channel_priority: strict
+      channels:
+        - https://www.idiap.ch/software/bob/conda/label/beta
+        - https://www.idiap.ch/software/bob/conda
+        - conda-forge
+
+   This allows one to issue a simplified installation command-line like the
+   following, instead of the long command-line above:
+
+   .. code-block:: sh
+
+      $ mamba install -n base bob.devtools
 
 .. warning::
 
@@ -27,27 +51,16 @@ We provide packages for both 64-bit Linux and MacOS, for Python 3.9+.
    duplicating the size of your conda installation.  For this reason, we
    recommend you install this package on the ``base`` environment.
 
-Installing bob.devtools will create a terminal command called ``bdt`` which you
-must make available in your ``PATH`` because some ``bdt`` commands require another conda
-environment to be activated. Moreover, development of Bob packages depend on
-pre-commit_ (pre-commit gets installed as a dependency of bob.devtools) so you
-will need to make that available in your ``PATH`` environment variable as well:
+Installing bob.devtools will create a terminal command called ``bdt``, which
+you can access by first activating the base environment.  You can test this by
+running:
 
 .. code-block:: sh
 
-   # Make sure bdt and pre-commit are available in your PATH
-   $ mkdir -pv $HOME/.local/bin
-   $ export PATH=$HOME/.local/bin:$PATH
    $ conda activate base
-   $ ln -s $(command -v bdt) $HOME/.local/bin/
-   $ ln -s $(command -v pre-commit) $HOME/.local/bin/
-   # Make sure $HOME/.local/bin is in your PATH all the time.
-   $ echo 'export PATH=$HOME/.local/bin:$PATH' >> $HOME/.bashrc
-   $ source ~/.bashrc
-   # test if it works
-   $ conda deactivate
-   $ bdt --help
-   $ pre-commit --help
+   (base) $ bdt --help
+   ...
+
 
 .. _bob.devtools.install.setup:
 
@@ -73,6 +86,7 @@ repeatitive.  Your ``~/.python-gitlab.cfg`` should roughly look like this
    private_token = <obtain token at your settings page in gitlab>
    api_version = 4
 
+
 We recommend you set ``chmod 600`` to this file to avoid prying eyes to read
 out your personal token. Once you have your token set up, communication should
 work transparently between the built-in gitlab client and the server.
@@ -83,11 +97,11 @@ that server inside the file ``~/.bdtrc``.  Here is a skeleton:
 
 .. code-block:: ini
 
-
    [webdav]
    server = http://example.com
    username = username
    password = password
+
 
 You may obtain these parameters from our internal page explaining the `WebDAV
 configuration`_.  For security reasons, you should also set ``chmod 600`` to
@@ -100,11 +114,12 @@ pip-installable packages, create a section named ``create`` in the file
 .. code-block:: ini
 
    [create]
-   pip_extras = ipdb
-                ipdbplugin
+   pip_extras = logging-tree
 
-Then, by default, ``bdt dev create`` will automatically pip install ``ipdb`` and
-``ipdbplugin`` at environment creation time.  You may reset this list to your
-liking.
+Then, by default, ``bdt dev create`` will automatically pip install the package
+``logging-tree`` at environment creation time.  You may reset this list to your
+liking.  Packages for documentation building (Sphinx), testing (pytest), and
+quality-assurance (pre-commit) are installed by default and you do not need to
+further specify them here.
 
 .. include:: links.rst

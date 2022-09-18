@@ -16,6 +16,7 @@
 .. _gitlab: https://gitlab.idiap.ch/bob/
 .. _pytest: https://docs.pytest.org/
 .. _python: http://www.python.org
+.. _pip: https://pypi.org/project/pip/
 .. _pypi: http://pypi.python.org
 .. _setuptools: https://setuptools.readthedocs.io
 .. _zc.buildout: http://www.buildout.org/
