@@ -6,98 +6,84 @@
 
 Very often, developers are confronted with the need to clone package
 repositories locally and develop installation/build and runtime code. It is
-recommended to create isolated environments using conda_ to develop new
-projects. Tools implemented in ``bob.devtools`` help automate this process for
-|project| packages. In the following we talk about how to checkout and build
-one or several packages from their git_ source and build proper isolated
+recommended to create isolated environments using mamba_ (or conda_) to develop
+new projects. Tools implemented in ``bob.devtools`` help automate this process
+for |project| packages. In the following we talk about how to checkout and
+build one or several packages from their git_ source and build proper isolated
 environments to develop them. Then we will describe how to create a new bob
 package from scratch and develop existing bob packages along side it.
 
 TL;DR
 =====
 
-Suppose you want to checkout the package ``bob.io.base`` from source and start
-developing it locally. We will use the tools implemented in ``bob.devtools`` to
-create a proper developing environment to build and develop ``bob.io.base``. We
-assume you have ``bob.devtools`` installed on a conda environment named ``bdt``
-(Refer to :ref:`bob.devtools.install` for detailed information.)
+The setup process to develop a Bob_ package goes through 3 steps:
 
-* Checkout the source of the package from git:
+1. Checkout the source of the package from git:
+
+   .. code-block:: sh
+
+      $ git clone git@gitlab.idiap.ch:bob/bob.io.base
+
+2. Create a proper conda (development) environment:
+
+   .. code-block:: sh
+
+      $ cd bob.io.base
+      $ conda activate base
+      (base) $ bdt dev create -vv dev
+      # installs all packages required to develop bob.bio.base
+      # pip-installs all extra packages defined at your ~/.bdtrc
+      $ conda activate dev
+      (dev) $
+
+3. Install the package in development mode using pip:
+
+  .. code-block:: sh
+
+     (dev) $ pip install --no-build-isolation --no-dependencies --editable .
+
+After that step, your package will be installed and ready for use inside the
+``dev`` environment.  You must activate it everytime you want to further
+develop the package, or simply deactivate it when you branch off to another
+activity.
+
+With the development environment active, you can optionally test the package
+installation by either building its Sphinx documentation, doctests, running its
+test suite, or the quality assurance (pre-commit) checks:
 
 .. code-block:: sh
 
-   $ bdt dev checkout --use-ssh bob.io.base
+   (dev) $ sphinx-build doc sphinx  # documentation
+   (dev) $ sphinx-build doctest doc sphinx  # doctests
+   (dev) $ pytest -sv --cov bob.bio.base --cov-report  # test units
+   (dev) $ pre-commit run --all-files  # quality assurance
 
-* Create a proper conda environment:
+Note quality assurance may only work if a file called
+``.pre-commit-config.yaml`` is available within the package.
+
+
+Installing dependencies for all Bob packages
+============================================
+
+If you know that you plan to develop many packages (or even every Bob package),
+you can also instead create an environment that contains al external
+dependencies. This avoids the need to run ``bdt dev create`` for many packages.
+You will need to pick a Python version:
 
 .. code-block:: sh
 
-   $ cd bob.io.base
-   $ bdt dev create -vv dev
+   $ bdt dev dependencies --python=3.9 dev
    $ conda activate dev
-
-If you know that you plan to develop many packages (or even every Bob package), you can
-also instead create an environment that contains the integrality of external dependencies.
-This avoids the need to run ``bdt dev create`` for many packages. You will need to pick a Python version:
-
-.. code-block:: sh
-
-   $ bdt dev dependencies --python 3.9 dev
-   $ conda activate dev
+   (dev) $
 
 .. note::
 
    ``bdt`` might try to install the cuda version of deep learning packages. If
    you don't have cuda drivers installed and face errors such as ``nothing
-   provides __cuda``, you might need to run: ``export CONDA_OVERRIDE_CUDA=11.6``
-   where instead of ``11.6`` you should put the latest version of cuda.
-   You can also use this trick if you actually want to ensure ``bdt`` will
-   install the cuda version of deep learning packages.
-
-* Build the package using pip:
-
-.. code-block:: sh
-
-   $ bdt dev install -n dev . # calls pip with correct arguments
-   $ python
-
-for example:
-
-.. code-block:: python
-
-    >>> import bob.io.base
-    >>> bob.io.base # should print from '.../bob.io.base/bob/blitz/...'
-    <module 'bob.io.base' from '.../bob.io.base/bob/blitz/__init__.py'>
-    >>> print(bob.io.base.get_config())
-    bob.io.base: 2.0.20b0 [api=0x0202] (.../bob.io.base)
-    * C/C++ dependencies:
-      - Blitz++: 0.10
-      - Boost: 1.67.0
-      - Compiler: {'name': 'gcc', 'version': '7.3.0'}
-      - NumPy: {'abi': '0x01000009', 'api': '0x0000000D'}
-      - Python: 3.6.9
-    * Python dependencies:
-      - bob.extension: 3.2.1b0 (.../envs/dev/lib/python3.6/site-packages)
-      - click: 7.0 (.../envs/dev/lib/python3.6/site-packages)
-      - click-plugins: 1.1.1 (.../envs/dev/lib/python3.6/site-packages)
-      - numpy: 1.16.4 (.../envs/dev/lib/python3.6/site-packages)
-      - setuptools: 41.0.1 (.../envs/dev/lib/python3.6/site-packages)
-
-* You can optionally run the test suit to check your installation:
-
-.. code-block:: sh
-
-   $ pytest -sv ...
-
-* Some packages may come with a pre-commit_ config file (``.pre-commit-config.yaml``).
-  Make sure to install pre-commit if the config file exists:
-
-.. code-block:: sh
-
-   $ # check if the configuration file exists:
-   $ ls .pre-commit-config.yaml
-   $ pip install pre-commit
-   $ pre-commit install
+   provides __cuda``, you might need to run: ``export
+   CONDA_OVERRIDE_CUDA=11.6`` where instead of ``11.6`` you should put the
+   latest version of cuda. You can also use this trick if you actually want to
+   ensure ``bdt`` will install the cuda version of deep learning packages.
 
 
 .. bob.devtools.local_development:
@@ -106,7 +92,10 @@ Local development of existing packages
 ======================================
 
 To develop existing |project| packages you need to checkout their source code
-and install them in your environment.
+and install them in a suitable development environment, composed of the
+required packages.  The latest (unreleased) version of software dependencies
+from the Bob_ ecosystem are installed to simplify integration for the next
+unified release.
 
 
 Checking out package sources
@@ -117,80 +106,80 @@ Checking out package sources
 and build locally the ``bob.io.base`` package. In order to checkout a package,
 just use git_:
 
-
 .. code-block:: sh
 
-   $ bdt dev checkout --use-ssh bob.io.base
+   $ git clone git@gitlab.idiap.ch:bob/bob.io.base
 
 
 Create an isolated conda environment
 ------------------------------------
 
 Now that we have the package checked out we need an isolated environment with
-proper configuration to develop the package. ``bob.devtools`` provides a tool
-that automatically creates such environment. Before proceeding, you need to
-make sure that you already have a conda_ environment with ``bob.devtools``
-installed in it (Refer to :ref:`bob.devtools.install` for more information).
-let's assume that you have a conda environment named ``bdt`` with installed
-``bob.devtools``.
+proper configuration (beta channel address for Bob dependencies correctly
+setup) to develop the package. ``bob.devtools`` provides a tool that
+automatically creates such environment. Before proceeding, you need to make
+sure that you already have a mamba_ (or conda_) environment with
+``bob.devtools`` installed in it (refer to :ref:`bob.devtools.install` for more
+information). We assume you followed our installation instructions and
+installed ``bob.devtools`` on the ``base`` environment.  Then, follow these
+steps to create a development environment for ``bob.io.base``:
 
 .. code-block:: sh
 
    $ cd bob.io.base
-   $ bdt dev create -vv dev
-   $ conda activate dev
+   $ conda activate base
+   (base) $ bdt dev create -vv dev
+   (base) $ conda activate dev
+   (dev) $
 
+Now you have an isolated conda environment named `dev` with the proper
+configuration automatically set up. For more information about conda channels
+refer to `conda channel documentation`_.
 
-Now you have an isolated conda environment named `dev` with proper channels
-set. For more information about conda channels refer to `conda channel
-documentation`_.
-
-The ``bdt dev create`` command assumes a directory named ``conda``, exists on
-the current directory. The ``conda`` directory contains a file named
+Notice, the ``bdt dev create`` command assumes a directory named ``conda``,
+exists on the current directory.  The ``conda`` directory contains a file named
 ``meta.yaml``, that is the recipe required to create a development environment
 for the package you want to develop.
 
 .. note::
 
-    When developing and testing new features, one often wishes to work against
-    the very latest, *bleeding edge*, available set of changes on dependent
-    packages.
+   When developing and testing new features, one often wishes to work against
+   the very latest, *bleeding edge*, available set of changes on dependent
+   packages.
 
-    ``bdt dev create`` command adds `Bob beta channels`_ to highest priority
-    which creates an environment with the latest dependencies instead of the
-    latest *stable* versions of each package.
+   ``bdt dev create`` command adds `Bob beta channels`_ to highest priority
+   which creates an environment with the latest dependencies instead of the
+   latest *stable* versions of each package.
 
-    If you want to create your environment using *stable* channels, you can use
-    this command instead:
+   If you want to create your environment using *stable* channels, you can use
+   this command instead:
 
-      .. code-block:: sh
+     .. code-block:: sh
 
-        $ bdt dev create --stable -vv dev
+       $ bdt dev create --stable -vv dev
 
-    To see which channels you are using run:
+   To see which channels you are using run:
 
-    .. code-block:: sh
+   .. code-block:: sh
 
-        $ conda config --get channels
+       $ conda config --get channels
 
 
 .. note::
 
-    We recommend creating a new conda_ environment for every project or task
-    that you work on. This way you can have several isolated development
-    environments which can be very different form each other.
+   We recommend creating a new conda_ environment for every project or task
+   that you work on. This way you can have several isolated development
+   environments which can be very different from each other.
 
 
 Installing the package
 ----------------------
 
-The last step is to install the package:
+The last step is to install the package.  We simply do this using pip_:
 
 .. code-block:: sh
 
-   $ cd bob.io.base #if that is not the case
-   $ conda activate dev #if that is not the case
-   $ bdt dev install -n dev .
+   (dev) $ pip install --no-build-isolation --no-dependencies --editable .
 
 To run the test suite:
 
@@ -203,14 +192,12 @@ or build the documentation:
 .. code-block:: sh
 
     $ sphinx-build -aEn doc sphinx  # make sure it finishes without warnings.
-    $ xdg-open sphinx/index.html  # view the docs.
-
 
 You can see what is installed in your environment:
 
 .. code-block:: sh
 
-   $ conda list
+   $ mamba list
 
 And you can install new packages using mamba:
 
@@ -226,8 +213,8 @@ And you can install new packages using mamba:
 
     .. code-block:: sh
 
-       $ cd <package>
-       $ bdt local build
+       (base) $ cd <package>
+       (base) $ bdt local build
 
 
 One important advantage of using conda_ is that it does **not** require
@@ -250,21 +237,28 @@ and install ``bob.extension`` as following:
 
 .. code-block:: sh
 
-    $ bdt dev checkout --use-ssh --subfolder src bob.extension
-    $ bdt dev install -n dev src/bob.extension
+   $ cd bob.io.base
+   # we place dependencies in the "src/" subdirectory
+   $ git clone git@gitlab.idiap.ch:bob/bob.extension src/bob.extension
+   $ conda activate dev
+   (dev) $ pip install --no-build-isolation --no-dependencies --editable src/bob.extension
 
-
-If you want to develop many packages, or even all Bob packages at once, you can proceed a bit
-differently. First, create an environment containing all external Bob dependencies.
+If you want to develop many packages, or even all Bob packages at once, you can
+proceed a bit differently. First, create an environment containing all external
+Bob dependencies.
 
 .. code-block:: sh
 
-    $ bdt dev dependencies --python 3.9 bob_deps
-    $ conda activate bob_deps
-    $ mkdir -pv bob_beta/src
-    $ cd bob_beta/src
-    $ bdt dev checkout --use-ssh bob.extension bob.io.base bob.pipelines # ... checkout all packages you need
-    $ bdt dev install bob.extension bob.io.base bob.pipelines # ... install all packages you need
+    $ conda activate base
+    (base) $ bdt dev dependencies --python=3.9 alldeps
+    (base) $ conda activate alldeps
+    (alldeps) $ mkdir -pv bob_beta/src
+    (alldeps) $ cd bob_beta/src
+    # checkout and install everything you need, in order:
+    (alldeps) $ for p in bob.extension bob.io.base bob.pipelines; do
+    ... git clone git@gitlab.idiap.ch:bob/$p;
+    ... pip install --no-build-isolation --no-dependencies --editable $p;
+    ... done
 
 
 .. _bob.devtools.create_package:
@@ -285,43 +279,16 @@ includes the correct anatomy of a package. For more information about the
 functionality of each file check :ref:`bob.devtools.anatomy`.
 
 Now you have all the necessary tools available and you can make a development
-environment using `bdt dev create` command, run `bdt dev install` in it and
-start developing your package.
+environment using `bdt dev create` command, run `pip` in it and start
+developing your package.
 
 .. code-block:: sh
 
     $ cd bob.project.awesome
-    $ bdt dev create --stable -vv awesome-project  #here we used the stable channels to make the conda environment.
-    $ conda activate awesome-project
-    $ bdt dev install -n awesome-project .
+    $ conda activate base
+    (base) $ bdt dev create -vv awesome-project
+    (base) $ conda activate awesome-project
+    (awesome-project) $ pip install --no-build-isolation --no-dependencies --editable .
 
-
-Developing existing bob packages along with your new package
-------------------------------------------------------------
-
-Let's assume you need to develop two packages, ``bob.extension`` and
-``bob.io.base``, as part of developing your new ``bob.project.awesome`` package.
-
-You need to checkout and install these packages:
-
-.. code-block:: sh
-
-    $ bdt dev checkout --use-ssh --subfolder src bob.extension bob.io.base
-    $ bdt dev install -n awesome-project src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
-
-When you build your new package, it is customary to checkout the dependent
-packages (in this example ``bob.extension`` and ``bob.io.base``) in the ``src``
-folder in the root of your project.
-
-As usual, first create an isolated conda environment using ``bdt dev create``
-command. Some of bob packages need dependencies that might not be installed on
-your environment. You can find these dependencies by checking
-``conda/meta.yaml`` of each package. Install the required packages and then run
-``bdt dev install``. For our example you need to do the following:
-
-.. code-block:: sh
-
-    $ mamba install gcc_linux-64 gxx_linux-64 libblitz
-    $ bdt dev install -n awesome-project src/bob.extension src/bob.io.base  # the order of installing dependencies matters!
 
 .. include:: links.rst
