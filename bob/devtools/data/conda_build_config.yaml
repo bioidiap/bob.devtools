@@ -10,7 +10,7 @@ c_compiler:
   - clang                      # [osx]
 c_compiler_version:            # [unix]
   - 10                         # [linux]
-  - 13                         # [osx]
+  - 14                         # [osx]
   - 7                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 9                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
@@ -20,13 +20,13 @@ cxx_compiler:
   - clangxx                    # [osx]
 cxx_compiler_version:          # [unix]
   - 10                         # [linux]
-  - 13                         # [osx]
+  - 14                         # [osx]
   - 7                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 9                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
 llvm_openmp:                   # [osx]
-  - 13                         # [osx]
+  - 14                         # [osx]
 fortran_compiler:              # [unix or win64]
   - gfortran                   # [linux64 or (osx and x86_64)]
   - gfortran                   # [aarch64 or ppc64le or armv7l or s390x]
@@ -86,6 +86,7 @@ target_goos:
   - windows                    # [win]
 target_goarch:
   - amd64                      # [x86_64]
+  - arm64                      # [arm64 or aarch64]
 target_goexe:
   -                            # [unix]
   - .exe                       # [win]
@@ -96,8 +97,6 @@ target_gobin:
 # Rust Compiler Options
 rust_compiler:
   - rust
-rust_compiler_version:
-  - 1.40.0
 
 CONDA_BUILD_SYSROOT:            # [osx]
   - /opt/MacOSX10.9.sdk         # [osx and x86_64]
@@ -315,17 +314,13 @@ pin_run_as_build:
 
 # blas
 libblas:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 libcblas:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 liblapack:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 liblapacke:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 blas_impl:
   - openblas
   - mkl          # [x86 or x86_64]
@@ -362,19 +357,19 @@ click:
 click_plugins:
   - "1.1.1"
 cmake:
-  - "3.23.2"
+  - "3.24.2"
 coverage:
-  - "6.4.1"
+  - "6.4.4"
 dask:
-  - "2022.6.1"
+  - "2022.9.1"
 dask_jobqueue:
-  - "0.7.3"
+  - "0.8.0"
 dask_ml:
   - "2022.5.27"
 ddt:
   - "1.4.1"
 distributed:
-  - "2022.6.1"
+  - "2022.9.1"
 docker_py:
   - "5.0.3"
 docopt:
@@ -384,13 +379,13 @@ flaky:
 font_ttf_dejavu_sans_mono:
   - "2.37"
 freetype:
-  - "2.10.4"
+  - "2.12.1"
 graphviz:
-  - "4.0.0"
+  - "6.0.1"
 h5py:
-  - "3.6.0"
+  - "3.7.0"
 imageio:
-  - "2.19.3"
+  - "2.22.0"
 imageio_ffmpeg:
   - "0.4.7"
 jinja2:
@@ -398,9 +393,9 @@ jinja2:
 make:
   - "4.3"
 matplotlib:
-  - "3.5.2"
+  - "3.6.0"
 mne_base:
-  - "1.1.0"
+  - "1.1.1"
 ncurses:
   - "6.3"
 nose:
@@ -410,46 +405,46 @@ numba:
 numpy:
   - "1.22.4"
 opencv:
-  - "4.5.5"
+  - "4.6.0"
 pandas:
-  - "1.4.3"
+  - "1.5.0"
 pillow:
-  - "9.1.1"
+  - "9.2.0"
 pip:
-  - "22.1.2"
+  - "22.2.2"
 pkg_config:
   - "0.29.2"
 psutil:
-  - "5.9.1"
+  - "5.9.2"
 pybind11:
-  - "2.9.2"
+  - "2.10.0"
 pysoundfile:
-  - "0.10.3"
+  - "0.10.3.post1"
 pytest:
-  - "7.1.2"
+  - "7.1.3"
 pytest_cov:
   - "3.0.0"
 python_graphviz:
-  - "0.20"
+  - "0.20.1"
 pytorch:
-  - "1.11.0 cuda*"  # [linux]
-  - "1.11.0"  # [osx]
+  - "1.12.1 cuda*"  # [linux]
+  - "1.12.1"  # [osx]
 pytorch_lightning:
-  - "1.6.4"
+  - "1.6.5"
 pyyaml:
   - "6.0"
 pyzmq:
-  - "23.2.0"
+  - "24.0.0"
 requests:
-  - "2.28.0"
+  - "2.28.1"
 schema:
   - "0.7.5"
 scikit_image:
   - "0.19.3"
 scikit_learn:
-  - "1.1.1"
+  - "1.1.2"
 scipy:
-  - "1.8.1"
+  - "1.9.1"
 setuptools:
   - "59.5.0"
 simplejson:
@@ -467,25 +462,25 @@ sphinx_rtd_theme:
 sphinxcontrib_programoutput:
   - "0.17"
 sqlalchemy:
-  - "1.4.39"
+  - "1.4.41"
 tabulate:
   - "0.8.10"
 tensorboard:
-  - "2.8.0"
+  - "2.9.0"
 tensorflow:
-  - "2.8.1 cuda*"  # [linux]
-  - "2.8.1"  # [osx]
+  - "2.9.1 cuda*"  # [linux]
+  - "2.9.1"  # [osx]
 termcolor:
-  - "1.1.0"
-torchvision:
-  - "0.12.0"
+  - "2.0.1"
 tomli:
   - "2.0.1"
 tomli_w:
   - "1.0.0"
+torchvision:
+  - "0.13.0"
 tqdm:
-  - "4.64.0"
+  - "4.64.1"
 xarray:
-  - "2022.3.0"
+  - "2022.6.0"
 
 # AUTOMATIC PARSING END

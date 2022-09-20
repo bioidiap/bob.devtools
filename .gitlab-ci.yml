@@ -2,7 +2,7 @@
 variables:
   PYTHONUNBUFFERED: "1"
   CONDA_ROOT: "${CI_PROJECT_DIR}/miniconda"
-  PRE_COMMIT_HOME: "${CI_PROJECT_DIR}/.cache/pre-commit"
+  XDG_CACHE_HOME: "${CI_PROJECT_DIR}/cache"
 
 
 before_script:
@@ -27,7 +27,7 @@ stages:
   cache:
     paths:
       - miniconda.sh
-      - ${PRE_COMMIT_HOME}
+      - cache/pre-commit
 
 
 .build_linux_template:
@@ -85,7 +85,7 @@ code_quality:
   cache:
     key: "$CI_JOB_STAGE"
     paths:
-      - ${PRE_COMMIT_HOME}
+      - cache/pre-commit
 
   before_script:
     - git config --global --add safe.directory ${CI_PROJECT_DIR}
