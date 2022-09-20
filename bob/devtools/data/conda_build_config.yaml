@@ -10,7 +10,7 @@ c_compiler:
   - clang                      # [osx]
 c_compiler_version:            # [unix]
   - 10                         # [linux]
-  - 13                         # [osx]
+  - 14                         # [osx]
   - 7                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 9                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
@@ -20,13 +20,13 @@ cxx_compiler:
   - clangxx                    # [osx]
 cxx_compiler_version:          # [unix]
   - 10                         # [linux]
-  - 13                         # [osx]
+  - 14                         # [osx]
   - 7                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 9                          # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
   - 10                         # [os.environ.get("CF_CUDA_ENABLED", "False") == "True" and linux64]
 llvm_openmp:                   # [osx]
-  - 13                         # [osx]
+  - 14                         # [osx]
 fortran_compiler:              # [unix or win64]
   - gfortran                   # [linux64 or (osx and x86_64)]
   - gfortran                   # [aarch64 or ppc64le or armv7l or s390x]
@@ -86,6 +86,7 @@ target_goos:
   - windows                    # [win]
 target_goarch:
   - amd64                      # [x86_64]
+  - arm64                      # [arm64 or aarch64]
 target_goexe:
   -                            # [unix]
   - .exe                       # [win]
@@ -96,8 +97,6 @@ target_gobin:
 # Rust Compiler Options
 rust_compiler:
   - rust
-rust_compiler_version:
-  - 1.40.0
 
 CONDA_BUILD_SYSROOT:            # [osx]
   - /opt/MacOSX10.9.sdk         # [osx and x86_64]
@@ -315,17 +314,13 @@ pin_run_as_build:
 
 # blas
 libblas:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 libcblas:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 liblapack:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 liblapacke:
-  - 3.8 *netlib  # [not (osx and arm64)]
-  - 3.9 *netlib  # [osx and arm64]
+  - 3.9 *netlib
 blas_impl:
   - openblas
   - mkl          # [x86 or x86_64]
