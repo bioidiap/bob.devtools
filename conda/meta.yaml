@@ -35,7 +35,7 @@ requirements:
     # bob.devtools/bob/devtools/bootstrap.py
     - conda=4
     - conda-build=3
-    - mamba=0.23
+    - mamba=0.25
     - boa=0.11
     - certifi
     - docformatter
