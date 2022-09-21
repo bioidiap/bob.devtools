@@ -430,7 +430,7 @@ pytorch:
   - "1.12.1 cuda*"  # [linux]
   - "1.12.1"  # [osx]
 pytorch_lightning:
-  - "1.6.5"
+  - "1.5.8"
 pyyaml:
   - "6.0"
 pyzmq:
@@ -446,7 +446,7 @@ scikit_learn:
 scipy:
   - "1.9.1"
 setuptools:
-  - "59.5.0"
+  - "65.3.0"
 simplejson:
   - "3.17.6"
 six:
