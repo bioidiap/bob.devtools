@@ -1047,13 +1047,19 @@ Please see bob/devtools/templates/conda/meta.yaml for a template."""
         # we skip sphinx build and doctests as this is run by the ci later
         env = os.environ.copy()
         env["SKIP"] = "sphinx-build,sphinx-doctest"
+        executable = which("pre-commit")
+        logger.debug(
+            f"Running pre-commit executable at {executable} with config in {path}"
+        )
         run_cmdline(
             [
-                which("pre-commit"),
+                executable,
                 "run",
                 "--all-files",
                 "--show-diff-on-failure",
                 "--verbose",
+                "--config",
+                path,
             ],
             env=env,
         )
