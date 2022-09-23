@@ -172,6 +172,7 @@ build_macos_arm_bob_devtools:
 
 # Deploy targets
 .release_template:
+  image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
