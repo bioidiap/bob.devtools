@@ -23,6 +23,7 @@ def update_pins(manual_pins, python):
     from bob.devtools.build import load_packages_from_conda_build_config
 
     conda_config_path = "bob/devtools/data/conda_build_config.yaml"
+    pip_constraints_path = "bob/devtools/data/pip-constraints.txt"
 
     packages, package_names_map = load_packages_from_conda_build_config(
         conda_config_path, {"channels": []}
@@ -95,6 +96,12 @@ package_names_map:
     content = content[:idx1] + new_content + content[idx2:]
     with open(conda_config_path, "w") as f:
         f.write(content)
+
+    with open(pip_constraints_path, "w") as f:
+        constraints = [
+            f"{name}=={version}\n" for name, version in resolved_packages
+        ]
+        f.writelines(constraints)
 
 
 if __name__ == "__main__":
