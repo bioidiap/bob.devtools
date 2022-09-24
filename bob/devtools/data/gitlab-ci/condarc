@@ -1,0 +1,17 @@
+add_pip_as_python_dependency: false #!final
+always_yes: true #!final
+anaconda_upload: false #!final
+channel_priority: strict #!final
+conda_build: #!final
+  pkg_format: '2'
+default_channels: #!final
+  - http://bobconda.lab.idiap.ch:8000/pkgs/main
+channel_alias: http://bobconda.lab.idiap.ch:9000 #!final
+quiet: true #!final
+remote_connect_timeout_secs: 120.0 #!final
+remote_max_retries: 50 #!final
+remote_read_timeout_secs: 180.0 #!final
+show_channel_urls: true #!final
+ssl_verify: false #!final
+channels:
+  - conda-forge
