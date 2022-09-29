@@ -486,5 +486,7 @@ tqdm:
   - "4.64.1"
 xarray:
   - "2022.6.0"
+xlrd:
+  - "2.0.1"
 
 # AUTOMATIC PARSING END
