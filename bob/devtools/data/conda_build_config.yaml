@@ -259,6 +259,10 @@ pin_run_as_build:
     max_pin: x
   nspr:
     max_pin: x
+  numba:
+    max_pin: x.x
+  numpy:
+    max_pin: x.x
   occt:
     max_pin: x.x
   openturns:
