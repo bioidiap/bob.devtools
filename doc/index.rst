@@ -20,7 +20,6 @@ Documentation
    templates
    release
    api
-   ci
 
 
 Indices and tables
