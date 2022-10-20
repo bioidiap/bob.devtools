@@ -294,6 +294,7 @@ wrapt==1.14.1
 x264==1!164.3095
 x265==3.5
 xarray==2022.6.0
+xgboost==1.6.2
 xorg-libxau==1.0.9
 xorg-libxdmcp==1.1.3
 xz==5.2.6
