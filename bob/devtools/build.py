@@ -503,19 +503,19 @@ def get_docserver_setup(public, stable, server, intranet, group):
 
     if stable:
         entries += [
-            server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
-            server + prefix + "/docs/" + group + "/%(name)s/stable/",
             server
             + prefix
             + "/docs/"
             + group
             + "/%(name)s/%(version)s/sphinx/",
             server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
+            server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
+            server + prefix + "/docs/" + group + "/%(name)s/stable/",
         ]
     else:
         entries += [
-            server + prefix + "/docs/" + group + "/%(name)s/master/",
             server + prefix + "/docs/" + group + "/%(name)s/master/sphinx/",
+            server + prefix + "/docs/" + group + "/%(name)s/master/",
         ]
 
     if not public:
@@ -523,19 +523,19 @@ def get_docserver_setup(public, stable, server, intranet, group):
         prefix = "/private"
         if stable:
             entries += [
-                server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
-                server + prefix + "/docs/" + group + "/%(name)s/stable/",
                 server
                 + prefix
                 + "/docs/"
                 + group
                 + "/%(name)s/%(version)s/sphinx/",
                 server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
+                server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
+                server + prefix + "/docs/" + group + "/%(name)s/stable/",
             ]
         else:
             entries += [
-                server + prefix + "/docs/" + group + "/%(name)s/master/",
                 server + prefix + "/docs/" + group + "/%(name)s/master/sphinx/",
+                server + prefix + "/docs/" + group + "/%(name)s/master/",
             ]
 
     return "|".join(entries)
