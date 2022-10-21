@@ -465,8 +465,10 @@ def get_docserver_setup(public, stable, server, intranet, group):
     * not public and stable: returns public and private stable folders
     * not public and not stable: returns public and private beta folders
 
-    If returned, Priavte channels have **lower** priority over public channles
-    because, private packages become public eventually.
+    Will also look for a `sphinx` directory.
+
+    If returned, Private channels have **lower** priority over public channels
+    because, private packages can enventually become public.
 
     Args:
 
@@ -503,9 +505,14 @@ def get_docserver_setup(public, stable, server, intranet, group):
         entries += [
             server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
             server + prefix + "/docs/" + group + "/%(name)s/stable/",
+            server + prefix + "/docs/" + group + "/%(name)s/%(version)s/sphinx/",
+            server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
         ]
     else:
-        entries += [server + prefix + "/docs/" + group + "/%(name)s/master/"]
+        entries += [
+            server + prefix + "/docs/" + group + "/%(name)s/master/",
+            server + prefix + "/docs/" + group + "/%(name)s/master/sphinx/",
+        ]
 
     if not public:
         # add private channels, (notice they are not accessible outside idiap)
@@ -514,10 +521,13 @@ def get_docserver_setup(public, stable, server, intranet, group):
             entries += [
                 server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
                 server + prefix + "/docs/" + group + "/%(name)s/stable/",
+                server + prefix + "/docs/" + group + "/%(name)s/%(version)s/sphinx/",
+                server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
             ]
         else:
             entries += [
-                server + prefix + "/docs/" + group + "/%(name)s/master/"
+                server + prefix + "/docs/" + group + "/%(name)s/master/",
+                server + prefix + "/docs/" + group + "/%(name)s/master/sphinx/",
             ]
 
     return "|".join(entries)
