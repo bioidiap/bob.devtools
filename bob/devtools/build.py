@@ -505,7 +505,11 @@ def get_docserver_setup(public, stable, server, intranet, group):
         entries += [
             server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
             server + prefix + "/docs/" + group + "/%(name)s/stable/",
-            server + prefix + "/docs/" + group + "/%(name)s/%(version)s/sphinx/",
+            server
+            + prefix
+            + "/docs/"
+            + group
+            + "/%(name)s/%(version)s/sphinx/",
             server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
         ]
     else:
@@ -521,7 +525,11 @@ def get_docserver_setup(public, stable, server, intranet, group):
             entries += [
                 server + prefix + "/docs/" + group + "/%(name)s/%(version)s/",
                 server + prefix + "/docs/" + group + "/%(name)s/stable/",
-                server + prefix + "/docs/" + group + "/%(name)s/%(version)s/sphinx/",
+                server
+                + prefix
+                + "/docs/"
+                + group
+                + "/%(name)s/%(version)s/sphinx/",
                 server + prefix + "/docs/" + group + "/%(name)s/stable/sphinx/",
             ]
         else:
