@@ -34,7 +34,7 @@ show_channel_urls: true #!final
 ssl_verify: false #!final
 """
 
-_SERVER = "http://www.idiap.ch"
+_SERVER = "http://bobconda.lab.idiap.ch"
 
 _INTERVALS = (
     ("weeks", 604800),  # 60 * 60 * 24 * 7
