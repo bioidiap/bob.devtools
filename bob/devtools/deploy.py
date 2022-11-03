@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # This must be a copy of what is in bootstrap.py.
 # Notice this script is also called independently of bob.devtools!
-_SERVER = "http://www.idiap.ch"
+_SERVER = "http://bobconda.lab.idiap.ch"
 
 _WEBDAV_PATHS = {
     True: {  # stable?
