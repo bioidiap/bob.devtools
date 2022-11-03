@@ -6,7 +6,6 @@ variables:
 
 
 before_script:
-  - if [[ $CI_RUNNER_TAGS == *"docker,"* ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
   - python3 ./bob/devtools/bootstrap.py -vv build
   - source ${CONDA_ROOT}/etc/profile.d/conda.sh
   - conda activate base
@@ -38,6 +37,11 @@ stages:
     - bob
     - docker
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  before_script:
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+    - python3 ./bob/devtools/bootstrap.py -vv build
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate base
   artifacts:
     paths:
       - dist/*.zip
@@ -174,6 +178,7 @@ build_macos_arm_bob_devtools:
 .release_template:
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
   before_script:
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - python3 ./bob/devtools/bootstrap.py -vv local base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
