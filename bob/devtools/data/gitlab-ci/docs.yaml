@@ -29,7 +29,7 @@ stages:
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate base
-    - if [[ $CI_RUNNER_TAGS == *"docker,"* ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
+    - if [[ "${CI_RUNNER_TAGS}" =~ bob.*docker\|docker.*bob ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
     - conda clean --all
   cache:
     paths:
