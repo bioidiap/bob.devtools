@@ -21,7 +21,6 @@ stages:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - if [[ $CI_RUNNER_TAGS == *"docker,"* ]]; then git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
     - conda activate base
     - conda clean --all
   cache:
@@ -48,6 +47,19 @@ stages:
   variables:
     # The version of cuda at Idiap
     CONDA_OVERRIDE_CUDA: "11.6"
+  before_script:
+    - !reference [.bootstrap, before_script]
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+    - bdt ci check -vv
+
+.build_macos_template:
+  extends: .build_template
+  tags:
+    - bob
+    - macos
+  before_script:
+    - !reference [.bootstrap, before_script]
+    - bdt ci check -vv
 
 build_linux_39:
   extends: .build_linux_template
@@ -64,49 +76,44 @@ build_linux_310:
     key: 'build-py310'
 
 build_macos_intel_39:
-  extends: .build_template
+  extends: .build_macos_template
   variables:
     PYTHON_VERSION: "3.9"
   tags:
-    - bob
-    - macos
+    - !reference [.build_macos_template, tags]
     - intel
   cache:
     key: 'build-py39'
 
 build_macos_intel_310:
-  extends: .build_template
+  extends: .build_macos_template
   variables:
     PYTHON_VERSION: "3.10"
   tags:
-    - bob
-    - macos
+    - !reference [.build_macos_template, tags]
     - intel
   cache:
     key: 'build-py310'
 
 build_macos_arm_39:
-  extends: .build_template
+  extends: .build_macos_template
   variables:
     PYTHON_VERSION: "3.9"
   tags:
-    - bob
-    - macos
+    - !reference [.build_macos_template, tags]
     - arm
   cache:
     key: 'build-py39'
 
 build_macos_arm_310:
-  extends: .build_template
+  extends: .build_macos_template
   variables:
     PYTHON_VERSION: "3.10"
   tags:
-    - bob
-    - macos
+    - !reference [.build_macos_template, tags]
     - arm
   cache:
     key: 'build-py310'
-
 
 # Periodic cleanup of beta packages
 .cleanup_template:
