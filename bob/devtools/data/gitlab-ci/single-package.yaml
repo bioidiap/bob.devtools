@@ -26,7 +26,7 @@ stages:
     # for conda inspect during builds (on macos)
     - conda activate base
     - echo "CI_RUNNER_TAGS = '${CI_RUNNER_TAGS}'"
-    - if [[ "$CI_RUNNER_TAGS" =~ bob.*docker\|docker.*bob ]]; then echo "YES!!"; git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
+    - if [[ "$CI_RUNNER_TAGS" =~ ^.*bob.*docker\|docker.*bob.*$ ]]; then echo "YES!!"; git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
     - bdt ci check -vv
   cache:
     paths:
