@@ -25,9 +25,6 @@ stages:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     # for conda inspect during builds (on macos)
     - conda activate base
-    - echo "CI_RUNNER_TAGS = '${CI_RUNNER_TAGS}'"
-    - if [[ "$CI_RUNNER_TAGS" =~ ^.*bob.*docker\|docker.*bob.*$ ]]; then echo "YES!!"; git config --global --add safe.directory ${CI_PROJECT_DIR}; fi
-    - bdt ci check -vv
   cache:
     paths:
       - miniconda.sh
@@ -61,6 +58,10 @@ stages:
   # make sure we use the same image as conda-forge:
   # https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/main/recipe/conda_build_config.yaml
   image: quay.io/condaforge/linux-anvil-cos7-x86_64
+  before_script:
+    - !reference [.bootstrap, before_script]
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
+    - bdt ci check -vv
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.conda
@@ -76,6 +77,9 @@ stages:
     - bob
     - macos
     - intel
+  before_script:
+    - !reference [.bootstrap, before_script]
+    - bdt ci check -vv
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-64/*.conda
@@ -88,6 +92,9 @@ stages:
     - bob
     - macos
     - arm
+  before_script:
+    - !reference [.bootstrap, before_script]
+    - bdt ci check -vv
   artifacts:
     paths:
       - ${CONDA_ROOT}/conda-bld/osx-arm64/*.conda
