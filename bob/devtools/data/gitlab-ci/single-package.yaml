@@ -23,8 +23,8 @@ stages:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py -vv channel base
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    # for conda inspect during builds (on macos)
     - conda activate base
+    - conda clean --all
   cache:
     paths:
       - miniconda.sh
