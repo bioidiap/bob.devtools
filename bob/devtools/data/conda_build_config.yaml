@@ -410,6 +410,8 @@ numpy:
   - "1.22.4"
 opencv:
   - "4.6.0"
+openpyxl:
+  - "3.0.10"
 pandas:
   - "1.5.0"
 pillow:
@@ -451,6 +453,8 @@ scipy:
   - "1.9.1"
 setuptools:
   - "65.3.0"
+shap:
+  - "0.41.0"
 simplejson:
   - "3.17.6"
 six:
