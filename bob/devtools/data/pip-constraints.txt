@@ -186,6 +186,7 @@ oauthlib==3.2.1
 opencv==4.6.0
 openh264==2.3.0
 openjpeg==2.5.0
+openpyxl==3.0.10
 openssl==1.1.1q
 opt_einsum==3.3.0
 p11-kit==0.24.1
@@ -242,6 +243,7 @@ scikit-image==0.19.3
 scikit-learn==1.1.2
 scipy==1.9.1
 setuptools==65.3.0
+shap==0.41.0
 simplejson==3.17.6
 six==1.16.0
 sleef==3.5.1
