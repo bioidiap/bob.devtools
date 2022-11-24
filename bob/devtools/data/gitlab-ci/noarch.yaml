@@ -148,6 +148,7 @@ build_macos_arm:
   extends: .bootstrap
   stage: deploy
   script:
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - bdt ci deploy -vv
     - bdt ci clean -vv
   dependencies:
