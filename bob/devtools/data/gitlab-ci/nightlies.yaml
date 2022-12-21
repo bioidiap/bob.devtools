@@ -80,7 +80,8 @@ build_macos_intel_39:
   variables:
     PYTHON_VERSION: "3.9"
   tags:
-    - !reference [.build_macos_template, tags]
+    - bob
+    - macos
     - intel
   cache:
     key: 'build-py39'
@@ -90,7 +91,8 @@ build_macos_intel_310:
   variables:
     PYTHON_VERSION: "3.10"
   tags:
-    - !reference [.build_macos_template, tags]
+    - bob
+    - macos
     - intel
   cache:
     key: 'build-py310'
@@ -100,7 +102,8 @@ build_macos_arm_39:
   variables:
     PYTHON_VERSION: "3.9"
   tags:
-    - !reference [.build_macos_template, tags]
+    - bob
+    - macos
     - arm
   cache:
     key: 'build-py39'
@@ -110,7 +113,8 @@ build_macos_arm_310:
   variables:
     PYTHON_VERSION: "3.10"
   tags:
-    - !reference [.build_macos_template, tags]
+    - bob
+    - macos
     - arm
   cache:
     key: 'build-py310'
