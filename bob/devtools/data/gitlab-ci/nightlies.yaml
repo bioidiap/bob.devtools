@@ -50,16 +50,12 @@ stages:
   before_script:
     - !reference [.bootstrap, before_script]
     - git config --global --add safe.directory ${CI_PROJECT_DIR}
-    - bdt ci check -vv
 
 .build_macos_template:
   extends: .build_template
   tags:
     - bob
     - macos
-  before_script:
-    - !reference [.bootstrap, before_script]
-    - bdt ci check -vv
 
 build_linux_39:
   extends: .build_linux_template
