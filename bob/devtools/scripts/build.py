@@ -247,11 +247,12 @@ def build(
         if not os.path.exists(d):
             raise RuntimeError("The directory %s does not exist" % d)
 
-        # If in docker, install the packages inside the yum_requirements.txt file if it exists
+        # If using RH based image/runner, install the packages inside the
+        # yum_requirements.txt file if it exists
         yum_requirements_file = os.path.join(d, "yum_requirements.txt")
-        if "docker" in os.environ.get("CI_RUNNER_TAGS", "").split(
-            ", "
-        ) and os.path.exists(yum_requirements_file):
+        if os.path.exists("/usr/bin/yum") and os.path.exists(
+            yum_requirements_file
+        ):
             logger.info(
                 "Installing packages from yum_requirements.txt file using yum"
             )
