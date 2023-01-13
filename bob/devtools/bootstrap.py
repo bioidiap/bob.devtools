@@ -215,22 +215,22 @@ def ensure_miniconda_sh():
 
     # WARNING: if you update this version, remember to update hashes below
     # AND our "mirror" in the internal webserver
-    path = "https://github.com/conda-forge/miniforge/releases/download/4.14.0-0/Mambaforge-4.14.0-0-%s-%s.sh"
+    path = "https://github.com/conda-forge/miniforge/releases/download/22.9.0-3/Mambaforge-22.9.0-3-%s-%s.sh"
     if platform.system().lower() == "darwin":  # apple silicon
         system = "MacOSX"
         if platform.machine().lower() == "arm64":
-            sha256 = "35d05a65e19b8e5d596964936ddd6023ae66d664a25ba291a52fec18f06a73b6"
+            sha256 = "eebe06970fec4cb1445bba106e65f57084b753d39766bf213edf4e02b14e27c1"
             machine = "arm64"
         else:  # intel
-            sha256 = "949f046b4404cc8e081807b048050e6642d8db5520c20d5158a7ef721fbf76c5"
+            sha256 = "a3ccaf7b93b6f99bc2018f2a6f3cd95489940731f11fb9bf6adf1a44a7ba4e17"
             machine = "x86_64"
     else:
         system = "Linux"
         if platform.machine().lower() == "aarch64":  # raspberry pi
-            sha256 = "37221b8d818951fab125c0bfb6cc6e83dac059f66892d2544a83192828d8e2c4"
+            sha256 = "bd9694b1558f4ee6c4eef081cefc57dbb32ceb6406e497018f0c7d2dab5b61dd"
             machine = "aarch64"
         else:  # intel
-            sha256 = "d47b78b593e3cf5513bafbfa6a51eafcd9f0e164c41c79c790061bb583c82859"
+            sha256 = "29f6374464307732c2c9d6711cdbca4d685c632f31e8bf1a5565276c65e0069b"
             machine = "x86_64"
     path = path % (system, machine)
 
@@ -526,10 +526,10 @@ if __name__ == "__main__":
             )
 
     # These are the same versions as in bob.devtools/conda/meta.yaml
-    conda_version = "4"
+    conda_version = "22"
     conda_build_version = "3"
-    mamba_version = "0.25"
-    boa_version = "0.11"
+    mamba_version = "1"
+    boa_version = "0.14"
 
     conda_verbosity = []
     # if args.verbose >= 2:

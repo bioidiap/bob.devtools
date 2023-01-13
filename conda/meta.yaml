@@ -33,10 +33,10 @@ requirements:
     - click-plugins
     # conda, conda-build, mamba, boa versions below are the same versions as in
     # bob.devtools/bob/devtools/bootstrap.py
-    - conda=4
+    - conda=22
     - conda-build=3
-    - mamba=0.25
-    - boa=0.11
+    - mamba=1
+    - boa=0.14
     - certifi
     - docformatter
     - git  # [linux]
